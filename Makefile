@@ -62,7 +62,10 @@ CMD_DIR := ./cmd
 
 # Project output directory.
 OUTPUT_DIR := ./bin
+<<<<<<< HEAD
 DEBUG_DIR := ./debug-bin
+=======
+>>>>>>> feat: Add basic commands
 
 # Build direcotory.
 BUILD_DIR := ./build
