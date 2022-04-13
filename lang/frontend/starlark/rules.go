@@ -12,26 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package starlark
 
-import (
-	"github.com/tensorchord/MIDI/lang/frontend/starlark"
-	cli "github.com/urfave/cli/v2"
+const (
+	ruleBase = "base"
 )
-
-var CommandUp = &cli.Command{
-	Name:    "up",
-	Aliases: []string{"u"},
-	Usage:   "build and run MIDI environment",
-	UsageText: `TODO
-	`,
-	Action: actionUp,
-}
-
-func actionUp(clicontext *cli.Context) error {
-	interpreter := starlark.NewInterpreter()
-	if _, err := interpreter.Eval("midi.base(\"ubuntu\", \"go\")"); err != nil {
-		return err
-	}
-	return nil
-}

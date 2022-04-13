@@ -94,7 +94,11 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
+<<<<<<< HEAD
 .PHONY: lint test build container push addlicense debug debug-local build-local
+=======
+.PHONY: lint test build container push addlicense
+>>>>>>> feat(lang): Support fronend basic rules
 
 build: build-local
 

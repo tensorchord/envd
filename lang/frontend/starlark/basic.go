@@ -15,51 +15,26 @@
 package starlark
 
 import (
-	"math"
-
+	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 )
 
 var Module = &starlarkstruct.Module{
-	Name: "math",
+	Name: "midi",
 	Members: starlark.StringDict{
-		"ceil":      starlark.NewBuiltin("ceil", ceil),
-		"copysign":  newBinaryBuiltin("copysign", math.Copysign),
-		"fabs":      newUnaryBuiltin("fabs", math.Abs),
-		"floor":     starlark.NewBuiltin("floor", floor),
-		"mod":       newBinaryBuiltin("round", math.Mod),
-		"pow":       newBinaryBuiltin("pow", math.Pow),
-		"remainder": newBinaryBuiltin("remainder", math.Remainder),
-		"round":     newUnaryBuiltin("round", math.Round),
-
-		"exp":  newUnaryBuiltin("exp", math.Exp),
-		"sqrt": newUnaryBuiltin("sqrt", math.Sqrt),
-
-		"acos":  newUnaryBuiltin("acos", math.Acos),
-		"asin":  newUnaryBuiltin("asin", math.Asin),
-		"atan":  newUnaryBuiltin("atan", math.Atan),
-		"atan2": newBinaryBuiltin("atan2", math.Atan2),
-		"cos":   newUnaryBuiltin("cos", math.Cos),
-		"hypot": newBinaryBuiltin("hypot", math.Hypot),
-		"sin":   newUnaryBuiltin("sin", math.Sin),
-		"tan":   newUnaryBuiltin("tan", math.Tan),
-
-		"degrees": newUnaryBuiltin("degrees", degrees),
-		"radians": newUnaryBuiltin("radians", radians),
-
-		"acosh": newUnaryBuiltin("acosh", math.Acosh),
-		"asinh": newUnaryBuiltin("asinh", math.Asinh),
-		"atanh": newUnaryBuiltin("atanh", math.Atanh),
-		"cosh":  newUnaryBuiltin("cosh", math.Cosh),
-		"sinh":  newUnaryBuiltin("sinh", math.Sinh),
-		"tanh":  newUnaryBuiltin("tanh", math.Tanh),
-
-		"log": starlark.NewBuiltin("log", log),
-
-		"gamma": newUnaryBuiltin("gamma", math.Gamma),
-
-		"e":  starlark.Float(math.E),
-		"pi": starlark.Float(math.Pi),
+		ruleBase: starlark.NewBuiltin(ruleBase, ruleFuncBase),
 	},
+}
+
+func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var os, language starlark.Value
+
+	if err := starlark.UnpackPositionalArgs(ruleBase, args, kwargs, 2, &os, &language); err != nil {
+		return nil, err
+	}
+
+	logrus.Debugf("rule `base` is invoked, os=%s, language=%s", os.String(), language.String())
+
+	return starlark.None, nil
 }
