@@ -15,8 +15,12 @@
 package main
 
 import (
-	"github.com/tensorchord/MIDI/lang/frontend/starlark"
+	"github.com/moby/buildkit/frontend/gateway/grpcclient"
+	"github.com/moby/buildkit/util/appcontext"
 	cli "github.com/urfave/cli/v2"
+
+	"github.com/tensorchord/MIDI/lang/frontend/starlark"
+	"github.com/tensorchord/MIDI/lang/llb"
 )
 
 var CommandUp = &cli.Command{
@@ -31,6 +35,9 @@ var CommandUp = &cli.Command{
 func actionUp(clicontext *cli.Context) error {
 	interpreter := starlark.NewInterpreter()
 	if _, err := interpreter.Eval("midi.base(\"ubuntu\", \"go\")"); err != nil {
+		return err
+	}
+	if err := grpcclient.RunFromEnvironment(appcontext.Context(), llb.Build); err != nil {
 		return err
 	}
 	return nil

@@ -19,8 +19,9 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/MIDI/version"
 	cli "github.com/urfave/cli/v2"
+
+	"github.com/tensorchord/MIDI/version"
 )
 
 func main() {
