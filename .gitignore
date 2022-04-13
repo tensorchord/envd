@@ -20,6 +20,13 @@ vendor/
 # Go workspace file
 go.work
 
-.vscode/
+.vscode/*
 
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+__debug_bin
 bin/
