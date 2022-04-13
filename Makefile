@@ -90,7 +90,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: lint test build container push license
+.PHONY: lint test build container push addlicense
 
 build: build-local
 
@@ -107,6 +107,9 @@ build-local:
 	    -ldflags "-s -w -X $(ROOT)/pkg/version.Version=$(VERSION)"                     \
 	    $(CMD_DIR)/$${target};                                                         \
 	done
+
+addlicense:
+	addlicense -c "The MIDI Authors" **/*.go
 
 .PHONY: clean
 clean:
