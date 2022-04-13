@@ -15,12 +15,14 @@
 package main
 
 import (
-	"github.com/moby/buildkit/frontend/gateway/grpcclient"
-	"github.com/moby/buildkit/util/appcontext"
+	"github.com/moby/buildkit/client"
+	"github.com/moby/buildkit/client/llb"
+	"github.com/pkg/errors"
 	cli "github.com/urfave/cli/v2"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/tensorchord/MIDI/lang/frontend/starlark"
-	"github.com/tensorchord/MIDI/lang/llb"
+	"github.com/tensorchord/MIDI/lang/ir"
 )
 
 var CommandUp = &cli.Command{
@@ -34,11 +36,31 @@ var CommandUp = &cli.Command{
 
 func actionUp(clicontext *cli.Context) error {
 	interpreter := starlark.NewInterpreter()
-	if _, err := interpreter.Eval("midi.base(\"ubuntu\", \"go\")"); err != nil {
+	// TODO(gaocegege): Remove func call prefix.
+	if _, err := interpreter.Eval(`
+midi.base("alpine3.15", "python")
+`); err != nil {
 		return err
 	}
-	if err := grpcclient.RunFromEnvironment(appcontext.Context(), llb.Build); err != nil {
-		return err
+
+	bkClient, err := client.New(clicontext.Context, "unix:///run/buildkit/buildkitd.sock")
+	if err != nil {
+		return errors.Wrap(err, "Failed to create the buildkit client")
 	}
+
+	def, err := ir.Stmt.Marshal(clicontext.Context, llb.LinuxAmd64)
+	if err != nil {
+		return errors.Wrap(err, "Failed to marshal the stmt")
+	}
+
+	eg, ctx := errgroup.WithContext(clicontext.Context)
+	ch := make(chan *client.SolveStatus)
+	eg.Go(func() error {
+
+		if _, err := bkClient.Solve(ctx, def, client.SolveOpt{}, ch); err != nil {
+			return errors.Wrap(err, "Failed to solve the LLB definition")
+		}
+		return nil
+	})
 	return nil
 }

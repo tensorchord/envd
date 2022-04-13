@@ -16,6 +16,7 @@ package starlark
 
 import (
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/MIDI/lang/ir"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 )
@@ -28,13 +29,14 @@ var Module = &starlarkstruct.Module{
 }
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var os, language starlark.Value
+	var os, language starlark.String
 
 	if err := starlark.UnpackPositionalArgs(ruleBase, args, kwargs, 2, &os, &language); err != nil {
 		return nil, err
 	}
 
-	logrus.Debugf("rule `base` is invoked, os=%s, language=%s", os.String(), language.String())
+	logrus.Debugf("rule `base` is invoked, os=%s, language=%s", os.GoString(), language.GoString())
+	ir.BaseStmt(os.GoString(), language.GoString())
 
 	return starlark.None, nil
 }
