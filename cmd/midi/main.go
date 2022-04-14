@@ -42,7 +42,7 @@ func main() {
 	}
 
 	app.Commands = []*cli.Command{
-		CommandUp,
+		CommandBuild,
 	}
 
 	// Deal with debug flag.

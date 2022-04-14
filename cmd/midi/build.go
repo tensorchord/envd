@@ -18,23 +18,25 @@ import (
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/tensorchord/MIDI/lang/frontend/starlark"
-	"github.com/tensorchord/MIDI/lang/ir"
+	"github.com/tensorchord/MIDI/pkg/buildkit"
+	"github.com/tensorchord/MIDI/pkg/lang/frontend/starlark"
+	"github.com/tensorchord/MIDI/pkg/lang/ir"
 )
 
-var CommandUp = &cli.Command{
-	Name:    "up",
-	Aliases: []string{"u"},
-	Usage:   "build and run MIDI environment",
+var CommandBuild = &cli.Command{
+	Name:    "build",
+	Aliases: []string{"b"},
+	Usage:   "build MIDI environment",
 	UsageText: `TODO
 	`,
-	Action: actionUp,
+	Action: actionBuild,
 }
 
-func actionUp(clicontext *cli.Context) error {
+func actionBuild(clicontext *cli.Context) error {
 	interpreter := starlark.NewInterpreter()
 	// TODO(gaocegege): Remove func call prefix.
 	if _, err := interpreter.Eval(`
@@ -45,22 +47,41 @@ midi.base("alpine3.15", "python")
 
 	bkClient, err := client.New(clicontext.Context, "unix:///run/buildkit/buildkitd.sock")
 	if err != nil {
-		return errors.Wrap(err, "Failed to create the buildkit client")
+		return errors.Wrap(err, "failed to new buildkitd client")
 	}
 
 	def, err := ir.Stmt.Marshal(clicontext.Context, llb.LinuxAmd64)
 	if err != nil {
-		return errors.Wrap(err, "Failed to marshal the stmt")
+		return errors.Wrap(err, "failed to marshal LLB")
 	}
 
 	eg, ctx := errgroup.WithContext(clicontext.Context)
 	ch := make(chan *client.SolveStatus)
 	eg.Go(func() error {
-
-		if _, err := bkClient.Solve(ctx, def, client.SolveOpt{}, ch); err != nil {
-			return errors.Wrap(err, "Failed to solve the LLB definition")
+		if _, err := bkClient.Solve(ctx, def, client.SolveOpt{
+			Exports: []client.ExportEntry{
+				{
+					Type: client.ExporterImage,
+					Attrs: map[string]string{
+						"image.name": "docker.io/username/image",
+					},
+				},
+			},
+		}, ch); err != nil {
+			return errors.Wrap(err, "failed to solve LLB")
 		}
+		logrus.Debug("LLB Def is solved successfully")
 		return nil
 	})
+
+	eg.Go(func() error {
+		monitor := buildkit.NewMonitor()
+		return monitor.Monitor(ctx, ch)
+	})
+
+	err = eg.Wait()
+	if err != nil {
+		return errors.Wrap(err, "failed to wait error group")
+	}
 	return nil
 }

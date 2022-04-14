@@ -16,7 +16,7 @@ package starlark
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/MIDI/lang/ir"
+	"github.com/tensorchord/MIDI/pkg/lang/ir"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 )
