@@ -38,10 +38,7 @@ var CommandBuild = &cli.Command{
 
 func actionBuild(clicontext *cli.Context) error {
 	interpreter := starlark.NewInterpreter()
-	// TODO(gaocegege): Remove func call prefix.
-	if _, err := interpreter.Eval(`
-midi.base("alpine3.15", "python")
-`); err != nil {
+	if _, err := interpreter.ExecFile("./examples/basics/os.midi"); err != nil {
 		return err
 	}
 
@@ -63,7 +60,8 @@ midi.base("alpine3.15", "python")
 				{
 					Type: client.ExporterImage,
 					Attrs: map[string]string{
-						"image.name": "docker.io/username/image",
+						"name": "docker.io/username/image",
+						"push": "1",
 					},
 				},
 			},

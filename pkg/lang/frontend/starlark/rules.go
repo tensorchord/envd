@@ -14,6 +14,25 @@
 
 package starlark
 
-const (
-	ruleBase = "base"
+import (
+	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/MIDI/pkg/lang/ir"
+	"go.starlark.net/starlark"
 )
+
+func registerMIDIRules() {
+	starlark.Universe[ruleBase] = starlark.NewBuiltin(ruleBase, ruleFuncBase)
+}
+
+func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var os, language starlark.String
+
+	if err := starlark.UnpackArgs(ruleBase, args, kwargs, "os", &os, "language", &language); err != nil {
+		return nil, err
+	}
+
+	logrus.Debugf("rule `base` is invoked, os=%s, language=%s", os.GoString(), language.GoString())
+	ir.BaseStmt(os.GoString(), language.GoString())
+
+	return starlark.None, nil
+}
