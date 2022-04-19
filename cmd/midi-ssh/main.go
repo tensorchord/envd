@@ -27,7 +27,7 @@ import (
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/MIDI/pkg/remote/ssh"
-	"github.com/tensorchord/MIDI/version"
+	"github.com/tensorchord/MIDI/pkg/version"
 )
 
 const (

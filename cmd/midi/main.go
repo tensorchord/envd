@@ -21,7 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/MIDI/version"
+	"github.com/tensorchord/MIDI/pkg/version"
 )
 
 func main() {

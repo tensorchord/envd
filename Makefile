@@ -26,7 +26,7 @@
 #
 
 # This repo's root import path (under GOPATH).
-ROOT := github.com/tensorchord/midi
+ROOT := github.com/tensorchord/MIDI
 
 # Target binaries. You can build multiple binaries for a single project.
 TARGETS := midi midi-ssh
