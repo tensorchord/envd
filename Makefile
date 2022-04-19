@@ -29,7 +29,7 @@
 ROOT := github.com/tensorchord/midi
 
 # Target binaries. You can build multiple binaries for a single project.
-TARGETS := midi
+TARGETS := midi midi-ssh
 
 # Container image prefix and suffix added to targets.
 # The final built images are:
@@ -62,10 +62,7 @@ CMD_DIR := ./cmd
 
 # Project output directory.
 OUTPUT_DIR := ./bin
-<<<<<<< HEAD
 DEBUG_DIR := ./debug-bin
-=======
->>>>>>> feat: Add basic commands
 
 # Build direcotory.
 BUILD_DIR := ./build
@@ -94,11 +91,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-<<<<<<< HEAD
 .PHONY: lint test build container push addlicense debug debug-local build-local
-=======
-.PHONY: lint test build container push addlicense
->>>>>>> feat(lang): Support fronend basic rules
 
 build: build-local
 
