@@ -103,7 +103,7 @@ $(GOLANGCI_LINT):
 
 build-local:
 	@for target in $(TARGETS); do                                                      \
-	  CGO_ENABLED=$(CGO_ENABLED) go build -v -o $(OUTPUT_DIR)/$${target}               \
+	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath -v -o $(OUTPUT_DIR)/$${target}               \
 	    -ldflags "-s -w -X $(ROOT)/pkg/version.Version=$(VERSION)"                     \
 	    $(CMD_DIR)/$${target};                                                         \
 	done
