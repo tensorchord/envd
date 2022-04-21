@@ -15,6 +15,9 @@
 package main
 
 import (
+	"io"
+	"os"
+
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
@@ -33,6 +36,13 @@ var CommandBuild = &cli.Command{
 	Usage:   "build MIDI environment",
 	UsageText: `TODO
 	`,
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "tag",
+			Usage:   "Name and optionally a tag in the 'name:tag' format",
+			Aliases: []string{"t"},
+		},
+	},
 	Action: actionBuild,
 }
 
@@ -54,14 +64,29 @@ func actionBuild(clicontext *cli.Context) error {
 
 	eg, ctx := errgroup.WithContext(clicontext.Context)
 	ch := make(chan *client.SolveStatus)
+
+	dest := "/tmp/buildkit/test.tar"
+	fi, err := os.Stat(dest)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return errors.Wrapf(err, "invalid destination file: %s", dest)
+	}
+	if err == nil && fi.IsDir() {
+		return errors.Errorf("destination file is a directory")
+	}
+	w, err := os.Create(dest)
+	if err != nil {
+		return err
+	}
 	eg.Go(func() error {
 		if _, err := bkClient.Solve(ctx, def, client.SolveOpt{
 			Exports: []client.ExportEntry{
 				{
-					Type: client.ExporterImage,
+					Type: client.ExporterDocker,
 					Attrs: map[string]string{
-						"name": "docker.io/username/image",
-						"push": "1",
+						"name": clicontext.String("tag"),
+					},
+					Output: func(map[string]string) (io.WriteCloser, error) {
+						return w, nil
 					},
 				},
 			},
