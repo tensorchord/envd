@@ -109,7 +109,7 @@ build-local:
 	done
 
 addlicense:
-	addlicense -c "The MIDI Authors" **/*.go
+	addlicense -c "The MIDI Authors" **/*.go **/**/*.go
 
 .PHONY: clean
 clean:
