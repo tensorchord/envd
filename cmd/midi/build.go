@@ -52,10 +52,11 @@ func actionBuild(clicontext *cli.Context) error {
 		return err
 	}
 
-	bkClient, err := client.New(clicontext.Context, "unix:///run/buildkit/buildkitd.sock")
+	bkClient, err := client.New(clicontext.Context, "unix:///run/buildkit/buildkitd.sock", client.WithFailFast())
 	if err != nil {
 		return errors.Wrap(err, "failed to new buildkitd client")
 	}
+	defer bkClient.Close()
 
 	def, err := ir.Stmt.Marshal(clicontext.Context, llb.LinuxAmd64)
 	if err != nil {
@@ -70,7 +71,8 @@ func actionBuild(clicontext *cli.Context) error {
 	// Create a pipe to load the image into the docker host.
 	pipeR, pipeW := io.Pipe()
 	eg.Go(func() error {
-		if _, err := bkClient.Solve(ctx, def, client.SolveOpt{
+		defer pipeW.Close()
+		_, err := bkClient.Solve(ctx, def, client.SolveOpt{
 			Exports: []client.ExportEntry{
 				{
 					Type: client.ExporterDocker,
@@ -82,7 +84,8 @@ func actionBuild(clicontext *cli.Context) error {
 					},
 				},
 			},
-		}, ch); err != nil {
+		}, ch)
+		if err != nil {
 			err = errors.Wrap(err, "failed to solve LLB")
 			logrus.Error(err)
 			return err
@@ -99,6 +102,7 @@ func actionBuild(clicontext *cli.Context) error {
 
 	// Load the image to docker host.
 	eg.Go(func() error {
+		defer pipeR.Close()
 		dockerClient, err := docker.NewClient()
 		if err != nil {
 			return errors.Wrap(err, "failed to new docker client")
@@ -109,21 +113,25 @@ func actionBuild(clicontext *cli.Context) error {
 			logrus.Error(err)
 			return err
 		}
-		defer pipeR.Close()
 		logrus.Debug("Loaded docker image successfully")
 		return nil
 	})
 
 	go func() {
-                <-ctx.Done()
-                logrus.Debug("cancelling the reader group")
-		// Close read pipe on cancels, otherwise the whole thing hangs.
+		<-ctx.Done()
+		logrus.Debug("cancelling the error group")
+		// Close the pipe on cancels, otherwise the whole thing hangs.
 		pipeR.Close()
+		pipeW.Close()
 	}()
 
 	err = eg.Wait()
 	if err != nil {
-		return errors.Wrap(err, "failed to wait error group")
+		if errors.Is(err, context.Canceled) {
+			return errors.Wrap(err, "build cancelled")
+		} else {
+			return errors.Wrap(err, "failed to wait error group")
+		}
 	}
 	return nil
 }
