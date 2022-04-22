@@ -21,7 +21,6 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
-	"github.com/moby/buildkit/frontend/dockerfile/builder"
 	"github.com/moby/buildkit/util/progress/progresswriter"
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
@@ -114,7 +113,7 @@ func actionBuild(clicontext *cli.Context) error {
 				},
 			},
 			LocalDirs: map[string]string{
-				builder.DefaultLocalNameContext: "/",
+				"context": "/",
 			},
 		}, progresswriter.ResetTime(mw.WithPrefix("", false)).Status())
 		if err != nil {
