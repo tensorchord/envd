@@ -15,12 +15,9 @@
 package main
 
 import (
-<<<<<<< HEAD
 	"context"
 	"io"
 
-=======
->>>>>>> feat: Support LLB and gracefully stop
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
@@ -29,10 +26,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/tensorchord/MIDI/pkg/buildkit"
-<<<<<<< HEAD
 	"github.com/tensorchord/MIDI/pkg/docker"
-=======
->>>>>>> feat: Support LLB and gracefully stop
 	"github.com/tensorchord/MIDI/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/MIDI/pkg/lang/ir"
 )
