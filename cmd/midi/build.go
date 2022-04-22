@@ -42,13 +42,25 @@ var CommandBuild = &cli.Command{
 			Usage:   "Name and optionally a tag in the 'name:tag' format",
 			Aliases: []string{"t"},
 		},
+		&cli.PathFlag{
+			Name:    "file",
+			Usage:   "Name of the build.MIDI (Default is 'PATH/build.MIDI')",
+			Aliases: []string{"f"},
+			Value:   "./build.MIDI",
+		},
 	},
+
 	Action: actionBuild,
 }
 
 func actionBuild(clicontext *cli.Context) error {
+	path := clicontext.Path("file")
+	if path == "" {
+		return errors.New("file does not exist")
+	}
+
 	interpreter := starlark.NewInterpreter()
-	if _, err := interpreter.ExecFile("./examples/basics/os.midi"); err != nil {
+	if _, err := interpreter.ExecFile(path); err != nil {
 		return err
 	}
 
