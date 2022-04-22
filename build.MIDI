@@ -1,4 +1,5 @@
 pip_package(name = [
     "ormb",
     "tensorflow",
+    "jupyter"
 ])
