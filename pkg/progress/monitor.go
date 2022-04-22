@@ -12,16 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ir
+package progress
 
 import (
-	"github.com/moby/buildkit/client/llb"
+	"context"
+
+	"github.com/moby/buildkit/client"
+	"github.com/sirupsen/logrus"
 )
 
-var Stmt llb.State
+type Monitor interface {
+	Monitor(ctx context.Context, ch chan *client.SolveStatus) error
+}
 
-func BaseStmt(os, language string) {
-	// TODO(gaocegege): Support multi os and languages.
-	base := llb.Image("docker.io/library/python:3.8")
-	Stmt = base
+type generalMonitor struct {
+}
+
+func NewMonitor() Monitor {
+	return &generalMonitor{}
+}
+
+func (g generalMonitor) Monitor(ctx context.Context, ch chan *client.SolveStatus) error {
+	for {
+		select {
+		case ss, ok := <-ch:
+			if !ok {
+				return nil
+			}
+			for _, vs := range ss.Statuses {
+				logrus.Debug(vs)
+			}
+		case <-ctx.Done():
+			return nil
+		}
+	}
 }

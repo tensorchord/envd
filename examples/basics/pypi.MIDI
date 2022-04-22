@@ -1,0 +1,4 @@
+base()
+pip_package(name = [
+    "tensorflow"
+])

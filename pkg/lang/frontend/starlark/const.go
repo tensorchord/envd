@@ -15,5 +15,7 @@
 package starlark
 
 const (
-	ruleBase = "base"
+	ruleBase          = "base"
+	ruleSystemPackage = "install_package"
+	rulePyPIPackage   = "pip_package"
 )
