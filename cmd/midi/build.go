@@ -115,11 +115,10 @@ func actionBuild(clicontext *cli.Context) error {
 	})
 
 	go func() {
-		for range ctx.Done() {
-			logrus.Debug("cancelling the reader group")
-			// Close read pipe on cancels, otherwise the whole thing hangs.
-			pipeR.Close()
-		}
+                <-ctx.Done()
+                logrus.Debug("cancelling the reader group")
+		// Close read pipe on cancels, otherwise the whole thing hangs.
+		pipeR.Close()
 	}()
 
 	err = eg.Wait()
