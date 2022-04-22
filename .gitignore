@@ -30,3 +30,4 @@ go.work
 
 __debug_bin
 bin/
+debug-bin/

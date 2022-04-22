@@ -62,6 +62,7 @@ CMD_DIR := ./cmd
 
 # Project output directory.
 OUTPUT_DIR := ./bin
+DEBUG_DIR := ./debug-bin
 
 # Build direcotory.
 BUILD_DIR := ./build
@@ -90,9 +91,11 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: lint test build container push addlicense
+.PHONY: lint test build container push addlicense debug debug-local build-local
 
 build: build-local
+
+debug: debug-local
 
 # more info about `GOGC` env: https://github.com/golangci/golangci-lint#memory-usage-of-golangci-lint
 lint: $(GOLANGCI_LINT)
@@ -103,8 +106,17 @@ $(GOLANGCI_LINT):
 
 build-local:
 	@for target in $(TARGETS); do                                                      \
-	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath -v -o $(OUTPUT_DIR)/$${target}               \
+	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath -v -o $(OUTPUT_DIR)/$${target}     \
 	    -ldflags "-s -w -X $(ROOT)/pkg/version.Version=$(VERSION)"                     \
+	    $(CMD_DIR)/$${target};                                                         \
+	done
+
+# It is used by vscode to attach into the process.
+debug-local:
+	@for target in $(TARGETS); do                                                      \
+	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath                                    \
+	  	-v -o $(DEBUG_DIR)/$${target}                                                  \
+	  	-gcflags='all=-N -l'                                                           \
 	    $(CMD_DIR)/$${target};                                                         \
 	done
 
@@ -114,3 +126,4 @@ addlicense:
 .PHONY: clean
 clean:
 	@-rm -vrf ${OUTPUT_DIR}
+	@-rm -vrf ${DEBUG_DIR}
