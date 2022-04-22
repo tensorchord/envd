@@ -1,5 +1,9 @@
 pip_package(name = [
+    "jupyter",
+])
+pip_package(name = [
     "ormb",
-    "tensorflow",
-    "jupyter"
+])
+install_package(name = [
+    "gcc"
 ])

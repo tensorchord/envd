@@ -23,7 +23,10 @@ import (
 // registerMIDIRules registers built-in MIDI rules into the global namespace.
 func registerMIDIRules() {
 	starlark.Universe[ruleBase] = starlark.NewBuiltin(ruleBase, ruleFuncBase)
-	starlark.Universe[rulePyPIPackage] = starlark.NewBuiltin(rulePyPIPackage, ruleFuncPyPIPackage)
+	starlark.Universe[rulePyPIPackage] = starlark.NewBuiltin(
+		rulePyPIPackage, ruleFuncPyPIPackage)
+	starlark.Universe[ruleSystemPackage] = starlark.NewBuiltin(
+		ruleSystemPackage, ruleFuncSystemPackage)
 }
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
@@ -45,6 +48,27 @@ func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tu
 	logrus.Debugf("rule `%s` is invoked, os=%s, language=%s", ruleBase,
 		osStr, langStr)
 	ir.Base(osStr, langStr)
+
+	return starlark.None, nil
+}
+
+func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var name *starlark.List
+
+	if err := starlark.UnpackArgs(ruleSystemPackage,
+		args, kwargs, "name?", &name); err != nil {
+		return nil, err
+	}
+
+	nameList := []string{}
+	if name != nil {
+		for i := 0; i < name.Len(); i++ {
+			nameList = append(nameList, name.Index(i).(starlark.String).GoString())
+		}
+	}
+
+	logrus.Debugf("rule `%s` is invoked, name=%v", ruleSystemPackage, nameList)
+	ir.SystemPackage(nameList)
 
 	return starlark.None, nil
 }

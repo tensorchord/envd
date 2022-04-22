@@ -40,15 +40,6 @@ func NewGraph() *Graph {
 
 var DefaultGraph = NewGraph()
 
-func Base(os, language string) {
-	DefaultGraph.Language = language
-	DefaultGraph.OS = os
-}
-
-func PyPIPackage(deps []string) {
-	DefaultGraph.PyPIPackages = append(DefaultGraph.PyPIPackages, deps...)
-}
-
 func Compile(ctx context.Context) (*llb.Definition, error) {
 	state := DefaultGraph.Compile()
 	// TODO(gaocegege): Support multi platform.
@@ -62,10 +53,18 @@ func Compile(ctx context.Context) (*llb.Definition, error) {
 func (g Graph) Compile() llb.State {
 	// TODO(gaocegege): Support more OS and langs.
 	base := llb.Image("docker.io/library/python:3.8")
-	return g.compilePyPIPackages(base)
+	system := g.compileSystemPackages(base)
+	pypi := g.compilePyPIPackages(base)
+	merged := llb.Merge([]llb.State{
+		system, pypi,
+	})
+	return merged
 }
 
 func (g Graph) compilePyPIPackages(root llb.State) llb.State {
+	if len(g.PyPIPackages) == 0 {
+		return root
+	}
 	// TODO(gaocegege): Support per-user config to keep the mirror.
 	cmd := "pip install -i https://mirror.sjtu.edu.cn/pypi/web/simple"
 	cacheDir := "/root/.cache/pip"
@@ -75,5 +74,24 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	run := root.Run(llb.Shlex(cmd))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
+	return run.Root()
+}
+
+func (g Graph) compileSystemPackages(root llb.State) llb.State {
+	if len(g.PyPIPackages) == 0 {
+		return root
+	}
+	// TODO(gaocegege): Support per-user config to keep the mirror.
+	cmd := "apt install"
+	cacheDir := "/var/cache/apt"
+	cacheLibDir := "/var/lib/apt"
+	for _, pkg := range g.SystemPackages {
+		cmd = cmd + " " + pkg
+	}
+	run := root.Run(llb.Shlex(cmd))
+	run.AddMount(cacheDir, llb.Scratch(),
+		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
+	run.AddMount(cacheLibDir, llb.Scratch(),
+		llb.AsPersistentCacheDir("/"+cacheLibDir, llb.CacheMountShared))
 	return run.Root()
 }
