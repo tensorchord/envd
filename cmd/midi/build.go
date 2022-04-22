@@ -15,8 +15,8 @@
 package main
 
 import (
+	"context"
 	"io"
-	"os"
 
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
@@ -26,16 +26,16 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/tensorchord/MIDI/pkg/buildkit"
+	"github.com/tensorchord/MIDI/pkg/docker"
 	"github.com/tensorchord/MIDI/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/MIDI/pkg/lang/ir"
 )
 
 var CommandBuild = &cli.Command{
-	Name:    "build",
-	Aliases: []string{"b"},
-	Usage:   "build MIDI environment",
-	UsageText: `TODO
-	`,
+	Name:      "build",
+	Aliases:   []string{"b"},
+	Usage:     "build MIDI environment",
+	UsageText: `TODO`,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "tag",
@@ -52,33 +52,27 @@ func actionBuild(clicontext *cli.Context) error {
 		return err
 	}
 
-	bkClient, err := client.New(clicontext.Context, "unix:///run/buildkit/buildkitd.sock")
+	bkClient, err := client.New(clicontext.Context, "unix:///run/buildkit/buildkitd.sock", client.WithFailFast())
 	if err != nil {
 		return errors.Wrap(err, "failed to new buildkitd client")
 	}
+	defer bkClient.Close()
 
 	def, err := ir.Stmt.Marshal(clicontext.Context, llb.LinuxAmd64)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal LLB")
 	}
 
-	eg, ctx := errgroup.WithContext(clicontext.Context)
+	ctx, cancel := context.WithCancel(clicontext.Context)
+	defer cancel()
+	eg, ctx := errgroup.WithContext(ctx)
 	ch := make(chan *client.SolveStatus)
 
-	dest := "/tmp/buildkit/test.tar"
-	fi, err := os.Stat(dest)
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return errors.Wrapf(err, "invalid destination file: %s", dest)
-	}
-	if err == nil && fi.IsDir() {
-		return errors.Errorf("destination file is a directory")
-	}
-	w, err := os.Create(dest)
-	if err != nil {
-		return err
-	}
+	// Create a pipe to load the image into the docker host.
+	pipeR, pipeW := io.Pipe()
 	eg.Go(func() error {
-		if _, err := bkClient.Solve(ctx, def, client.SolveOpt{
+		defer pipeW.Close()
+		_, err := bkClient.Solve(ctx, def, client.SolveOpt{
 			Exports: []client.ExportEntry{
 				{
 					Type: client.ExporterDocker,
@@ -86,25 +80,58 @@ func actionBuild(clicontext *cli.Context) error {
 						"name": clicontext.String("tag"),
 					},
 					Output: func(map[string]string) (io.WriteCloser, error) {
-						return w, nil
+						return pipeW, nil
 					},
 				},
 			},
-		}, ch); err != nil {
-			return errors.Wrap(err, "failed to solve LLB")
+		}, ch)
+		if err != nil {
+			err = errors.Wrap(err, "failed to solve LLB")
+			logrus.Error(err)
+			return err
 		}
 		logrus.Debug("LLB Def is solved successfully")
 		return nil
 	})
 
+	// Watch the progress.
 	eg.Go(func() error {
 		monitor := buildkit.NewMonitor()
 		return monitor.Monitor(ctx, ch)
 	})
 
+	// Load the image to docker host.
+	eg.Go(func() error {
+		defer pipeR.Close()
+		dockerClient, err := docker.NewClient()
+		if err != nil {
+			return errors.Wrap(err, "failed to new docker client")
+		}
+		logrus.Debug("Loading image to docker host")
+		if err := dockerClient.Load(ctx, pipeR, false); err != nil {
+			err = errors.Wrap(err, "failed to load docker image")
+			logrus.Error(err)
+			return err
+		}
+		logrus.Debug("Loaded docker image successfully")
+		return nil
+	})
+
+	go func() {
+		<-ctx.Done()
+		logrus.Debug("cancelling the error group")
+		// Close the pipe on cancels, otherwise the whole thing hangs.
+		pipeR.Close()
+		pipeW.Close()
+	}()
+
 	err = eg.Wait()
 	if err != nil {
-		return errors.Wrap(err, "failed to wait error group")
+		if errors.Is(err, context.Canceled) {
+			return errors.Wrap(err, "build cancelled")
+		} else {
+			return errors.Wrap(err, "failed to wait error group")
+		}
 	}
 	return nil
 }
