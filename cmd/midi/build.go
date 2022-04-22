@@ -17,8 +17,10 @@ package main
 import (
 	"context"
 	"io"
+	"os"
 
 	"github.com/moby/buildkit/client"
+	"github.com/moby/buildkit/util/progress/progresswriter"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
@@ -77,11 +79,26 @@ func actionBuild(clicontext *cli.Context) error {
 	ctx, cancel := context.WithCancel(clicontext.Context)
 	defer cancel()
 	eg, ctx := errgroup.WithContext(ctx)
-	ch := make(chan *client.SolveStatus)
+	// ch := make(chan *client.SolveStatus)
+
+	pw, err := progresswriter.NewPrinter(context.TODO(), os.Stderr, clicontext.String("progress"))
+	if err != nil {
+		return err
+	}
+	mw := progresswriter.NewMultiWriter(pw)
+
+	var writers []progresswriter.Writer
+	w := mw.WithPrefix("", false)
+	writers = append(writers, w)
 
 	// Create a pipe to load the image into the docker host.
 	pipeR, pipeW := io.Pipe()
 	eg.Go(func() error {
+		defer func() {
+			for _, w := range writers {
+				close(w.Status())
+			}
+		}()
 		defer pipeW.Close()
 		_, err := bkClient.Solve(ctx, def, client.SolveOpt{
 			Exports: []client.ExportEntry{
@@ -95,7 +112,7 @@ func actionBuild(clicontext *cli.Context) error {
 					},
 				},
 			},
-		}, ch)
+		}, progresswriter.ResetTime(mw.WithPrefix("", false)).Status())
 		if err != nil {
 			err = errors.Wrap(err, "failed to solve LLB")
 			logrus.Error(err)
@@ -107,8 +124,11 @@ func actionBuild(clicontext *cli.Context) error {
 
 	// Watch the progress.
 	eg.Go(func() error {
-		monitor := progress.NewMonitor()
-		return monitor.Monitor(ctx, ch)
+		// monitor := progress.NewMonitor()
+		// return monitor.Monitor(ctx, ch)
+		// not using shared context to not disrupt display but let is finish reporting errors
+		<-pw.Done()
+		return pw.Err()
 	})
 
 	// Load the image to docker host.
@@ -144,5 +164,7 @@ func actionBuild(clicontext *cli.Context) error {
 			return errors.Wrap(err, "failed to wait error group")
 		}
 	}
+	monitor := progress.NewMonitor()
+	monitor.Success()
 	return nil
 }
