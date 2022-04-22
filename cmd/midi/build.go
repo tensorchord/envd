@@ -19,16 +19,15 @@ import (
 	"io"
 
 	"github.com/moby/buildkit/client"
-	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/tensorchord/MIDI/pkg/buildkit"
 	"github.com/tensorchord/MIDI/pkg/docker"
 	"github.com/tensorchord/MIDI/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/MIDI/pkg/lang/ir"
+	"github.com/tensorchord/MIDI/pkg/progress"
 )
 
 var CommandBuild = &cli.Command{
@@ -70,9 +69,9 @@ func actionBuild(clicontext *cli.Context) error {
 	}
 	defer bkClient.Close()
 
-	def, err := ir.Stmt.Marshal(clicontext.Context, llb.LinuxAmd64)
+	def, err := ir.Compile(clicontext.Context)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal LLB")
+		return errors.Wrap(err, "failed to compile build.MIDI")
 	}
 
 	ctx, cancel := context.WithCancel(clicontext.Context)
@@ -108,7 +107,7 @@ func actionBuild(clicontext *cli.Context) error {
 
 	// Watch the progress.
 	eg.Go(func() error {
-		monitor := buildkit.NewMonitor()
+		monitor := progress.NewMonitor()
 		return monitor.Monitor(ctx, ch)
 	})
 

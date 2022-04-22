@@ -18,6 +18,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/repl"
 	"go.starlark.net/starlark"
+
+	"github.com/tensorchord/MIDI/pkg/lang/ir"
 )
 
 type Interpreter interface {
@@ -29,6 +31,7 @@ type Interpreter interface {
 // Please refer to https://github.com/google/starlark-go
 type generalInterpreter struct {
 	*starlark.Thread
+	*ir.Graph
 }
 
 func NewInterpreter() Interpreter {
@@ -36,6 +39,7 @@ func NewInterpreter() Interpreter {
 	registerMIDIRules()
 	return &generalInterpreter{
 		Thread: &starlark.Thread{Load: repl.MakeLoad()},
+		Graph:  ir.NewGraph(),
 	}
 }
 

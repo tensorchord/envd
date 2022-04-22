@@ -1,1 +1,4 @@
-base(os="ubuntu", language="python3")
+pip_package(name = [
+    "ormb",
+    "tensorflow",
+])
