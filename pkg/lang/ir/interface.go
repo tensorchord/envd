@@ -12,3 +12,8 @@ func PyPIPackage(deps []string) {
 func SystemPackage(deps []string) {
 	DefaultGraph.SystemPackages = append(DefaultGraph.SystemPackages, deps...)
 }
+
+func CUDA(version, cudnn string) {
+	DefaultGraph.CUDA = &version
+	DefaultGraph.CUDNN = &cudnn
+}

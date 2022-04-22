@@ -1,6 +1,6 @@
 package ir
 
 const (
-	osDefault       = "ubuntu-20.04"
-	languageDefault = "python-3.8"
+	osDefault       = "ubuntu20.04"
+	languageDefault = "python3.8"
 )
