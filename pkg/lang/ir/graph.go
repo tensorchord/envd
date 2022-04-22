@@ -98,8 +98,9 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 }
 
 func (g Graph) copyMidiSSHServer(root llb.State) llb.State {
-	run := root.File(llb.Mkdir("/var/midi/remote/", 0700)).
-		File(llb.Copy(llb.Local("examples/ssh_keypairs"), "public.pub", "/var/midi/remote/authorized_keys")).
-		File(llb.Copy(llb.Local("bin/"), "midi-ssh", "/var/midi/bin/midi-ssh"))
+	run := root.File(llb.Mkdir("/var/midi/remote/", 0700, llb.WithParents(true))).
+		File(llb.Mkdir("/var/midi/bin/", 0700, llb.WithParents(true))).
+		File(llb.Copy(llb.Local("context"), "examples/ssh_keypairs/public.pub", "/var/midi/remote/authorized_keys")).
+		File(llb.Copy(llb.Local("context"), "bin/midi-ssh", "/var/midi/bin/midi-ssh"))
 	return run
 }

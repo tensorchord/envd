@@ -113,7 +113,8 @@ func actionBuild(clicontext *cli.Context) error {
 				},
 			},
 			LocalDirs: map[string]string{
-				"context": "/",
+				// TODO: how to properly select build context?
+				"context": "/home/ubuntu/workspace/MIDI/",
 			},
 		}, progresswriter.ResetTime(mw.WithPrefix("", false)).Status())
 		if err != nil {
