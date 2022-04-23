@@ -21,8 +21,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/cockroachdb/errors"
 	rawssh "github.com/gliderlabs/ssh"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 

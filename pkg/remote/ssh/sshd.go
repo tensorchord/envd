@@ -28,10 +28,10 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/cockroachdb/errors"
 	"github.com/creack/pty"
 	"github.com/gliderlabs/ssh"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/pkg/sftp"
 	"github.com/sirupsen/logrus"
 )
