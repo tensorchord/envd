@@ -18,6 +18,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
@@ -100,6 +101,11 @@ func actionBuild(clicontext *cli.Context) error {
 			}
 		}()
 		defer pipeW.Close()
+		wd, err_wd := os.Getwd()
+		if err_wd != nil {
+			panic(err_wd)
+		}
+		parent := filepath.Dir(wd)
 		_, err := bkClient.Solve(ctx, def, client.SolveOpt{
 			Exports: []client.ExportEntry{
 				{
@@ -114,7 +120,7 @@ func actionBuild(clicontext *cli.Context) error {
 			},
 			LocalDirs: map[string]string{
 				// TODO: how to properly select build context?
-				"context": "/home/ubuntu/workspace/MIDI/",
+				"context": parent,
 			},
 		}, progresswriter.ResetTime(mw.WithPrefix("", false)).Status())
 		if err != nil {
