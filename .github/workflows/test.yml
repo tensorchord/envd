@@ -1,4 +1,4 @@
-name: Go Test
+name: Continuous Integration
 
 on:
   - push
@@ -27,11 +27,11 @@ jobs:
 
       - name: Check Go modules
         run: |
-          go mod tidy && git add go.*
+          -compat=1.17 && git add go.*
           git diff --cached --exit-code || (echo 'Please run "go mod tidy" to sync Go modules' && exit 1);
       - name: Check license
         run: |
-          make addlicense
+          make addlicense && git add .
           git diff --cached --exit-code || (echo 'Please run "go mod tidy" to sync Go modules' && exit 1);
       - name: Verify gofmt
         run: |
