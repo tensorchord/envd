@@ -102,8 +102,8 @@ func actionBuild(clicontext *cli.Context) error {
 		}()
 		defer pipeW.Close()
 		wd, err_wd := os.Getwd()
-		if err_wd != nil {
-			panic(err_wd)
+		if err != nil {
+			return err_wd
 		}
 		parent := filepath.Dir(wd)
 		_, err := bkClient.Solve(ctx, def, client.SolveOpt{
