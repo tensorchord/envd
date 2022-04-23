@@ -102,7 +102,7 @@ func actionBuild(clicontext *cli.Context) error {
 		}()
 		defer pipeW.Close()
 		wd, err_wd := os.Getwd()
-		if err != nil {
+		if err_wd != nil {
 			return err_wd
 		}
 		parent := filepath.Dir(wd)
