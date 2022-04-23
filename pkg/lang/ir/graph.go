@@ -17,6 +17,7 @@ package ir
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/moby/buildkit/client/llb"
 )
@@ -134,13 +135,18 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	if len(g.PyPIPackages) == 0 {
 		return root
 	}
+
+	// Compose the package install command.
+	var sb strings.Builder
 	// TODO(gaocegege): Support per-user config to keep the mirror.
-	cmd := "pip install -i https://mirror.sjtu.edu.cn/pypi/web/simple"
-	cacheDir := "/root/.cache/pip"
+	sb.WriteString("pip install -i https://mirror.sjtu.edu.cn/pypi/web/simple")
 	for _, pkg := range g.PyPIPackages {
-		cmd = cmd + " " + pkg
+		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}
-	run := root.Run(llb.Shlex(cmd))
+
+	cacheDir := "/root/.cache/pip"
+
+	run := root.Run(llb.Shlex(sb.String()))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
 	return run.Root()
@@ -150,14 +156,20 @@ func (g Graph) compileBuiltinSystemPackages(root llb.State) llb.State {
 	if len(g.BuiltinSystemPackages) == 0 {
 		return root
 	}
-	cmd := "sh -c \"apt-get update && apt-get install -y --no-install-recommends"
+
+	// Compose the package install command.
+	var sb strings.Builder
+	sb.WriteString(
+		"sh -c \"apt-get update && apt-get install -y --no-install-recommends")
+	for _, pkg := range g.BuiltinSystemPackages {
+		sb.WriteString(fmt.Sprintf(" %s", pkg))
+	}
+	sb.WriteString("\"")
+
 	cacheDir := "/var/cache/apt"
 	cacheLibDir := "/var/lib/apt"
-	for _, pkg := range g.BuiltinSystemPackages {
-		cmd = cmd + " " + pkg
-	}
-	cmd += "\""
-	run := root.Run(llb.Shlex(cmd))
+
+	run := root.Run(llb.Shlex(sb.String()))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
 	run.AddMount(cacheLibDir, llb.Scratch(),
@@ -169,14 +181,20 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	if len(g.SystemPackages) == 0 {
 		return root
 	}
+
+	// Compose the package install command.
+	var sb strings.Builder
 	// TODO(gaocegege): Support per-user config to keep the mirror.
-	cmd := "apt install"
+	sb.WriteString("apt install")
+
+	for _, pkg := range g.SystemPackages {
+		sb.WriteString(fmt.Sprintf(" %s", pkg))
+	}
+
 	cacheDir := "/var/cache/apt"
 	cacheLibDir := "/var/lib/apt"
-	for _, pkg := range g.SystemPackages {
-		cmd = cmd + " " + pkg
-	}
-	run := root.Run(llb.Shlex(cmd))
+
+	run := root.Run(llb.Shlex(sb.String()))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
 	run.AddMount(cacheLibDir, llb.Scratch(),
