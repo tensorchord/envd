@@ -119,7 +119,6 @@ func actionBuild(clicontext *cli.Context) error {
 				},
 			},
 			LocalDirs: map[string]string{
-				// TODO: how to properly select build context?
 				"context": parent,
 			},
 		}, progresswriter.ResetTime(mw.WithPrefix("", false)).Status())
