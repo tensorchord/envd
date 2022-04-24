@@ -28,7 +28,7 @@ type Client interface {
 	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
 	// Start creates the container for the given tag and container name.
-	Start(ctx context.Context, tag, name string) (string, string, error)
+	Start(ctx context.Context, tag, name string, gpuEnabled bool) (string, string, error)
 }
 
 type generalClient struct {
@@ -44,15 +44,27 @@ func NewClient() (Client, error) {
 }
 
 // Start creates the container for the given tag and container name.
-func (g generalClient) Start(ctx context.Context, tag, name string) (string, string, error) {
-	logger := logrus.WithField("tag", tag).WithField("name", name)
-	resp, err := g.ContainerCreate(ctx, &container.Config{
+func (g generalClient) Start(
+	ctx context.Context, tag, name string, gpuEnabled bool) (string, string, error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"tag":       tag,
+		"container": name,
+		"gpu":       gpuEnabled,
+	})
+	config := &container.Config{
 		Image: tag,
 		Entrypoint: []string{
 			"/var/midi/bin/midi-ssh",
 			"--no-auth",
 		},
-	}, nil, nil, nil, name)
+	}
+	hostConfig := &container.HostConfig{}
+	if gpuEnabled {
+		logger.Debug("GPU is enabled.")
+		// enable all gpus with -1
+		hostConfig.DeviceRequests = deviceRequests(-1)
+	}
+	resp, err := g.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
 	if err != nil {
 		return "", "", err
 	}
@@ -83,4 +95,23 @@ func (g generalClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) er
 
 	defer resp.Body.Close()
 	return nil
+}
+
+func deviceRequests(count int) []container.DeviceRequest {
+	return []container.DeviceRequest{
+		{
+			Driver: "nvidia",
+			Capabilities: [][]string{
+				{"gpu"},
+				{"nvidia"},
+				{"compute"},
+				{"compat32"},
+				{"graphics"},
+				{"utility"},
+				{"video"},
+				{"display"},
+			},
+			Count: count,
+		},
+	}
 }

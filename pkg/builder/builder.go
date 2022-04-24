@@ -31,6 +31,7 @@ import (
 
 type Builder interface {
 	Build(ctx context.Context) error
+	GPUEnabled() bool
 }
 
 type generalBuilder struct {
@@ -51,6 +52,12 @@ func New(buildkitdSocket, manifestFilePath, tag string) Builder {
 		tag:          tag,
 		logger:       logrus.WithField("tag", tag),
 	}
+}
+
+// GPUEnabled returns true if cuda is enabled.
+// It
+func (b generalBuilder) GPUEnabled() bool {
+	return ir.GPUEnabled()
 }
 
 func (b generalBuilder) Build(ctx context.Context) error {

@@ -65,12 +65,13 @@ func up(clicontext *cli.Context) error {
 	if err := builder.Build(clicontext.Context); err != nil {
 		return err
 	}
+	gpu := builder.GPUEnabled()
 
 	dockerClient, err := docker.NewClient()
 	if err != nil {
 		return err
 	}
-	containerID, containerIP, err := dockerClient.Start(clicontext.Context, tag, "midi")
+	containerID, containerIP, err := dockerClient.Start(clicontext.Context, tag, "midi", gpu)
 	if err != nil {
 		return err
 	}
