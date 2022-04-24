@@ -27,6 +27,7 @@ func registerMIDIRules() {
 		rulePyPIPackage, ruleFuncPyPIPackage)
 	starlark.Universe[ruleSystemPackage] = starlark.NewBuiltin(
 		ruleSystemPackage, ruleFuncSystemPackage)
+	starlark.Universe[ruleCUDA] = starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA)
 }
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
@@ -90,6 +91,30 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin, args star
 
 	logrus.Debugf("rule `%s` is invoked, name=%v", rulePyPIPackage, nameList)
 	ir.PyPIPackage(nameList)
+
+	return starlark.None, nil
+}
+
+func ruleFuncCUDA(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var version, cudnn starlark.String
+
+	if err := starlark.UnpackArgs(ruleCUDA, args, kwargs,
+		"version?", &version, "cudnn?", &cudnn); err != nil {
+		return nil, err
+	}
+
+	versionStr := ""
+	if version != starlark.String("") {
+		versionStr = version.GoString()
+	}
+	cudnnStr := ""
+	if cudnn != starlark.String("") {
+		cudnnStr = cudnn.GoString()
+	}
+
+	logrus.Debugf("rule `%s` is invoked, version=%s, cudnn=%s", ruleCUDA,
+		versionStr, cudnnStr)
+	ir.CUDA(versionStr, cudnnStr)
 
 	return starlark.None, nil
 }

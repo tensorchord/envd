@@ -18,4 +18,5 @@ const (
 	ruleBase          = "base"
 	ruleSystemPackage = "install_package"
 	rulePyPIPackage   = "pip_package"
+	ruleCUDA          = "cuda"
 )
