@@ -15,22 +15,9 @@
 package main
 
 import (
-	"context"
-	"io"
-	"os"
-	"path/filepath"
-
 	"github.com/cockroachdb/errors"
-	"github.com/moby/buildkit/client"
-	"github.com/moby/buildkit/util/progress/progresswriter"
-	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/MIDI/pkg/builder"
 	cli "github.com/urfave/cli/v2"
-	"golang.org/x/sync/errgroup"
-
-	"github.com/tensorchord/MIDI/pkg/docker"
-	"github.com/tensorchord/MIDI/pkg/lang/frontend/starlark"
-	"github.com/tensorchord/MIDI/pkg/lang/ir"
-	"github.com/tensorchord/MIDI/pkg/progress"
 )
 
 var CommandBuild = &cli.Command{
@@ -43,6 +30,7 @@ var CommandBuild = &cli.Command{
 			Name:    "tag",
 			Usage:   "Name and optionally a tag in the 'name:tag' format",
 			Aliases: []string{"t"},
+			Value:   "midi:dev",
 		},
 		&cli.PathFlag{
 			Name:    "file",
@@ -52,128 +40,18 @@ var CommandBuild = &cli.Command{
 		},
 	},
 
-	Action: actionBuild,
+	Action: build,
 }
 
-func actionBuild(clicontext *cli.Context) error {
+func build(clicontext *cli.Context) error {
 	path := clicontext.Path("file")
 	if path == "" {
 		return errors.New("file does not exist")
 	}
 
-	interpreter := starlark.NewInterpreter()
-	if _, err := interpreter.ExecFile(path); err != nil {
-		return err
-	}
+	tag := clicontext.String("tag")
 
-	bkClient, err := client.New(clicontext.Context, "unix:///run/buildkit/buildkitd.sock", client.WithFailFast())
-	if err != nil {
-		return errors.Wrap(err, "failed to new buildkitd client")
-	}
-	defer bkClient.Close()
-
-	def, err := ir.Compile(clicontext.Context)
-	if err != nil {
-		return errors.Wrap(err, "failed to compile build.MIDI")
-	}
-
-	ctx, cancel := context.WithCancel(clicontext.Context)
-	defer cancel()
-	eg, ctx := errgroup.WithContext(ctx)
-	// ch := make(chan *client.SolveStatus)
-
-	pw, err := progresswriter.NewPrinter(context.TODO(), os.Stderr, clicontext.String("progress"))
-	if err != nil {
-		return err
-	}
-	mw := progresswriter.NewMultiWriter(pw)
-
-	var writers []progresswriter.Writer
-	w := mw.WithPrefix("", false)
-	writers = append(writers, w)
-
-	// Create a pipe to load the image into the docker host.
-	pipeR, pipeW := io.Pipe()
-	eg.Go(func() error {
-		defer func() {
-			for _, w := range writers {
-				close(w.Status())
-			}
-		}()
-		defer pipeW.Close()
-		wd, err_wd := os.Getwd()
-		if err_wd != nil {
-			return err_wd
-		}
-		parent := filepath.Dir(wd)
-		_, err := bkClient.Solve(ctx, def, client.SolveOpt{
-			Exports: []client.ExportEntry{
-				{
-					Type: client.ExporterDocker,
-					Attrs: map[string]string{
-						"name": clicontext.String("tag"),
-					},
-					Output: func(map[string]string) (io.WriteCloser, error) {
-						return pipeW, nil
-					},
-				},
-			},
-			LocalDirs: map[string]string{
-				"context": parent,
-			},
-		}, progresswriter.ResetTime(mw.WithPrefix("", false)).Status())
-		if err != nil {
-			err = errors.Wrap(err, "failed to solve LLB")
-			logrus.Error(err)
-			return err
-		}
-		logrus.Debug("LLB Def is solved successfully")
-		return nil
-	})
-
-	// Watch the progress.
-	eg.Go(func() error {
-		// monitor := progress.NewMonitor()
-		// return monitor.Monitor(ctx, ch)
-		// not using shared context to not disrupt display but let is finish reporting errors
-		<-pw.Done()
-		return pw.Err()
-	})
-
-	// Load the image to docker host.
-	eg.Go(func() error {
-		defer pipeR.Close()
-		dockerClient, err := docker.NewClient()
-		if err != nil {
-			return errors.Wrap(err, "failed to new docker client")
-		}
-		logrus.Debug("Loading image to docker host")
-		if err := dockerClient.Load(ctx, pipeR, false); err != nil {
-			err = errors.Wrap(err, "failed to load docker image")
-			logrus.Error(err)
-			return err
-		}
-		logrus.Debug("Loaded docker image successfully")
-		return nil
-	})
-
-	go func() {
-		<-ctx.Done()
-		logrus.Debug("cancelling the error group")
-		// Close the pipe on cancels, otherwise the whole thing hangs.
-		pipeR.Close()
-		pipeW.Close()
-	}()
-
-	err = eg.Wait()
-	if err != nil {
-		if errors.Is(err, context.Canceled) {
-			return errors.Wrap(err, "build cancelled")
-		} else {
-			return errors.Wrap(err, "failed to wait error group")
-		}
-	}
-	monitor := progress.NewMonitor()
-	monitor.Success()
+	builder := builder.New("unix:///run/buildkit/buildkitd.sock", path, tag)
+	builder.Build(clicontext.Context)
 	return nil
 }
