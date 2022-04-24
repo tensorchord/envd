@@ -53,6 +53,10 @@ func NewGraph() *Graph {
 
 var DefaultGraph = NewGraph()
 
+func GPUEnabled() bool {
+	return DefaultGraph.CUDA != nil
+}
+
 func Compile(ctx context.Context) (*llb.Definition, error) {
 	state := DefaultGraph.Compile()
 	// TODO(gaocegege): Support multi platform.
