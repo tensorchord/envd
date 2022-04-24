@@ -18,11 +18,17 @@ import (
 	"context"
 	"io"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/sirupsen/logrus"
 )
 
 type Client interface {
+	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
+	// Start creates the container for the given tag and container name.
+	Start(ctx context.Context, tag, name string) (string, string, error)
 }
 
 type generalClient struct {
@@ -35,6 +41,36 @@ func NewClient() (Client, error) {
 		return nil, err
 	}
 	return generalClient{cli}, nil
+}
+
+// Start creates the container for the given tag and container name.
+func (g generalClient) Start(ctx context.Context, tag, name string) (string, string, error) {
+	logger := logrus.WithField("tag", tag).WithField("name", name)
+	resp, err := g.ContainerCreate(ctx, &container.Config{
+		Image: tag,
+		Entrypoint: []string{
+			"/var/midi/bin/midi-ssh",
+			"--no-auth",
+		},
+	}, nil, nil, nil, name)
+	if err != nil {
+		return "", "", err
+	}
+
+	for _, w := range resp.Warnings {
+		logger.Warnf("run with warnings: %s", w)
+	}
+
+	if err := g.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		return "", "", err
+	}
+
+	container, err := g.ContainerInspect(ctx, resp.ID)
+	if err != nil {
+		return "", "", err
+	}
+
+	return container.Name, container.NetworkSettings.IPAddress, nil
 }
 
 // Load loads the docker image from the reader into the docker host.

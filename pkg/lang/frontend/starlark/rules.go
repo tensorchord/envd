@@ -20,6 +20,10 @@ import (
 	"go.starlark.net/starlark"
 )
 
+var (
+	logger = logrus.WithField("frontend", "starlark")
+)
+
 // registerMIDIRules registers built-in MIDI rules into the global namespace.
 func registerMIDIRules() {
 	starlark.Universe[ruleBase] = starlark.NewBuiltin(ruleBase, ruleFuncBase)
@@ -46,7 +50,7 @@ func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tu
 		langStr = language.GoString()
 	}
 
-	logrus.Debugf("rule `%s` is invoked, os=%s, language=%s", ruleBase,
+	logger.Debugf("rule `%s` is invoked, os=%s, language=%s", ruleBase,
 		osStr, langStr)
 	ir.Base(osStr, langStr)
 
@@ -68,7 +72,7 @@ func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin, args st
 		}
 	}
 
-	logrus.Debugf("rule `%s` is invoked, name=%v", ruleSystemPackage, nameList)
+	logger.Debugf("rule `%s` is invoked, name=%v", ruleSystemPackage, nameList)
 	ir.SystemPackage(nameList)
 
 	return starlark.None, nil
@@ -89,7 +93,7 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin, args star
 		}
 	}
 
-	logrus.Debugf("rule `%s` is invoked, name=%v", rulePyPIPackage, nameList)
+	logger.Debugf("rule `%s` is invoked, name=%v", rulePyPIPackage, nameList)
 	ir.PyPIPackage(nameList)
 
 	return starlark.None, nil
@@ -112,7 +116,7 @@ func ruleFuncCUDA(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tu
 		cudnnStr = cudnn.GoString()
 	}
 
-	logrus.Debugf("rule `%s` is invoked, version=%s, cudnn=%s", ruleCUDA,
+	logger.Debugf("rule `%s` is invoked, version=%s, cudnn=%s", ruleCUDA,
 		versionStr, cudnnStr)
 	ir.CUDA(versionStr, cudnnStr)
 

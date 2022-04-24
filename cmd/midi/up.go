@@ -16,15 +16,18 @@ package main
 
 import (
 	"github.com/cockroachdb/errors"
+	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/MIDI/pkg/builder"
+	"github.com/tensorchord/MIDI/pkg/docker"
+	"github.com/tensorchord/MIDI/pkg/remote/ssh"
 )
 
-var CommandBuild = &cli.Command{
-	Name:      "build",
+var CommandUp = &cli.Command{
+	Name:      "up",
 	Aliases:   []string{"b"},
-	Usage:     "build MIDI environment",
+	Usage:     "build and run the MIDI environment",
 	UsageText: `TODO`,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
@@ -39,12 +42,18 @@ var CommandBuild = &cli.Command{
 			Aliases: []string{"f"},
 			Value:   "./build.MIDI",
 		},
+		&cli.PathFlag{
+			Name:    "private-key",
+			Usage:   "Path to the private key",
+			Aliases: []string{"k"},
+			Value:   "./examples/ssh_keypairs/key.pem",
+		},
 	},
 
-	Action: build,
+	Action: up,
 }
 
-func build(clicontext *cli.Context) error {
+func up(clicontext *cli.Context) error {
 	path := clicontext.Path("file")
 	if path == "" {
 		return errors.New("file does not exist")
@@ -53,5 +62,27 @@ func build(clicontext *cli.Context) error {
 	tag := clicontext.String("tag")
 
 	builder := builder.New("unix:///run/buildkit/buildkitd.sock", path, tag)
-	return builder.Build(clicontext.Context)
+	if err := builder.Build(clicontext.Context); err != nil {
+		return err
+	}
+
+	dockerClient, err := docker.NewClient()
+	if err != nil {
+		return err
+	}
+	containerID, containerIP, err := dockerClient.Start(clicontext.Context, tag, "midi")
+	if err != nil {
+		return err
+	}
+	logrus.Debugf("container %s is running", containerID)
+
+	sshClient, err := ssh.NewClient(containerIP, "root", 2222, clicontext.Path("private-key"), "")
+	if err != nil {
+		return err
+	}
+	if err := sshClient.Attach(); err != nil {
+		return err
+	}
+
+	return nil
 }

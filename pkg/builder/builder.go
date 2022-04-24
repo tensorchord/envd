@@ -1,3 +1,17 @@
+// Copyright 2022 The MIDI Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package builder
 
 import (
@@ -24,6 +38,8 @@ type generalBuilder struct {
 	manifestFilePath string
 	progressMode     string
 	tag              string
+
+	logger *logrus.Entry
 }
 
 func New(buildkitdSocket, manifestFilePath, tag string) Builder {
@@ -33,6 +49,7 @@ func New(buildkitdSocket, manifestFilePath, tag string) Builder {
 		// TODO(gaocegege): Support other mode?
 		progressMode: "auto",
 		tag:          tag,
+		logger:       logrus.WithField("tag", tag),
 	}
 }
 
@@ -80,7 +97,7 @@ func (b generalBuilder) Build(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		logrus.Debug("building image in ", wd)
+		b.logger.Debug("building image in ", wd)
 		_, err = bkClient.Solve(ctx, def, client.SolveOpt{
 			Exports: []client.ExportEntry{
 				{
@@ -99,10 +116,10 @@ func (b generalBuilder) Build(ctx context.Context) error {
 		}, progresswriter.ResetTime(mw.WithPrefix("", false)).Status())
 		if err != nil {
 			err = errors.Wrap(err, "failed to solve LLB")
-			logrus.Error(err)
+			b.logger.Error(err)
 			return err
 		}
-		logrus.Debug("llb def is solved successfully")
+		b.logger.Debug("llb def is solved successfully")
 		return nil
 	})
 
@@ -122,27 +139,22 @@ func (b generalBuilder) Build(ctx context.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to new docker client")
 		}
-		logrus.Debug("loading image to docker host")
-		if err := dockerClient.Load(ctx, pipeR, false); err != nil {
+		b.logger.Debug("loading image to docker host")
+		if err := dockerClient.Load(ctx, pipeR, true); err != nil {
 			err = errors.Wrap(err, "failed to load docker image")
-			logrus.Error(err)
+			b.logger.Error(err)
 			return err
 		}
-		logrus.Debug("loaded docker image successfully")
+		b.logger.Debug("loaded docker image successfully")
 		return nil
 	})
-
-	go func() {
-		<-ctx.Done()
-		logrus.Debug("cancelling the error group")
-		// Close the pipe on cancels, otherwise the whole thing hangs.
-		pipeR.Close()
-		pipeW.Close()
-	}()
 
 	err = eg.Wait()
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
+			b.logger.Debug("cancelling the error group")
+			// Close the pipe on cancels, otherwise the whole thing hangs.
+			pipeR.Close()
 			return errors.Wrap(err, "build cancelled")
 		} else {
 			return errors.Wrap(err, "failed to wait error group")
