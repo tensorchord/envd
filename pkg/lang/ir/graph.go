@@ -66,11 +66,11 @@ func Compile(ctx context.Context) (*llb.Definition, error) {
 func (g Graph) Compile() llb.State {
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
-	system := g.compileSystemPackages(base)
-	pypi := g.compilePyPIPackages(base)
-	ssh_stage := g.copyMidiSSHServer(base)
+	systemStage := g.compileSystemPackages(base)
+	pypiStage := g.compilePyPIPackages(base)
+	sshStage := g.copyMidiSSHServer(base)
 	merged := llb.Merge([]llb.State{
-		system, pypi, ssh_stage,
+		systemStage, pypiStage, sshStage,
 	})
 	return merged
 }
