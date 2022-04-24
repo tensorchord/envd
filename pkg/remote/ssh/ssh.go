@@ -165,8 +165,7 @@ func (c generalClient) Attach() error {
 		return nil
 	}
 	if strings.Contains(err.Error(), "exit code 137") || strings.Contains(err.Error(), "exit status 137") {
-		logrus.Warn(`Insufficient memory. Please update your resources on your okteto manifest.
-More information is available here: https://okteto.com/docs/reference/manifest/#resources-object-optional`)
+		logrus.Warn(`Insufficient memory.`)
 	}
 
 	logrus.Debugf("command failed: %s", err)
@@ -183,7 +182,6 @@ func isTerminal(r io.Reader) (int, bool) {
 }
 
 func signerFromPem(pemBytes []byte, password []byte) (ssh.Signer, error) {
-
 	// read pem block
 	err := errors.New("Pem decode failed, no key found")
 	pemBlock, _ := pem.Decode(pemBytes)
