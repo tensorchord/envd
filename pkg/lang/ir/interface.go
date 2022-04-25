@@ -1,6 +1,8 @@
 package ir
 
 import (
+	"errors"
+
 	"github.com/tensorchord/MIDI/pkg/vscode"
 )
 
@@ -30,5 +32,17 @@ func VSCodePlugins(plugins []string) error {
 		}
 		DefaultGraph.VSCodePlugins = append(DefaultGraph.VSCodePlugins, plugin)
 	}
+	return nil
+}
+
+func UbuntuAPT(mode, source string) error {
+	if source == "" {
+		if mode == ubuntuAPTModeAuto {
+			return errors.New("auto-mode not implemented")
+		}
+		return errors.New("source is required")
+	}
+
+	DefaultGraph.UbuntuAPTSource = &source
 	return nil
 }

@@ -17,10 +17,12 @@ package ir
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/MIDI/pkg/flag"
 	"github.com/tensorchord/MIDI/pkg/vscode"
 )
@@ -64,17 +66,22 @@ func Compile(ctx context.Context) (*llb.Definition, error) {
 func (g Graph) Compile() (llb.State, error) {
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
-	builtinSystemStage := g.compileBuiltinSystemPackages(base)
-	pypiStage := llb.Diff(base, g.compilePyPIPackages(builtinSystemStage))
+	aptStage := g.compileUbuntuAPT(base)
 
-	systemStage := llb.Diff(base, g.compileSystemPackages(base))
+	builtinSystemStage := g.compileBuiltinSystemPackages(aptStage)
+	pypiStage := llb.Diff(aptStage, g.compilePyPIPackages(builtinSystemStage))
+
+	systemStage := llb.Diff(aptStage, g.compileSystemPackages(aptStage))
+
 	sshStage := g.copyMidiSSHServer()
+
 	vscodeStage, err := g.compileVSCode()
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
 	}
+
 	merged := llb.Merge([]llb.State{
-		base, systemStage, pypiStage, sshStage, vscodeStage,
+		aptStage, systemStage, pypiStage, sshStage, vscodeStage,
 	})
 	return merged, nil
 }
@@ -230,4 +237,15 @@ func (g Graph) compileVSCode() (llb.State, error) {
 		inputs = append(inputs, ext)
 	}
 	return llb.Merge(inputs), nil
+}
+
+func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
+	if g.UbuntuAPTSource != nil {
+		logrus.WithField("source", g.UbuntuAPTSource).Debug("using custom APT source")
+		aptSource := llb.Scratch().
+			File(llb.Mkdir(filepath.Dir(aptSourceFilePath), 0755, llb.WithParents(true))).
+			File(llb.Mkfile(aptSourceFilePath, 0644, []byte(*g.UbuntuAPTSource)))
+		return llb.Merge([]llb.State{root, aptSource})
+	}
+	return root
 }
