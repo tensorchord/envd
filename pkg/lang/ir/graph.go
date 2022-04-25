@@ -65,15 +65,16 @@ func (g Graph) Compile() (llb.State, error) {
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
 	builtinSystemStage := g.compileBuiltinSystemPackages(base)
-	systemStage := g.compileSystemPackages(base)
-	pypiStage := g.compilePyPIPackages(builtinSystemStage)
-	sshStage := g.copyMidiSSHServer(base)
-	vscodeStage, err := g.compileVSCode(llb.Scratch())
+	pypiStage := llb.Diff(base, g.compilePyPIPackages(builtinSystemStage))
+
+	systemStage := llb.Diff(base, g.compileSystemPackages(base))
+	sshStage := g.copyMidiSSHServer()
+	vscodeStage, err := g.compileVSCode()
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
 	}
 	merged := llb.Merge([]llb.State{
-		systemStage, pypiStage, sshStage, builtinSystemStage, vscodeStage,
+		base, systemStage, pypiStage, sshStage, vscodeStage,
 	})
 	return merged, nil
 }
@@ -205,8 +206,8 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
-func (g Graph) copyMidiSSHServer(root llb.State) llb.State {
-	run := root.File(llb.Copy(llb.Local(flag.FlagContextDir),
+func (g Graph) copyMidiSSHServer() llb.State {
+	run := llb.Scratch().File(llb.Copy(llb.Local(flag.FlagContextDir),
 		"examples/ssh_keypairs/public.pub", "/var/midi/remote/authorized_keys",
 		&llb.CopyInfo{CreateDestPath: true})).
 		File(llb.Copy(llb.Local(flag.FlagContextDir),
@@ -215,7 +216,7 @@ func (g Graph) copyMidiSSHServer(root llb.State) llb.State {
 	return run
 }
 
-func (g Graph) compileVSCode(root llb.State) (llb.State, error) {
+func (g Graph) compileVSCode() (llb.State, error) {
 	inputs := []llb.State{}
 	for _, p := range g.VSCodePlugins {
 		vscodeClient := vscode.NewClient()
