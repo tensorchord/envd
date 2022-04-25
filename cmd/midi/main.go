@@ -49,6 +49,11 @@ func main() {
 			Usage: "cache directory",
 			Value: "~/.midi/cache",
 		},
+		&cli.PathFlag{
+			Name:  flag.FlagConfig,
+			Usage: "path to config file",
+			Value: "~/.midi/config.MIDI",
+		},
 	}
 
 	app.Commands = []*cli.Command{
@@ -74,12 +79,29 @@ func main() {
 			dir := usr.HomeDir
 			cacheDir = filepath.Join(dir, cacheDir[2:])
 		}
-
 		viper.Set(flag.FlagCacheDir, cacheDir)
-
 		if err := os.MkdirAll(cacheDir, 0755); err != nil {
 			return err
 		}
+
+		// Get the config file.
+		configFile := context.Path(flag.FlagConfig)
+		if strings.HasPrefix(configFile, "~/") {
+			usr, _ := user.Current()
+			dir := usr.HomeDir
+			configFile = filepath.Join(dir, configFile[2:])
+		}
+		viper.Set(flag.FlagConfig, configFile)
+		if _, err := os.Stat(configFile); err != nil {
+			if os.IsNotExist(err) {
+				if _, err := os.Create(configFile); err != nil {
+					return err
+				}
+			}
+		} else {
+			return err
+		}
+
 		return nil
 	}
 	handleErr(debugEnabled, app.Run(os.Args))

@@ -39,16 +39,18 @@ type Builder interface {
 type generalBuilder struct {
 	buildkitdSocket  string
 	manifestFilePath string
+	configFilePath   string
 	progressMode     string
 	tag              string
 
 	logger *logrus.Entry
 }
 
-func New(buildkitdSocket, manifestFilePath, tag string) Builder {
+func New(buildkitdSocket, configFilePath, manifestFilePath, tag string) Builder {
 	return &generalBuilder{
 		buildkitdSocket:  buildkitdSocket,
 		manifestFilePath: manifestFilePath,
+		configFilePath:   configFilePath,
 		// TODO(gaocegege): Support other mode?
 		progressMode: "auto",
 		tag:          tag,
@@ -64,6 +66,11 @@ func (b generalBuilder) GPUEnabled() bool {
 
 func (b generalBuilder) Build(ctx context.Context) error {
 	interpreter := starlark.NewInterpreter()
+	// Evaluate config first.
+	if _, err := interpreter.ExecFile(b.configFilePath); err != nil {
+		return err
+	}
+
 	if _, err := interpreter.ExecFile(b.manifestFilePath); err != nil {
 		return err
 	}
