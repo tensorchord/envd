@@ -26,7 +26,7 @@ import (
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/MIDI/pkg/remote/ssh"
+	"github.com/tensorchord/MIDI/pkg/remote/sshd"
 	"github.com/tensorchord/MIDI/pkg/version"
 )
 
@@ -83,7 +83,7 @@ func main() {
 }
 
 func sshServer(c *cli.Context) error {
-	shell, err := ssh.GetShell()
+	shell, err := sshd.GetShell()
 	if err != nil {
 		logrus.Fatal(err.Error())
 	}
@@ -107,7 +107,7 @@ func sshServer(c *cli.Context) error {
 	if !noAuth {
 		var err error
 		path := c.String(flagAuthKey)
-		keys, err = ssh.LoadAuthorizedKeys(path)
+		keys, err = sshd.LoadAuthorizedKeys(path)
 		if err != nil {
 			return errors.Wrapf(err, "failed to load authorized keys at %s", path)
 		}
@@ -121,7 +121,7 @@ func sshServer(c *cli.Context) error {
 		logrus.Warn("no authentication enabled")
 	}
 
-	srv := ssh.Server{
+	srv := sshd.Server{
 		Port:           port,
 		Shell:          shell,
 		AuthorizedKeys: keys,
