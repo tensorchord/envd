@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package starlark
+package flag
 
 const (
-	ruleBase          = "base"
-	ruleSystemPackage = "install_package"
-	rulePyPIPackage   = "pip_package"
-	ruleCUDA          = "cuda"
-	ruleVSCode        = "vscode"
+	FlagCacheDir   = "cache-dir"
+	FlagContextDir = "context-dir"
 )

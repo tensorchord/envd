@@ -12,12 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package starlark
+package vscode
+
+import "fmt"
 
 const (
-	ruleBase          = "base"
-	ruleSystemPackage = "install_package"
-	rulePyPIPackage   = "pip_package"
-	ruleCUDA          = "cuda"
-	ruleVSCode        = "vscode"
+	vscodePackageURLTemplate = "https://%s.gallery.vsassets.io/_apis/public/gallery/publisher/%s/extension/%s/%s/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
 )
+
+type Plugin struct {
+	Publisher string
+	Extension string
+	Version   string
+}
+
+func (p Plugin) String() string {
+	return fmt.Sprintf("%s.%s-%s", p.Publisher, p.Extension, p.Version)
+}

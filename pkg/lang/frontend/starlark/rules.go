@@ -16,8 +16,9 @@ package starlark
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/MIDI/pkg/lang/ir"
 	"go.starlark.net/starlark"
+
+	"github.com/tensorchord/MIDI/pkg/lang/ir"
 )
 
 var (
@@ -32,6 +33,7 @@ func registerMIDIRules() {
 	starlark.Universe[ruleSystemPackage] = starlark.NewBuiltin(
 		ruleSystemPackage, ruleFuncSystemPackage)
 	starlark.Universe[ruleCUDA] = starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA)
+	starlark.Universe[ruleVSCode] = starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode)
 }
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
@@ -119,6 +121,29 @@ func ruleFuncCUDA(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tu
 	logger.Debugf("rule `%s` is invoked, version=%s, cudnn=%s", ruleCUDA,
 		versionStr, cudnnStr)
 	ir.CUDA(versionStr, cudnnStr)
+
+	return starlark.None, nil
+}
+
+func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var plugins *starlark.List
+
+	if err := starlark.UnpackArgs(ruleVSCode,
+		args, kwargs, "plugins?", &plugins); err != nil {
+		return nil, err
+	}
+
+	pluginList := []string{}
+	if plugins != nil {
+		for i := 0; i < plugins.Len(); i++ {
+			pluginList = append(pluginList, plugins.Index(i).(starlark.String).GoString())
+		}
+	}
+
+	logger.Debugf("rule `%s` is invoked, plugins=%v", ruleVSCode, pluginList)
+	if err := ir.VSCodePlugins(pluginList); err != nil {
+		return starlark.None, err
+	}
 
 	return starlark.None, nil
 }
