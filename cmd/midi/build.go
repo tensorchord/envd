@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
@@ -26,10 +27,9 @@ import (
 )
 
 var CommandBuild = &cli.Command{
-	Name:      "build",
-	Aliases:   []string{"b"},
-	Usage:     "build MIDI environment",
-	UsageText: `TODO`,
+	Name:    "build",
+	Aliases: []string{"b"},
+	Usage:   "build MIDI environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "tag",
@@ -67,6 +67,8 @@ func build(clicontext *cli.Context) error {
 
 	tag := clicontext.String("tag")
 
-	builder := builder.New("unix:///run/buildkit/buildkitd.sock", config, path, tag)
+	builder := builder.New(
+		fmt.Sprintf("docker-container://%s", viper.GetString(flag.FlagBuildkitdContainer)),
+		config, path, tag)
 	return builder.Build(clicontext.Context)
 }

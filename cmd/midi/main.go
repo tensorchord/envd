@@ -21,6 +21,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	_ "github.com/moby/buildkit/client/connhelper/dockercontainer"
+	_ "github.com/moby/buildkit/client/connhelper/kubepod"
+	_ "github.com/moby/buildkit/client/connhelper/podmancontainer"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
@@ -54,9 +57,20 @@ func main() {
 			Usage: "path to config file",
 			Value: "~/.midi/config.MIDI",
 		},
+		&cli.StringFlag{
+			Name:  flag.FlagBuildkitdImage,
+			Usage: "docker image to use for buildkitd",
+			Value: "docker.io/moby/buildkit:v0.10.1",
+		},
+		&cli.StringFlag{
+			Name:  flag.FlagBuildkitdContainer,
+			Usage: "buildkitd container to use for buildkitd",
+			Value: "midi_buildkitd",
+		},
 	}
 
 	app.Commands = []*cli.Command{
+		CommandBootstrap,
 		CommandBuild,
 		CommandUp,
 	}
@@ -92,15 +106,19 @@ func main() {
 			configFile = filepath.Join(dir, configFile[2:])
 		}
 		viper.Set(flag.FlagConfig, configFile)
-		if _, err := os.Stat(configFile); err != nil {
+		_, err := os.Stat(configFile)
+		if err != nil {
 			if os.IsNotExist(err) {
 				if _, err := os.Create(configFile); err != nil {
 					return err
 				}
+			} else {
+				return err
 			}
-		} else {
-			return err
 		}
+
+		viper.Set(flag.FlagBuildkitdContainer, context.String(flag.FlagBuildkitdContainer))
+		viper.Set(flag.FlagBuildkitdImage, context.String(flag.FlagBuildkitdImage))
 
 		return nil
 	}

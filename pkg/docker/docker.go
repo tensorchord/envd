@@ -17,18 +17,29 @@ package docker
 import (
 	"context"
 	"io"
+	"os"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+)
+
+var (
+	interval = 1 * time.Second
 )
 
 type Client interface {
 	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
 	// Start creates the container for the given tag and container name.
-	Start(ctx context.Context, tag, name string, gpuEnabled bool) (string, string, error)
+	StartMIDI(ctx context.Context, tag, name string, gpuEnabled bool) (string, string, error)
+	StartBuildkitd(ctx context.Context, tag, name string) (string, error)
+	IsRunning(ctx context.Context, name string) (bool, error)
+	IsCreated(ctx context.Context, name string) (bool, error)
+	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
 }
 
 type generalClient struct {
@@ -43,8 +54,86 @@ func NewClient() (Client, error) {
 	return generalClient{cli}, nil
 }
 
+func (g generalClient) WaitUntilRunning(ctx context.Context,
+	name string, timeout time.Duration) error {
+	logger := logrus.WithField("container", name)
+	logger.Debug("waiting to start")
+
+	// First, wait for the container to be marked as started.
+	ctxTimeout, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	for {
+		select {
+		case <-time.After(interval):
+			isRunning, err := g.IsRunning(ctxTimeout, name)
+			if err != nil {
+				// Has not yet started. Keep waiting.
+				return errors.Wrap(err, "failed to check if container is running")
+			}
+			if !isRunning {
+				continue
+			}
+			if isRunning {
+				logger.Debug("the container is running")
+				return nil
+			}
+
+		case <-ctxTimeout.Done():
+			return errors.Errorf("timeout %s: buildkitd container did not start", timeout)
+		}
+	}
+}
+
+func (g generalClient) StartBuildkitd(ctx context.Context,
+	tag, name string) (string, error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"tag":       tag,
+		"container": name,
+	})
+	logger.Debug("starting buildkitd")
+	if _, _, err := g.ImageInspectWithRaw(ctx, tag); err != nil {
+		if client.IsErrNotFound(err) {
+			// Pull the image.
+			logger.Debug("pulling image")
+			body, err := g.ImagePull(ctx, tag, types.ImagePullOptions{})
+			if err != nil {
+				return "", errors.Wrap(err, "failed to pull image")
+			}
+			io.Copy(os.Stdout, body)
+			defer body.Close()
+		} else {
+			return "", errors.Wrap(err, "failed to inspect image")
+		}
+	}
+	config := &container.Config{
+		Image: tag,
+	}
+	hostConfig := &container.HostConfig{
+		Privileged: true,
+	}
+	resp, err := g.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create container")
+	}
+
+	for _, w := range resp.Warnings {
+		logger.Warnf("run with warnings: %s", w)
+	}
+
+	if err := g.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		return "", errors.Wrap(err, "failed to start container")
+	}
+
+	container, err := g.ContainerInspect(ctx, resp.ID)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to inspect container")
+	}
+
+	return container.Name, nil
+}
+
 // Start creates the container for the given tag and container name.
-func (g generalClient) Start(
+func (g generalClient) StartMIDI(
 	ctx context.Context, tag, name string, gpuEnabled bool) (string, string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
@@ -83,6 +172,28 @@ func (g generalClient) Start(
 	}
 
 	return container.Name, container.NetworkSettings.IPAddress, nil
+}
+
+func (g generalClient) IsCreated(ctx context.Context, cname string) (bool, error) {
+	_, err := g.ContainerInspect(ctx, cname)
+	if err != nil {
+		if client.IsErrNotFound(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func (g generalClient) IsRunning(ctx context.Context, cname string) (bool, error) {
+	container, err := g.ContainerInspect(ctx, cname)
+	if err != nil {
+		if client.IsErrNotFound(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return container.State.Running, nil
 }
 
 // Load loads the docker image from the reader into the docker host.
