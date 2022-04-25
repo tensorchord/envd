@@ -29,6 +29,7 @@ type Graph struct {
 	CUDNN    *string
 
 	UbuntuAPTSource *string
+	PyPIMirror      *string
 
 	BuiltinSystemPackages []string
 	PyPIPackages          []string

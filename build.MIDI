@@ -9,14 +9,3 @@ install_package(name = [
     "gcc"
 ])
 cuda(version="11.2", cudnn="8")
-ubuntu_apt(source="""
-deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
-deb https://mirror.sjtu.edu.cn/ubuntu focal-updates main restricted
-deb https://mirror.sjtu.edu.cn/ubuntu focal universe
-deb https://mirror.sjtu.edu.cn/ubuntu focal-updates universe
-deb https://mirror.sjtu.edu.cn/ubuntu focal multiverse
-deb https://mirror.sjtu.edu.cn/ubuntu focal-updates multiverse
-deb https://mirror.sjtu.edu.cn/ubuntu focal-backports main restricted universe multiverse
-deb http://archive.canonical.com/ubuntu focal partner
-deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe multiverse
-""")

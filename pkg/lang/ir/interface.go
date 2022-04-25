@@ -46,3 +46,15 @@ func UbuntuAPT(mode, source string) error {
 	DefaultGraph.UbuntuAPTSource = &source
 	return nil
 }
+
+func PyPIMirror(mode, mirror string) error {
+	if mirror == "" {
+		if mode == ubuntuAPTModeAuto {
+			return errors.New("auto-mode not implemented")
+		}
+		return errors.New("mirror is required")
+	}
+
+	DefaultGraph.PyPIMirror = &mirror
+	return nil
+}

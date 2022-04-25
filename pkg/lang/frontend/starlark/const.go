@@ -21,4 +21,5 @@ const (
 	ruleCUDA          = "cuda"
 	ruleVSCode        = "vscode"
 	ruleUbuntuAPT     = "ubuntu_apt"
+	rulePyPIMirror    = "pip_mirror"
 )

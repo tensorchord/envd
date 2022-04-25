@@ -69,7 +69,8 @@ func (g Graph) Compile() (llb.State, error) {
 	aptStage := g.compileUbuntuAPT(base)
 
 	builtinSystemStage := g.compileBuiltinSystemPackages(aptStage)
-	pypiStage := llb.Diff(aptStage, g.compilePyPIPackages(builtinSystemStage))
+	pypiMirrorStage := g.compilePyPIMirror(builtinSystemStage)
+	pypiStage := llb.Diff(aptStage, g.compilePyPIPackages(pypiMirrorStage))
 
 	systemStage := llb.Diff(aptStage, g.compileSystemPackages(aptStage))
 
@@ -150,7 +151,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	// Compose the package install command.
 	var sb strings.Builder
 	// TODO(gaocegege): Support per-user config to keep the mirror.
-	sb.WriteString("pip install -i https://mirror.sjtu.edu.cn/pypi/web/simple")
+	sb.WriteString("pip install")
 	for _, pkg := range g.PyPIPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}
@@ -241,10 +242,22 @@ func (g Graph) compileVSCode() (llb.State, error) {
 
 func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
 	if g.UbuntuAPTSource != nil {
-		logrus.WithField("source", g.UbuntuAPTSource).Debug("using custom APT source")
+		logrus.WithField("source", *g.UbuntuAPTSource).Debug("using custom APT source")
 		aptSource := llb.Scratch().
 			File(llb.Mkdir(filepath.Dir(aptSourceFilePath), 0755, llb.WithParents(true))).
 			File(llb.Mkfile(aptSourceFilePath, 0644, []byte(*g.UbuntuAPTSource)))
+		return llb.Merge([]llb.State{root, aptSource})
+	}
+	return root
+}
+
+func (g Graph) compilePyPIMirror(root llb.State) llb.State {
+	if g.PyPIMirror != nil {
+		logrus.WithField("mirror", *g.PyPIMirror).Debug("using custom PyPI mirror")
+		content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIMirror)
+		aptSource := llb.Scratch().
+			File(llb.Mkdir(filepath.Dir(pypiMirrorFilePath), 0755, llb.WithParents(true))).
+			File(llb.Mkfile(pypiMirrorFilePath, 0644, []byte(content)))
 		return llb.Merge([]llb.State{root, aptSource})
 	}
 	return root

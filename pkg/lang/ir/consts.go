@@ -5,5 +5,10 @@ const (
 	languageDefault   = "python3.8"
 	ubuntuAPTModeAuto = "auto"
 
-	aptSourceFilePath = "/etc/apt/sources.list"
+	aptSourceFilePath  = "/etc/apt/sources.list"
+	pypiMirrorFilePath = "/etc/pip.conf"
+
+	pypiConfigTemplate = `
+[global]
+index-url=%s`
 )
