@@ -9,3 +9,8 @@ install_package(name = [
     "gcc"
 ])
 cuda(version="11.2", cudnn="8")
+
+vscode(plugins = [
+    "ms-vscode.cpptools-1.7.1",
+    "github.copilot-1.12.5517"
+])

@@ -17,10 +17,15 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/user"
+	"path/filepath"
+	"strings"
 
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/MIDI/pkg/flag"
 	"github.com/tensorchord/MIDI/pkg/version"
 )
 
@@ -39,6 +44,11 @@ func main() {
 			Name:  "debug",
 			Usage: "enable debug output in logs",
 		},
+		&cli.PathFlag{
+			Name:  flag.FlagCacheDir,
+			Usage: "cache directory",
+			Value: "~/.midi/cache",
+		},
 	}
 
 	app.Commands = []*cli.Command{
@@ -55,6 +65,20 @@ func main() {
 		logrus.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
 		if debugEnabled {
 			logrus.SetLevel(logrus.DebugLevel)
+		}
+
+		// Setup the cache directory.
+		cacheDir := context.Path(flag.FlagCacheDir)
+		if strings.HasPrefix(cacheDir, "~/") {
+			usr, _ := user.Current()
+			dir := usr.HomeDir
+			cacheDir = filepath.Join(dir, cacheDir[2:])
+		}
+
+		viper.Set(flag.FlagCacheDir, cacheDir)
+
+		if err := os.MkdirAll(cacheDir, 0755); err != nil {
+			return err
 		}
 		return nil
 	}

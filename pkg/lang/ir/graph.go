@@ -20,30 +20,21 @@ import (
 	"strings"
 
 	"github.com/moby/buildkit/client/llb"
+	"github.com/pkg/errors"
+	"github.com/tensorchord/MIDI/pkg/flag"
+	"github.com/tensorchord/MIDI/pkg/vscode"
 )
-
-// A Graph contains the state,
-// such as its call stack and thread-local storage.
-type Graph struct {
-	OS       string
-	Language string
-	CUDA     *string
-	CUDNN    *string
-
-	BuiltinSystemPackages []string
-	PyPIPackages          []string
-	SystemPackages        []string
-
-	Exec []llb.State
-}
 
 func NewGraph() *Graph {
 	return &Graph{
-		OS:                    osDefault,
-		Language:              languageDefault,
-		CUDA:                  nil,
-		CUDNN:                 nil,
-		BuiltinSystemPackages: []string{},
+		OS:       osDefault,
+		Language: languageDefault,
+		CUDA:     nil,
+		CUDNN:    nil,
+		BuiltinSystemPackages: []string{
+			"curl",
+			"openssh-client",
+		},
 
 		PyPIPackages:   []string{},
 		SystemPackages: []string{},
@@ -58,7 +49,10 @@ func GPUEnabled() bool {
 }
 
 func Compile(ctx context.Context) (*llb.Definition, error) {
-	state := DefaultGraph.Compile()
+	state, err := DefaultGraph.Compile()
+	if err != nil {
+		return nil, err
+	}
 	// TODO(gaocegege): Support multi platform.
 	def, err := state.Marshal(ctx, llb.LinuxAmd64)
 	if err != nil {
@@ -67,16 +61,21 @@ func Compile(ctx context.Context) (*llb.Definition, error) {
 	return def, nil
 }
 
-func (g Graph) Compile() llb.State {
+func (g Graph) Compile() (llb.State, error) {
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
+	builtinSystemStage := g.compileBuiltinSystemPackages(base)
 	systemStage := g.compileSystemPackages(base)
-	pypiStage := g.compilePyPIPackages(base)
+	pypiStage := g.compilePyPIPackages(builtinSystemStage)
 	sshStage := g.copyMidiSSHServer(base)
+	vscodeStage, err := g.compileVSCode(llb.Scratch())
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
+	}
 	merged := llb.Merge([]llb.State{
-		systemStage, pypiStage, sshStage,
+		systemStage, pypiStage, sshStage, builtinSystemStage, vscodeStage,
 	})
-	return merged
+	return merged, nil
 }
 
 func (g *Graph) compileBase() llb.State {
@@ -86,15 +85,14 @@ func (g *Graph) compileBase() llb.State {
 	return g.compileCUDAPackages()
 }
 
-func (g Graph) compileCUDAPackages() llb.State {
+func (g *Graph) compileCUDAPackages() llb.State {
 	root := llb.Image(
 		fmt.Sprintf("nvidia/cuda:%s.0-cudnn%s-devel-%s", *g.CUDA, *g.CUDNN, g.OS))
 	g.BuiltinSystemPackages = append(g.BuiltinSystemPackages, []string{
 		g.Language,
 		fmt.Sprintf("%s-pip", g.Language),
 	}...)
-	installed := g.compileBuiltinSystemPackages(root)
-	return installed
+	return root
 }
 
 // Deprecated: Use compileCUDAPackages instead.
@@ -208,9 +206,27 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 }
 
 func (g Graph) copyMidiSSHServer(root llb.State) llb.State {
-	run := root.File(llb.Mkdir("/var/midi/remote/", 0700, llb.WithParents(true))).
-		File(llb.Mkdir("/var/midi/bin/", 0700, llb.WithParents(true))).
-		File(llb.Copy(llb.Local("context"), "examples/ssh_keypairs/public.pub", "/var/midi/remote/authorized_keys")).
-		File(llb.Copy(llb.Local("context"), "bin/midi-ssh", "/var/midi/bin/midi-ssh"))
+	run := root.File(llb.Copy(llb.Local(flag.FlagContextDir),
+		"examples/ssh_keypairs/public.pub", "/var/midi/remote/authorized_keys",
+		&llb.CopyInfo{CreateDestPath: true})).
+		File(llb.Copy(llb.Local(flag.FlagContextDir),
+			"bin/midi-ssh", "/var/midi/bin/midi-ssh",
+			&llb.CopyInfo{CreateDestPath: true}))
 	return run
+}
+
+func (g Graph) compileVSCode(root llb.State) (llb.State, error) {
+	inputs := []llb.State{}
+	for _, p := range g.VSCodePlugins {
+		vscodeClient := vscode.NewClient()
+		if err := vscodeClient.DownloadOrCache(p); err != nil {
+			return llb.State{}, err
+		}
+		ext := llb.Scratch().File(llb.Copy(llb.Local(flag.FlagCacheDir),
+			vscodeClient.PluginPath(p),
+			"/root/.vscode-server/extensions/"+p.String(),
+			&llb.CopyInfo{CreateDestPath: true}))
+		inputs = append(inputs, ext)
+	}
+	return llb.Merge(inputs), nil
 }

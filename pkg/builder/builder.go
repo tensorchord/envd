@@ -23,7 +23,9 @@ import (
 	"github.com/moby/buildkit/util/progress/progresswriter"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"github.com/tensorchord/MIDI/pkg/docker"
+	"github.com/tensorchord/MIDI/pkg/flag"
 	"github.com/tensorchord/MIDI/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/MIDI/pkg/lang/ir"
 	"golang.org/x/sync/errgroup"
@@ -118,7 +120,8 @@ func (b generalBuilder) Build(ctx context.Context) error {
 				},
 			},
 			LocalDirs: map[string]string{
-				"context": wd,
+				flag.FlagContextDir: wd,
+				flag.FlagCacheDir:   viper.GetString(flag.FlagCacheDir),
 			},
 		}, progresswriter.ResetTime(mw.WithPrefix("", false)).Status())
 		if err != nil {

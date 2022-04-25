@@ -12,12 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package starlark
+package ir
 
-const (
-	ruleBase          = "base"
-	ruleSystemPackage = "install_package"
-	rulePyPIPackage   = "pip_package"
-	ruleCUDA          = "cuda"
-	ruleVSCode        = "vscode"
+import (
+	"github.com/moby/buildkit/client/llb"
+
+	"github.com/tensorchord/MIDI/pkg/vscode"
 )
+
+// A Graph contains the state,
+// such as its call stack and thread-local storage.
+type Graph struct {
+	OS       string
+	Language string
+	CUDA     *string
+	CUDNN    *string
+
+	BuiltinSystemPackages []string
+	PyPIPackages          []string
+	SystemPackages        []string
+	VSCodePlugins         []vscode.Plugin
+
+	Exec []llb.State
+}
