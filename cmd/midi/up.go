@@ -15,18 +15,22 @@
 package main
 
 import (
+	"path/filepath"
+
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/MIDI/pkg/builder"
 	"github.com/tensorchord/MIDI/pkg/docker"
+	"github.com/tensorchord/MIDI/pkg/flag"
 	"github.com/tensorchord/MIDI/pkg/remote/ssh"
 )
 
 var CommandUp = &cli.Command{
 	Name:      "up",
-	Aliases:   []string{"b"},
+	Aliases:   []string{"u"},
 	Usage:     "build and run the MIDI environment",
 	UsageText: `TODO`,
 	Flags: []cli.Flag{
@@ -54,14 +58,25 @@ var CommandUp = &cli.Command{
 }
 
 func up(clicontext *cli.Context) error {
-	path := clicontext.Path("file")
+	path, err := filepath.Abs(clicontext.Path("file"))
+	if err != nil {
+		return errors.Wrap(err, "failed to get absolute path of the build file")
+	}
 	if path == "" {
+		return errors.New("file does not exist")
+	}
+
+	config, err := filepath.Abs(viper.GetString(flag.FlagConfig))
+	if err != nil {
+		return errors.Wrap(err, "failed to get absolute path of the config file")
+	}
+	if config == "" {
 		return errors.New("file does not exist")
 	}
 
 	tag := clicontext.String("tag")
 
-	builder := builder.New("unix:///run/buildkit/buildkitd.sock", path, tag)
+	builder := builder.New("unix:///run/buildkit/buildkitd.sock", config, path, tag)
 	if err := builder.Build(clicontext.Context); err != nil {
 		return err
 	}
