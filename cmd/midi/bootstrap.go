@@ -46,6 +46,12 @@ var CommandBootstrap = &cli.Command{
 			Usage: "Add midi autocompletions",
 			Value: true,
 		},
+		&cli.StringFlag{
+			Name:  "midi-ssh",
+			Usage: "url to download midi-ssh binary",
+			// TODO(gaocegege): Use version.Version to generate the right URL.
+			Value: "https://github.com/tensorchord/MIDI/releases/download/v0.0.1-alpha.1/midi-ssh_0.0.1-alpha.1_Linux_x86_64",
+		},
 	},
 
 	Action: bootstrap,
@@ -72,7 +78,9 @@ func bootstrap(clicontext *cli.Context) error {
 	buildkit := clicontext.Bool("buildkit")
 
 	if buildkit {
+		logrus.Debug("bootstrap the buildkitd container")
 		bkClient := buildkitd.NewClient()
+		defer bkClient.Close()
 		err := bkClient.Bootstrap(clicontext.Context)
 		if err != nil {
 			return errors.Wrap(err, "failed to bootstrap buildkit")

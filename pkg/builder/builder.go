@@ -23,9 +23,9 @@ import (
 	"github.com/moby/buildkit/util/progress/progresswriter"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/tensorchord/MIDI/pkg/docker"
 	"github.com/tensorchord/MIDI/pkg/flag"
+	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/MIDI/pkg/lang/ir"
 	"golang.org/x/sync/errgroup"
@@ -54,7 +54,10 @@ func New(buildkitdSocket, configFilePath, manifestFilePath, tag string) Builder 
 		// TODO(gaocegege): Support other mode?
 		progressMode: "auto",
 		tag:          tag,
-		logger:       logrus.WithField("tag", tag),
+		logger: logrus.WithFields(logrus.Fields{
+			"tag":       tag,
+			"buildkitd": buildkitdSocket,
+		}),
 	}
 }
 
@@ -128,7 +131,7 @@ func (b generalBuilder) Build(ctx context.Context) error {
 			},
 			LocalDirs: map[string]string{
 				flag.FlagContextDir: wd,
-				flag.FlagCacheDir:   viper.GetString(flag.FlagCacheDir),
+				flag.FlagCacheDir:   home.GetManager().CacheDir(),
 			},
 		}, progresswriter.ResetTime(mw.WithPrefix("", false)).Status())
 		if err != nil {
