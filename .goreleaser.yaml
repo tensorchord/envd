@@ -1,0 +1,59 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+before:
+  hooks:
+    - go mod tidy -compat=1.17
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    id: midi
+    main: ./cmd/midi
+    binary: midi
+    ldflags:
+      - -s -w 
+      - -X github.com/tensorchord/MIDI/pkg/version.Version={{ .Version }} 
+      - -X github.com/tensorchord/MIDI/pkg/version.Revision={{ .Commit }}
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    id: midi-ssh
+    main: ./cmd/midi-ssh
+    binary: midi-ssh
+    ldflags:
+      - -s -w 
+      - -X github.com/tensorchord/MIDI/pkg/version.Version={{ .Version }} 
+      - -X github.com/tensorchord/MIDI/pkg/version.Revision={{ .Commit }}
+archives:
+  - id: midi
+    format: binary
+    builds:
+      - midi
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+  - id: midi-ssh
+    format: binary
+    builds:
+      - midi-ssh
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

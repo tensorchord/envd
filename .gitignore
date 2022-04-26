@@ -32,3 +32,5 @@ __debug_bin
 bin/
 debug-bin/
 build.MIDI
+
+dist/

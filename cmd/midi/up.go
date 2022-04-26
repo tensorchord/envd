@@ -25,7 +25,7 @@ import (
 	"github.com/tensorchord/MIDI/pkg/builder"
 	"github.com/tensorchord/MIDI/pkg/docker"
 	"github.com/tensorchord/MIDI/pkg/flag"
-	"github.com/tensorchord/MIDI/pkg/remote/ssh"
+	"github.com/tensorchord/MIDI/pkg/ssh"
 )
 
 var CommandUp = &cli.Command{
