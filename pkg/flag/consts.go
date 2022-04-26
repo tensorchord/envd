@@ -20,4 +20,5 @@ const (
 	FlagConfig             = "config"
 	FlagBuildkitdImage     = "buildkitd-image"
 	FlagBuildkitdContainer = "buildkitd-container-name"
+	FlagHomeDir            = "home-dir"
 )

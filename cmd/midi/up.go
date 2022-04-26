@@ -19,12 +19,11 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/MIDI/pkg/builder"
 	"github.com/tensorchord/MIDI/pkg/docker"
-	"github.com/tensorchord/MIDI/pkg/flag"
+	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/ssh"
 )
 
@@ -65,13 +64,7 @@ func up(clicontext *cli.Context) error {
 		return errors.New("file does not exist")
 	}
 
-	config, err := filepath.Abs(viper.GetString(flag.FlagConfig))
-	if err != nil {
-		return errors.Wrap(err, "failed to get absolute path of the config file")
-	}
-	if config == "" {
-		return errors.New("file does not exist")
-	}
+	config := home.GetManager().ConfigFile()
 
 	tag := clicontext.String("tag")
 

@@ -17,18 +17,17 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/user"
-	"path/filepath"
-	"strings"
 
 	_ "github.com/moby/buildkit/client/connhelper/dockercontainer"
 	_ "github.com/moby/buildkit/client/connhelper/kubepod"
 	_ "github.com/moby/buildkit/client/connhelper/podmancontainer"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/MIDI/pkg/flag"
+	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/version"
 )
 
@@ -48,14 +47,14 @@ func main() {
 			Usage: "enable debug output in logs",
 		},
 		&cli.PathFlag{
-			Name:  flag.FlagCacheDir,
-			Usage: "cache directory",
-			Value: "~/.midi/cache",
-		},
-		&cli.PathFlag{
 			Name:  flag.FlagConfig,
 			Usage: "path to config file",
 			Value: "~/.midi/config.MIDI",
+		},
+		&cli.PathFlag{
+			Name:  flag.FlagHomeDir,
+			Usage: "path to midi home",
+			Value: "~/.midi",
 		},
 		&cli.StringFlag{
 			Name:  flag.FlagBuildkitdImage,
@@ -86,37 +85,16 @@ func main() {
 			logrus.SetLevel(logrus.DebugLevel)
 		}
 
-		// Setup the cache directory.
-		cacheDir := context.Path(flag.FlagCacheDir)
-		if strings.HasPrefix(cacheDir, "~/") {
-			usr, _ := user.Current()
-			dir := usr.HomeDir
-			cacheDir = filepath.Join(dir, cacheDir[2:])
-		}
-		viper.Set(flag.FlagCacheDir, cacheDir)
-		if err := os.MkdirAll(cacheDir, 0755); err != nil {
-			return err
-		}
-
 		// Get the config file.
 		configFile := context.Path(flag.FlagConfig)
-		if strings.HasPrefix(configFile, "~/") {
-			usr, _ := user.Current()
-			dir := usr.HomeDir
-			configFile = filepath.Join(dir, configFile[2:])
-		}
-		viper.Set(flag.FlagConfig, configFile)
-		_, err := os.Stat(configFile)
-		if err != nil {
-			if os.IsNotExist(err) {
-				if _, err := os.Create(configFile); err != nil {
-					return err
-				}
-			} else {
-				return err
-			}
+
+		homeDir := context.Path(flag.FlagHomeDir)
+
+		if err := home.Intialize(homeDir, configFile); err != nil {
+			return errors.Wrap(err, "failed to initialize home manager")
 		}
 
+		// TODO(gaocegege): Add a config struct to keep them.
 		viper.Set(flag.FlagBuildkitdContainer, context.String(flag.FlagBuildkitdContainer))
 		viper.Set(flag.FlagBuildkitdImage, context.String(flag.FlagBuildkitdImage))
 

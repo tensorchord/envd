@@ -24,6 +24,7 @@ import (
 
 	"github.com/tensorchord/MIDI/pkg/builder"
 	"github.com/tensorchord/MIDI/pkg/flag"
+	"github.com/tensorchord/MIDI/pkg/home"
 )
 
 var CommandBuild = &cli.Command{
@@ -57,13 +58,7 @@ func build(clicontext *cli.Context) error {
 		return errors.New("file does not exist")
 	}
 
-	config, err := filepath.Abs(viper.GetString(flag.FlagConfig))
-	if err != nil {
-		return errors.Wrap(err, "failed to get absolute path of the config file")
-	}
-	if config == "" {
-		return errors.New("file does not exist")
-	}
+	config := home.GetManager().ConfigFile()
 
 	tag := clicontext.String("tag")
 

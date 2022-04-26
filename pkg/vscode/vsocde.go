@@ -23,9 +23,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
-	"github.com/tensorchord/MIDI/pkg/flag"
+	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/unzip"
 )
 
@@ -46,7 +45,7 @@ func (c generalClient) PluginPath(p Plugin) string {
 }
 
 func unzipPath(p Plugin) string {
-	return fmt.Sprintf("%s/%s.%s-%s", viper.GetString(flag.FlagCacheDir),
+	return fmt.Sprintf("%s/%s.%s-%s", home.GetManager().CacheDir(),
 		p.Publisher, p.Extension, p.Version)
 }
 
@@ -55,7 +54,7 @@ func (c generalClient) DownloadOrCache(p Plugin) error {
 		p.Publisher, p.Publisher, p.Extension, p.Version)
 
 	// TODO(gaocegege): Cache the file.
-	filename := fmt.Sprintf("%s/%s.%s-%s.vsix", viper.GetString(flag.FlagCacheDir),
+	filename := fmt.Sprintf("%s/%s.%s-%s.vsix", home.GetManager().CacheDir(),
 		p.Publisher, p.Extension, p.Version)
 	out, err := os.Create(filename)
 
