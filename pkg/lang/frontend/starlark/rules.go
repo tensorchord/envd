@@ -34,9 +34,12 @@ func registerMIDIRules() {
 		ruleSystemPackage, ruleFuncSystemPackage)
 	starlark.Universe[ruleCUDA] = starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA)
 	starlark.Universe[ruleVSCode] = starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode)
+	starlark.Universe[ruleUbuntuAPT] = starlark.NewBuiltin(ruleUbuntuAPT, ruleFuncUbuntuAPT)
+	starlark.Universe[rulePyPIMirror] = starlark.NewBuiltin(rulePyPIMirror, ruleFuncPyPIMirror)
 }
 
-func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var os, language starlark.String
 
 	if err := starlark.UnpackArgs(ruleBase, args, kwargs, "os?", &os, "language?", &language); err != nil {
@@ -59,7 +62,8 @@ func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tu
 	return starlark.None, nil
 }
 
-func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var name *starlark.List
 
 	if err := starlark.UnpackArgs(ruleSystemPackage,
@@ -80,7 +84,8 @@ func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin, args st
 	return starlark.None, nil
 }
 
-func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var name *starlark.List
 
 	if err := starlark.UnpackArgs(rulePyPIPackage,
@@ -101,7 +106,8 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin, args star
 	return starlark.None, nil
 }
 
-func ruleFuncCUDA(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+func ruleFuncCUDA(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var version, cudnn starlark.String
 
 	if err := starlark.UnpackArgs(ruleCUDA, args, kwargs,
@@ -125,7 +131,8 @@ func ruleFuncCUDA(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tu
 	return starlark.None, nil
 }
 
-func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var plugins *starlark.List
 
 	if err := starlark.UnpackArgs(ruleVSCode,
@@ -144,6 +151,56 @@ func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin, args starlark.
 	if err := ir.VSCodePlugins(pluginList); err != nil {
 		return starlark.None, err
 	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncUbuntuAPT(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var mode, source starlark.String
+
+	if err := starlark.UnpackArgs(ruleUbuntuAPT, args, kwargs,
+		"mode?", &mode, "source?", &source); err != nil {
+		return nil, err
+	}
+
+	modeStr := ""
+	if mode != starlark.String("") {
+		modeStr = mode.GoString()
+	}
+	sourceStr := ""
+	if source != starlark.String("") {
+		sourceStr = source.GoString()
+	}
+
+	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s", ruleUbuntuAPT,
+		modeStr, sourceStr)
+	ir.UbuntuAPT(modeStr, sourceStr)
+
+	return starlark.None, nil
+}
+
+func ruleFuncPyPIMirror(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var mode, mirror starlark.String
+
+	if err := starlark.UnpackArgs(rulePyPIMirror, args, kwargs,
+		"mode?", &mode, "mirror?", &mirror); err != nil {
+		return nil, err
+	}
+
+	modeStr := ""
+	if mode != starlark.String("") {
+		modeStr = mode.GoString()
+	}
+	mirrorStr := ""
+	if mirror != starlark.String("") {
+		mirrorStr = mirror.GoString()
+	}
+
+	logger.Debugf("rule `%s` is invoked, mode=%s, mirror=%s", rulePyPIMirror,
+		modeStr, mirrorStr)
+	ir.PyPIMirror(modeStr, mirrorStr)
 
 	return starlark.None, nil
 }

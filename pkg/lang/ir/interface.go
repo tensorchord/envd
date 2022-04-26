@@ -1,6 +1,8 @@
 package ir
 
 import (
+	"errors"
+
 	"github.com/tensorchord/MIDI/pkg/vscode"
 )
 
@@ -30,5 +32,34 @@ func VSCodePlugins(plugins []string) error {
 		}
 		DefaultGraph.VSCodePlugins = append(DefaultGraph.VSCodePlugins, plugin)
 	}
+	return nil
+}
+
+// UbuntuAPT updates the Ubuntu apt source.list in the image.
+func UbuntuAPT(mode, source string) error {
+	if source == "" {
+		if mode == mirrorModeAuto {
+			// If the mode is set to `auto`, MIDI detects the location of the run
+			// then set to the nearest mirror
+			return errors.New("auto-mode not implemented")
+		}
+		return errors.New("source is required")
+	}
+
+	DefaultGraph.UbuntuAPTSource = &source
+	return nil
+}
+
+func PyPIMirror(mode, mirror string) error {
+	if mirror == "" {
+		if mode == mirrorModeAuto {
+			// If the mode is set to `auto`, MIDI detects the location of the run
+			// then set to the nearest mirror.
+			return errors.New("auto-mode not implemented")
+		}
+		return errors.New("mirror is required")
+	}
+
+	DefaultGraph.PyPIMirror = &mirror
 	return nil
 }

@@ -28,6 +28,9 @@ type Graph struct {
 	CUDA     *string
 	CUDNN    *string
 
+	UbuntuAPTSource *string
+	PyPIMirror      *string
+
 	BuiltinSystemPackages []string
 	PyPIPackages          []string
 	SystemPackages        []string
