@@ -18,10 +18,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/cockroachdb/errors"
 	_ "github.com/moby/buildkit/client/connhelper/dockercontainer"
 	_ "github.com/moby/buildkit/client/connhelper/kubepod"
 	_ "github.com/moby/buildkit/client/connhelper/podmancontainer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"

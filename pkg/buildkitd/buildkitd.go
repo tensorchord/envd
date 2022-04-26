@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/tensorchord/MIDI/pkg/docker"

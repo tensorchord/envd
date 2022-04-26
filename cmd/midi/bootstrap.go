@@ -22,8 +22,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/containerd/containerd/log"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 

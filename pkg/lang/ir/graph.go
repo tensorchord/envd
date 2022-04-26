@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/MIDI/pkg/flag"
 	"github.com/tensorchord/MIDI/pkg/vscode"
