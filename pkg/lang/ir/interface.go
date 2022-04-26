@@ -35,9 +35,12 @@ func VSCodePlugins(plugins []string) error {
 	return nil
 }
 
+// UbuntuAPT updates the Ubuntu apt source.list in the image.
 func UbuntuAPT(mode, source string) error {
 	if source == "" {
-		if mode == ubuntuAPTModeAuto {
+		if mode == mirrorModeAuto {
+			// If the mode is set to `auto`, MIDI detects the location of the run
+			// then set to the nearest mirror
 			return errors.New("auto-mode not implemented")
 		}
 		return errors.New("source is required")
@@ -49,7 +52,9 @@ func UbuntuAPT(mode, source string) error {
 
 func PyPIMirror(mode, mirror string) error {
 	if mirror == "" {
-		if mode == ubuntuAPTModeAuto {
+		if mode == mirrorModeAuto {
+			// If the mode is set to `auto`, MIDI detects the location of the run
+			// then set to the nearest mirror.
 			return errors.New("auto-mode not implemented")
 		}
 		return errors.New("mirror is required")
