@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: continuous-integration
 
 on:
   - push
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: build
     runs-on: ubuntu-latest
     env:
       GOPATH: ${{ github.workspace }}/go
