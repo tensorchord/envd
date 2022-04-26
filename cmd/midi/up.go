@@ -29,10 +29,9 @@ import (
 )
 
 var CommandUp = &cli.Command{
-	Name:      "up",
-	Aliases:   []string{"u"},
-	Usage:     "build and run the MIDI environment",
-	UsageText: `TODO`,
+	Name:    "up",
+	Aliases: []string{"u"},
+	Usage:   "build and run the MIDI environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "tag",
@@ -86,7 +85,7 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	containerID, containerIP, err := dockerClient.Start(clicontext.Context, tag, "midi", gpu)
+	containerID, containerIP, err := dockerClient.StartMIDI(clicontext.Context, tag, "midi", gpu)
 	if err != nil {
 		return err
 	}
