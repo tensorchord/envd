@@ -13,7 +13,6 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/moby/buildkit v0.10.1
 	github.com/opencontainers/go-digest v1.0.0
-	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.4
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.4.0
@@ -64,6 +63,7 @@ require (
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/spf13/afero v1.1.2 // indirect

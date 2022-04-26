@@ -19,9 +19,9 @@ import (
 	"io"
 	"os"
 
+	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/util/progress/progresswriter"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/MIDI/pkg/docker"
 	"github.com/tensorchord/MIDI/pkg/flag"
