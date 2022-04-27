@@ -18,6 +18,8 @@ type Manager interface {
 	HomeDir() string
 	CacheDir() string
 	ConfigFile() string
+	DownloadOrCacheSSHBinary(url string) error
+	SSHBinaryFile() string
 }
 
 type generalManager struct {
