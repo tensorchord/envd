@@ -15,14 +15,17 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/MIDI/pkg/builder"
 	"github.com/tensorchord/MIDI/pkg/docker"
+	"github.com/tensorchord/MIDI/pkg/flag"
 	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/ssh"
 )
@@ -68,7 +71,8 @@ func up(clicontext *cli.Context) error {
 
 	tag := clicontext.String("tag")
 
-	builder := builder.New("unix:///run/buildkit/buildkitd.sock", config, path, tag)
+	builder := builder.New(fmt.Sprintf("docker-container://%s",
+		viper.GetString(flag.FlagBuildkitdContainer)), config, path, tag)
 	if err := builder.Build(clicontext.Context); err != nil {
 		return err
 	}
