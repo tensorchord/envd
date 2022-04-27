@@ -62,8 +62,7 @@ func build(clicontext *cli.Context) error {
 
 	tag := clicontext.String("tag")
 
-	builder := builder.New(
-		fmt.Sprintf("docker-container://%s", viper.GetString(flag.FlagBuildkitdContainer)),
-		config, path, tag)
+	builder := builder.New(fmt.Sprintf("docker-container://%s",
+		viper.GetString(flag.FlagBuildkitdContainer)), config, path, tag)
 	return builder.Build(clicontext.Context)
 }
