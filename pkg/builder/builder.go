@@ -93,23 +93,15 @@ func (b generalBuilder) Build(ctx context.Context) error {
 	defer cancel()
 	eg, ctx := errgroup.WithContext(ctx)
 
-	pw, err := progresswriter.NewPrinter(context.TODO(), os.Stderr, b.progressMode)
+	pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.progressMode)
 	if err != nil {
 		return err
 	}
-	mw := progresswriter.NewMultiWriter(pw)
-
-	var writers []progresswriter.Writer
-	w := mw.WithPrefix("", false)
-	writers = append(writers, w)
-
 	// Create a pipe to load the image into the docker host.
 	pipeR, pipeW := io.Pipe()
 	eg.Go(func() error {
 		defer func() {
-			for _, w := range writers {
-				close(w.Status())
-			}
+			close(pw.Status())
 		}()
 		defer pipeW.Close()
 		wd, err := os.Getwd()
@@ -133,7 +125,7 @@ func (b generalBuilder) Build(ctx context.Context) error {
 				flag.FlagContextDir: wd,
 				flag.FlagCacheDir:   home.GetManager().CacheDir(),
 			},
-		}, progresswriter.ResetTime(mw.WithPrefix("", false)).Status())
+		}, pw.Status())
 		if err != nil {
 			err = errors.Wrap(err, "failed to solve LLB")
 			b.logger.Error(err)

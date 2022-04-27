@@ -24,6 +24,7 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/MIDI/pkg/flag"
+	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/vscode"
 )
 
@@ -215,11 +216,9 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 }
 
 func (g Graph) copyMidiSSHServer() llb.State {
-	run := llb.Scratch().File(llb.Copy(llb.Local(flag.FlagContextDir),
-		"examples/ssh_keypairs/public.pub", "/var/midi/remote/authorized_keys",
-		&llb.CopyInfo{CreateDestPath: true})).
-		File(llb.Copy(llb.Local(flag.FlagContextDir),
-			"bin/midi-ssh", "/var/midi/bin/midi-ssh",
+	run := llb.Scratch().
+		File(llb.Copy(llb.Local(flag.FlagCacheDir),
+			home.GetManager().SSHBinaryFile(), "/var/midi/bin/midi-ssh",
 			&llb.CopyInfo{CreateDestPath: true}))
 	return run
 }

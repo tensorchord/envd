@@ -47,11 +47,16 @@ var CommandUp = &cli.Command{
 			Aliases: []string{"f"},
 			Value:   "./build.MIDI",
 		},
+		&cli.BoolFlag{
+			Name:  "auth",
+			Usage: "Enable authentication for ssh",
+			Value: false,
+		},
 		&cli.PathFlag{
 			Name:    "private-key",
 			Usage:   "Path to the private key",
 			Aliases: []string{"k"},
-			Value:   "./examples/ssh_keypairs/key.pem",
+			Value:   "~/.ssh/id_rsa",
 		},
 	},
 
@@ -88,7 +93,8 @@ func up(clicontext *cli.Context) error {
 	}
 	logrus.Debugf("container %s is running", containerID)
 
-	sshClient, err := ssh.NewClient(containerIP, "root", 2222, clicontext.Path("private-key"), "")
+	sshClient, err := ssh.NewClient(
+		containerIP, "root", 2222, clicontext.Bool("auth"), clicontext.Path("private-key"), "")
 	if err != nil {
 		return err
 	}

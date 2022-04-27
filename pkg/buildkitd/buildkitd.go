@@ -20,7 +20,7 @@ var (
 // Client is a client for the buildkitd daemon.
 // It's up to the caller to close the client.
 type Client interface {
-	Bootstrap(ctx context.Context) error
+	Bootstrap(ctx context.Context) (string, error)
 	Close() error
 }
 
@@ -44,12 +44,12 @@ func NewClient() Client {
 	return c
 }
 
-func (c *generalClient) Bootstrap(ctx context.Context) error {
-	_, err := c.maybeStart(ctx, time.Second*100, time.Second*100)
+func (c *generalClient) Bootstrap(ctx context.Context) (string, error) {
+	address, err := c.maybeStart(ctx, time.Second*100, time.Second*100)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return address, nil
 }
 
 func (c generalClient) Close() error {

@@ -44,28 +44,31 @@ type generalClient struct {
 }
 
 func NewClient(server, user string,
-	port int, privateKeyPath, privateKeyPwd string) (Client, error) {
-	// read private key file
-	pemBytes, err := ioutil.ReadFile(privateKeyPath)
-	if err != nil {
-		return nil, fmt.Errorf("reading private key file failed %v", err)
-	}
-	// create signer
-	signer, err := signerFromPem(pemBytes, []byte(privateKeyPwd))
-	if err != nil {
-		return nil, err
-	}
-
+	port int, auth bool, privateKeyPath, privateKeyPwd string) (Client, error) {
 	config := &ssh.ClientConfig{
 		User: user,
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		},
 		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 			// use OpenSSH's known_hosts file if you care about host validation
 			return nil
 		},
 	}
+
+	if auth {
+		// read private key file
+		pemBytes, err := ioutil.ReadFile(privateKeyPath)
+		if err != nil {
+			return nil, fmt.Errorf("reading private key file failed %v", err)
+		}
+		// create signer
+		signer, err := signerFromPem(pemBytes, []byte(privateKeyPwd))
+		if err != nil {
+			return nil, err
+		}
+		config.Auth = []ssh.AuthMethod{
+			ssh.PublicKeys(signer),
+		}
+	}
+
 	return &generalClient{
 		config: config,
 		server: fmt.Sprintf("%v:%v", server, port),
