@@ -15,18 +15,15 @@
 package main
 
 import (
-	"fmt"
 	"path/filepath"
 	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/MIDI/pkg/builder"
 	"github.com/tensorchord/MIDI/pkg/docker"
-	"github.com/tensorchord/MIDI/pkg/flag"
 	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/ssh"
 )
@@ -82,8 +79,11 @@ func up(clicontext *cli.Context) error {
 
 	tag := clicontext.String("tag")
 
-	builder := builder.New(fmt.Sprintf("docker-container://%s",
-		viper.GetString(flag.FlagBuildkitdContainer)), config, path, tag)
+	builder, err := builder.New(clicontext.Context, config, path, tag)
+	if err != nil {
+		return errors.Wrap(err, "failed to create the builder")
+	}
+
 	if err := builder.Build(clicontext.Context); err != nil {
 		return err
 	}

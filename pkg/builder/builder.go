@@ -23,12 +23,14 @@ import (
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/util/progress/progresswriter"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
+
+	"github.com/tensorchord/MIDI/pkg/buildkitd"
 	"github.com/tensorchord/MIDI/pkg/docker"
 	"github.com/tensorchord/MIDI/pkg/flag"
 	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/MIDI/pkg/lang/ir"
-	"golang.org/x/sync/errgroup"
 )
 
 type Builder interface {
@@ -37,28 +39,36 @@ type Builder interface {
 }
 
 type generalBuilder struct {
-	buildkitdSocket  string
 	manifestFilePath string
 	configFilePath   string
 	progressMode     string
 	tag              string
 
 	logger *logrus.Entry
+	starlark.Interpreter
+	buildkitd.Client
 }
 
-func New(buildkitdSocket, configFilePath, manifestFilePath, tag string) Builder {
-	return &generalBuilder{
-		buildkitdSocket:  buildkitdSocket,
+func New(ctx context.Context, configFilePath, manifestFilePath, tag string) (Builder, error) {
+	b := &generalBuilder{
 		manifestFilePath: manifestFilePath,
 		configFilePath:   configFilePath,
 		// TODO(gaocegege): Support other mode?
 		progressMode: "auto",
 		tag:          tag,
 		logger: logrus.WithFields(logrus.Fields{
-			"tag":       tag,
-			"buildkitd": buildkitdSocket,
+			"tag": tag,
 		}),
 	}
+
+	cli, err := buildkitd.NewClient(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create buildkit client")
+	}
+	b.Client = cli
+
+	b.Interpreter = starlark.NewInterpreter()
+	return b, nil
 }
 
 // GPUEnabled returns true if cuda is enabled.
@@ -68,21 +78,14 @@ func (b generalBuilder) GPUEnabled() bool {
 }
 
 func (b generalBuilder) Build(ctx context.Context) error {
-	interpreter := starlark.NewInterpreter()
 	// Evaluate config first.
-	if _, err := interpreter.ExecFile(b.configFilePath); err != nil {
+	if _, err := b.ExecFile(b.configFilePath); err != nil {
 		return err
 	}
 
-	if _, err := interpreter.ExecFile(b.manifestFilePath); err != nil {
+	if _, err := b.ExecFile(b.manifestFilePath); err != nil {
 		return err
 	}
-
-	bkClient, err := client.New(ctx, b.buildkitdSocket, client.WithFailFast())
-	if err != nil {
-		return errors.Wrap(err, "failed to new buildkitd client")
-	}
-	defer bkClient.Close()
 
 	def, err := ir.Compile(ctx)
 	if err != nil {
@@ -106,7 +109,7 @@ func (b generalBuilder) Build(ctx context.Context) error {
 			return err
 		}
 		b.logger.Debug("building image in ", wd)
-		_, err = bkClient.Solve(ctx, def, client.SolveOpt{
+		_, err = b.Solve(ctx, def, client.SolveOpt{
 			Exports: []client.ExportEntry{
 				{
 					Type: client.ExporterDocker,

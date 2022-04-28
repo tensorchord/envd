@@ -91,7 +91,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: lint test build container push addlicense debug debug-local build-local
+.PHONY: lint test build container push addlicense debug debug-local build-local generate test
 
 build: build-local
 
@@ -111,6 +111,10 @@ build-local:
 	    $(CMD_DIR)/$${target};                                                         \
 	done
 
+generate:
+	@mockgen -source pkg/buildkitd/buildkitd.go -destination pkg/buildkitd/mock/mock.go -package mock
+	@mockgen -source pkg/lang/frontend/starlark/interpreter.go -destination pkg/lang/frontend/starlark/mock/mock.go -package mock
+
 # It is used by vscode to attach into the process.
 debug-local:
 	@for target in $(TARGETS); do                                                      \
@@ -122,6 +126,10 @@ debug-local:
 
 addlicense:
 	addlicense -c "The MIDI Authors" **/*.go **/**/*.go
+
+test: generate
+	@go test -race -coverprofile=coverage.out ./...
+	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
 .PHONY: clean
 clean:
