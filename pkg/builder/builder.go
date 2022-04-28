@@ -47,6 +47,7 @@ type generalBuilder struct {
 	logger *logrus.Entry
 	starlark.Interpreter
 	buildkitd.Client
+	progresswriter.Writer
 }
 
 func New(ctx context.Context, configFilePath, manifestFilePath, tag string) (Builder, error) {
@@ -66,6 +67,12 @@ func New(ctx context.Context, configFilePath, manifestFilePath, tag string) (Bui
 		return nil, errors.Wrap(err, "failed to create buildkit client")
 	}
 	b.Client = cli
+
+	pw, err := progresswriter.NewPrinter(ctx, os.Stdout, b.progressMode)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create progress writer")
+	}
+	b.Writer = pw
 
 	b.Interpreter = starlark.NewInterpreter()
 	return b, nil
@@ -96,10 +103,6 @@ func (b generalBuilder) Build(ctx context.Context) error {
 	defer cancel()
 	eg, ctx := errgroup.WithContext(ctx)
 
-	pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.progressMode)
-	if err != nil {
-		return err
-	}
 	// Create a pipe to load the image into the docker host.
 	pipeR, pipeW := io.Pipe()
 	eg.Go(func() error {
@@ -125,7 +128,7 @@ func (b generalBuilder) Build(ctx context.Context) error {
 				flag.FlagContextDir: wd,
 				flag.FlagCacheDir:   home.GetManager().CacheDir(),
 			},
-		}, pw.Status())
+		}, b.Status())
 		if err != nil {
 			err = errors.Wrap(err, "failed to solve LLB")
 			b.logger.Error(err)
@@ -137,11 +140,9 @@ func (b generalBuilder) Build(ctx context.Context) error {
 
 	// Watch the progress.
 	eg.Go(func() error {
-		// monitor := progress.NewMonitor()
-		// return monitor.Monitor(ctx, ch)
 		// not using shared context to not disrupt display but let is finish reporting errors
-		<-pw.Done()
-		return pw.Err()
+		<-b.Done()
+		return b.Err()
 	})
 
 	// Load the image to docker host.
