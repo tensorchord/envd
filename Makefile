@@ -104,6 +104,9 @@ lint: $(GOLANGCI_LINT)
 $(GOLANGCI_LINT):
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(BIN_DIR) v1.23.6
 
+$(MOCKGEN):
+	go get -u github.com/golang/mock/mockgen
+
 build-local:
 	@for target in $(TARGETS); do                                                      \
 	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath -v -o $(OUTPUT_DIR)/$${target}     \
@@ -111,7 +114,7 @@ build-local:
 	    $(CMD_DIR)/$${target};                                                         \
 	done
 
-generate:
+generate: $(MOCKGEN)
 	@mockgen -source pkg/buildkitd/buildkitd.go -destination pkg/buildkitd/mock/mock.go -package mock
 	@mockgen -source pkg/lang/frontend/starlark/interpreter.go -destination pkg/lang/frontend/starlark/mock/mock.go -package mock
 
