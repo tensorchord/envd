@@ -28,6 +28,7 @@ var _ = Describe("Builder", func() {
 			tag = "midi-dev:test"
 			viper.Set(flag.FlagBuildkitdContainer, "midi_buildkitd")
 			viper.Set(flag.FlagSSHImage, "midi-ssh:latest")
+			os.Setenv("DOCKER_API_VERSION", "1.41")
 			DeferCleanup(func() {
 				viper.Set(flag.FlagBuildkitdContainer, "")
 				viper.Set(flag.FlagSSHImage, "")
