@@ -7,8 +7,10 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
+	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
 	"github.com/tensorchord/MIDI/pkg/docker"
 	"github.com/tensorchord/MIDI/pkg/flag"
 )
@@ -21,6 +23,8 @@ var (
 // It's up to the caller to close the client.
 type Client interface {
 	Bootstrap(ctx context.Context) (string, error)
+	// Solve calls Solve on the controller.
+	Solve(ctx context.Context, def *llb.Definition, opt client.SolveOpt, statusChan chan *client.SolveStatus) (*client.SolveResponse, error)
 	Close() error
 }
 
@@ -32,7 +36,7 @@ type generalClient struct {
 	logger *logrus.Entry
 }
 
-func NewClient() Client {
+func NewClient(ctx context.Context) (Client, error) {
 	c := &generalClient{
 		containerName: viper.GetString(flag.FlagBuildkitdContainer),
 		image:         viper.GetString(flag.FlagBuildkitdImage),
@@ -41,7 +45,21 @@ func NewClient() Client {
 		"container": c.containerName,
 		"image":     c.image,
 	})
-	return c
+
+	cli, err := client.New(ctx, c.buildkitdAddr(), client.WithFailFast())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create the buildkit client")
+	}
+	c.Client = cli
+
+	connected, err := c.connected(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to connect to buildkitd")
+	}
+	if !connected {
+		return nil, errors.New("buildkitd is not running")
+	}
+	return c, nil
 }
 
 func (c *generalClient) Bootstrap(ctx context.Context) (string, error) {
@@ -81,12 +99,6 @@ func (c *generalClient) maybeStart(ctx context.Context,
 	}
 
 	c.logger.Debug("container is running, check if it's ready...")
-	bkClient, err := client.New(ctx, c.buildkitdAddr(), client.WithFailFast())
-	if err != nil {
-		return "", errors.Wrap(err, "failed to new buildkitd client")
-	}
-	c.Client = bkClient
-
 	if err := c.waitUntilConnected(ctx, runningTimeout); err != nil {
 		return "", errors.Wrap(err, "failed to connect to buildkitd")
 	}

@@ -91,7 +91,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: lint test build container push addlicense debug debug-local build-local
+.PHONY: lint test build container push addlicense debug debug-local build-local generate test
 
 build: build-local
 
@@ -104,12 +104,19 @@ lint: $(GOLANGCI_LINT)
 $(GOLANGCI_LINT):
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(BIN_DIR) v1.23.6
 
+mockgen-install:
+	go get -u github.com/golang/mock/mockgen
+
 build-local:
 	@for target in $(TARGETS); do                                                      \
 	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath -v -o $(OUTPUT_DIR)/$${target}     \
 	    -ldflags "-s -w -X $(ROOT)/pkg/version.Version=$(VERSION)"                     \
 	    $(CMD_DIR)/$${target};                                                         \
 	done
+
+generate: mockgen-install
+	@mockgen -source pkg/buildkitd/buildkitd.go -destination pkg/buildkitd/mock/mock.go -package mock
+	@mockgen -source pkg/lang/frontend/starlark/interpreter.go -destination pkg/lang/frontend/starlark/mock/mock.go -package mock
 
 # It is used by vscode to attach into the process.
 debug-local:
@@ -122,6 +129,10 @@ debug-local:
 
 addlicense:
 	addlicense -c "The MIDI Authors" **/*.go **/**/*.go
+
+test: generate
+	@go test -race -coverprofile=coverage.out ./...
+	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
 .PHONY: clean
 clean:

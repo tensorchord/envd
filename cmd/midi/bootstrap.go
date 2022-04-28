@@ -73,7 +73,10 @@ func bootstrap(clicontext *cli.Context) error {
 
 	if buildkit {
 		logrus.Debug("bootstrap the buildkitd container")
-		bkClient := buildkitd.NewClient()
+		bkClient, err := buildkitd.NewClient(clicontext.Context)
+		if err != nil {
+			return errors.Wrap(err, "failed to create buildkit client")
+		}
 		defer bkClient.Close()
 		addr, err := bkClient.Bootstrap(clicontext.Context)
 		if err != nil {
@@ -95,7 +98,7 @@ func insertZSHCompleteEntry() error {
 		return errors.Wrapf(err, "failed to check if %s exists", dirPath)
 	}
 	if !dirPathExists {
-		log.L.Warn("Warning: unable to enable zsh-completion: %s does not exist\n", dirPath)
+		log.L.Warnf("Warning: unable to enable zsh-completion: %s does not exist", dirPath)
 		return nil // zsh-completion isn't available, silently fail.
 	}
 
