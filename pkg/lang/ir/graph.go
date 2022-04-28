@@ -81,9 +81,14 @@ func (g Graph) Compile() (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
 	}
-
+	if vscodeStage != nil {
+		merged := llb.Merge([]llb.State{
+			aptStage, systemStage, pypiStage, sshStage, *vscodeStage,
+		})
+		return merged, nil
+	}
 	merged := llb.Merge([]llb.State{
-		aptStage, systemStage, pypiStage, sshStage, vscodeStage,
+		aptStage, systemStage, pypiStage, sshStage,
 	})
 	return merged, nil
 }
@@ -103,45 +108,6 @@ func (g *Graph) compileCUDAPackages() llb.State {
 		fmt.Sprintf("%s-pip", g.Language),
 	}...)
 	return root
-}
-
-// Deprecated: Use compileCUDAPackages instead.
-func (g *Graph) compileCUDAPackagesDeprecated() llb.State {
-	root := llb.Image(fmt.Sprintf("nvidia/cuda:%s.0-base-%s", *g.CUDA, g.OS))
-	env := root.AddEnv("DEBIAN_FRONTEND", "noninteractive").
-		AddEnv("LD_LIBRARY_PATH", "/usr/local/cuda-11.0/targets/x86_64-linux/lib:/usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH").
-		AddEnv("LANG", "C.UTF-8")
-
-	g.BuiltinSystemPackages = append(g.BuiltinSystemPackages, []string{
-		"build-essential",
-		"curl",
-		"libfreetype6-dev",
-		"libhdf5-serial-dev",
-		"libzmq3-dev",
-		"pkg-config",
-		"software-properties-common",
-		"unzip",
-		// Python
-		g.Language,
-		fmt.Sprintf("%s-pip", g.Language),
-		// CUDA and CUDNN
-		fmt.Sprintf("cuda-command-line-tools-%s", *g.CUDA),
-		fmt.Sprintf("libcublas-%s", *g.CUDA),
-		fmt.Sprintf("cuda-nvrtc-%s", *g.CUDA),
-		fmt.Sprintf("libcufft-%s", *g.CUDA),
-		fmt.Sprintf("libcurand-%s", *g.CUDA),
-		fmt.Sprintf("libcusolver-%s", *g.CUDA),
-		fmt.Sprintf("libcusparse-%s", *g.CUDA),
-		fmt.Sprintf("libcudnn8=%s+cuda%s", *g.CUDNN, *g.CUDA),
-	}...)
-
-	installed := g.compileBuiltinSystemPackages(env)
-
-	run := installed.Run(llb.Shlex(`ln -s /usr/local/cuda/lib64/stubs/libcuda.so 
-	/usr/local/cuda/lib64/stubs/libcuda.so.1
-	&& echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf
-	&& ldconfig`))
-	return run.Root()
 }
 
 func (g Graph) compilePyPIPackages(root llb.State) llb.State {
@@ -216,6 +182,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 }
 
 func (g Graph) copyMidiSSHServer() llb.State {
+	// TODO(gaocegege): Remove global var ssh image.
 	run := llb.Scratch().
 		File(llb.Copy(llb.Image(viper.GetString(flag.FlagSSHImage)),
 			"usr/bin/midi-ssh", "/var/midi/bin/midi-ssh",
@@ -223,12 +190,15 @@ func (g Graph) copyMidiSSHServer() llb.State {
 	return run
 }
 
-func (g Graph) compileVSCode() (llb.State, error) {
+func (g Graph) compileVSCode() (*llb.State, error) {
+	if len(g.VSCodePlugins) == 0 {
+		return nil, nil
+	}
 	inputs := []llb.State{}
 	for _, p := range g.VSCodePlugins {
 		vscodeClient := vscode.NewClient()
 		if err := vscodeClient.DownloadOrCache(p); err != nil {
-			return llb.State{}, err
+			return nil, err
 		}
 		ext := llb.Scratch().File(llb.Copy(llb.Local(flag.FlagCacheDir),
 			vscodeClient.PluginPath(p),
@@ -236,7 +206,8 @@ func (g Graph) compileVSCode() (llb.State, error) {
 			&llb.CopyInfo{CreateDestPath: true}))
 		inputs = append(inputs, ext)
 	}
-	return llb.Merge(inputs), nil
+	layer := llb.Merge(inputs)
+	return &layer, nil
 }
 
 func (g Graph) compileUbuntuAPT(root llb.State) llb.State {

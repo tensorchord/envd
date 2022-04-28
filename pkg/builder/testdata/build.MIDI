@@ -1,0 +1,11 @@
+base(os="ubuntu20.04", language="python3")
+pip_package(name = [
+    "jupyter",
+])
+pip_package(name = [
+    "ormb",
+])
+install_package(name = [
+    "gcc"
+])
+cuda(version="11.2", cudnn="8")
