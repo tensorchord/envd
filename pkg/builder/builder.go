@@ -100,9 +100,6 @@ func (b generalBuilder) Build(ctx context.Context) error {
 	// Create a pipe to load the image into the docker host.
 	pipeR, pipeW := io.Pipe()
 	eg.Go(func() error {
-		defer func() {
-			close(pw.Status())
-		}()
 		defer pipeW.Close()
 		wd, err := os.Getwd()
 		if err != nil {

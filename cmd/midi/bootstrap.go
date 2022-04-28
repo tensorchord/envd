@@ -28,7 +28,6 @@ import (
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/MIDI/pkg/buildkitd"
-	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/util/fileutil"
 )
 
@@ -46,12 +45,6 @@ var CommandBootstrap = &cli.Command{
 			Name:  "with-autocomplete",
 			Usage: "Add midi autocompletions",
 			Value: true,
-		},
-		&cli.StringFlag{
-			Name:  "midi-ssh",
-			Usage: "url to download midi-ssh binary",
-			// TODO(gaocegege): Use version.Version to generate the right URL.
-			Value: "https://objects.githubusercontent.com/github-production-release-asset-2e65be/480303698/93f6c5c3-b1b9-4302-a943-9ad2294520d2?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20220427%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220427T074231Z&X-Amz-Expires=300&X-Amz-Signature=96baa2ada9295bd45beeaa318f1f3427247d22ebf7d2737fcbf2144930f50b9f&X-Amz-SignedHeaders=host&actor_id=5100735&key_id=0&repo_id=480303698&response-content-disposition=attachment%3B%20filename%3Dmidi-ssh_0.0.1-alpha.1_Linux_x86_64&response-content-type=application%2Foctet-stream",
 		},
 	},
 
@@ -74,11 +67,6 @@ func bootstrap(clicontext *cli.Context) error {
 		}
 
 		logrus.Info("You may have to restart your shell for autocomplete to get initialized (e.g. run \"exec $SHELL\")\n")
-	}
-
-	sshURL := clicontext.String("midi-ssh")
-	if err := home.GetManager().DownloadOrCacheSSHBinary(sshURL); err != nil {
-		return errors.Wrap(err, "failed o download midi-ssh")
 	}
 
 	buildkit := clicontext.Bool("buildkit")

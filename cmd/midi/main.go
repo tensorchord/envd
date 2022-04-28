@@ -66,6 +66,13 @@ func main() {
 			Usage: "buildkitd container to use for buildkitd",
 			Value: "midi_buildkitd",
 		},
+		&cli.StringFlag{
+			Name:  flag.FlagSSHImage,
+			Usage: "Download the midi-ssh image",
+			// TODO(gaocegege): Use version.Version to generate the right URL.
+			Value:  "ghcr.io/tensorchord/midi-ssh-from-scratch:0.0.1-amd64",
+			Hidden: true,
+		},
 	}
 
 	app.Commands = []*cli.Command{
@@ -97,7 +104,7 @@ func main() {
 		// TODO(gaocegege): Add a config struct to keep them.
 		viper.Set(flag.FlagBuildkitdContainer, context.String(flag.FlagBuildkitdContainer))
 		viper.Set(flag.FlagBuildkitdImage, context.String(flag.FlagBuildkitdImage))
-
+		viper.Set(flag.FlagSSHImage, context.String(flag.FlagSSHImage))
 		return nil
 	}
 	handleErr(debugEnabled, app.Run(os.Args))

@@ -23,8 +23,8 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"github.com/tensorchord/MIDI/pkg/flag"
-	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/vscode"
 )
 
@@ -217,8 +217,8 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 
 func (g Graph) copyMidiSSHServer() llb.State {
 	run := llb.Scratch().
-		File(llb.Copy(llb.Local(flag.FlagCacheDir),
-			home.GetManager().SSHBinaryFile(), "/var/midi/bin/midi-ssh",
+		File(llb.Copy(llb.Image(viper.GetString(flag.FlagSSHImage)),
+			"usr/bin/midi-ssh", "/var/midi/bin/midi-ssh",
 			&llb.CopyInfo{CreateDestPath: true}))
 	return run
 }
