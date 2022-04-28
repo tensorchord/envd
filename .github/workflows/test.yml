@@ -22,6 +22,12 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.17.2
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: Verify mockgen
         run: |
           make generate && git add pkg
@@ -49,12 +55,16 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: ${{ env.GOPATH }}/src/github.com/tensorchord/MIDI
-
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.17.2
-
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: Check Go modules
         run: |
           -compat=1.17 && git add go.*
