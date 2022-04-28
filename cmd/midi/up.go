@@ -17,6 +17,7 @@ package main
 import (
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
@@ -58,6 +59,11 @@ var CommandUp = &cli.Command{
 			Aliases: []string{"k"},
 			Value:   "~/.ssh/id_rsa",
 		},
+		&cli.DurationFlag{
+			Name:  "timeout",
+			Usage: "Timeout of container creation",
+			Value: time.Second * 30,
+		},
 	},
 
 	Action: up,
@@ -92,6 +98,11 @@ func up(clicontext *cli.Context) error {
 		return err
 	}
 	logrus.Debugf("container %s is running", containerID)
+
+	if err := dockerClient.WaitUntilRunning(
+		clicontext.Context, containerID, clicontext.Duration("timeout")); err != nil {
+		return errors.Wrap(err, "failed to wait until the container is running")
+	}
 
 	sshClient, err := ssh.NewClient(
 		containerIP, "root", 2222, clicontext.Bool("auth"), clicontext.Path("private-key"), "")
