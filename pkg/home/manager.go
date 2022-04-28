@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -64,28 +65,33 @@ func (m generalManager) HomeDir() string {
 func (m *generalManager) init(homeDir, configFile string) error {
 	expandedDir, err := expandHome(homeDir)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to expand home dir")
 	}
 	if err := os.MkdirAll(expandedDir, 0755); err != nil {
-		return err
+		return errors.Wrap(err, "failed to create MIDI home directory")
 	}
 	m.homeDir = expandedDir
 
-	m.cacheDir = filepath.Join(expandedDir, cacheDirName)
+	cacheDir := filepath.Join(expandedDir, cacheDirName)
+	if err := os.MkdirAll(cacheDir, 0755); err != nil {
+		return errors.Wrap(err, "failed to create MIDI cache directory")
+	}
+	m.cacheDir = cacheDir
 
 	expandedFilePath, err := expandHome(configFile)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to expand config file path")
 	}
 
 	_, err = os.Stat(expandedFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			if _, err := os.Create(configFile); err != nil {
-				return err
+			logrus.WithField("config", expandedFilePath).Info("Creating config file")
+			if _, err := os.Create(expandedFilePath); err != nil {
+				return errors.Wrap(err, "failed to create config file")
 			}
 		} else {
-			return err
+			return errors.Wrap(err, "failed to stat config file")
 		}
 	}
 	m.configFile = expandedFilePath
