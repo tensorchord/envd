@@ -28,13 +28,13 @@ jobs:
           git diff --cached --exit-code || (echo 'Please run "make fmt" to verify gofmt' && exit 1);
       - name: Test
         run: make test
-      - name: send coverage
-        uses: shogo82148/actions-goveralls@v1
-        with:
-          path-to-profile: coverage.out
-          working-directory: src/github.com/tensorchord/MIDI
-          flag-name: unit-test
-          parallel: true
+      # - name: send coverage
+      #   uses: shogo82148/actions-goveralls@v1
+      #   with:
+      #     path-to-profile: coverage.out
+      #     working-directory: src/github.com/tensorchord/MIDI
+      #     flag-name: unit-test
+      #     parallel: true
   build:
     name: build
     runs-on: ubuntu-latest
