@@ -38,6 +38,7 @@ func main() {
 
 	// TODO(gaocegege): Enclose the app, maybe create the struct MIDIApp.
 	app := cli.NewApp()
+	app.EnableBashCompletion = true
 	app.Name = "midi"
 	app.Usage = "Build tools for data scientists"
 	app.Version = version.Version
