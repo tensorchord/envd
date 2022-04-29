@@ -78,11 +78,7 @@ func bootstrap(clicontext *cli.Context) error {
 			return errors.Wrap(err, "failed to create buildkit client")
 		}
 		defer bkClient.Close()
-		addr, err := bkClient.Bootstrap(clicontext.Context)
-		if err != nil {
-			return errors.Wrap(err, "failed to bootstrap buildkit")
-		}
-		logrus.Infof("The buildkit is running at %s", addr)
+		logrus.Infof("The buildkit is running at %s", bkClient.BuildkitdAddr())
 	}
 	return nil
 }

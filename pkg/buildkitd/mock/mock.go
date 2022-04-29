@@ -51,6 +51,20 @@ func (mr *MockClientMockRecorder) Bootstrap(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Bootstrap", reflect.TypeOf((*MockClient)(nil).Bootstrap), ctx)
 }
 
+// BuildkitdAddr mocks base method.
+func (m *MockClient) BuildkitdAddr() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BuildkitdAddr")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// BuildkitdAddr indicates an expected call of BuildkitdAddr.
+func (mr *MockClientMockRecorder) BuildkitdAddr() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildkitdAddr", reflect.TypeOf((*MockClient)(nil).BuildkitdAddr))
+}
+
 // Close mocks base method.
 func (m *MockClient) Close() error {
 	m.ctrl.T.Helper()
