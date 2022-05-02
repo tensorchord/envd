@@ -90,6 +90,7 @@ func (cl consoleLogger) PrintSuccess() {
 }
 
 // Printf prints formatted text to the console.
+// nolint:errcheck
 func (cl consoleLogger) Printf(format string, args ...interface{}) {
 	cl.mu.Lock()
 	defer cl.mu.Unlock()
@@ -103,6 +104,7 @@ func (cl consoleLogger) Printf(format string, args ...interface{}) {
 }
 
 // PrintBytes prints bytes directly to the console.
+// nolint:errcheck
 func (cl consoleLogger) PrintBytes(data []byte) {
 	// TODO: This does not deal well with control characters, because of the prefix.
 	cl.mu.Lock()
@@ -120,6 +122,7 @@ func (cl consoleLogger) PrintBytes(data []byte) {
 	}
 }
 
+// nolint:errcheck
 func (cl consoleLogger) printPrefix() {
 	// Assumes mu locked.
 	if cl.prefix == "" {

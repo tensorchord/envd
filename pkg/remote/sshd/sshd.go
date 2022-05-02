@@ -75,11 +75,14 @@ type Server struct {
 
 // ListenAndServe starts the SSH server using port
 func (srv *Server) ListenAndServe() error {
-	server := srv.getServer()
+	server, err := srv.getServer()
+	if err != nil {
+		return errors.Wrap(err, "failed to parse server configs")
+	}
 	return server.ListenAndServe()
 }
 
-func (srv *Server) getServer() *ssh.Server {
+func (srv *Server) getServer() (*ssh.Server, error) {
 	forwardHandler := &ssh.ForwardedTCPHandler{}
 
 	server := &ssh.Server{
@@ -106,7 +109,10 @@ func (srv *Server) getServer() *ssh.Server {
 		},
 	}
 
-	server.SetOption(ssh.HostKeyPEM([]byte(hostKeyBytes)))
+	err := server.SetOption(ssh.HostKeyPEM([]byte(hostKeyBytes)))
+	if err != nil {
+		return nil, err
+	}
 
 	if srv.AuthorizedKeys != nil {
 		server.PublicKeyHandler = srv.authorize
@@ -115,7 +121,7 @@ func (srv *Server) getServer() *ssh.Server {
 		server.PasswordHandler = nil
 	}
 
-	return server
+	return server, nil
 }
 
 func (srv Server) buildCmd(logger *logrus.Entry, s ssh.Session) *exec.Cmd {
@@ -172,7 +178,10 @@ func (srv *Server) connectionHandler(s ssh.Session) {
 			return
 		}
 
-		s.Exit(0)
+		err := s.Exit(0)
+		if err != nil {
+			logger.Warningln("exit session with error:", err)
+		}
 		return
 	}
 
@@ -182,7 +191,10 @@ func (srv *Server) connectionHandler(s ssh.Session) {
 		return
 	}
 
-	s.Exit(0)
+	err := s.Exit(0)
+	if err != nil {
+		logger.Warningln("exit session with error:", err)
+	}
 }
 
 func handlePTY(logger *logrus.Entry, cmd *exec.Cmd, s ssh.Session, ptyReq ssh.Pty, winCh <-chan ssh.Window) error {
@@ -203,13 +215,19 @@ func handlePTY(logger *logrus.Entry, cmd *exec.Cmd, s ssh.Session, ptyReq ssh.Pt
 	}()
 
 	go func() {
-		io.Copy(f, s) // stdin
+		_, err := io.Copy(f, s) // stdin
+		if err != nil {
+			logger.WithError(err).Warningln("failed to copy stdin")
+		}
 	}()
 
 	waitCh := make(chan struct{})
 	go func() {
 		defer close(waitCh)
-		io.Copy(s, f) // stdout
+		_, err := io.Copy(s, f) // stdout
+		if err != nil {
+			logger.WithError(err).Warningln("failed to copy stdin")
+		}
 	}()
 
 	if err := cmd.Wait(); err != nil {
@@ -230,8 +248,11 @@ func handlePTY(logger *logrus.Entry, cmd *exec.Cmd, s ssh.Session, ptyReq ssh.Pt
 func setWinsize(f *os.File, w, h int) {
 	// TODO(gaocegege): Should we use syscall or docker resize?
 	// Refer to https://github.com/gliderlabs/ssh/blob/master/_examples/ssh-docker/docker.go#L99
-	syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), uintptr(syscall.TIOCSWINSZ),
+	_, _, err := syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), uintptr(syscall.TIOCSWINSZ),
 		uintptr(unsafe.Pointer(&struct{ h, w, x, y uint16 }{uint16(h), uint16(w), 0, 0})))
+	if err != 0 {
+		logrus.WithError(err).Error("failed to set winsize")
+	}
 }
 
 func sendErrAndExit(logger *logrus.Entry, s ssh.Session, err error) {

@@ -175,7 +175,9 @@ func ruleFuncUbuntuAPT(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s", ruleUbuntuAPT,
 		modeStr, sourceStr)
-	ir.UbuntuAPT(modeStr, sourceStr)
+	if err := ir.UbuntuAPT(modeStr, sourceStr); err != nil {
+		return nil, err
+	}
 
 	return starlark.None, nil
 }
@@ -200,7 +202,9 @@ func ruleFuncPyPIMirror(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked, mode=%s, mirror=%s", rulePyPIMirror,
 		modeStr, mirrorStr)
-	ir.PyPIMirror(modeStr, mirrorStr)
+	if err := ir.PyPIMirror(modeStr, mirrorStr); err != nil {
+		return nil, err
+	}
 
 	return starlark.None, nil
 }
