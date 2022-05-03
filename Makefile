@@ -52,7 +52,7 @@ CGO_ENABLED ?= 1
 #
 
 # It's necessary to set this because some environments don't link sh -> bash.
-export SHELL := /bin/bash
+export SHELL := bash
 
 # It's necessary to set the errexit flags for the bash shell.
 export SHELLOPTS := errexit
@@ -77,7 +77,7 @@ DOCKER_LABELS ?= git-describe="$(shell date -u +v%Y%m%d)-$(shell git describe --
 # Golang standard bin directory.
 GOPATH ?= $(shell go env GOPATH)
 GOROOT ?= $(shell go env GOROOT)
-BIN_DIR := $(GOROOT)/bin
+BIN_DIR := $(GOPATH)/bin
 GOLANGCI_LINT := $(BIN_DIR)/golangci-lint
 
 # Default golang flags used in build and test
@@ -105,7 +105,7 @@ $(GOLANGCI_LINT):
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(BIN_DIR) v1.23.6
 
 mockgen-install:
-	go get -u github.com/golang/mock/mockgen
+	go install github.com/golang/mock/mockgen@v1.6.0
 
 build-local:
 	@for target in $(TARGETS); do                                                      \

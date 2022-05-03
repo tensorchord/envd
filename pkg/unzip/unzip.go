@@ -89,7 +89,10 @@ func Unzip(src string, dest string) ([]string, error) {
 	uid := os.Getuid()
 	gid := os.Getgid()
 
-	ensureDir(dest)
+	err := ensureDir(dest)
+	if err != nil {
+		return filenames, err
+	}
 	r, err := zip.OpenReader(src)
 	if err != nil {
 		return filenames, err

@@ -99,7 +99,10 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 			if err != nil {
 				return "", errors.Wrap(err, "failed to pull image")
 			}
-			io.Copy(os.Stdout, body)
+			_, err = io.Copy(os.Stdout, body)
+			if err != nil {
+				logger.WithError(err).Warningln("failed to copy image pull output")
+			}
 			defer body.Close()
 		} else {
 			return "", errors.Wrap(err, "failed to inspect image")
