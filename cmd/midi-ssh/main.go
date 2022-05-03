@@ -98,7 +98,7 @@ func sshServer(c *cli.Context) error {
 		}
 
 		if port <= 1024 {
-			return errors.New("failedto parse port: port is reserved")
+			return errors.New("failed to parse port: port is reserved")
 		}
 	}
 

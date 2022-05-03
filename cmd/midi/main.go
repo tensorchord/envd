@@ -98,7 +98,7 @@ func main() {
 
 		homeDir := context.Path(flag.FlagHomeDir)
 
-		if err := home.Intialize(homeDir, configFile); err != nil {
+		if err := home.Initialize(homeDir, configFile); err != nil {
 			return errors.Wrap(err, "failed to initialize home manager")
 		}
 

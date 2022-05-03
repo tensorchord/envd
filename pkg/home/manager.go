@@ -34,7 +34,7 @@ var (
 	once           sync.Once
 )
 
-func Intialize(homeDir, configFile string) error {
+func Initialize(homeDir, configFile string) error {
 	once.Do(func() {
 		defaultManager = &generalManager{}
 	})

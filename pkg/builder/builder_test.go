@@ -65,9 +65,9 @@ var _ = Describe("Builder", func() {
 				b.Writer = pw
 			})
 
-			When("failed to interprete config", func() {
+			When("failed to interpret config", func() {
 				It("should get an error", func() {
-					expected := errors.New("failed to interprete config")
+					expected := errors.New("failed to interpret config")
 					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 						gomock.Eq(configFilePath),
 					).Return(nil, expected)
@@ -76,9 +76,9 @@ var _ = Describe("Builder", func() {
 				})
 			})
 
-			When("failed to interprete manifest", func() {
+			When("failed to interpret manifest", func() {
 				It("should get an error", func() {
-					expected := errors.New("failed to interprete manifest")
+					expected := errors.New("failed to interpret manifest")
 					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 						gomock.Eq(configFilePath),
 					).Return(nil, nil)
@@ -96,7 +96,7 @@ var _ = Describe("Builder", func() {
 				b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 					gomock.Eq(b.manifestFilePath),
 				).Return(nil, nil).Times(1)
-				err := home.Intialize("/tmp/midi", configFilePath)
+				err := home.Initialize("/tmp/midi", configFilePath)
 				Expect(err).ToNot(HaveOccurred())
 				close(b.Writer.Status())
 
