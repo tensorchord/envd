@@ -76,7 +76,7 @@ dockers:
   build_flag_templates:
   - "--platform=linux/arm64/v8"
 docker_manifests:
-- name_template: tensorchord/midi-ssh-from-scratch:{{ .Version }}
+- name_template: ghcr.io/tensorchord/midi-ssh-from-scratch:{{ .Version }}
   image_templates:
   - ghcr.io/tensorchord/midi-ssh-from-scratch:{{ .Version }}-amd64
   - ghcr.io/tensorchord/midi-ssh-from-scratch:{{ .Version }}-arm64v8
