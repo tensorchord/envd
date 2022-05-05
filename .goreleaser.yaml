@@ -59,7 +59,7 @@ changelog:
       - '^test:'
 dockers:
 - image_templates:
-  - "tensorchord/midi-ssh-from-scratch:{{ .Version }}-amd64"
+  - "ghcr.io/tensorchord/midi-ssh-from-scratch:{{ .Version }}-amd64"
   use: buildx
   dockerfile: .goreleaser/midi-ssh.Dockerfile
   ids: 
@@ -67,7 +67,7 @@ dockers:
   build_flag_templates:
   - "--platform=linux/amd64"
 - image_templates:
-  - "tensorchord/midi-ssh-from-scratch:{{ .Version }}-arm64v8"
+  - "ghcr.io/tensorchord/midi-ssh-from-scratch:{{ .Version }}-arm64v8"
   use: buildx
   goarch: arm64
   ids: 
@@ -78,5 +78,5 @@ dockers:
 docker_manifests:
 - name_template: tensorchord/midi-ssh-from-scratch:{{ .Version }}
   image_templates:
-  - tensorchord/midi-ssh-from-scratch:{{ .Version }}-amd64
-  - tensorchord/midi-ssh-from-scratch:{{ .Version }}-arm64v8
+  - ghcr.io/tensorchord/midi-ssh-from-scratch:{{ .Version }}-amd64
+  - ghcr.io/tensorchord/midi-ssh-from-scratch:{{ .Version }}-arm64v8
