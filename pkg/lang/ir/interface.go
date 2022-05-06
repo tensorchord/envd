@@ -63,3 +63,8 @@ func PyPIMirror(mode, mirror string) error {
 	DefaultGraph.PyPIMirror = &mirror
 	return nil
 }
+
+func Shell(shell string) error {
+	DefaultGraph.Shell = shell
+	return nil
+}

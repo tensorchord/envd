@@ -30,6 +30,7 @@ import (
 	"github.com/alessio/shellescape"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/MIDI/pkg/lang/ir"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/term"
 )
@@ -158,7 +159,8 @@ func (c generalClient) Attach() error {
 		}
 	}()
 
-	cmd := shellescape.QuoteCommand([]string{"/bin/bash"})
+	// TODO(gaocegege): Refactor it to avoid direct access to DefaultGraph
+	cmd := shellescape.QuoteCommand([]string{ir.DefaultGraph.Shell})
 	logrus.Debugf("executing command over ssh: '%s'", cmd)
 	err = session.Run(cmd)
 	if err == nil {

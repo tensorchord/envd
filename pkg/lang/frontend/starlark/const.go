@@ -22,4 +22,5 @@ const (
 	ruleVSCode        = "vscode"
 	ruleUbuntuAPT     = "ubuntu_apt"
 	rulePyPIMirror    = "pip_mirror"
+	ruleShell         = "shell"
 )

@@ -1,11 +1,10 @@
 base(os="ubuntu20.04", language="python3")
 pip_package(name = [
     "jupyter",
-])
-pip_package(name = [
-    "ormb",
+    "ormb"
 ])
 install_package(name = [
     "gcc"
 ])
-cuda(version="11.2", cudnn="8")
+cuda(version="11.6", cudnn="8")
+shell("zsh")
