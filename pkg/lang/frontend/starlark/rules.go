@@ -36,6 +36,7 @@ func registerMIDIRules() {
 	starlark.Universe[ruleVSCode] = starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode)
 	starlark.Universe[ruleUbuntuAPT] = starlark.NewBuiltin(ruleUbuntuAPT, ruleFuncUbuntuAPT)
 	starlark.Universe[rulePyPIMirror] = starlark.NewBuiltin(rulePyPIMirror, ruleFuncPyPIMirror)
+	starlark.Universe[ruleShell] = starlark.NewBuiltin(ruleShell, ruleFuncShell)
 }
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
@@ -203,6 +204,28 @@ func ruleFuncPyPIMirror(thread *starlark.Thread, _ *starlark.Builtin,
 	logger.Debugf("rule `%s` is invoked, mode=%s, mirror=%s", rulePyPIMirror,
 		modeStr, mirrorStr)
 	if err := ir.PyPIMirror(modeStr, mirrorStr); err != nil {
+		return nil, err
+	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncShell(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var shell starlark.String
+
+	if err := starlark.UnpackPositionalArgs(ruleShell, args, kwargs, 1, &shell); err != nil {
+		return nil, err
+	}
+
+	shellStr := ""
+	if shell != starlark.String("") {
+		shellStr = shell.GoString()
+	}
+
+	logger.Debugf("rule `%s` is invoked, shell=%s", ruleShell,
+		shellStr)
+	if err := ir.Shell(shellStr); err != nil {
 		return nil, err
 	}
 

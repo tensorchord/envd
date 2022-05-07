@@ -25,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/tensorchord/MIDI/pkg/flag"
+	"github.com/tensorchord/MIDI/pkg/shell"
 	"github.com/tensorchord/MIDI/pkg/vscode"
 )
 
@@ -35,6 +36,7 @@ func NewGraph() *Graph {
 		CUDA:     nil,
 		CUDNN:    nil,
 		BuiltinSystemPackages: []string{
+			// They are used by vscode remote.
 			"curl",
 			"openssh-client",
 		},
@@ -42,6 +44,7 @@ func NewGraph() *Graph {
 		PyPIPackages:   []string{},
 		SystemPackages: []string{},
 		Exec:           []llb.State{},
+		Shell:          shellBASH,
 	}
 }
 
@@ -68,13 +71,18 @@ func (g Graph) Compile() (llb.State, error) {
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
 	aptStage := g.compileUbuntuAPT(base)
+	pypiMirrorStage := g.compilePyPIMirror(aptStage)
 
-	builtinSystemStage := g.compileBuiltinSystemPackages(aptStage)
-	pypiMirrorStage := g.compilePyPIMirror(builtinSystemStage)
-	pypiStage := llb.Diff(aptStage, g.compilePyPIPackages(pypiMirrorStage))
-
-	systemStage := llb.Diff(aptStage, g.compileSystemPackages(aptStage))
-
+	// TODO(gaocegege): Make apt update a seperate stage to
+	// parallel system and user-defined package installation.
+	builtinSystemStage := g.compileBuiltinSystemPackages(pypiMirrorStage)
+	shellStage, err := g.compileShell(builtinSystemStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile shell")
+	}
+	diffShellStage := llb.Diff(builtinSystemStage, shellStage)
+	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage))
+	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage))
 	sshStage := g.copyMidiSSHServer()
 
 	vscodeStage, err := g.compileVSCode()
@@ -83,12 +91,12 @@ func (g Graph) Compile() (llb.State, error) {
 	}
 	if vscodeStage != nil {
 		merged := llb.Merge([]llb.State{
-			aptStage, systemStage, pypiStage, sshStage, *vscodeStage,
+			builtinSystemStage, systemStage, pypiStage, sshStage, *vscodeStage, diffShellStage,
 		})
 		return merged, nil
 	}
 	merged := llb.Merge([]llb.State{
-		aptStage, systemStage, pypiStage, sshStage,
+		builtinSystemStage, systemStage, pypiStage, sshStage, diffShellStage,
 	})
 	return merged, nil
 }
@@ -108,6 +116,13 @@ func (g *Graph) compileCUDAPackages() llb.State {
 		fmt.Sprintf("%s-pip", g.Language),
 	}...)
 	return root
+}
+
+func (g *Graph) compileShell(root llb.State) (llb.State, error) {
+	if g.Shell == shellZSH {
+		return g.compileZSH(root)
+	}
+	return root, nil
 }
 
 func (g Graph) compilePyPIPackages(root llb.State) llb.State {
@@ -132,6 +147,12 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 }
 
 func (g Graph) compileBuiltinSystemPackages(root llb.State) llb.State {
+	// TODO(gaocegege): Refactor it to avoid configure shell in built-in system packages.
+	// Do not need to install bash or sh since it is built-in
+	if g.Shell == shellZSH {
+		g.BuiltinSystemPackages = append(g.BuiltinSystemPackages, shellZSH)
+	}
+
 	if len(g.BuiltinSystemPackages) == 0 {
 		return root
 	}
@@ -164,7 +185,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	// Compose the package install command.
 	var sb strings.Builder
 	// TODO(gaocegege): Support per-user config to keep the mirror.
-	sb.WriteString("apt install")
+	sb.WriteString("apt-get install -y --no-install-recommends")
 
 	for _, pkg := range g.SystemPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
@@ -183,7 +204,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 
 func (g Graph) copyMidiSSHServer() llb.State {
 	// TODO(gaocegege): Remove global var ssh image.
-	run := llb.Scratch().
+	run := llb.Image(viper.GetString(flag.FlagSSHImage)).
 		File(llb.Copy(llb.Image(viper.GetString(flag.FlagSSHImage)),
 			"usr/bin/midi-ssh", "/var/midi/bin/midi-ssh",
 			&llb.CopyInfo{CreateDestPath: true}))
@@ -231,4 +252,18 @@ func (g Graph) compilePyPIMirror(root llb.State) llb.State {
 		return llb.Merge([]llb.State{root, aptSource})
 	}
 	return root
+}
+
+func (g Graph) compileZSH(root llb.State) (llb.State, error) {
+	installPath := "/root/install.sh"
+	m := shell.NewManager()
+	if err := m.DownloadOrCache(); err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to download oh-my-zsh")
+	}
+	zshStage := root.
+		File(llb.Copy(llb.Local(flag.FlagCacheDir), "oh-my-zsh", "/root/.oh-my-zsh",
+			&llb.CopyInfo{CreateDestPath: true})).
+		File(llb.Mkfile(installPath, 0644, []byte(m.InstallScript())))
+	run := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)))
+	return run.Root(), nil
 }

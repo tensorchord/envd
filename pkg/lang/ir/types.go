@@ -25,6 +25,7 @@ import (
 type Graph struct {
 	OS       string
 	Language string
+	Shell    string
 	CUDA     *string
 	CUDNN    *string
 
@@ -38,3 +39,9 @@ type Graph struct {
 
 	Exec []llb.State
 }
+
+const (
+	shellBASH = "bash"
+	shellZSH  = "zsh"
+	shellSH   = "sh"
+)

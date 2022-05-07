@@ -79,7 +79,6 @@ func New(ctx context.Context, configFilePath, manifestFilePath, tag string) (Bui
 }
 
 // GPUEnabled returns true if cuda is enabled.
-// It
 func (b generalBuilder) GPUEnabled() bool {
 	return ir.GPUEnabled()
 }
@@ -127,6 +126,9 @@ func (b generalBuilder) Build(ctx context.Context) error {
 			LocalDirs: map[string]string{
 				flag.FlagContextDir: wd,
 				flag.FlagCacheDir:   home.GetManager().CacheDir(),
+			},
+			FrontendAttrs: map[string]string{
+				"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
 			},
 		}, b.Status())
 		if err != nil {
