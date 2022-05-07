@@ -16,15 +16,20 @@ package docker
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/MIDI/pkg/editor/jupyter"
+	"github.com/tensorchord/MIDI/pkg/lang/ir"
 )
 
 var (
@@ -35,11 +40,13 @@ type Client interface {
 	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
 	// Start creates the container for the given tag and container name.
-	StartMIDI(ctx context.Context, tag, name string, gpuEnabled bool) (string, string, error)
+	StartMIDI(ctx context.Context, tag, name string,
+		gpuEnabled bool, g ir.Graph, timeout time.Duration) (string, string, error)
 	StartBuildkitd(ctx context.Context, tag, name string) (string, error)
 	IsRunning(ctx context.Context, name string) (bool, error)
 	IsCreated(ctx context.Context, name string) (bool, error)
 	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
+	Exec(ctx context.Context, cname string, cmd []string) error
 }
 
 type generalClient struct {
@@ -136,8 +143,8 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 }
 
 // Start creates the container for the given tag and container name.
-func (g generalClient) StartMIDI(
-	ctx context.Context, tag, name string, gpuEnabled bool) (string, string, error) {
+func (c generalClient) StartMIDI(ctx context.Context, tag, name string,
+	gpuEnabled bool, g ir.Graph, timeout time.Duration) (string, string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
@@ -149,14 +156,28 @@ func (g generalClient) StartMIDI(
 			"/var/midi/bin/midi-ssh",
 			"--no-auth",
 		},
+		ExposedPorts: nat.PortSet{},
 	}
-	hostConfig := &container.HostConfig{}
+	hostConfig := &container.HostConfig{
+		PortBindings: nat.PortMap{},
+	}
+	// TODO(gaocegege): Avoid specific logic to set the port.
+	if g.JupyterConfig != nil {
+		natPort := nat.Port(fmt.Sprintf("%d/tcp", g.JupyterConfig.Port))
+		hostConfig.PortBindings[natPort] = []nat.PortBinding{
+			{
+				HostIP:   "localhost",
+				HostPort: strconv.Itoa(int(g.JupyterConfig.Port)),
+			},
+		}
+		config.ExposedPorts[natPort] = struct{}{}
+	}
 	if gpuEnabled {
 		logger.Debug("GPU is enabled.")
 		// enable all gpus with -1
 		hostConfig.DeviceRequests = deviceRequests(-1)
 	}
-	resp, err := g.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
+	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
 	if err != nil {
 		return "", "", err
 	}
@@ -165,15 +186,31 @@ func (g generalClient) StartMIDI(
 		logger.Warnf("run with warnings: %s", w)
 	}
 
-	if err := g.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+	if err := c.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		return "", "", err
 	}
 
-	container, err := g.ContainerInspect(ctx, resp.ID)
+	container, err := c.ContainerInspect(ctx, resp.ID)
 	if err != nil {
 		return "", "", err
 	}
 
+	if err := c.WaitUntilRunning(
+		ctx, container.Name, timeout); err != nil {
+		return "", "", errors.Wrap(err, "failed to wait until the container is running")
+	}
+
+	if g.JupyterConfig != nil {
+		cmd, err := jupyter.GenerateCommand(*ir.DefaultGraph)
+		if err != nil {
+			return "", "", errors.Wrap(err, "failed to generate jupyter command")
+		}
+		logger.WithField("cmd", cmd).Debug("configuring jupyter")
+		err = c.Exec(ctx, container.Name, cmd)
+		if err != nil {
+			return "", "", errors.Wrap(err, "failed to exec the command")
+		}
+	}
 	return container.Name, container.NetworkSettings.IPAddress, nil
 }
 
@@ -208,6 +245,25 @@ func (g generalClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) er
 	}
 
 	defer resp.Body.Close()
+	return nil
+}
+
+func (g generalClient) Exec(ctx context.Context, cname string, cmd []string) error {
+	execConfig := types.ExecConfig{
+		Cmd:    cmd,
+		Detach: true,
+	}
+	resp, err := g.ContainerExecCreate(ctx, cname, execConfig)
+	if err != nil {
+		return err
+	}
+	execID := resp.ID
+	err = g.ContainerExecStart(ctx, execID, types.ExecStartCheck{
+		Detach: true,
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

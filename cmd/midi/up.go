@@ -25,6 +25,7 @@ import (
 	"github.com/tensorchord/MIDI/pkg/builder"
 	"github.com/tensorchord/MIDI/pkg/docker"
 	"github.com/tensorchord/MIDI/pkg/home"
+	"github.com/tensorchord/MIDI/pkg/lang/ir"
 	"github.com/tensorchord/MIDI/pkg/ssh"
 )
 
@@ -93,16 +94,12 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	containerID, containerIP, err := dockerClient.StartMIDI(clicontext.Context, tag, "midi", gpu)
+	containerID, containerIP, err := dockerClient.StartMIDI(
+		clicontext.Context, tag, "midi", gpu, *ir.DefaultGraph, clicontext.Duration("timeout"))
 	if err != nil {
 		return err
 	}
 	logrus.Debugf("container %s is running", containerID)
-
-	if err := dockerClient.WaitUntilRunning(
-		clicontext.Context, containerID, clicontext.Duration("timeout")); err != nil {
-		return errors.Wrap(err, "failed to wait until the container is running")
-	}
 
 	sshClient, err := ssh.NewClient(
 		containerIP, "root", 2222, clicontext.Bool("auth"), clicontext.Path("private-key"), "")

@@ -1,10 +1,7 @@
 base(os="ubuntu20.04", language="python3")
-pip_package(name = [
-    "jupyter",
-    "ormb"
-])
 install_package(name = [
     "gcc"
 ])
 cuda(version="11.6", cudnn="8")
 shell("zsh")
+jupyter(password="", port=8888)

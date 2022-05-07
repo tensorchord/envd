@@ -73,6 +73,7 @@ func (g Graph) Compile() (llb.State, error) {
 	aptStage := g.compileUbuntuAPT(base)
 	pypiMirrorStage := g.compilePyPIMirror(aptStage)
 
+	g.compileJupyter()
 	// TODO(gaocegege): Make apt update a seperate stage to
 	// parallel system and user-defined package installation.
 	builtinSystemStage := g.compileBuiltinSystemPackages(pypiMirrorStage)
@@ -229,6 +230,12 @@ func (g Graph) compileVSCode() (*llb.State, error) {
 	}
 	layer := llb.Merge(inputs)
 	return &layer, nil
+}
+
+func (g *Graph) compileJupyter() {
+	if g.JupyterConfig != nil {
+		g.PyPIPackages = append(g.PyPIPackages, "jupyter")
+	}
 }
 
 func (g Graph) compileUbuntuAPT(root llb.State) llb.State {

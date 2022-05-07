@@ -38,6 +38,12 @@ type Graph struct {
 	VSCodePlugins         []vscode.Plugin
 
 	Exec []llb.State
+	*JupyterConfig
+}
+
+type JupyterConfig struct {
+	Password string
+	Port     int64
 }
 
 const (
