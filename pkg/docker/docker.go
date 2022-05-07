@@ -25,11 +25,13 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/MIDI/pkg/editor/jupyter"
 	"github.com/tensorchord/MIDI/pkg/lang/ir"
+	"github.com/tensorchord/MIDI/pkg/util/fileutil"
 )
 
 var (
@@ -170,8 +172,30 @@ func (c generalClient) StartMIDI(ctx context.Context, tag, name string,
 		},
 		ExposedPorts: nat.PortSet{},
 	}
+	path, err := fileutil.CWD()
+	if err != nil {
+		return "", "", errors.Wrap(err, "failed to get current working directory")
+	}
+	base, err := fileutil.RootDir()
+	if err != nil {
+		return "", "", errors.Wrap(err, "failed to get root directory")
+	}
+	base = fmt.Sprintf("/root/%s", base)
+	config.WorkingDir = base
+
+	logger.WithFields(logrus.Fields{
+		"mount-path":  path,
+		"working-dir": base,
+	}).Debug("setting up container working directory")
 	hostConfig := &container.HostConfig{
 		PortBindings: nat.PortMap{},
+		Mounts: []mount.Mount{
+			{
+				Type:   mount.TypeBind,
+				Source: path,
+				Target: base,
+			},
+		},
 	}
 	// TODO(gaocegege): Avoid specific logic to set the port.
 	if g.JupyterConfig != nil {

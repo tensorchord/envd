@@ -26,6 +26,7 @@ import (
 
 	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/unzip"
+	"github.com/tensorchord/MIDI/pkg/util/fileutil"
 )
 
 type Client interface {
@@ -53,9 +54,21 @@ func (c generalClient) DownloadOrCache(p Plugin) error {
 	url := fmt.Sprintf(vscodePackageURLTemplate,
 		p.Publisher, p.Publisher, p.Extension, p.Version)
 
-	// TODO(gaocegege): Cache the file.
 	filename := fmt.Sprintf("%s/%s.%s-%s.vsix", home.GetManager().CacheDir(),
 		p.Publisher, p.Extension, p.Version)
+	logger := logrus.WithFields(logrus.Fields{
+		"publisher": p.Publisher,
+		"extension": p.Extension,
+		"version":   p.Version,
+		"url":       url,
+		"file":      filename,
+	})
+	if ok, err := fileutil.FileExists(filename); err != nil {
+		return err
+	} else if ok {
+		logger.Debug("vscode plugin is cached")
+		return nil
+	}
 	out, err := os.Create(filename)
 
 	if err != nil {
@@ -67,12 +80,7 @@ func (c generalClient) DownloadOrCache(p Plugin) error {
 	if err != nil {
 		return err
 	}
-	logrus.WithFields(logrus.Fields{
-		"publisher": p.Publisher,
-		"extension": p.Extension,
-		"version":   p.Version,
-		"url":       url,
-	}).Debugf("downloading vscode plugin")
+	logger.Debugf("downloading vscode plugin")
 
 	defer resp.Body.Close()
 	_, err = io.Copy(out, resp.Body)

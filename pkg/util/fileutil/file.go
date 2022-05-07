@@ -18,6 +18,7 @@ package fileutil
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 )
@@ -44,4 +45,16 @@ func DirExists(filename string) (bool, error) {
 		return false, errors.Wrapf(err, "unable to stat %s", filename)
 	}
 	return info.IsDir(), nil
+}
+
+func CWD() (string, error) {
+	return os.Getwd()
+}
+
+func RootDir() (string, error) {
+	cwd, err := CWD()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Base(cwd), nil
 }
