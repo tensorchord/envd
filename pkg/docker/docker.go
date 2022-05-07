@@ -47,6 +47,7 @@ type Client interface {
 	IsCreated(ctx context.Context, name string) (bool, error)
 	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
 	Exec(ctx context.Context, cname string, cmd []string) error
+	Destroy(ctx context.Context, name string) error
 }
 
 type generalClient struct {
@@ -89,6 +90,17 @@ func (g generalClient) WaitUntilRunning(ctx context.Context,
 			return errors.Errorf("timeout %s: buildkitd container did not start", timeout)
 		}
 	}
+}
+
+func (c generalClient) Destroy(ctx context.Context, name string) error {
+	// Refer to https://docs.docker.com/engine/reference/commandline/container_kill/
+	if err := c.ContainerKill(ctx, name, "KILL"); err != nil {
+		return errors.Wrap(err, "failed to kill the container")
+	}
+	if err := c.ContainerRemove(ctx, name, types.ContainerRemoveOptions{}); err != nil {
+		return errors.Wrap(err, "failed to remove the container")
+	}
+	return nil
 }
 
 func (g generalClient) StartBuildkitd(ctx context.Context,

@@ -79,6 +79,7 @@ func main() {
 	app.Commands = []*cli.Command{
 		CommandBootstrap,
 		CommandBuild,
+		CommandDestroy,
 		CommandUp,
 	}
 
