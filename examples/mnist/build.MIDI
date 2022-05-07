@@ -1,0 +1,12 @@
+vscode(plugins = [
+    "ms-python.python-2021.12.1559732655",
+])
+
+base(os="ubuntu20.04", language="python3")
+pip_package(name = [
+    "tensorflow",
+    "numpy",
+])
+cuda(version="11.6", cudnn="8")
+shell("zsh")
+jupyter(password="", port=8888)
