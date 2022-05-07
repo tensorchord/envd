@@ -23,4 +23,5 @@ const (
 	ruleUbuntuAPT     = "ubuntu_apt"
 	rulePyPIMirror    = "pip_mirror"
 	ruleShell         = "shell"
+	ruleJupyter       = "jupyter"
 )

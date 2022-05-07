@@ -68,3 +68,11 @@ func Shell(shell string) error {
 	DefaultGraph.Shell = shell
 	return nil
 }
+
+func Jupyter(pwd string, port int64) error {
+	DefaultGraph.JupyterConfig = &JupyterConfig{
+		Password: pwd,
+		Port:     port,
+	}
+	return nil
+}

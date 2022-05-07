@@ -15,6 +15,7 @@
 package starlark
 
 import (
+	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 
@@ -37,6 +38,8 @@ func registerMIDIRules() {
 	starlark.Universe[ruleUbuntuAPT] = starlark.NewBuiltin(ruleUbuntuAPT, ruleFuncUbuntuAPT)
 	starlark.Universe[rulePyPIMirror] = starlark.NewBuiltin(rulePyPIMirror, ruleFuncPyPIMirror)
 	starlark.Universe[ruleShell] = starlark.NewBuiltin(ruleShell, ruleFuncShell)
+	starlark.Universe[ruleJupyter] = starlark.NewBuiltin(ruleJupyter, ruleFuncJupyter)
+
 }
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
@@ -226,6 +229,34 @@ func ruleFuncShell(thread *starlark.Thread, _ *starlark.Builtin,
 	logger.Debugf("rule `%s` is invoked, shell=%s", ruleShell,
 		shellStr)
 	if err := ir.Shell(shellStr); err != nil {
+		return nil, err
+	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncJupyter(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var password starlark.String
+	var port starlark.Int
+
+	if err := starlark.UnpackArgs(ruleJupyter, args, kwargs,
+		"password?", &password, "port?", &port); err != nil {
+		return nil, err
+	}
+
+	pwdStr := ""
+	if password != starlark.String("") {
+		pwdStr = password.GoString()
+	}
+
+	portInt, ok := port.Int64()
+	if !ok {
+		return nil, errors.New("port must be an integer")
+	}
+	logger.Debugf("rule `%s` is invoked, password=%s, port=%d", ruleJupyter,
+		pwdStr, portInt)
+	if err := ir.Jupyter(pwdStr, portInt); err != nil {
 		return nil, err
 	}
 
