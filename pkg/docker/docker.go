@@ -256,7 +256,7 @@ func (c generalClient) StartMIDI(ctx context.Context, tag, name string,
 	}
 
 	if g.JupyterConfig != nil {
-		cmd, err := jupyter.GenerateCommand(*ir.DefaultGraph)
+		cmd, err := jupyter.GenerateCommand(*ir.DefaultGraph, config.WorkingDir)
 		if err != nil {
 			return "", "", errors.Wrap(err, "failed to generate jupyter command")
 		}

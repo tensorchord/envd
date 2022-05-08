@@ -20,13 +20,14 @@ import (
 	"github.com/tensorchord/MIDI/pkg/lang/ir"
 )
 
-func GenerateCommand(g ir.Graph) ([]string, error) {
+func GenerateCommand(g ir.Graph, notebookDir string) ([]string, error) {
 	if g.JupyterConfig == nil {
 		return nil, nil
 	}
 
 	cmd := []string{
-		"jupyter", "notebook", "--allow-root", "--ip", "0.0.0.0",
+		"jupyter", "notebook", "--allow-root",
+		"--ip", "0.0.0.0", "--notebook-dir", notebookDir,
 	}
 	if g.JupyterConfig.Password != "" {
 		cmd = append(cmd, "--NotebookApp.password", g.JupyterConfig.Password,
