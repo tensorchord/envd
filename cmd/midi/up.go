@@ -34,6 +34,11 @@ var CommandUp = &cli.Command{
 	Aliases: []string{"u"},
 	Usage:   "build and run the MIDI environment",
 	Flags: []cli.Flag{
+		&cli.StringSliceFlag{
+			Name:    "volume",
+			Usage:   "Mount host directory into container",
+			Aliases: []string{"v"},
+		},
 		&cli.StringFlag{
 			Name:    "tag",
 			Usage:   "Name and optionally a tag in the 'name:tag' format",
@@ -95,7 +100,7 @@ func up(clicontext *cli.Context) error {
 		return err
 	}
 	containerID, containerIP, err := dockerClient.StartMIDI(
-		clicontext.Context, tag, "midi", gpu, *ir.DefaultGraph, clicontext.Duration("timeout"))
+		clicontext.Context, tag, "midi", gpu, *ir.DefaultGraph, clicontext.Duration("timeout"), clicontext.StringSlice("volume"))
 	if err != nil {
 		return err
 	}

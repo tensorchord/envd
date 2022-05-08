@@ -20,6 +20,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -43,7 +44,7 @@ type Client interface {
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
 	// Start creates the container for the given tag and container name.
 	StartMIDI(ctx context.Context, tag, name string,
-		gpuEnabled bool, g ir.Graph, timeout time.Duration) (string, string, error)
+		gpuEnabled bool, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error)
 	StartBuildkitd(ctx context.Context, tag, name string) (string, error)
 	IsRunning(ctx context.Context, name string) (bool, error)
 	IsCreated(ctx context.Context, name string) (bool, error)
@@ -158,7 +159,7 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 
 // Start creates the container for the given tag and container name.
 func (c generalClient) StartMIDI(ctx context.Context, tag, name string,
-	gpuEnabled bool, g ir.Graph, timeout time.Duration) (string, string, error) {
+	gpuEnabled bool, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
@@ -183,19 +184,37 @@ func (c generalClient) StartMIDI(ctx context.Context, tag, name string,
 	base = fmt.Sprintf("/root/%s", base)
 	config.WorkingDir = base
 
+	mountOption := make([]mount.Mount, len(mountOptionsStr)+1)
+	for i, option := range mountOptionsStr {
+		mStr := strings.Split(option, ":")
+		if len(mStr) != 2 {
+			return "", "", errors.Wrap(err, fmt.Sprintf("Invalid mount options %s", option))
+		}
+
+		logger.WithFields(logrus.Fields{
+			"mount-path":     mStr[0],
+			"container-path": mStr[1],
+		}).Debug("setting up container working directory")
+		mountOption[i] = mount.Mount{
+			Type:   mount.TypeBind,
+			Source: mStr[0],
+			Target: mStr[1],
+		}
+	}
+	mountOption[len(mountOptionsStr)] = mount.Mount{
+		Type:   mount.TypeBind,
+		Source: path,
+		Target: base,
+	}
+
 	logger.WithFields(logrus.Fields{
 		"mount-path":  path,
 		"working-dir": base,
 	}).Debug("setting up container working directory")
+
 	hostConfig := &container.HostConfig{
 		PortBindings: nat.PortMap{},
-		Mounts: []mount.Mount{
-			{
-				Type:   mount.TypeBind,
-				Source: path,
-				Target: base,
-			},
-		},
+		Mounts:       mountOption,
 	}
 	// TODO(gaocegege): Avoid specific logic to set the port.
 	if g.JupyterConfig != nil {
