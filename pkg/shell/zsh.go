@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/util/fileutil"
 )
@@ -47,15 +48,24 @@ func (m generalManager) DownloadOrCache() error {
 	if ok, err := fileutil.DirExists(m.OHMyZSHDir()); err != nil {
 		return err
 	} else if ok {
+		logrus.WithFields(logrus.Fields{
+			"cache-dir": m.OHMyZSHDir(),
+		}).Debug("found cached oh-my-zsh")
 		return nil
 	}
+	url := "https://github.com/ohmyzsh/ohmyzsh"
+	l := logrus.WithFields(logrus.Fields{
+		"cache-dir": m.OHMyZSHDir(),
+		"URL":       url,
+	})
+	l.Debug("downloading oh-my-zsh")
 	_, err := git.PlainClone(m.OHMyZSHDir(), false, &git.CloneOptions{
-		URL: "https://github.com/ohmyzsh/ohmyzsh",
+		URL: url,
 	})
 	if err != nil {
 		return err
 	}
-
+	l.Debug("oh-my-zsh is downloaded")
 	return nil
 }
 
