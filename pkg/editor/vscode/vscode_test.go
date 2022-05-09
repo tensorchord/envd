@@ -50,11 +50,21 @@ var _ = Describe("Visual Studio Code", func() {
 					expectedErr:       false,
 				},
 				{
+					name:              "dbaeumer.vscode-eslint-1.1.1",
+					expectedPublisher: "dbaeumer",
+					expectedExtension: "vscode-eslint",
+					expectedVersion:   "1.1.1",
+					expectedErr:       false,
+				},
+				{
 					name:        "test",
 					expectedErr: true,
 				},
+				{
+					name:        "test.test",
+					expectedErr: true,
+				},
 			}
-
 			for _, tc := range tcs {
 				p, err := ParsePlugin(tc.name)
 				if tc.expectedErr {

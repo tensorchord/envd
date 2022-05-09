@@ -21,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestOci(t *testing.T) {
+func TestVSCode(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Builder Suite")
+	RunSpecs(t, "VS Code Suite")
 }

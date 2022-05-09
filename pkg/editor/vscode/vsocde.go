@@ -103,7 +103,7 @@ func ParsePlugin(p string) (*Plugin, error) {
 	}
 	publisher := p[:indexPublisher]
 
-	indexExtension := strings.Index(p[indexPublisher:], "-")
+	indexExtension := strings.LastIndex(p[indexPublisher:], "-")
 	if indexExtension == -1 {
 		return nil, errors.New("invalid extension")
 	}

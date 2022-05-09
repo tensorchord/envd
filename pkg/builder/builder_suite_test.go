@@ -21,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestOci(t *testing.T) {
+func TestBuilder(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Builder Suite")
 }
