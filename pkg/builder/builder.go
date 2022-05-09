@@ -150,7 +150,7 @@ func (b generalBuilder) Build(ctx context.Context) error {
 	// Load the image to docker host.
 	eg.Go(func() error {
 		defer pipeR.Close()
-		dockerClient, err := docker.NewClient()
+		dockerClient, err := docker.NewClient(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to new docker client")
 		}

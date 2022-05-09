@@ -95,7 +95,7 @@ func up(clicontext *cli.Context) error {
 	}
 	gpu := builder.GPUEnabled()
 
-	dockerClient, err := docker.NewClient()
+	dockerClient, err := docker.NewClient(clicontext.Context)
 	if err != nil {
 		return err
 	}

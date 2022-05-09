@@ -89,7 +89,7 @@ func (c generalClient) Close() error {
 // that can be used to connect to it.
 func (c *generalClient) maybeStart(ctx context.Context,
 	runningTimeout, connectingTimeout time.Duration) (string, error) {
-	dockerClient, err := docker.NewClient()
+	dockerClient, err := docker.NewClient(ctx)
 	if err != nil {
 		return "", err
 	}

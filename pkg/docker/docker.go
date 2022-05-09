@@ -57,11 +57,12 @@ type generalClient struct {
 	*client.Client
 }
 
-func NewClient() (Client, error) {
+func NewClient(ctx context.Context) (Client, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, err
 	}
+	cli.NegotiateAPIVersion(ctx)
 	return generalClient{cli}, nil
 }
 

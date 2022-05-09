@@ -32,7 +32,7 @@ var CommandDestroy = &cli.Command{
 }
 
 func destroy(clicontext *cli.Context) error {
-	dockerClient, err := docker.NewClient()
+	dockerClient, err := docker.NewClient(clicontext.Context)
 	if err != nil {
 		return err
 	}
