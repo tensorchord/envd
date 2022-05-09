@@ -138,3 +138,9 @@ test: generate
 clean:
 	@-rm -vrf ${OUTPUT_DIR}
 	@-rm -vrf ${DEBUG_DIR}
+
+fmt: ## Run go fmt against code.
+	go fmt ./...
+
+vet: ## Run go vet against code.
+	go vet ./...

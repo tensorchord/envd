@@ -31,7 +31,7 @@ jobs:
       - name: Verify mockgen
         run: |
           make generate && git add pkg
-          git diff --cached --exit-code || (echo 'Please run "make fmt" to verify gofmt' && exit 1);
+          git diff --cached --exit-code || (echo 'Please run "make generate" to verify generate' && exit 1);
       - name: Test
         run: make test
       # - name: send coverage
@@ -69,10 +69,6 @@ jobs:
         run: |
           -compat=1.17 && git add go.*
           git diff --cached --exit-code || (echo 'Please run "go mod tidy" to sync Go modules' && exit 1);
-      - name: Check license
-        run: |
-          make addlicense && git add .
-          git diff --cached --exit-code || (echo 'Please run "go mod tidy" to sync Go modules' && exit 1);
       - name: Verify gofmt
         run: |
           make fmt && git add pkg cmd
@@ -81,3 +77,7 @@ jobs:
         run: |
           make vet && git add pkg cmd
           git diff --cached --exit-code || (echo 'Please run "make vet" to verify govet' && exit 1);
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.29
