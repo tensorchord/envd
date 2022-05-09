@@ -24,10 +24,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	cacheDirName = "cache"
-)
-
 type Manager interface {
 	CacheDir() string
 	ConfigFile() string
