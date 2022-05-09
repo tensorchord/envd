@@ -47,5 +47,4 @@ type JupyterConfig struct {
 const (
 	shellBASH = "bash"
 	shellZSH  = "zsh"
-	shellSH   = "sh"
 )
