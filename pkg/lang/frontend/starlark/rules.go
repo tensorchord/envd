@@ -39,7 +39,7 @@ func registerMIDIRules() {
 	starlark.Universe[rulePyPIMirror] = starlark.NewBuiltin(rulePyPIMirror, ruleFuncPyPIMirror)
 	starlark.Universe[ruleShell] = starlark.NewBuiltin(ruleShell, ruleFuncShell)
 	starlark.Universe[ruleJupyter] = starlark.NewBuiltin(ruleJupyter, ruleFuncJupyter)
-
+	starlark.Universe[ruleRun] = starlark.NewBuiltin(ruleRun, ruleFuncRun)
 }
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
@@ -259,6 +259,28 @@ func ruleFuncJupyter(thread *starlark.Thread, _ *starlark.Builtin,
 	if err := ir.Jupyter(pwdStr, portInt); err != nil {
 		return nil, err
 	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncRun(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var commands *starlark.List
+
+	if err := starlark.UnpackArgs(rulePyPIPackage,
+		args, kwargs, "commands?", &commands); err != nil {
+		return nil, err
+	}
+
+	goCommands := []string{}
+	if commands != nil {
+		for i := 0; i < commands.Len(); i++ {
+			goCommands = append(goCommands, commands.Index(i).(starlark.String).GoString())
+		}
+	}
+
+	logger.Debugf("rule `%s` is invoked, commands=%v", ruleRun, goCommands)
+	ir.Run(goCommands)
 
 	return starlark.None, nil
 }

@@ -24,4 +24,5 @@ const (
 	rulePyPIMirror    = "pip_mirror"
 	ruleShell         = "shell"
 	ruleJupyter       = "jupyter"
+	ruleRun           = "run"
 )

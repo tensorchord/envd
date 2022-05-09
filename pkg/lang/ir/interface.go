@@ -76,3 +76,9 @@ func Jupyter(pwd string, port int64) error {
 	}
 	return nil
 }
+
+func Run(commands []string) error {
+	// TODO(gaocegege): Support order-based exec.
+	DefaultGraph.Exec = commands
+	return nil
+}

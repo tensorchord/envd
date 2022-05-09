@@ -15,8 +15,6 @@
 package ir
 
 import (
-	"github.com/moby/buildkit/client/llb"
-
 	"github.com/tensorchord/MIDI/pkg/vscode"
 )
 
@@ -37,7 +35,7 @@ type Graph struct {
 	SystemPackages        []string
 	VSCodePlugins         []vscode.Plugin
 
-	Exec []llb.State
+	Exec []string
 	*JupyterConfig
 }
 
