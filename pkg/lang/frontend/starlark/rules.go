@@ -280,7 +280,9 @@ func ruleFuncRun(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	logger.Debugf("rule `%s` is invoked, commands=%v", ruleRun, goCommands)
-	ir.Run(goCommands)
+	if err := ir.Run(goCommands); err != nil {
+		return nil, err
+	}
 
 	return starlark.None, nil
 }
