@@ -2,6 +2,20 @@
 
 Development Environment for Data Scientists
 
+:snake:  **No docker, only python** - Write python code to build the development environment, we help you take care of Docker.
+
+:pager: **Built-in jupyter/vscode** - Provision jupyter notebooks and vscode remote in the image, remote development is possible.
+
+:man_technologist: **Manage code and data** - Help you manage the source code and dataset in the environment
+
+:stopwatch: **Save time** - Better cache management to save your time, keep the focus on the model, instead of dependencies
+
+☁️ **Local & cloud** - Run the environment locally or in the cloud, without any code change
+
+:whale: **Container native** - Leverage container technologies but no need to learn how to use them, we optimize it for you
+
+🤟  **Infrastructure as code** - Describe your project in a declarative way, 100% reproducible
+
 ## Install
 
 ### From binary
@@ -21,11 +35,24 @@ make
 
 ## Quickstart
 
-Checkout [examples](./examples/mnist) and run
+Checkout the [examples](./examples/mnist), and configure MIDI with the manifest `build.MIDI`:
 
 ```
-midi up
+vscode(plugins = [
+    "ms-python.python-2021.12.1559732655",
+])
+
+base(os="ubuntu20.04", language="python3")
+pip_package(name = [
+    "tensorflow",
+    "numpy",
+])
+cuda(version="11.6", cudnn="8")
+shell("zsh")
+jupyter(password="", port=8888)
 ```
+
+Then you can run `midi up` and open jupyter notebook at [`http://localhost:8888`](http://localhost:8888), or open vscode remote to attach to the container.
 
 ## Features
 
