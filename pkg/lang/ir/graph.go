@@ -43,7 +43,7 @@ func NewGraph() *Graph {
 
 		PyPIPackages:   []string{},
 		SystemPackages: []string{},
-		Exec:           []llb.State{},
+		Exec:           []string{},
 		Shell:          shellBASH,
 	}
 }
@@ -90,16 +90,21 @@ func (g Graph) Compile() (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
 	}
+
+	var merged llb.State
 	if vscodeStage != nil {
-		merged := llb.Merge([]llb.State{
+		merged = llb.Merge([]llb.State{
 			builtinSystemStage, systemStage, pypiStage, sshStage, *vscodeStage, diffShellStage,
 		})
-		return merged, nil
+	} else {
+		merged = llb.Merge([]llb.State{
+			builtinSystemStage, systemStage, pypiStage, sshStage, diffShellStage,
+		})
 	}
-	merged := llb.Merge([]llb.State{
-		builtinSystemStage, systemStage, pypiStage, sshStage, diffShellStage,
-	})
-	return merged, nil
+
+	// TODO(gaocegege): Support order-based exec.
+	run := g.compileRun(merged)
+	return run, nil
 }
 
 func (g *Graph) compileBase() llb.State {
@@ -273,4 +278,18 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 		File(llb.Mkfile(installPath, 0644, []byte(m.InstallScript())))
 	run := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)))
 	return run.Root(), nil
+}
+
+func (g Graph) compileRun(root llb.State) llb.State {
+	if len(g.Exec) == 0 {
+		return root
+	} else if len(g.Exec) == 1 {
+		return root.Run(llb.Shlex(g.Exec[0])).Root()
+	}
+
+	run := root.Run(llb.Shlex(g.Exec[0]))
+	for _, c := range g.Exec[1:] {
+		run = run.Run(llb.Shlex(c))
+	}
+	return run.Root()
 }
