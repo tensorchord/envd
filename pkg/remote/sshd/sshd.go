@@ -109,11 +109,6 @@ func (srv *Server) getServer() (*ssh.Server, error) {
 		},
 	}
 
-	err := server.SetOption(ssh.HostKeyPEM([]byte(hostKeyBytes)))
-	if err != nil {
-		return nil, err
-	}
-
 	if srv.AuthorizedKeys != nil {
 		server.PublicKeyHandler = srv.authorize
 	} else {
