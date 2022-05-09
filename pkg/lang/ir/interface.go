@@ -3,7 +3,7 @@ package ir
 import (
 	"errors"
 
-	"github.com/tensorchord/MIDI/pkg/vscode"
+	"github.com/tensorchord/MIDI/pkg/editor/vscode"
 )
 
 func Base(os, language string) {
@@ -30,7 +30,7 @@ func VSCodePlugins(plugins []string) error {
 		if err != nil {
 			return err
 		}
-		DefaultGraph.VSCodePlugins = append(DefaultGraph.VSCodePlugins, plugin)
+		DefaultGraph.VSCodePlugins = append(DefaultGraph.VSCodePlugins, *plugin)
 	}
 	return nil
 }

@@ -12,39 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ir
+package vscode
 
 import (
-	"github.com/tensorchord/MIDI/pkg/editor/vscode"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// A Graph contains the state,
-// such as its call stack and thread-local storage.
-type Graph struct {
-	OS       string
-	Language string
-	Shell    string
-	CUDA     *string
-	CUDNN    *string
-
-	UbuntuAPTSource *string
-	PyPIMirror      *string
-
-	BuiltinSystemPackages []string
-	PyPIPackages          []string
-	SystemPackages        []string
-	VSCodePlugins         []vscode.Plugin
-
-	Exec []string
-	*JupyterConfig
+func TestOci(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Builder Suite")
 }
-
-type JupyterConfig struct {
-	Password string
-	Port     int64
-}
-
-const (
-	shellBASH = "bash"
-	shellZSH  = "zsh"
-)

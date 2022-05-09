@@ -24,9 +24,10 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
+	"github.com/tensorchord/MIDI/pkg/editor/vscode"
 	"github.com/tensorchord/MIDI/pkg/flag"
 	"github.com/tensorchord/MIDI/pkg/shell"
-	"github.com/tensorchord/MIDI/pkg/vscode"
 )
 
 func NewGraph() *Graph {
