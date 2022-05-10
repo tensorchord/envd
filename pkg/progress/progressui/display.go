@@ -657,17 +657,18 @@ func (t *trace) displayInfo() (d displayInfo) {
 			}
 		}
 		j.intervals = mergeIntervals(j.intervals)
+
 		if v.Error != "" {
 			if strings.HasSuffix(v.Error, context.Canceled.Error()) {
 				j.isCanceled = true
-				j.name = "CANCELED " + j.name
+				j.name = "⏭️ (canceled) " + j.name
 			} else {
 				j.hasError = true
-				j.name = "ERROR " + j.name
+				j.name = "🔥 (error) " + j.name
 			}
 		}
 		if v.Cached {
-			j.name = "CACHED " + j.name
+			j.name = "💽 (cached) " + j.name
 		}
 		j.name = v.indent + j.name
 		jobs = append(jobs, j)
@@ -804,7 +805,7 @@ func (disp *display) print(d displayInfo, width, height int, all bool) {
 
 	statusStr := ""
 	if d.countCompleted > 0 && d.countCompleted == d.countTotal && all {
-		statusStr = "FINISHED"
+		statusStr = "✅ (finished)"
 	}
 
 	fmt.Fprint(disp.c, aec.Hide)
