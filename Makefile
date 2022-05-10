@@ -117,6 +117,7 @@ build-local:
 generate: mockgen-install
 	@mockgen -source pkg/buildkitd/buildkitd.go -destination pkg/buildkitd/mock/mock.go -package mock
 	@mockgen -source pkg/lang/frontend/starlark/interpreter.go -destination pkg/lang/frontend/starlark/mock/mock.go -package mock
+	@mockgen -source pkg/progress/compileui/display.go -destination pkg/progress/compileui/mock/mock.go -package mock
 
 # It is used by vscode to attach into the process.
 debug-local:
@@ -128,7 +129,7 @@ debug-local:
 	done
 
 addlicense:
-	addlicense -c "The MIDI Authors" **/*.go **/**/*.go
+	addlicense -c "The MIDI Authors" **/*.go **/**/*.go **/**/**/*.go
 
 test: generate
 	@go test -race -coverprofile=coverage.out ./...

@@ -20,7 +20,7 @@ import (
 	"os"
 
 	"github.com/golang/mock/gomock"
-	"github.com/moby/buildkit/util/progress/progresswriter"
+	"github.com/moby/buildkit/client/llb"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
@@ -30,6 +30,10 @@ import (
 	"github.com/tensorchord/MIDI/pkg/flag"
 	"github.com/tensorchord/MIDI/pkg/home"
 	mockstarlark "github.com/tensorchord/MIDI/pkg/lang/frontend/starlark/mock"
+	"github.com/tensorchord/MIDI/pkg/lang/ir"
+	"github.com/tensorchord/MIDI/pkg/progress/compileui"
+	compileuimock "github.com/tensorchord/MIDI/pkg/progress/compileui/mock"
+	"github.com/tensorchord/MIDI/pkg/progress/progresswriter"
 )
 
 var _ = Describe("Builder", func() {
@@ -58,6 +62,7 @@ var _ = Describe("Builder", func() {
 		})
 		When("building the manifest", func() {
 			var b *generalBuilder
+			var w compileui.Writer
 			BeforeEach(func() {
 				ctrl := gomock.NewController(GinkgoT())
 				ctrlStarlark := gomock.NewController(GinkgoT())
@@ -72,11 +77,10 @@ var _ = Describe("Builder", func() {
 				}
 				b.Client = mockbuildkitd.NewMockClient(ctrl)
 				b.Interpreter = mockstarlark.NewMockInterpreter(ctrlStarlark)
-				pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.progressMode)
-				if err != nil {
-					Fail(err.Error())
-				}
-				b.Writer = pw
+
+				ctrlWriter := gomock.NewController(GinkgoT())
+				w = compileuimock.NewMockWriter(ctrlWriter)
+				ir.DefaultGraph.Writer = w
 			})
 
 			When("failed to interpret config", func() {
@@ -104,15 +108,8 @@ var _ = Describe("Builder", func() {
 				})
 			})
 			It("should build successfully", func() {
-				b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
-					gomock.Eq(configFilePath),
-				).Return(nil, nil).Times(1)
-				b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
-					gomock.Eq(b.manifestFilePath),
-				).Return(nil, nil).Times(1)
 				err := home.Initialize()
 				Expect(err).ToNot(HaveOccurred())
-				close(b.Writer.Status())
 
 				b.Client.(*mockbuildkitd.MockClient).EXPECT().Solve(
 					gomock.Any(),
@@ -120,7 +117,14 @@ var _ = Describe("Builder", func() {
 					gomock.Any(),
 					gomock.Any(),
 				).Return(nil, nil).AnyTimes()
-				err = b.Build(context.TODO())
+
+				var def *llb.Definition
+				pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.progressMode)
+				if err != nil {
+					Fail(err.Error())
+				}
+				close(pw.Status())
+				err = b.build(context.TODO(), def, pw)
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})

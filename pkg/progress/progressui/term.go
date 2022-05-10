@@ -1,4 +1,5 @@
 // Copyright 2022 The MIDI Authors
+// Copyright 2022 The buildkit Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ir
+//go:build !windows
+// +build !windows
 
-const (
-	osDefault       = "ubuntu20.04"
-	languageDefault = "python3.8"
-	mirrorModeAuto  = "auto"
+package progressui
 
-	aptSourceFilePath  = "/etc/apt/sources.list"
-	pypiMirrorFilePath = "/etc/pip.conf"
+import "github.com/morikuni/aec"
 
-	pypiConfigTemplate = `
-[global]
-index-url=%s`
+var (
+	colorRun    = aec.BlueF
+	colorCancel = aec.YellowF
+	colorError  = aec.RedF
 )

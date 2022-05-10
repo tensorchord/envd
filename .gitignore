@@ -33,5 +33,6 @@ bin/
 debug-bin/
 /build.MIDI
 .ipynb_checkpoints/
+cover.html
 
 dist/

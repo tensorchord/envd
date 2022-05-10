@@ -5,3 +5,4 @@ install_package(name = [
 cuda(version="11.6", cudnn="8")
 shell("zsh")
 jupyter(password="", port=8888)
+vscode(plugins = ["dbaeumer.vscode-eslint-2.2.3"])

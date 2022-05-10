@@ -12,17 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ir
+package compileui
 
-const (
-	osDefault       = "ubuntu20.04"
-	languageDefault = "python3.8"
-	mirrorModeAuto  = "auto"
-
-	aptSourceFilePath  = "/etc/apt/sources.list"
-	pypiMirrorFilePath = "/etc/pip.conf"
-
-	pypiConfigTemplate = `
-[global]
-index-url=%s`
+import (
+	"io"
+	"time"
 )
+
+type trace struct {
+	w           io.Writer
+	startTime   *time.Time
+	modeConsole bool
+}
+
+func newTrace(w io.Writer, modeConsole bool) *trace {
+	return &trace{
+		w:           w,
+		modeConsole: modeConsole,
+	}
+}
+
+func (t *trace) init() {
+	current := time.Now()
+	t.startTime = &current
+}

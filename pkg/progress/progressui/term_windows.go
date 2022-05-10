@@ -1,4 +1,5 @@
 // Copyright 2022 The MIDI Authors
+// Copyright 2022 The buildkit Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,25 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package progress
+//go:build windows
+// +build windows
 
-import (
-	"strings"
+package progressui
 
-	"github.com/moby/buildkit/client"
-	"github.com/opencontainers/go-digest"
+import "github.com/morikuni/aec"
+
+var (
+	colorRun    = aec.CyanF
+	colorCancel = aec.YellowF
+	colorError  = aec.RedF
 )
-
-func printVertex(vertex *client.Vertex, console consoleLogger) {
-	out := []string{"-->"}
-	out = append(out, vertex.Name)
-	c := console
-	if vertex.Cached {
-		c = c.WithCached(true)
-	}
-	c.Printf("%s\n", strings.Join(out, " "))
-}
-
-func shortDigest(d digest.Digest) string {
-	return d.Hex()[:12]
-}
