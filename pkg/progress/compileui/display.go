@@ -27,10 +27,6 @@ import (
 	"github.com/tensorchord/MIDI/pkg/editor/vscode"
 )
 
-const (
-	defaultChannelSize = 100
-)
-
 type Writer interface {
 	LogVSCodePlugin(p vscode.Plugin, action Action, cached bool)
 	LogZSH(action Action, cached bool)
@@ -147,7 +143,13 @@ func (w *generalWriter) output(finished bool) {
 	fmt.Fprint(w.console, b.Column(0).ANSI)
 	fmt.Fprint(w.console, aec.Hide)
 	defer fmt.Fprint(w.console, aec.Show)
-	s := fmt.Sprintf("[+] ⌚ %s %.1fs\n", w.phase, time.Since(*w.trace.startTime).Seconds())
+
+	statusStr := ""
+	if finished {
+		statusStr = "✅ (finished)"
+	}
+	s := fmt.Sprintf("[+] ⌚ %s %.1fs %s \n",
+		w.phase, time.Since(*w.trace.startTime).Seconds(), statusStr)
 	fmt.Fprint(w.console, s)
 	loc := 0
 
