@@ -10,7 +10,7 @@ type Action string
 
 const (
 	ActionStart Action = "start"
-	ActionEnd          = "end"
+	ActionEnd   Action = "end"
 )
 
 type Result struct {
