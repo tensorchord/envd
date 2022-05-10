@@ -17,6 +17,7 @@ package ir
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -27,6 +28,7 @@ import (
 
 	"github.com/tensorchord/MIDI/pkg/editor/vscode"
 	"github.com/tensorchord/MIDI/pkg/flag"
+	"github.com/tensorchord/MIDI/pkg/progress/compileui"
 	"github.com/tensorchord/MIDI/pkg/shell"
 )
 
@@ -56,6 +58,11 @@ func GPUEnabled() bool {
 }
 
 func Compile(ctx context.Context) (*llb.Definition, error) {
+	w, err := compileui.New(ctx, os.Stdout, "auto")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create compileui")
+	}
+	DefaultGraph.Writer = w
 	state, err := DefaultGraph.Compile()
 	if err != nil {
 		return nil, err
@@ -105,6 +112,7 @@ func (g Graph) Compile() (llb.State, error) {
 
 	// TODO(gaocegege): Support order-based exec.
 	run := g.compileRun(merged)
+	g.Writer.Finish()
 	return run, nil
 }
 

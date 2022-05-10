@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ir
+//go:build windows
+// +build windows
 
-const (
-	osDefault       = "ubuntu20.04"
-	languageDefault = "python3.8"
-	mirrorModeAuto  = "auto"
+package progressui
 
-	aptSourceFilePath  = "/etc/apt/sources.list"
-	pypiMirrorFilePath = "/etc/pip.conf"
+import "github.com/morikuni/aec"
 
-	pypiConfigTemplate = `
-[global]
-index-url=%s`
+var (
+	colorRun    = aec.CyanF
+	colorCancel = aec.YellowF
+	colorError  = aec.RedF
 )

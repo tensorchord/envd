@@ -16,6 +16,7 @@ package ir
 
 import (
 	"github.com/tensorchord/MIDI/pkg/editor/vscode"
+	"github.com/tensorchord/MIDI/pkg/progress/compileui"
 )
 
 // A Graph contains the state,
@@ -37,6 +38,8 @@ type Graph struct {
 
 	Exec []string
 	*JupyterConfig
+
+	Writer compileui.Writer
 }
 
 type JupyterConfig struct {

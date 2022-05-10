@@ -21,7 +21,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
-	"github.com/moby/buildkit/util/progress/progresswriter"
+	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
@@ -31,6 +31,7 @@ import (
 	"github.com/tensorchord/MIDI/pkg/home"
 	"github.com/tensorchord/MIDI/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/MIDI/pkg/lang/ir"
+	"github.com/tensorchord/MIDI/pkg/progress/progresswriter"
 )
 
 type Builder interface {
@@ -47,7 +48,6 @@ type generalBuilder struct {
 	logger *logrus.Entry
 	starlark.Interpreter
 	buildkitd.Client
-	progresswriter.Writer
 }
 
 func New(ctx context.Context, configFilePath, manifestFilePath, tag string) (Builder, error) {
@@ -68,12 +68,6 @@ func New(ctx context.Context, configFilePath, manifestFilePath, tag string) (Bui
 	}
 	b.Client = cli
 
-	pw, err := progresswriter.NewPrinter(ctx, os.Stdout, b.progressMode)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create progress writer")
-	}
-	b.Writer = pw
-
 	b.Interpreter = starlark.NewInterpreter()
 	return b, nil
 }
@@ -84,20 +78,47 @@ func (b generalBuilder) GPUEnabled() bool {
 }
 
 func (b generalBuilder) Build(ctx context.Context) error {
+	def, err := b.compile(ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to compile")
+	}
+
+	pw, err := progresswriter.NewPrinter(ctx, os.Stdout, b.progressMode)
+	if err != nil {
+		return errors.Wrap(err, "failed to create progress writer")
+	}
+
+	if err = b.build(ctx, def, pw); err != nil {
+		return errors.Wrap(err, "failed to build")
+	}
+	return nil
+}
+
+func (b generalBuilder) interpret() error {
 	// Evaluate config first.
 	if _, err := b.ExecFile(b.configFilePath); err != nil {
-		return err
+		return errors.Wrap(err, "failed to exec starlark file")
 	}
 
 	if _, err := b.ExecFile(b.manifestFilePath); err != nil {
-		return err
+		return errors.Wrap(err, "failed to exec starlark file")
 	}
+	return nil
+}
 
+func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
+	if err := b.interpret(); err != nil {
+		return nil, errors.Wrap(err, "failed to interpret")
+	}
 	def, err := ir.Compile(ctx)
 	if err != nil {
-		return errors.Wrap(err, "failed to compile build.MIDI")
+		return nil, errors.Wrap(err, "failed to compile build.MIDI")
 	}
+	b.logger.Debug("compiled build.MIDI")
+	return def, nil
+}
 
+func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progresswriter.Writer) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	eg, ctx := errgroup.WithContext(ctx)
@@ -130,7 +151,7 @@ func (b generalBuilder) Build(ctx context.Context) error {
 			FrontendAttrs: map[string]string{
 				"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
 			},
-		}, b.Status())
+		}, pw.Status())
 		if err != nil {
 			err = errors.Wrap(err, "failed to solve LLB")
 			b.logger.Error(err)
@@ -143,8 +164,8 @@ func (b generalBuilder) Build(ctx context.Context) error {
 	// Watch the progress.
 	eg.Go(func() error {
 		// not using shared context to not disrupt display but let is finish reporting errors
-		<-b.Done()
-		return b.Err()
+		<-pw.Done()
+		return pw.Err()
 	})
 
 	// Load the image to docker host.
@@ -164,7 +185,7 @@ func (b generalBuilder) Build(ctx context.Context) error {
 		return nil
 	})
 
-	err = eg.Wait()
+	err := eg.Wait()
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
 			b.logger.Debug("cancelling the error group")
@@ -175,6 +196,5 @@ func (b generalBuilder) Build(ctx context.Context) error {
 			return errors.Wrap(err, "failed to wait error group")
 		}
 	}
-
 	return nil
 }
