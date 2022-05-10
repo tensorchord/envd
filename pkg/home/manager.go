@@ -16,27 +16,20 @@ package home
 
 import (
 	"os"
-	"os/user"
 	"path/filepath"
-	"strings"
 	"sync"
 
+	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	cacheDirName = "cache"
-)
-
 type Manager interface {
-	HomeDir() string
 	CacheDir() string
 	ConfigFile() string
 }
 
 type generalManager struct {
-	homeDir    string
 	cacheDir   string
 	configFile string
 
@@ -48,11 +41,11 @@ var (
 	once           sync.Once
 )
 
-func Initialize(homeDir, configFile string) error {
+func Initialize() error {
 	once.Do(func() {
 		defaultManager = &generalManager{}
 	})
-	if err := defaultManager.init(homeDir, configFile); err != nil {
+	if err := defaultManager.init(); err != nil {
 		return err
 	}
 	return nil
@@ -70,63 +63,38 @@ func (m generalManager) ConfigFile() string {
 	return m.configFile
 }
 
-func (m generalManager) HomeDir() string {
-	return m.homeDir
-}
-
-func (m *generalManager) init(homeDir, configFile string) error {
-	expandedDir, err := expandHome(homeDir)
+func (m *generalManager) init() error {
+	// Create $XDG_CONFIG_HOME/midi/config.MIDI
+	config, err := xdg.ConfigFile("midi/config.MIDI")
 	if err != nil {
-		return errors.Wrap(err, "failed to expand home dir")
-	}
-	if err := os.MkdirAll(expandedDir, 0755); err != nil {
-		return errors.Wrap(err, "failed to create MIDI home directory")
-	}
-	m.homeDir = expandedDir
-
-	cacheDir := filepath.Join(expandedDir, cacheDirName)
-	if err := os.MkdirAll(cacheDir, 0755); err != nil {
-		return errors.Wrap(err, "failed to create MIDI cache directory")
-	}
-	m.cacheDir = cacheDir
-
-	expandedFilePath, err := expandHome(configFile)
-	if err != nil {
-		return errors.Wrap(err, "failed to expand config file path")
+		return errors.Wrap(err, "failed to get config file")
 	}
 
-	_, err = os.Stat(expandedFilePath)
+	_, err = os.Stat(config)
 	if err != nil {
 		if os.IsNotExist(err) {
-			logrus.WithField("config", expandedFilePath).Info("Creating config file")
-			if _, err := os.Create(expandedFilePath); err != nil {
+			logrus.WithField("config", config).Info("Creating config file")
+			if _, err := os.Create(config); err != nil {
 				return errors.Wrap(err, "failed to create config file")
 			}
 		} else {
 			return errors.Wrap(err, "failed to stat config file")
 		}
 	}
-	m.configFile = expandedFilePath
+	m.configFile = config
+
+	// Create $XDG_CACHE_HOME/midi
+	_, err = xdg.CacheFile("midi/cache")
+	if err != nil {
+		return errors.Wrap(err, "failed to get cache")
+	}
+	m.cacheDir = filepath.Join(xdg.CacheHome, "midi")
 
 	m.logger = logrus.WithFields(logrus.Fields{
-		"homeDir":  m.homeDir,
 		"cacheDir": m.cacheDir,
 		"config":   m.configFile,
 	})
 
 	m.logger.Debug("home manager initialized")
 	return nil
-}
-
-func expandHome(path string) (string, error) {
-	if strings.HasPrefix(path, "~/") {
-		usr, _ := user.Current()
-		dir := usr.HomeDir
-		path = filepath.Join(dir, path[2:])
-	}
-	absPath, err := filepath.Abs(path)
-	if err != nil {
-		return "", err
-	}
-	return absPath, nil
 }

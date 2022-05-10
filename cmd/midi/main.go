@@ -47,16 +47,6 @@ func main() {
 			Name:  "debug",
 			Usage: "enable debug output in logs",
 		},
-		&cli.PathFlag{
-			Name:  flag.FlagConfig,
-			Usage: "path to config file",
-			Value: "~/.midi/config.MIDI",
-		},
-		&cli.PathFlag{
-			Name:  flag.FlagHomeDir,
-			Usage: "path to midi home",
-			Value: "~/.midi",
-		},
 		&cli.StringFlag{
 			Name:  flag.FlagBuildkitdImage,
 			Usage: "docker image to use for buildkitd",
@@ -94,12 +84,7 @@ func main() {
 			logrus.SetLevel(logrus.DebugLevel)
 		}
 
-		// Get the config file.
-		configFile := context.Path(flag.FlagConfig)
-
-		homeDir := context.Path(flag.FlagHomeDir)
-
-		if err := home.Initialize(homeDir, configFile); err != nil {
+		if err := home.Initialize(); err != nil {
 			return errors.Wrap(err, "failed to initialize home manager")
 		}
 

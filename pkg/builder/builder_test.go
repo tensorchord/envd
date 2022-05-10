@@ -110,7 +110,7 @@ var _ = Describe("Builder", func() {
 				b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 					gomock.Eq(b.manifestFilePath),
 				).Return(nil, nil).Times(1)
-				err := home.Initialize("/tmp/midi", configFilePath)
+				err := home.Initialize()
 				Expect(err).ToNot(HaveOccurred())
 				close(b.Writer.Status())
 

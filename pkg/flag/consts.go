@@ -17,9 +17,7 @@ package flag
 const (
 	FlagCacheDir           = "cache-dir"
 	FlagContextDir         = "context-dir"
-	FlagConfig             = "config"
 	FlagBuildkitdImage     = "buildkitd-image"
 	FlagBuildkitdContainer = "buildkitd-container-name"
-	FlagHomeDir            = "home-dir"
 	FlagSSHImage           = "midi-ssh-image"
 )
