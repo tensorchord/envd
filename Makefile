@@ -91,7 +91,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: lint test build container push addlicense debug debug-local build-local generate test
+.PHONY: lint test build container push addlicense debug debug-local build-local generate clean
 
 build: build-local
 
@@ -135,7 +135,6 @@ test: generate
 	@go test -race -coverprofile=coverage.out ./...
 	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
-.PHONY: clean
 clean:
 	@-rm -vrf ${OUTPUT_DIR}
 	@-rm -vrf ${DEBUG_DIR}

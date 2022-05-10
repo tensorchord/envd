@@ -37,13 +37,13 @@ make
 
 Checkout the [examples](./examples/mnist), and configure MIDI with the manifest `build.MIDI`:
 
-```
-vscode(plugins = [
+```python
+vscode(plugins=[
     "ms-python.python-2021.12.1559732655",
 ])
 
 base(os="ubuntu20.04", language="python3")
-pip_package(name = [
+pip_package(name=[
     "tensorflow",
     "numpy",
 ])
