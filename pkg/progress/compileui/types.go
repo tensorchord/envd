@@ -22,10 +22,12 @@ type PluginInfo struct {
 	vscode.Plugin
 	startTime *time.Time
 	endTime   *time.Time
+	cached    bool
 }
 
 type ZSHInfo struct {
 	OHMYZSH   string
 	startTime *time.Time
 	endTime   *time.Time
+	cached    bool
 }

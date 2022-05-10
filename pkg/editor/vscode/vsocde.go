@@ -30,7 +30,7 @@ import (
 )
 
 type Client interface {
-	DownloadOrCache(plugin Plugin) error
+	DownloadOrCache(plugin Plugin) (bool, error)
 	PluginPath(p Plugin) string
 }
 
@@ -50,7 +50,9 @@ func unzipPath(p Plugin) string {
 		p.Publisher, p.Extension, p.Version)
 }
 
-func (c generalClient) DownloadOrCache(p Plugin) error {
+// DownloadOrCache downloads or cache the plugin.
+// If the plugin is already downloaded, it returns true.
+func (c generalClient) DownloadOrCache(p Plugin) (bool, error) {
 	url := fmt.Sprintf(vscodePackageURLTemplate,
 		p.Publisher, p.Publisher, p.Extension, p.Version)
 
@@ -64,36 +66,36 @@ func (c generalClient) DownloadOrCache(p Plugin) error {
 		"file":      filename,
 	})
 	if ok, err := fileutil.FileExists(filename); err != nil {
-		return err
+		return false, err
 	} else if ok {
 		logger.Debug("vscode plugin is cached")
-		return nil
+		return true, nil
 	}
 	out, err := os.Create(filename)
 
 	if err != nil {
-		return err
+		return false, err
 	}
 	defer out.Close()
 
 	resp, err := http.Get(url)
 	if err != nil {
-		return err
+		return false, err
 	}
 	logger.Debugf("downloading vscode plugin")
 
 	defer resp.Body.Close()
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	_, err = unzip.Unzip(filename, unzipPath(p))
 	if err != nil {
-		return errors.Wrap(err, "failed to unzip")
+		return false, errors.Wrap(err, "failed to unzip")
 	}
 
-	return nil
+	return false, nil
 }
 
 func ParsePlugin(p string) (*Plugin, error) {
