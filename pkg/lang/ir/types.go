@@ -15,7 +15,7 @@
 package ir
 
 import (
-	"github.com/tensorchord/MIDI/pkg/vscode"
+	"github.com/tensorchord/MIDI/pkg/editor/vscode"
 )
 
 // A Graph contains the state,

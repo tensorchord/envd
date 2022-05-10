@@ -96,10 +96,19 @@ func (c generalClient) DownloadOrCache(p Plugin) error {
 	return nil
 }
 
-func ParsePlugin(p string) (Plugin, error) {
+func ParsePlugin(p string) (*Plugin, error) {
 	indexPublisher := strings.Index(p, ".")
+	if indexPublisher == -1 {
+		return nil, errors.New("invalid publisher")
+	}
 	publisher := p[:indexPublisher]
-	indexExtension := strings.Index(p[indexPublisher:], "-") + indexPublisher
+
+	indexExtension := strings.LastIndex(p[indexPublisher:], "-")
+	if indexExtension == -1 {
+		return nil, errors.New("invalid extension")
+	}
+
+	indexExtension = indexPublisher + indexExtension
 	extension := p[indexPublisher+1 : indexExtension]
 	version := p[indexExtension+1:]
 	logrus.WithFields(logrus.Fields{
@@ -107,7 +116,7 @@ func ParsePlugin(p string) (Plugin, error) {
 		"extension": extension,
 		"version":   version,
 	}).Debug("vscode plugin is parsed")
-	return Plugin{
+	return &Plugin{
 		Publisher: publisher,
 		Extension: extension,
 		Version:   version,
