@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import (
 	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/MIDI/pkg/flag"
-	"github.com/tensorchord/MIDI/pkg/home"
-	"github.com/tensorchord/MIDI/pkg/version"
+	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/version"
 )
 
 func main() {
@@ -36,10 +36,10 @@ func main() {
 		fmt.Println(c.App.Name, version.Package, c.App.Version, version.Revision)
 	}
 
-	// TODO(gaocegege): Enclose the app, maybe create the struct MIDIApp.
+	// TODO(gaocegege): Enclose the app, maybe create the struct envdApp.
 	app := cli.NewApp()
 	app.EnableBashCompletion = true
-	app.Name = "midi"
+	app.Name = "envd"
 	app.Usage = "Build tools for data scientists"
 	app.Version = version.Version
 	app.Flags = []cli.Flag{
@@ -55,13 +55,13 @@ func main() {
 		&cli.StringFlag{
 			Name:  flag.FlagBuildkitdContainer,
 			Usage: "buildkitd container to use for buildkitd",
-			Value: "midi_buildkitd",
+			Value: "envd_buildkitd",
 		},
 		&cli.StringFlag{
 			Name:  flag.FlagSSHImage,
-			Usage: "Download the midi-ssh image",
+			Usage: "Download the envd-ssh image",
 			// TODO(gaocegege): Use version.Version to generate the right URL.
-			Value:  "ghcr.io/tensorchord/midi-ssh-from-scratch:0.0.1-amd64",
+			Value:  "ghcr.io/tensorchord/envd-ssh-from-scratch:0.0.1-alpha.3",
 			Hidden: true,
 		},
 	}

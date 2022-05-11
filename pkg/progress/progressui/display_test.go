@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 // Copyright 2022 The buildkit Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

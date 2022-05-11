@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 // Copyright 2022 The okteto Authors
 // Copyright 2022 stefanprodan
 //
@@ -30,7 +30,7 @@ import (
 	"github.com/alessio/shellescape"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/MIDI/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/term"
 )

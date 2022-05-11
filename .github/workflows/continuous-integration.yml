@@ -46,12 +46,12 @@ jobs:
       GOPATH: ${{ github.workspace }}/go
     defaults:
       run:
-        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/MIDI
+        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
     steps:
       - name: Check out code
         uses: actions/checkout@v2
         with:
-          path: ${{ env.GOPATH }}/src/github.com/tensorchord/MIDI
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
@@ -75,7 +75,7 @@ jobs:
       #   uses: shogo82148/actions-goveralls@v1
       #   with:
       #     path-to-profile: coverage.out
-      #     working-directory: src/github.com/tensorchord/MIDI
+      #     working-directory: src/github.com/tensorchord/envd
       #     flag-name: unit-test
       #     parallel: true
   build:
@@ -85,13 +85,13 @@ jobs:
       GOPATH: ${{ github.workspace }}/go
     defaults:
       run:
-        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/MIDI
+        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
 
     steps:
       - name: Check out code
         uses: actions/checkout@v2
         with:
-          path: ${{ env.GOPATH }}/src/github.com/tensorchord/MIDI
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
       - name: Setup Go
         uses: actions/setup-go@v2
         with:

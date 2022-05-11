@@ -1,4 +1,4 @@
-# Copyright 2022 MIDI Authors.
+# Copyright 2022 envd Authors.
 #
 # The old school Makefile, following are required targets. The Makefile is written
 # to allow building multiple binaries. You are free to add more targets or change
@@ -26,10 +26,10 @@
 #
 
 # This repo's root import path (under GOPATH).
-ROOT := github.com/tensorchord/MIDI
+ROOT := github.com/tensorchord/envd
 
 # Target binaries. You can build multiple binaries for a single project.
-TARGETS := midi midi-ssh
+TARGETS := envd envd-ssh
 
 # Container image prefix and suffix added to targets.
 # The final built images are:
@@ -129,7 +129,7 @@ debug-local:
 	done
 
 addlicense:
-	addlicense -c "The MIDI Authors" **/*.go **/**/*.go **/**/**/*.go
+	addlicense -c "The envd Authors" **/*.go **/**/*.go **/**/**/*.go
 
 test: generate
 	@go test -race -coverprofile=coverage.out ./...

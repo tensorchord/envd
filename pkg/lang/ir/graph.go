@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/tensorchord/MIDI/pkg/editor/vscode"
-	"github.com/tensorchord/MIDI/pkg/flag"
-	"github.com/tensorchord/MIDI/pkg/progress/compileui"
-	"github.com/tensorchord/MIDI/pkg/shell"
+	"github.com/tensorchord/envd/pkg/editor/vscode"
+	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/progress/compileui"
+	"github.com/tensorchord/envd/pkg/shell"
 )
 
 func NewGraph() *Graph {
@@ -92,7 +92,7 @@ func (g Graph) Compile() (llb.State, error) {
 	diffShellStage := llb.Diff(builtinSystemStage, shellStage)
 	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage))
 	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage))
-	sshStage := g.copyMidiSSHServer()
+	sshStage := g.copyenvdSSHServer()
 
 	vscodeStage, err := g.compileVSCode()
 	if err != nil {
@@ -217,11 +217,11 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
-func (g Graph) copyMidiSSHServer() llb.State {
+func (g Graph) copyenvdSSHServer() llb.State {
 	// TODO(gaocegege): Remove global var ssh image.
 	run := llb.Image(viper.GetString(flag.FlagSSHImage)).
 		File(llb.Copy(llb.Image(viper.GetString(flag.FlagSSHImage)),
-			"usr/bin/midi-ssh", "/var/midi/bin/midi-ssh",
+			"usr/bin/envd-ssh", "/var/envd/bin/envd-ssh",
 			&llb.CopyInfo{CreateDestPath: true}))
 	return run
 }

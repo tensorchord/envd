@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ import (
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/MIDI/pkg/docker"
+	"github.com/tensorchord/envd/pkg/docker"
 )
 
 var CommandDestroy = &cli.Command{
 	Name:    "destroy",
 	Aliases: []string{"d"},
-	Usage:   "destroys the MIDI environment",
+	Usage:   "destroys the envd environment",
 	Flags:   []cli.Flag{},
 
 	Action: destroy,
@@ -36,9 +36,9 @@ func destroy(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	if err := dockerClient.Destroy(clicontext.Context, "midi"); err != nil {
-		return errors.Wrap(err, "failed to destroy the midi environment")
+	if err := dockerClient.Destroy(clicontext.Context, "envd"); err != nil {
+		return errors.Wrap(err, "failed to destroy the envd environment")
 	}
-	logrus.Info("MIDI environment destroyed")
+	logrus.Info("envd environment destroyed")
 	return nil
 }

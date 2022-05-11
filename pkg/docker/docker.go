@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/MIDI/pkg/editor/jupyter"
-	"github.com/tensorchord/MIDI/pkg/lang/ir"
-	"github.com/tensorchord/MIDI/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/editor/jupyter"
+	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var (
@@ -43,7 +43,7 @@ type Client interface {
 	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
 	// Start creates the container for the given tag and container name.
-	StartMIDI(ctx context.Context, tag, name string,
+	Startenvd(ctx context.Context, tag, name string,
 		gpuEnabled bool, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error)
 	StartBuildkitd(ctx context.Context, tag, name string) (string, error)
 	IsRunning(ctx context.Context, name string) (bool, error)
@@ -159,7 +159,7 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 }
 
 // Start creates the container for the given tag and container name.
-func (c generalClient) StartMIDI(ctx context.Context, tag, name string,
+func (c generalClient) Startenvd(ctx context.Context, tag, name string,
 	gpuEnabled bool, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
@@ -169,7 +169,7 @@ func (c generalClient) StartMIDI(ctx context.Context, tag, name string,
 	config := &container.Config{
 		Image: tag,
 		Entrypoint: []string{
-			"/var/midi/bin/midi-ssh",
+			"/var/envd/bin/envd-ssh",
 			"--no-auth",
 		},
 		ExposedPorts: nat.PortSet{},

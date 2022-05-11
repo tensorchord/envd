@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/tensorchord/MIDI/pkg/home"
-	"github.com/tensorchord/MIDI/pkg/unzip"
-	"github.com/tensorchord/MIDI/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/unzip"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 type Client interface {

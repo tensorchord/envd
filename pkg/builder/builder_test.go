@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,26 +26,26 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	mockbuildkitd "github.com/tensorchord/MIDI/pkg/buildkitd/mock"
-	"github.com/tensorchord/MIDI/pkg/flag"
-	"github.com/tensorchord/MIDI/pkg/home"
-	mockstarlark "github.com/tensorchord/MIDI/pkg/lang/frontend/starlark/mock"
-	"github.com/tensorchord/MIDI/pkg/lang/ir"
-	"github.com/tensorchord/MIDI/pkg/progress/compileui"
-	compileuimock "github.com/tensorchord/MIDI/pkg/progress/compileui/mock"
-	"github.com/tensorchord/MIDI/pkg/progress/progresswriter"
+	mockbuildkitd "github.com/tensorchord/envd/pkg/buildkitd/mock"
+	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/home"
+	mockstarlark "github.com/tensorchord/envd/pkg/lang/frontend/starlark/mock"
+	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/progress/compileui"
+	compileuimock "github.com/tensorchord/envd/pkg/progress/compileui/mock"
+	"github.com/tensorchord/envd/pkg/progress/progresswriter"
 )
 
 var _ = Describe("Builder", func() {
 	Describe("building image", Label("buildkitd"), func() {
 		var buildkitdSocket, configFilePath, manifestFilePath, tag string
 		BeforeEach(func() {
-			buildkitdSocket = "docker-container://midi_buildkitd"
-			configFilePath = "testdata/config.MIDI"
-			manifestFilePath = "testdata/build.MIDI"
-			tag = "midi-dev:test"
-			viper.Set(flag.FlagBuildkitdContainer, "midi_buildkitd")
-			viper.Set(flag.FlagSSHImage, "midi-ssh:latest")
+			buildkitdSocket = "docker-container://envd_buildkitd"
+			configFilePath = "testdata/config.envd"
+			manifestFilePath = "testdata/build.envd"
+			tag = "envd-dev:test"
+			viper.Set(flag.FlagBuildkitdContainer, "envd_buildkitd")
+			viper.Set(flag.FlagSSHImage, "envd-ssh:latest")
 			os.Setenv("DOCKER_API_VERSION", "1.41")
 			DeferCleanup(func() {
 				viper.Set(flag.FlagBuildkitdContainer, "")

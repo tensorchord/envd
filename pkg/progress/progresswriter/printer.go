@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 // Copyright 2022 The buildkit Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@ import (
 	"github.com/moby/buildkit/client"
 	"github.com/pkg/errors"
 
-	"github.com/tensorchord/MIDI/pkg/progress/progressui"
+	"github.com/tensorchord/envd/pkg/progress/progressui"
 )
 
 type printer struct {
@@ -103,7 +103,7 @@ func NewPrinter(ctx context.Context, out console.File, mode string) (Writer, err
 
 	go func() {
 		// not using shared context to not disrupt display but let is finish reporting errors
-		_, pw.err = progressui.DisplaySolveStatus(ctx, "build MIDI environment", c, out, statusCh)
+		_, pw.err = progressui.DisplaySolveStatus(ctx, "build envd environment", c, out, statusCh)
 		close(doneCh)
 	}()
 	return pw, nil

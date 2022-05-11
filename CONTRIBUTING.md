@@ -16,8 +16,8 @@ Please refer to the [CNCF Community Code of Conduct v1.0](https://github.com/cnc
 ```
 go mod tidy
 make
-./bin/midi bootstrap
-./bin/midi --version
+./bin/envd bootstrap
+./bin/envd --version
 ```
 
 ### Lint

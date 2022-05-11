@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import (
 	"go.starlark.net/repl"
 	"go.starlark.net/starlark"
 
-	"github.com/tensorchord/MIDI/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 type Interpreter interface {
@@ -35,8 +35,8 @@ type generalInterpreter struct {
 }
 
 func NewInterpreter() Interpreter {
-	// Register MIDI rules to Starlark.
-	registerMIDIRules()
+	// Register envd rules to Starlark.
+	registerenvdRules()
 	return &generalInterpreter{
 		Thread: &starlark.Thread{Load: repl.MakeLoad()},
 		Graph:  ir.NewGraph(),

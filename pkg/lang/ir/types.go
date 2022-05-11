@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 package ir
 
 import (
-	"github.com/tensorchord/MIDI/pkg/editor/vscode"
-	"github.com/tensorchord/MIDI/pkg/progress/compileui"
+	"github.com/tensorchord/envd/pkg/editor/vscode"
+	"github.com/tensorchord/envd/pkg/progress/compileui"
 )
 
 // A Graph contains the state,

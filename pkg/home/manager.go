@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,8 +64,8 @@ func (m generalManager) ConfigFile() string {
 }
 
 func (m *generalManager) init() error {
-	// Create $XDG_CONFIG_HOME/midi/config.MIDI
-	config, err := xdg.ConfigFile("midi/config.MIDI")
+	// Create $XDG_CONFIG_HOME/envd/config.envd
+	config, err := xdg.ConfigFile("envd/config.envd")
 	if err != nil {
 		return errors.Wrap(err, "failed to get config file")
 	}
@@ -83,12 +83,12 @@ func (m *generalManager) init() error {
 	}
 	m.configFile = config
 
-	// Create $XDG_CACHE_HOME/midi
-	_, err = xdg.CacheFile("midi/cache")
+	// Create $XDG_CACHE_HOME/envd
+	_, err = xdg.CacheFile("envd/cache")
 	if err != nil {
 		return errors.Wrap(err, "failed to get cache")
 	}
-	m.cacheDir = filepath.Join(xdg.CacheHome, "midi")
+	m.cacheDir = filepath.Join(xdg.CacheHome, "envd")
 
 	m.logger = logrus.WithFields(logrus.Fields{
 		"cacheDir": m.cacheDir,

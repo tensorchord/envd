@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,12 +22,12 @@ import (
 
 	"github.com/cockroachdb/errors"
 
-	"github.com/tensorchord/MIDI/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var autocompleteBASH = `
 #! /bin/bash
-$PROG=midi
+$PROG=envd
 : ${PROG:=$(basename ${BASH_SOURCE})}
 
 _cli_bash_autocomplete() {
@@ -52,9 +52,9 @@ unset PROG
 func InsertBashCompleteEntry() error {
 	var path string
 	if runtime.GOOS == "darwin" {
-		path = "/usr/local/etc/bash_completion.d/midi"
+		path = "/usr/local/etc/bash_completion.d/envd"
 	} else {
-		path = "/usr/share/bash-completion/completions/midi"
+		path = "/usr/share/bash-completion/completions/envd"
 	}
 	dirPath := filepath.Dir(path)
 

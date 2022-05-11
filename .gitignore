@@ -31,7 +31,7 @@ go.work
 __debug_bin
 bin/
 debug-bin/
-/build.MIDI
+/build.envd
 .ipynb_checkpoints/
 cover.html
 

@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 
-	"github.com/tensorchord/MIDI/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 var (
 	logger = logrus.WithField("frontend", "starlark")
 )
 
-// registerMIDIRules registers built-in MIDI rules into the global namespace.
-func registerMIDIRules() {
+// registerenvdRules registers built-in envd rules into the global namespace.
+func registerenvdRules() {
 	starlark.Universe[ruleBase] = starlark.NewBuiltin(ruleBase, ruleFuncBase)
 	starlark.Universe[rulePyPIPackage] = starlark.NewBuiltin(
 		rulePyPIPackage, ruleFuncPyPIPackage)

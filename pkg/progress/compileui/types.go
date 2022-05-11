@@ -3,7 +3,7 @@ package compileui
 import (
 	"time"
 
-	"github.com/tensorchord/MIDI/pkg/editor/vscode"
+	"github.com/tensorchord/envd/pkg/editor/vscode"
 )
 
 type Action string
