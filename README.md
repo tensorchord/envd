@@ -54,6 +54,24 @@ jupyter(password="", port=8888)
 
 Then you can run `midi up` and open jupyter notebook at [`http://localhost:8888`](http://localhost:8888), or open vscode remote to attach to the container.
 
+```
+[+] ⌚ parse build.MIDI and download/cache dependencies 0.0s ✅ (finished)     
+ => 💽 (cached) download oh-my-zsh                                          0.0s                                                                              
+ => 💽 (cached) download ms-vscode.cpptools-1.7.1                           0.0s                                                                              
+ => 💽 (cached) download github.copilot-1.12.5517                           0.0s                                                                              
+ => 💽 (cached) download dbaeumer.vscode-eslint-2.2.3                       0.0s                                                                              
+[+] 🐋 build MIDI environment 1.3s (24/25)                                     
+ => 💽 (cached) sh -c apt-get update && apt-get install -y --no-instal     0.0s
+ => 💽 (cached) apt-get install -y --no-install-recommends gcc             0.0s
+ => 💽 (cached) diff (sh -c apt-get update && apt-get install -y --no-     0.0s
+ => 💽 (cached) pip install jupyter                                        0.0s
+ => 💽 (cached) diff (sh -c apt-get update && apt-get install -y --no-     0.0s
+ => 💽 (cached) copy /usr/bin/midi-ssh /var/midi/bin/midi-ssh              0.0s
+...
+# You are in the docker container for dev
+MIDI > 
+```
+
 ## Features
 
 ### Configure mirrors
@@ -79,3 +97,9 @@ vscode(plugins = [
 ```
 
 MIDI configures Ubuntu APT source, PyPI mirror, and others in the development environment.
+
+## Contribute
+
+We welcome all kinds of contributions from the open-source community, individuals, and partners.
+
+- To build from source, check the [contributing page](./CONTRIBUTING.md).
