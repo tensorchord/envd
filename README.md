@@ -55,18 +55,21 @@ jupyter(password="", port=8888)
 Then you can run `envd up` and open jupyter notebook at [`http://localhost:8888`](http://localhost:8888), or open vscode remote to attach to the container.
 
 ```
-[+] ⌚ parse build.envd and download/cache dependencies 0.0s ✅ (finished)     
- => 💽 (cached) download oh-my-zsh                                          0.0s                                                                              
- => 💽 (cached) download ms-vscode.cpptools-1.7.1                           0.0s                                                                              
- => 💽 (cached) download github.copilot-1.12.5517                           0.0s                                                                              
- => 💽 (cached) download dbaeumer.vscode-eslint-2.2.3                       0.0s                                                                              
-[+] 🐋 build envd environment 1.3s (24/25)                                     
- => 💽 (cached) sh -c apt-get update && apt-get install -y --no-instal     0.0s
- => 💽 (cached) apt-get install -y --no-install-recommends gcc             0.0s
- => 💽 (cached) diff (sh -c apt-get update && apt-get install -y --no-     0.0s
- => 💽 (cached) pip install jupyter                                        0.0s
- => 💽 (cached) diff (sh -c apt-get update && apt-get install -y --no-     0.0s
- => 💽 (cached) copy /usr/bin/envd-ssh /var/envd/bin/envd-ssh              0.0s
+[+] ⌚ parse build.envd and download/cache dependencies 23.7s ✅ (finished)        
+ => download oh-my-zsh                                                       13.5s 
+ => download ms-vscode.cpptools-1.7.1                                         2.1s 
+ => download github.copilot-1.12.5517                                         1.3s 
+ => download ms-python.python-2021.12.1559732655                              6.7s 
+[+] 🐋 build envd environment 4.4s (23/24)                                         
+ => 💽 (cached) copy /ms-python.python-2021.12.1559732655/extension /root/     0.0s
+ => 💽 (cached) merge (copy /ms-vscode.cpptools-1.7.1/extension /root/.vsc     0.0s
+ => 💽 (cached) mkfile /etc/apt/sources.list                                   0.0s
+ => 💽 (cached) merge (docker-image://docker.io/nvidia/cuda:11.6.0-cudnn8-     0.0s
+ => 💽 (cached) mkfile /etc/pip.conf                                           0.0s
+ => 💽 (cached) merge (merge (docker-image://docker.io/nvidia/cuda:11.6.0-     0.0s
+ => 💽 (cached) sh -c apt-get update && apt-get install -y --no-install-re     0.0s
+ => 💽 (cached) pip install tensorflow numpy jupyter                           0.0s
+ => 💽 (cached) diff (sh -c apt-get update && apt-get install -y --no-inst     0.0s
 ...
 # You are in the docker container for dev
 envd > 

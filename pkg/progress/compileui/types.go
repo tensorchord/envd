@@ -14,7 +14,7 @@ const (
 )
 
 type Result struct {
-	plugins map[string]*PluginInfo
+	plugins []*PluginInfo
 	ZSHInfo *ZSHInfo
 }
 
