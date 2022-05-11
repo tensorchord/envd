@@ -34,11 +34,6 @@ var CommandUp = &cli.Command{
 	Aliases: []string{"u"},
 	Usage:   "build and run the envd environment",
 	Flags: []cli.Flag{
-		&cli.StringSliceFlag{
-			Name:    "volume",
-			Usage:   "Mount host directory into container",
-			Aliases: []string{"v"},
-		},
 		&cli.StringFlag{
 			Name:    "tag",
 			Usage:   "Name and optionally a tag in the 'name:tag' format",
@@ -46,10 +41,21 @@ var CommandUp = &cli.Command{
 			Value:   "envd:dev",
 		},
 		&cli.PathFlag{
+			Name:    "path",
+			Usage:   "Path to the directory containing the build.envd",
+			Aliases: []string{"p"},
+			Value:   ".",
+		},
+		&cli.StringSliceFlag{
+			Name:    "volume",
+			Usage:   "Mount host directory into container",
+			Aliases: []string{"v"},
+		},
+		&cli.PathFlag{
 			Name:    "file",
-			Usage:   "Name of the build.envd (Default is 'PATH/build.envd')",
+			Usage:   "Name of the build.envd",
 			Aliases: []string{"f"},
-			Value:   "./build.envd",
+			Value:   "build.envd",
 		},
 		&cli.BoolFlag{
 			Name:  "auth",
@@ -73,11 +79,16 @@ var CommandUp = &cli.Command{
 }
 
 func up(clicontext *cli.Context) error {
-	path, err := filepath.Abs(clicontext.Path("file"))
+	buildContext, err := filepath.Abs(clicontext.Path("path"))
+	if err != nil {
+		return errors.Wrap(err, "failed to get absolute path of the build context")
+	}
+
+	manifest, err := filepath.Abs(filepath.Join(buildContext, clicontext.Path("file")))
 	if err != nil {
 		return errors.Wrap(err, "failed to get absolute path of the build file")
 	}
-	if path == "" {
+	if manifest == "" {
 		return errors.New("file does not exist")
 	}
 
@@ -85,7 +96,7 @@ func up(clicontext *cli.Context) error {
 
 	tag := clicontext.String("tag")
 
-	builder, err := builder.New(clicontext.Context, config, path, tag)
+	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}

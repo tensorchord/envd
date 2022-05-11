@@ -44,16 +44,19 @@ type generalBuilder struct {
 	configFilePath   string
 	progressMode     string
 	tag              string
+	buildContextDir  string
 
 	logger *logrus.Entry
 	starlark.Interpreter
 	buildkitd.Client
 }
 
-func New(ctx context.Context, configFilePath, manifestFilePath, tag string) (Builder, error) {
+func New(ctx context.Context,
+	configFilePath, manifestFilePath, buildContextDir, tag string) (Builder, error) {
 	b := &generalBuilder{
 		manifestFilePath: manifestFilePath,
 		configFilePath:   configFilePath,
+		buildContextDir:  buildContextDir,
 		// TODO(gaocegege): Support other mode?
 		progressMode: "auto",
 		tag:          tag,

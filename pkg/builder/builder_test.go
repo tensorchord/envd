@@ -38,11 +38,12 @@ import (
 
 var _ = Describe("Builder", func() {
 	Describe("building image", Label("buildkitd"), func() {
-		var buildkitdSocket, configFilePath, manifestFilePath, tag string
+		var buildkitdSocket, configFilePath, manifestFilePath, buildContext, tag string
 		BeforeEach(func() {
 			buildkitdSocket = "docker-container://envd_buildkitd"
-			configFilePath = "testdata/config.envd"
-			manifestFilePath = "testdata/build.envd"
+			configFilePath = "config.envd"
+			manifestFilePath = "build.envd"
+			buildContext = "testdata"
 			tag = "envd-dev:test"
 			viper.Set(flag.FlagBuildkitdContainer, "envd_buildkitd")
 			viper.Set(flag.FlagSSHImage, "envd-ssh:latest")
@@ -56,7 +57,7 @@ var _ = Describe("Builder", func() {
 			buildkitdSocket = "wrong"
 			viper.Set(flag.FlagBuildkitdContainer, buildkitdSocket)
 			It("should return an error", func() {
-				_, err := New(context.TODO(), configFilePath, manifestFilePath, tag)
+				_, err := New(context.TODO(), configFilePath, manifestFilePath, buildContext, tag)
 				Expect(err).To(HaveOccurred())
 			})
 		})
