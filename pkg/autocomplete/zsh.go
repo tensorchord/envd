@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/containerd/containerd/log"
 
-	"github.com/tensorchord/MIDI/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var autocompleteZSH = `
-#compdef midi
+#compdef envd
 
 _cli_zsh_autocomplete() {
 
@@ -50,12 +50,12 @@ _cli_zsh_autocomplete() {
   return
 }
 
-compdef _cli_zsh_autocomplete midi`
+compdef _cli_zsh_autocomplete envd`
 
 // If debugging this, it might be required to run `rm ~/.zcompdump*` to remove the cache
 func InsertZSHCompleteEntry() error {
 	// should be the same on linux and macOS
-	path := "/usr/local/share/zsh/site-functions/_midi"
+	path := "/usr/local/share/zsh/site-functions/_envd"
 	dirPath := filepath.Dir(path)
 
 	dirPathExists, err := fileutil.DirExists(dirPath)

@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 	"github.com/containerd/console"
 	"github.com/morikuni/aec"
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/MIDI/pkg/editor/vscode"
+	"github.com/tensorchord/envd/pkg/editor/vscode"
 )
 
 type Writer interface {
@@ -62,7 +62,7 @@ func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 
 	w := &generalWriter{
 		console: c,
-		phase:   "parse build.MIDI and download/cache dependencies",
+		phase:   "parse build.envd and download/cache dependencies",
 		trace:   t,
 		doneCh:  make(chan bool),
 		repeatd: false,

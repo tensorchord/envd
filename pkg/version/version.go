@@ -1,5 +1,5 @@
 /*
-   Copyright The MIDI Authors.
+   Copyright The envd Authors.
    Copyright The BuildKit Authors.
    Copyright The containerd Authors.
 
@@ -29,7 +29,7 @@ const (
 
 var (
 	// Package is filled at linking time
-	Package = "github.com/tensorchord/midi"
+	Package = "github.com/tensorchord/envd"
 
 	// Version holds the complete version number. Filled in at linking time.
 	Version = defaultVersion
@@ -59,5 +59,5 @@ func UserAgent() string {
 		version = matches[0][1] + "-dev"
 	}
 
-	return "midi/" + version
+	return "envd/" + version
 }

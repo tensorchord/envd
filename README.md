@@ -1,4 +1,4 @@
-# MIDI
+# envd
 
 Development Environment for Data Scientists
 
@@ -21,21 +21,21 @@ Development Environment for Data Scientists
 ### From binary
 
 ```bash
-sudo /bin/sh -c 'wget https://github.com/tensorchord/midi/releases/download/0.0.1-alpha.3/midi_0.0.1-alpha.3_Linux_x86_64 -O /usr/local/bin/midi && chmod +x /usr/local/bin/midi && /usr/local/bin/midi bootstrap'
+sudo /bin/sh -c 'wget https://github.com/tensorchord/envd/releases/download/0.0.1-alpha.3/envd_0.0.1-alpha.3_Linux_x86_64 -O /usr/local/bin/envd && chmod +x /usr/local/bin/envd && /usr/local/bin/envd bootstrap'
 ```
 
 ### From source code
 
 ```bash
-git clone https://github.com/tensorchord/midi
+git clone https://github.com/tensorchord/envd
 go mod tidy
 make
-./bin/midi --version
+./bin/envd --version
 ```
 
 ## Quickstart
 
-Checkout the [examples](./examples/mnist), and configure MIDI with the manifest `build.MIDI`:
+Checkout the [examples](./examples/mnist), and configure envd with the manifest `build.envd`:
 
 ```python
 vscode(plugins=[
@@ -52,7 +52,7 @@ shell("zsh")
 jupyter(password="", port=8888)
 ```
 
-Then you can run `midi up` and open jupyter notebook at [`http://localhost:8888`](http://localhost:8888), or open vscode remote to attach to the container.
+Then you can run `envd up` and open jupyter notebook at [`http://localhost:8888`](http://localhost:8888), or open vscode remote to attach to the container.
 
 ```
 [+] ⌚ parse build.MIDI and download/cache dependencies 0.0s ✅ (finished)     
@@ -77,7 +77,7 @@ MIDI >
 ### Configure mirrors
 
 ```
-cat ~/.config/midi/config.MIDI
+cat ~/.config/envd/config.envd
 ubuntu_apt(source="""
 deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
 deb https://mirror.sjtu.edu.cn/ubuntu focal-updates main restricted

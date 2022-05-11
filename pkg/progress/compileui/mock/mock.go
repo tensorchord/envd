@@ -8,8 +8,8 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	vscode "github.com/tensorchord/MIDI/pkg/editor/vscode"
-	compileui "github.com/tensorchord/MIDI/pkg/progress/compileui"
+	vscode "github.com/tensorchord/envd/pkg/editor/vscode"
+	compileui "github.com/tensorchord/envd/pkg/progress/compileui"
 )
 
 // MockWriter is a mock of Writer interface.

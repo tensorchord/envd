@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/tensorchord/MIDI/pkg/buildkitd"
-	"github.com/tensorchord/MIDI/pkg/docker"
-	"github.com/tensorchord/MIDI/pkg/flag"
-	"github.com/tensorchord/MIDI/pkg/home"
-	"github.com/tensorchord/MIDI/pkg/lang/frontend/starlark"
-	"github.com/tensorchord/MIDI/pkg/lang/ir"
-	"github.com/tensorchord/MIDI/pkg/progress/progresswriter"
+	"github.com/tensorchord/envd/pkg/buildkitd"
+	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark"
+	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/progress/progresswriter"
 )
 
 type Builder interface {
@@ -112,9 +112,9 @@ func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
 	}
 	def, err := ir.Compile(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to compile build.MIDI")
+		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}
-	b.logger.Debug("compiled build.MIDI")
+	b.logger.Debug("compiled build.envd")
 	return def, nil
 }
 

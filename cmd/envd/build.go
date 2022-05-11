@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,26 +20,26 @@ import (
 	"github.com/cockroachdb/errors"
 	cli "github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/MIDI/pkg/builder"
-	"github.com/tensorchord/MIDI/pkg/home"
+	"github.com/tensorchord/envd/pkg/builder"
+	"github.com/tensorchord/envd/pkg/home"
 )
 
 var CommandBuild = &cli.Command{
 	Name:    "build",
 	Aliases: []string{"b"},
-	Usage:   "build MIDI environment",
+	Usage:   "build envd environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "tag",
 			Usage:   "Name and optionally a tag in the 'name:tag' format",
 			Aliases: []string{"t"},
-			Value:   "midi:dev",
+			Value:   "envd:dev",
 		},
 		&cli.PathFlag{
 			Name:    "file",
-			Usage:   "Name of the build.MIDI (Default is 'PATH/build.MIDI')",
+			Usage:   "Name of the build.envd (Default is 'PATH/build.envd')",
 			Aliases: []string{"f"},
-			Value:   "./build.MIDI",
+			Value:   "./build.envd",
 		},
 	},
 

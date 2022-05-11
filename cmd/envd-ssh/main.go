@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 // Copyright 2022 The okteto remote Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,13 +26,13 @@ import (
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/MIDI/pkg/remote/sshd"
-	"github.com/tensorchord/MIDI/pkg/version"
+	"github.com/tensorchord/envd/pkg/remote/sshd"
+	"github.com/tensorchord/envd/pkg/version"
 )
 
 const (
-	authorizedKeysPath = "/var/midi/remote/authorized_keys"
-	envPort            = "MIDI_SSH_PORT"
+	authorizedKeysPath = "/var/envd/remote/authorized_keys"
+	envPort            = "envd_SSH_PORT"
 	flagDebug          = "debug"
 	flagAuthKey        = "authorized-keys"
 	flagNoAuth         = "no-auth"
@@ -44,8 +44,8 @@ func main() {
 	}
 
 	app := cli.NewApp()
-	app.Name = "midi-ssh"
-	app.Usage = "ssh server for MIDI"
+	app.Name = "envd-ssh"
+	app.Usage = "ssh server for envd"
 	app.Version = version.Version
 	app.Flags = []cli.Flag{
 		&cli.BoolFlag{

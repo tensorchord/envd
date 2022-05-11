@@ -1,5 +1,4 @@
-// Copyright 2022 The MIDI Authors
-// Copyright 2022 The midi Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,13 +18,13 @@ import (
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
-	ac "github.com/tensorchord/MIDI/pkg/autocomplete"
-	"github.com/tensorchord/MIDI/pkg/buildkitd"
+	ac "github.com/tensorchord/envd/pkg/autocomplete"
+	"github.com/tensorchord/envd/pkg/buildkitd"
 )
 
 var CommandBootstrap = &cli.Command{
 	Name:  "bootstrap",
-	Usage: "Bootstraps midi installation including shell autocompletion and buildkit image download",
+	Usage: "Bootstraps envd installation including shell autocompletion and buildkit image download",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "buildkit",
@@ -35,7 +34,7 @@ var CommandBootstrap = &cli.Command{
 		},
 		&cli.BoolFlag{
 			Name:  "with-autocomplete",
-			Usage: "Add midi autocompletions",
+			Usage: "Add envd autocompletions",
 			Value: true,
 		},
 	},

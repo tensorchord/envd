@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,17 +22,17 @@ import (
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/MIDI/pkg/builder"
-	"github.com/tensorchord/MIDI/pkg/docker"
-	"github.com/tensorchord/MIDI/pkg/home"
-	"github.com/tensorchord/MIDI/pkg/lang/ir"
-	"github.com/tensorchord/MIDI/pkg/ssh"
+	"github.com/tensorchord/envd/pkg/builder"
+	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/ssh"
 )
 
 var CommandUp = &cli.Command{
 	Name:    "up",
 	Aliases: []string{"u"},
-	Usage:   "build and run the MIDI environment",
+	Usage:   "build and run the envd environment",
 	Flags: []cli.Flag{
 		&cli.StringSliceFlag{
 			Name:    "volume",
@@ -43,13 +43,13 @@ var CommandUp = &cli.Command{
 			Name:    "tag",
 			Usage:   "Name and optionally a tag in the 'name:tag' format",
 			Aliases: []string{"t"},
-			Value:   "midi:dev",
+			Value:   "envd:dev",
 		},
 		&cli.PathFlag{
 			Name:    "file",
-			Usage:   "Name of the build.MIDI (Default is 'PATH/build.MIDI')",
+			Usage:   "Name of the build.envd (Default is 'PATH/build.envd')",
 			Aliases: []string{"f"},
-			Value:   "./build.MIDI",
+			Value:   "./build.envd",
 		},
 		&cli.BoolFlag{
 			Name:  "auth",
@@ -99,8 +99,8 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	containerID, containerIP, err := dockerClient.StartMIDI(
-		clicontext.Context, tag, "midi", gpu, *ir.DefaultGraph, clicontext.Duration("timeout"), clicontext.StringSlice("volume"))
+	containerID, containerIP, err := dockerClient.Startenvd(
+		clicontext.Context, tag, "envd", gpu, *ir.DefaultGraph, clicontext.Duration("timeout"), clicontext.StringSlice("volume"))
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-// Copyright 2022 The MIDI Authors
+// Copyright 2022 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/tensorchord/MIDI/pkg/docker"
-	"github.com/tensorchord/MIDI/pkg/flag"
+	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/flag"
 )
 
 var (
