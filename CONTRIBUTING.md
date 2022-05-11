@@ -27,3 +27,20 @@ To run tests you can issue
 ```
 make test
 ```
+
+### Lint
+
+You could run the command below
+
+```
+make lint
+```
+
+You should see output similar to the following if there is any linting issue:
+
+```
+cmd/envd/main.go:36:67: Revision not declared by package version (typecheck)
+                fmt.Println(c.App.Name, version.Package, c.App.Version, version.Revision)
+                                                                                ^
+make: *** [Makefile:102: lint] Error 1
+```
