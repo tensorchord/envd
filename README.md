@@ -58,10 +58,8 @@ Then you can run `midi up` and open jupyter notebook at [`http://localhost:8888`
 [+] ⌚ parse build.MIDI and download/cache dependencies 0.0s ✅ (finished)     
  => 💽 (cached) download oh-my-zsh                                          0.0s                                                                              
  => 💽 (cached) download ms-vscode.cpptools-1.7.1                           0.0s                                                                              
- => 💽 (cached) download github.copilot-1.12.5517                           0.0
-s                                                                              
- => 💽 (cached) download dbaeumer.vscode-eslint-2.2.3                       0.0
-s                                                                              
+ => 💽 (cached) download github.copilot-1.12.5517                           0.0s                                                                              
+ => 💽 (cached) download dbaeumer.vscode-eslint-2.2.3                       0.0s                                                                              
 [+] 🐋 build MIDI environment 1.3s (24/25)                                     
  => 💽 (cached) sh -c apt-get update && apt-get install -y --no-instal     0.0s
  => 💽 (cached) apt-get install -y --no-install-recommends gcc             0.0s
