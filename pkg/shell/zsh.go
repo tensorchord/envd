@@ -29,7 +29,7 @@ var installScript string
 
 type Manager interface {
 	InstallScript() string
-	DownloadOrCache() error
+	DownloadOrCache() (bool, error)
 	OHMyZSHDir() string
 }
 
@@ -44,14 +44,14 @@ func (m generalManager) InstallScript() string {
 	return installScript
 }
 
-func (m generalManager) DownloadOrCache() error {
+func (m generalManager) DownloadOrCache() (bool, error) {
 	if ok, err := fileutil.DirExists(m.OHMyZSHDir()); err != nil {
-		return err
+		return false, err
 	} else if ok {
 		logrus.WithFields(logrus.Fields{
 			"cache-dir": m.OHMyZSHDir(),
 		}).Debug("found cached oh-my-zsh")
-		return nil
+		return true, nil
 	}
 	url := "https://github.com/ohmyzsh/ohmyzsh"
 	l := logrus.WithFields(logrus.Fields{
@@ -63,10 +63,10 @@ func (m generalManager) DownloadOrCache() error {
 		URL: url,
 	})
 	if err != nil {
-		return err
+		return false, err
 	}
 	l.Debug("oh-my-zsh is downloaded")
-	return nil
+	return false, nil
 }
 
 func (m generalManager) OHMyZSHDir() string {

@@ -8,6 +8,8 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	vscode "github.com/tensorchord/MIDI/pkg/editor/vscode"
+	compileui "github.com/tensorchord/MIDI/pkg/progress/compileui"
 )
 
 // MockWriter is a mock of Writer interface.
@@ -45,14 +47,26 @@ func (mr *MockWriterMockRecorder) Finish() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Finish", reflect.TypeOf((*MockWriter)(nil).Finish))
 }
 
-// Print mocks base method.
-func (m *MockWriter) Print(s string) {
+// LogVSCodePlugin mocks base method.
+func (m *MockWriter) LogVSCodePlugin(p vscode.Plugin, action compileui.Action, cached bool) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Print", s)
+	m.ctrl.Call(m, "LogVSCodePlugin", p, action, cached)
 }
 
-// Print indicates an expected call of Print.
-func (mr *MockWriterMockRecorder) Print(s interface{}) *gomock.Call {
+// LogVSCodePlugin indicates an expected call of LogVSCodePlugin.
+func (mr *MockWriterMockRecorder) LogVSCodePlugin(p, action, cached interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Print", reflect.TypeOf((*MockWriter)(nil).Print), s)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogVSCodePlugin", reflect.TypeOf((*MockWriter)(nil).LogVSCodePlugin), p, action, cached)
+}
+
+// LogZSH mocks base method.
+func (m *MockWriter) LogZSH(action compileui.Action, cached bool) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "LogZSH", action, cached)
+}
+
+// LogZSH indicates an expected call of LogZSH.
+func (mr *MockWriterMockRecorder) LogZSH(action, cached interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogZSH", reflect.TypeOf((*MockWriter)(nil).LogZSH), action, cached)
 }

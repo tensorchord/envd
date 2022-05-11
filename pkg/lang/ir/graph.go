@@ -233,8 +233,11 @@ func (g Graph) compileVSCode() (*llb.State, error) {
 	inputs := []llb.State{}
 	for _, p := range g.VSCodePlugins {
 		vscodeClient := vscode.NewClient()
-		if err := vscodeClient.DownloadOrCache(p); err != nil {
+		g.Writer.LogVSCodePlugin(p, compileui.ActionStart, false)
+		if cached, err := vscodeClient.DownloadOrCache(p); err != nil {
 			return nil, err
+		} else {
+			g.Writer.LogVSCodePlugin(p, compileui.ActionEnd, cached)
 		}
 		ext := llb.Scratch().File(llb.Copy(llb.Local(flag.FlagCacheDir),
 			vscodeClient.PluginPath(p),
@@ -278,8 +281,11 @@ func (g Graph) compilePyPIMirror(root llb.State) llb.State {
 func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 	installPath := "/root/install.sh"
 	m := shell.NewManager()
-	if err := m.DownloadOrCache(); err != nil {
+	g.Writer.LogZSH(compileui.ActionStart, false)
+	if cached, err := m.DownloadOrCache(); err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to download oh-my-zsh")
+	} else {
+		g.Writer.LogZSH(compileui.ActionEnd, cached)
 	}
 	zshStage := root.
 		File(llb.Copy(llb.Local(flag.FlagCacheDir), "oh-my-zsh", "/root/.oh-my-zsh",

@@ -17,25 +17,30 @@ package compileui
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/containerd/console"
 	"github.com/morikuni/aec"
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/MIDI/pkg/editor/vscode"
 )
 
 type Writer interface {
-	Print(s string)
+	LogVSCodePlugin(p vscode.Plugin, action Action, cached bool)
+	LogZSH(action Action, cached bool)
 	Finish()
 }
 
 type generalWriter struct {
-	console console.Console
-	phase   string
-	trace   *trace
-	doneCh  chan bool
-	repeatd bool
+	console   console.Console
+	phase     string
+	trace     *trace
+	doneCh    chan bool
+	repeatd   bool
+	result    *Result
+	lineCount int
 }
 
 func New(ctx context.Context, out console.File, mode string) (Writer, error) {
@@ -61,6 +66,10 @@ func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 		trace:   t,
 		doneCh:  make(chan bool),
 		repeatd: false,
+		result: &Result{
+			plugins: make(map[string]*PluginInfo),
+		},
+		lineCount: 0,
 	}
 	// TODO(gaocegege): Have a result chan
 	//nolint
@@ -68,8 +77,37 @@ func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 	return w, nil
 }
 
-func (w generalWriter) Print(s string) {
-	fmt.Fprintln(w.console, s)
+func (w *generalWriter) LogVSCodePlugin(p vscode.Plugin, action Action, cached bool) {
+	switch action {
+	case ActionStart:
+		c := time.Now()
+		w.result.plugins[p.String()] = &PluginInfo{
+			Plugin:    p,
+			startTime: &c,
+			cached:    cached,
+		}
+	case ActionEnd:
+		c := time.Now()
+		w.result.plugins[p.String()].endTime = &c
+		w.result.plugins[p.String()].cached = cached
+	}
+
+}
+
+func (w *generalWriter) LogZSH(action Action, cached bool) {
+	switch action {
+	case ActionStart:
+		c := time.Now()
+		w.result.ZSHInfo = &ZSHInfo{
+			OHMYZSH:   "oh-my-zsh",
+			startTime: &c,
+			cached:    cached,
+		}
+	case ActionEnd:
+		c := time.Now()
+		w.result.ZSHInfo.endTime = &c
+		w.result.ZSHInfo.cached = cached
+	}
 }
 
 func (w generalWriter) Finish() {
@@ -79,31 +117,91 @@ func (w generalWriter) Finish() {
 func (w *generalWriter) run(ctx context.Context) error {
 	displayTimeout := 100 * time.Millisecond
 	ticker := time.NewTicker(displayTimeout)
-	width, height := w.getSize()
-	logger := logrus.WithFields(logrus.Fields{
-		"console-height": height,
-		"console-width":  width,
-	})
-	logger.Debug("print compile progress")
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-w.doneCh:
+			w.output(true)
 			return nil
 		case <-ticker.C:
-			b := aec.EmptyBuilder.Up(1)
-			if !w.repeatd {
-				b = b.Down(1)
-			}
-			w.repeatd = true
-			fmt.Fprint(w.console, b.Column(0).ANSI)
-			fmt.Fprint(w.console, aec.Hide)
-			defer fmt.Fprint(w.console, aec.Show)
-			s := fmt.Sprintf("[+] ⌚ %s %.1fs\n", w.phase, time.Since(*w.trace.startTime).Seconds())
-			fmt.Fprint(w.console, s)
+			w.output(false)
 		}
 	}
+}
+
+func (w *generalWriter) output(finished bool) {
+	width, _ := w.getSize()
+	b := aec.EmptyBuilder.Up(uint(1 + w.lineCount))
+	if !w.repeatd {
+		b = b.Down(1)
+	}
+	w.repeatd = true
+	if finished {
+		fmt.Fprint(w.console, colorRun)
+	}
+	fmt.Fprint(w.console, b.Column(0).ANSI)
+	fmt.Fprint(w.console, aec.Hide)
+	defer fmt.Fprint(w.console, aec.Show)
+
+	statusStr := ""
+	if finished {
+		statusStr = "✅ (finished)"
+	}
+	s := fmt.Sprintf("[+] ⌚ %s %.1fs %s \n",
+		w.phase, time.Since(*w.trace.startTime).Seconds(), statusStr)
+	fmt.Fprint(w.console, s)
+	loc := 0
+
+	// output shell info.
+	if w.result.ZSHInfo != nil {
+		timer := time.Since(*w.result.ZSHInfo.startTime).Seconds()
+		if w.result.ZSHInfo.endTime != nil {
+			timer = w.result.ZSHInfo.endTime.Sub(*w.result.ZSHInfo.startTime).Seconds()
+		}
+		template := " => download %s"
+		if w.result.ZSHInfo.cached {
+			template = " => 💽 (cached) download %s"
+		}
+		timerStr := fmt.Sprintf(" %.1fs\n", timer)
+		out := fmt.Sprintf(template, w.result.ZSHInfo.OHMYZSH)
+		out = align(out, timerStr, width)
+		fmt.Fprint(w.console, out)
+		loc++
+	}
+
+	// output vscode plugins.
+	for _, p := range w.result.plugins {
+		if p.startTime == nil {
+			continue
+		}
+		timer := time.Since(*p.startTime).Seconds()
+		if p.endTime != nil {
+			timer = p.endTime.Sub(*p.startTime).Seconds()
+		}
+		timerStr := fmt.Sprintf(" %.1fs\n", timer)
+		template := " => download %s"
+		if p.cached {
+			template = " => 💽 (cached) download %s"
+		}
+		out := fmt.Sprintf(template, p.Plugin)
+		out = align(out, timerStr, width)
+		fmt.Fprint(w.console, out)
+		loc++
+	}
+
+	// override previous content
+	if diff := w.lineCount - loc; diff > 0 {
+		logrus.WithFields(logrus.Fields{
+			"diff":    diff,
+			"plugins": len(w.result.plugins),
+		}).Debug("override previous content", diff)
+		for i := 0; i < diff; i++ {
+			fmt.Fprintln(w.console, strings.Repeat(" ", width))
+		}
+		fmt.Fprint(w.console, aec.EmptyBuilder.Up(uint(diff)).Column(0).ANSI)
+	}
+	w.lineCount = loc
 }
 
 func (w generalWriter) getSize() (int, int) {
@@ -117,4 +215,8 @@ func (w generalWriter) getSize() (int, int) {
 		}
 	}
 	return width, height
+}
+
+func align(l, r string, w int) string {
+	return fmt.Sprintf("%-[2]*[1]s %[3]s", l, w-len(r)-1, r)
 }
