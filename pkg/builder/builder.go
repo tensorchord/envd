@@ -130,12 +130,7 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 	pipeR, pipeW := io.Pipe()
 	eg.Go(func() error {
 		defer pipeW.Close()
-		wd, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-		b.logger.Debug("building image in ", wd)
-		_, err = b.Solve(ctx, def, client.SolveOpt{
+		_, err := b.Solve(ctx, def, client.SolveOpt{
 			Exports: []client.ExportEntry{
 				{
 					Type: client.ExporterDocker,
@@ -148,7 +143,7 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 				},
 			},
 			LocalDirs: map[string]string{
-				flag.FlagContextDir: wd,
+				flag.FlagContextDir: b.buildContextDir,
 				flag.FlagCacheDir:   home.GetManager().CacheDir(),
 			},
 			FrontendAttrs: map[string]string{
