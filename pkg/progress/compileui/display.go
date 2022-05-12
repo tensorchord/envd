@@ -67,7 +67,7 @@ func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 		doneCh:  make(chan bool),
 		repeatd: false,
 		result: &Result{
-			plugins: make(map[string]*PluginInfo),
+			plugins: make([]*PluginInfo, 0),
 		},
 		lineCount: 0,
 	}
@@ -81,17 +81,20 @@ func (w *generalWriter) LogVSCodePlugin(p vscode.Plugin, action Action, cached b
 	switch action {
 	case ActionStart:
 		c := time.Now()
-		w.result.plugins[p.String()] = &PluginInfo{
+		w.result.plugins = append(w.result.plugins, &PluginInfo{
 			Plugin:    p,
 			startTime: &c,
 			cached:    cached,
-		}
+		})
 	case ActionEnd:
 		c := time.Now()
-		w.result.plugins[p.String()].endTime = &c
-		w.result.plugins[p.String()].cached = cached
+		for i, plugin := range w.result.plugins {
+			if plugin.String() == p.String() {
+				w.result.plugins[i].endTime = &c
+				w.result.plugins[i].cached = cached
+			}
+		}
 	}
-
 }
 
 func (w *generalWriter) LogZSH(action Action, cached bool) {
@@ -163,7 +166,7 @@ func (w *generalWriter) output(finished bool) {
 		if w.result.ZSHInfo.cached {
 			template = " => 💽 (cached) download %s"
 		}
-		timerStr := fmt.Sprintf(" %.1fs\n", timer)
+		timerStr := fmt.Sprintf(" %3.1fs\n", timer)
 		out := fmt.Sprintf(template, w.result.ZSHInfo.OHMYZSH)
 		out = align(out, timerStr, width)
 		fmt.Fprint(w.console, out)
@@ -179,7 +182,7 @@ func (w *generalWriter) output(finished bool) {
 		if p.endTime != nil {
 			timer = p.endTime.Sub(*p.startTime).Seconds()
 		}
-		timerStr := fmt.Sprintf(" %.1fs\n", timer)
+		timerStr := fmt.Sprintf(" %3.1fs\n", timer)
 		template := " => download %s"
 		if p.cached {
 			template = " => 💽 (cached) download %s"
