@@ -18,10 +18,12 @@ import (
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
+	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandBuild = &cli.Command{
@@ -31,15 +33,14 @@ var CommandBuild = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "tag",
-			Usage:   "Name and optionally a tag in the 'name:tag' format",
+			Usage:   "Name and optionally a tag in the 'name:tag' format (default: PROJECT:dev)",
 			Aliases: []string{"t"},
-			Value:   "envd:dev",
 		},
 		&cli.PathFlag{
 			Name:    "file",
-			Usage:   "Name of the build.envd (Default is 'PATH/build.envd')",
+			Usage:   "Name of the build.envd",
 			Aliases: []string{"f"},
-			Value:   "./build.envd",
+			Value:   "build.envd",
 		},
 		&cli.PathFlag{
 			Name:    "path",
@@ -69,6 +70,18 @@ func build(clicontext *cli.Context) error {
 	config := home.GetManager().ConfigFile()
 
 	tag := clicontext.String("tag")
+	if tag == "" {
+		logrus.Debug("tag not specified, using default")
+		tag = fileutil.Base(buildContext)
+	}
+
+	logger := logrus.WithFields(logrus.Fields{
+		"build-context": buildContext,
+		"build-file":    manifest,
+		"config":        config,
+		"tag":           tag,
+	})
+	logger.Debug("starting build")
 
 	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag)
 	if err != nil {

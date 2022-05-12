@@ -15,18 +15,28 @@
 package main
 
 import (
+	"path/filepath"
+
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandDestroy = &cli.Command{
 	Name:    "destroy",
 	Aliases: []string{"d"},
 	Usage:   "destroys the envd environment",
-	Flags:   []cli.Flag{},
+	Flags: []cli.Flag{
+		&cli.PathFlag{
+			Name:    "path",
+			Usage:   "Path to the directory containing the build.envd",
+			Aliases: []string{"p"},
+			Value:   ".",
+		},
+	},
 
 	Action: destroy,
 }
@@ -36,8 +46,16 @@ func destroy(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	if err := dockerClient.Destroy(clicontext.Context, "envd"); err != nil {
-		return errors.Wrap(err, "failed to destroy the envd environment")
+
+	buildContext, err := filepath.Abs(clicontext.Path("path"))
+	if err != nil {
+		return errors.Wrap(err, "failed to get absolute path of the build context")
+	}
+
+	ctr := fileutil.Base(buildContext)
+
+	if err := dockerClient.Destroy(clicontext.Context, ctr); err != nil {
+		return errors.Wrapf(err, "failed to destroy the environment: %s", ctr)
 	}
 	logrus.Info("envd environment destroyed")
 	return nil

@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -27,6 +28,7 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandUp = &cli.Command{
@@ -95,6 +97,20 @@ func up(clicontext *cli.Context) error {
 	config := home.GetManager().ConfigFile()
 
 	tag := clicontext.String("tag")
+	if tag == "" {
+		logrus.Debug("tag not specified, using default")
+		tag = fmt.Sprintf("%s:%s", fileutil.Base(buildContext), "dev")
+	}
+	ctr := fileutil.Base(buildContext)
+
+	logger := logrus.WithFields(logrus.Fields{
+		"build-context":  buildContext,
+		"build-file":     manifest,
+		"config":         config,
+		"tag":            tag,
+		"container-name": ctr,
+	})
+	logger.Debug("starting up")
 
 	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag)
 	if err != nil {
@@ -110,8 +126,9 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	containerID, containerIP, err := dockerClient.Startenvd(
-		clicontext.Context, tag, "envd", gpu, *ir.DefaultGraph, clicontext.Duration("timeout"), clicontext.StringSlice("volume"))
+	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
+		tag, ctr, buildContext, gpu, *ir.DefaultGraph, clicontext.Duration("timeout"),
+		clicontext.StringSlice("volume"))
 	if err != nil {
 		return err
 	}
