@@ -44,16 +44,19 @@ type generalBuilder struct {
 	configFilePath   string
 	progressMode     string
 	tag              string
+	buildContextDir  string
 
 	logger *logrus.Entry
 	starlark.Interpreter
 	buildkitd.Client
 }
 
-func New(ctx context.Context, configFilePath, manifestFilePath, tag string) (Builder, error) {
+func New(ctx context.Context,
+	configFilePath, manifestFilePath, buildContextDir, tag string) (Builder, error) {
 	b := &generalBuilder{
 		manifestFilePath: manifestFilePath,
 		configFilePath:   configFilePath,
+		buildContextDir:  buildContextDir,
 		// TODO(gaocegege): Support other mode?
 		progressMode: "auto",
 		tag:          tag,
@@ -127,12 +130,7 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 	pipeR, pipeW := io.Pipe()
 	eg.Go(func() error {
 		defer pipeW.Close()
-		wd, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-		b.logger.Debug("building image in ", wd)
-		_, err = b.Solve(ctx, def, client.SolveOpt{
+		_, err := b.Solve(ctx, def, client.SolveOpt{
 			Exports: []client.ExportEntry{
 				{
 					Type: client.ExporterDocker,
@@ -145,7 +143,7 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 				},
 			},
 			LocalDirs: map[string]string{
-				flag.FlagContextDir: wd,
+				flag.FlagContextDir: b.buildContextDir,
 				flag.FlagCacheDir:   home.GetManager().CacheDir(),
 			},
 			FrontendAttrs: map[string]string{
