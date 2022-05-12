@@ -28,8 +28,11 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/go-connections/nat"
+	"github.com/moby/term"
 	"github.com/sirupsen/logrus"
+
 	"github.com/tensorchord/envd/pkg/editor/jupyter"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
@@ -122,11 +125,12 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 			if err != nil {
 				return "", errors.Wrap(err, "failed to pull image")
 			}
-			_, err = io.Copy(os.Stdout, body)
-			if err != nil {
-				logger.WithError(err).Warningln("failed to copy image pull output")
-			}
 			defer body.Close()
+			termFd, isTerm := term.GetFdInfo(os.Stdout)
+			err = jsonmessage.DisplayJSONMessagesStream(body, os.Stdout, termFd, isTerm, nil)
+			if err != nil {
+				logger.WithError(err).Warningln("failed to display image pull output")
+			}
 		} else {
 			return "", errors.Wrap(err, "failed to inspect image")
 		}
