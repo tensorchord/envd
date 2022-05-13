@@ -46,7 +46,7 @@ type Client interface {
 	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
 	// Start creates the container for the given tag and container name.
-	Startenvd(ctx context.Context, tag, name string,
+	StartEnvd(ctx context.Context, tag, name, buildContext string,
 		gpuEnabled bool, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error)
 	StartBuildkitd(ctx context.Context, tag, name string) (string, error)
 	IsRunning(ctx context.Context, name string) (bool, error)
@@ -163,12 +163,13 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 }
 
 // Start creates the container for the given tag and container name.
-func (c generalClient) Startenvd(ctx context.Context, tag, name string,
+func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext string,
 	gpuEnabled bool, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error) {
 	logger := logrus.WithFields(logrus.Fields{
-		"tag":       tag,
-		"container": name,
-		"gpu":       gpuEnabled,
+		"tag":           tag,
+		"container":     name,
+		"gpu":           gpuEnabled,
+		"build-context": buildContext,
 	})
 	config := &container.Config{
 		Image: tag,
@@ -178,14 +179,7 @@ func (c generalClient) Startenvd(ctx context.Context, tag, name string,
 		},
 		ExposedPorts: nat.PortSet{},
 	}
-	path, err := fileutil.CWD()
-	if err != nil {
-		return "", "", errors.Wrap(err, "failed to get current working directory")
-	}
-	base, err := fileutil.RootDir()
-	if err != nil {
-		return "", "", errors.Wrap(err, "failed to get root directory")
-	}
+	base := fileutil.Base(buildContext)
 	base = fmt.Sprintf("/root/%s", base)
 	config.WorkingDir = base
 
@@ -193,7 +187,7 @@ func (c generalClient) Startenvd(ctx context.Context, tag, name string,
 	for i, option := range mountOptionsStr {
 		mStr := strings.Split(option, ":")
 		if len(mStr) != 2 {
-			return "", "", errors.Wrap(err, fmt.Sprintf("Invalid mount options %s", option))
+			return "", "", errors.Newf("Invalid mount options %s", option)
 		}
 
 		logger.WithFields(logrus.Fields{
@@ -208,12 +202,12 @@ func (c generalClient) Startenvd(ctx context.Context, tag, name string,
 	}
 	mountOption[len(mountOptionsStr)] = mount.Mount{
 		Type:   mount.TypeBind,
-		Source: path,
+		Source: buildContext,
 		Target: base,
 	}
 
 	logger.WithFields(logrus.Fields{
-		"mount-path":  path,
+		"mount-path":  buildContext,
 		"working-dir": base,
 	}).Debug("setting up container working directory")
 

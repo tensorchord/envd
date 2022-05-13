@@ -58,3 +58,7 @@ func RootDir() (string, error) {
 	}
 	return filepath.Base(cwd), nil
 }
+
+func Base(dir string) string {
+	return filepath.Base(dir)
+}
