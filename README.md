@@ -1,5 +1,7 @@
 # envd
 
+[![Discord](https://img.shields.io/discord/974584200327991326?label=discord&style=social)](https://discord.gg/KqswhpVgdU)
+
 Development Environment for Data Scientists
 
 :snake:  **No docker, only python** - Write python code to build the development environment, we help you take care of Docker.
@@ -101,8 +103,13 @@ vscode(plugins = [
 
 envd configures Ubuntu APT source, PyPI mirror, and others in the development environment.
 
+## Join Us
+
+envd is backed by [TensorChord](https://github.com/tensorchord) and licensed under Apache-2.0. We are actively hiring engineers to build developer tools for machine learning practitioners in open source.
+
 ## Contribute
 
 We welcome all kinds of contributions from the open-source community, individuals, and partners.
 
+- Join our [discord community](https://discord.gg/KqswhpVgdU)! 
 - To build from source, check the [contributing page](./CONTRIBUTING.md).
