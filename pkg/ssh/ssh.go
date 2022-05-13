@@ -32,6 +32,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/agent"
 	"golang.org/x/term"
 )
 
@@ -90,6 +91,10 @@ func (c generalClient) Attach() error {
 		return fmt.Errorf("create session for %v failed %v", c.server, err)
 	}
 	defer session.Close()
+
+	if err := agent.RequestAgentForwarding(session); err != nil {
+		return errors.Wrap(err, "requesting agent forwarding failed")
+	}
 
 	modes := ssh.TerminalModes{
 		ssh.ECHO:          0,      // Disable echoing
