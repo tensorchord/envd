@@ -85,7 +85,7 @@ func NewClient(server, user string,
 	if socketLocation != "" {
 		agentConn, err := net.Dial("unix", socketLocation)
 		if err != nil {
-			errors.Wrap(err, "could not connect to local agent socket")
+			return nil, errors.Wrap(err, "could not connect to local agent socket")
 		}
 		// create agent and add in auth
 		forwardingAgent := agent.NewClient(agentConn)
