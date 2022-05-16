@@ -32,6 +32,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/agent"
 	"golang.org/x/term"
 )
 
@@ -40,8 +41,7 @@ type Client interface {
 }
 
 type generalClient struct {
-	config *ssh.ClientConfig
-	server string
+	cli *ssh.Client
 }
 
 func NewClient(server, user string,
@@ -53,6 +53,8 @@ func NewClient(server, user string,
 			return nil
 		},
 	}
+
+	var cli *ssh.Client
 
 	if auth {
 		// read private key file
@@ -70,26 +72,50 @@ func NewClient(server, user string,
 		}
 	}
 
+	host := fmt.Sprintf("%s:%d", server, port)
+	// open connection
+	conn, err := ssh.Dial("tcp", host, config)
+	if err != nil {
+		return nil, errors.Wrap(err, "dialing failed")
+	}
+	cli = conn
+
+	// open connection to the local agent
+	socketLocation := os.Getenv("SSH_AUTH_SOCK")
+	if socketLocation != "" {
+		agentConn, err := net.Dial("unix", socketLocation)
+		if err != nil {
+			return nil, errors.Wrap(err, "could not connect to local agent socket")
+		}
+		// create agent and add in auth
+		forwardingAgent := agent.NewClient(agentConn)
+		// add callback for forwarding agent to SSH config
+		// XXX - might want to handle reconnects appending multiple callbacks
+		auth := ssh.PublicKeysCallback(forwardingAgent.Signers)
+		config.Auth = append(config.Auth, auth)
+		if err := agent.ForwardToAgent(cli, forwardingAgent); err != nil {
+			return nil, errors.Wrap(err, "forwarding agent to client failed")
+		}
+	}
+
 	return &generalClient{
-		config: config,
-		server: fmt.Sprintf("%v:%v", server, port),
+		cli: cli,
 	}, nil
 }
 
 func (c generalClient) Attach() error {
-	// open connection
-	conn, err := ssh.Dial("tcp", c.server, c.config)
-	if err != nil {
-		return fmt.Errorf("dial to %v failed %v", c.server, err)
-	}
-	defer conn.Close()
+	defer c.cli.Close()
 
 	// open session
-	session, err := conn.NewSession()
+	session, err := c.cli.NewSession()
 	if err != nil {
-		return fmt.Errorf("create session for %v failed %v", c.server, err)
+		return errors.Wrap(err, "creating session failed")
 	}
 	defer session.Close()
+
+	if err := agent.RequestAgentForwarding(session); err != nil {
+		return errors.Wrap(err, "requesting agent forwarding failed")
+	}
 
 	modes := ssh.TerminalModes{
 		ssh.ECHO:          0,      // Disable echoing

@@ -42,6 +42,7 @@ func NewGraph() *Graph {
 			// They are used by vscode remote.
 			"curl",
 			"openssh-client",
+			"git",
 		},
 
 		PyPIPackages:   []string{},
