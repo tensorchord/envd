@@ -34,30 +34,34 @@ type Writer interface {
 }
 
 type generalWriter struct {
-	console   console.Console
-	phase     string
-	trace     *trace
-	doneCh    chan bool
-	repeatd   bool
-	result    *Result
-	lineCount int
+	console     console.Console
+	modeConsole bool
+	phase       string
+	trace       *trace
+	doneCh      chan bool
+	repeatd     bool
+	result      *Result
+	lineCount   int
 }
 
 func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 	var c console.Console
 	switch mode {
-	case "auto":
+	case "auto", "tty", "":
 		if cons, err := console.ConsoleFromFile(out); err == nil {
 			c = cons
 		} else {
-			return nil, errors.Wrap(err, "failed to get console")
+			if mode == "tty" {
+				return nil, errors.Wrap(err, "failed to get console")
+			}
 		}
 	case "plain":
 	default:
 		return nil, errors.Errorf("invalid progress mode %s", mode)
 	}
 
-	t := newTrace(out, true)
+	modeConsole := c != nil
+	t := newTrace(out, modeConsole)
 	t.init()
 
 	w := &generalWriter{
@@ -71,9 +75,15 @@ func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 		},
 		lineCount: 0,
 	}
-	// TODO(gaocegege): Have a result chan
-	//nolint
-	go w.run(ctx)
+	go func() {
+		// TODO(gaocegege): Print in text.
+		if !modeConsole {
+			return
+		}
+		// TODO(gaocegege): Have a result chan
+		//nolint
+		w.run(ctx)
+	}()
 	return w, nil
 }
 
@@ -114,7 +124,9 @@ func (w *generalWriter) LogZSH(action Action, cached bool) {
 }
 
 func (w generalWriter) Finish() {
-	w.doneCh <- true
+	if w.modeConsole {
+		w.doneCh <- true
+	}
 }
 
 func (w *generalWriter) run(ctx context.Context) error {
