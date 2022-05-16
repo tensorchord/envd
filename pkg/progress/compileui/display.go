@@ -65,11 +65,12 @@ func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 	t.init()
 
 	w := &generalWriter{
-		console: c,
-		phase:   "parse build.envd and download/cache dependencies",
-		trace:   t,
-		doneCh:  make(chan bool),
-		repeatd: false,
+		console:     c,
+		modeConsole: modeConsole,
+		phase:       "parse build.envd and download/cache dependencies",
+		trace:       t,
+		doneCh:      make(chan bool),
+		repeatd:     false,
 		result: &Result{
 			plugins: make([]*PluginInfo, 0),
 		},
@@ -77,12 +78,13 @@ func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 	}
 	go func() {
 		// TODO(gaocegege): Print in text.
-		if !modeConsole {
-			return
+		if modeConsole {
+			// TODO(gaocegege): Have a result chan
+			//nolint
+			w.run(ctx)
+		} else {
+			<-ctx.Done()
 		}
-		// TODO(gaocegege): Have a result chan
-		//nolint
-		w.run(ctx)
 	}()
 	return w, nil
 }
@@ -130,19 +132,22 @@ func (w generalWriter) Finish() {
 }
 
 func (w *generalWriter) run(ctx context.Context) error {
-	displayTimeout := 100 * time.Millisecond
-	ticker := time.NewTicker(displayTimeout)
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-w.doneCh:
-			w.output(true)
-			return nil
-		case <-ticker.C:
-			w.output(false)
+	if w.modeConsole {
+		displayTimeout := 100 * time.Millisecond
+		ticker := time.NewTicker(displayTimeout)
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-w.doneCh:
+				w.output(true)
+				return nil
+			case <-ticker.C:
+				w.output(false)
+			}
 		}
 	}
+	return nil
 }
 
 func (w *generalWriter) output(finished bool) {

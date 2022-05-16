@@ -23,10 +23,10 @@ import (
 	"github.com/tensorchord/envd/pkg/docker"
 )
 
-var _ = Describe("build command", func() {
+var _ = Describe("up command", func() {
 	buildContext := "testdata"
 	args := []string{
-		"envd.test", "--debug", "build", "--path", buildContext,
+		"envd.test", "--debug", "up", "--path", buildContext, "--detach",
 	}
 	BeforeEach(func() {
 		cli, err := docker.NewClient(context.TODO())
@@ -34,7 +34,7 @@ var _ = Describe("build command", func() {
 		_ = cli.Destroy(context.TODO(), buildContext)
 	})
 	When("given the right arguments", func() {
-		It("should build successfully", func() {
+		It("should up successfully", func() {
 			_, err := run(args)
 			Expect(err).NotTo(HaveOccurred())
 		})

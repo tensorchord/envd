@@ -75,6 +75,11 @@ var CommandUp = &cli.Command{
 			Usage: "Timeout of container creation",
 			Value: time.Second * 30,
 		},
+		&cli.BoolFlag{
+			Name:  "detach",
+			Usage: "detach from the container",
+			Value: false,
+		},
 	},
 
 	Action: up,
@@ -103,12 +108,15 @@ func up(clicontext *cli.Context) error {
 	}
 	ctr := fileutil.Base(buildContext)
 
+	detach := clicontext.Bool("detach")
+
 	logger := logrus.WithFields(logrus.Fields{
 		"build-context":  buildContext,
 		"build-file":     manifest,
 		"config":         config,
 		"tag":            tag,
 		"container-name": ctr,
+		"detach":         detach,
 	})
 	logger.Debug("starting up")
 
@@ -134,13 +142,15 @@ func up(clicontext *cli.Context) error {
 	}
 	logrus.Debugf("container %s is running", containerID)
 
-	sshClient, err := ssh.NewClient(
-		containerIP, "envd", 2222, clicontext.Bool("auth"), clicontext.Path("private-key"), "")
-	if err != nil {
-		return err
-	}
-	if err := sshClient.Attach(); err != nil {
-		return err
+	if !detach {
+		sshClient, err := ssh.NewClient(
+			containerIP, "root", 2222, clicontext.Bool("auth"), clicontext.Path("private-key"), "")
+		if err != nil {
+			return err
+		}
+		if err := sshClient.Attach(); err != nil {
+			return err
+		}
 	}
 
 	return nil
