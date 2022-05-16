@@ -34,8 +34,13 @@ var _ = Describe("up command", func() {
 		_ = cli.Destroy(context.TODO(), buildContext)
 	})
 	When("given the right arguments", func() {
-		It("should up successfully", func() {
+		It("should up and destroy successfully", func() {
 			_, err := run(args)
+			Expect(err).NotTo(HaveOccurred())
+			destroyArgs := []string{
+				"envd.test", "--debug", "destroy", "--path", buildContext,
+			}
+			_, err = run(destroyArgs)
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})

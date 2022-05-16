@@ -19,9 +19,11 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
+	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -76,12 +78,15 @@ func build(clicontext *cli.Context) error {
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
-		"build-context": buildContext,
-		"build-file":    manifest,
-		"config":        config,
-		"tag":           tag,
+		"build-context":             buildContext,
+		"build-file":                manifest,
+		"config":                    config,
+		"tag":                       tag,
+		flag.FlagBuildkitdImage:     viper.GetString(flag.FlagBuildkitdImage),
+		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
+		flag.FlagSSHImage:           viper.GetString(flag.FlagSSHImage),
 	})
-	logger.Debug("starting build")
+	logger.Debug("starting build command")
 
 	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag)
 	if err != nil {
