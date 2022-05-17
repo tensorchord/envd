@@ -71,7 +71,9 @@ func (m generalManager) DownloadOrCache() (bool, error) {
 		return false, err
 	}
 
-	home.GetManager().MarkCache("oh-my-zsh", true)
+	if err := home.GetManager().MarkCache("oh-my-zsh", true); err != nil {
+		return false, errors.Wrap(err, "failed to update cache status")
+	}
 	l.Debug("oh-my-zsh is downloaded")
 	return false, nil
 }

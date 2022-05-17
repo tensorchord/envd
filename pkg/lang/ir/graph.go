@@ -164,7 +164,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 
 	cacheDir := "/home/envd/.cache/pip"
 
-	run := root.Run(llb.Shlex(sb.String()), llb.WithCustomNamef("pip install",
+	run := root.Run(llb.Shlex(sb.String()), llb.WithCustomNamef("pip install %s",
 		strings.Join(g.PyPIPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
