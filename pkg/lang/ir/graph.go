@@ -125,12 +125,7 @@ func (g *Graph) compileBase() llb.State {
 	} else {
 		base = g.compileCUDAPackages()
 	}
-	// TODO(gaocegege): Refactor user to a seperate stage.
-	run := base.
-		Run(llb.Shlex("groupadd -g 1000 envd")).
-		Run(llb.Shlex("useradd -p \"\" -u 1000 -g envd -s /bin/sh -m envd")).
-		Run(llb.Shlex("adduser envd sudo"))
-	return llb.User("envd")(run.Root())
+	return base
 }
 
 func (g *Graph) compileCUDAPackages() llb.State {
@@ -202,7 +197,13 @@ func (g Graph) compileBuiltinSystemPackages(root llb.State) llb.State {
 		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
 	run.AddMount(cacheLibDir, llb.Scratch(),
 		llb.AsPersistentCacheDir("/"+cacheLibDir, llb.CacheMountShared))
-	return run.Root()
+
+	// TODO(gaocegege): Refactor user to a seperate stage.
+	run = run.
+		Run(llb.Shlex("groupadd -g 1000 envd"), llb.WithCustomName("create user group envd")).
+		Run(llb.Shlex("useradd -p \"\" -u 1000 -g envd -s /bin/sh -m envd"), llb.WithCustomName("create user envd")).
+		Run(llb.Shlex("adduser envd sudo"), llb.WithCustomName("add user envd to sudoers"))
+	return llb.User("envd")(run.Root())
 }
 
 func (g Graph) compileSystemPackages(root llb.State) llb.State {
