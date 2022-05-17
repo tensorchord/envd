@@ -122,8 +122,9 @@ func (g *Graph) compileBase() llb.State {
 	var base llb.State
 	if g.CUDA == nil && g.CUDNN == nil {
 		base = llb.Image("docker.io/library/python:3.8")
+	} else {
+		base = g.compileCUDAPackages()
 	}
-	base = g.compileCUDAPackages()
 	// TODO(gaocegege): Refactor user to a seperate stage.
 	run := base.
 		Run(llb.Shlex("groupadd -g 1000 envd")).
