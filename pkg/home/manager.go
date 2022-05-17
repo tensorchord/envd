@@ -15,6 +15,7 @@
 package home
 
 import (
+	"encoding/gob"
 	"os"
 	"path/filepath"
 	"sync"
@@ -22,16 +23,23 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 type Manager interface {
 	CacheDir() string
+	MarkCache(string, bool) error
+	Cached(string) bool
 	ConfigFile() string
 }
 
 type generalManager struct {
-	cacheDir   string
-	configFile string
+	cacheDir        string
+	cacheStatusFile string
+	configFile      string
+
+	// TODO(gaocegege): Abstract CacheManager.
+	cacheMap map[string]bool
 
 	logger *logrus.Entry
 }
@@ -43,7 +51,9 @@ var (
 
 func Initialize() error {
 	once.Do(func() {
-		defaultManager = &generalManager{}
+		defaultManager = &generalManager{
+			cacheMap: make(map[string]bool),
+		}
 	})
 	if err := defaultManager.init(); err != nil {
 		return err
@@ -63,6 +73,29 @@ func (m generalManager) ConfigFile() string {
 	return m.configFile
 }
 
+func (m generalManager) MarkCache(key string, cached bool) error {
+	m.cacheMap[key] = cached
+	return m.dumpCacheStatus()
+}
+
+func (m generalManager) Cached(key string) bool {
+	return m.cacheMap[key]
+}
+
+func (m *generalManager) dumpCacheStatus() error {
+	file, err := os.Create(m.cacheStatusFile)
+	if err != nil {
+		return errors.Wrap(err, "failed to open cache status file")
+	}
+	defer file.Close()
+
+	e := gob.NewEncoder(file)
+	if err := e.Encode(m.cacheMap); err != nil {
+		return errors.Wrap(err, "failed to encode cache map")
+	}
+	return nil
+}
+
 func (m *generalManager) init() error {
 	// Create $XDG_CONFIG_HOME/envd/config.envd
 	config, err := xdg.ConfigFile("envd/config.envd")
@@ -70,16 +103,8 @@ func (m *generalManager) init() error {
 		return errors.Wrap(err, "failed to get config file")
 	}
 
-	_, err = os.Stat(config)
-	if err != nil {
-		if os.IsNotExist(err) {
-			logrus.WithField("config", config).Info("Creating config file")
-			if _, err := os.Create(config); err != nil {
-				return errors.Wrap(err, "failed to create config file")
-			}
-		} else {
-			return errors.Wrap(err, "failed to stat config file")
-		}
+	if err := fileutil.CreateIfNotExist(config); err != nil {
+		return errors.Wrap(err, "failed to create config file")
 	}
 	m.configFile = config
 
@@ -90,9 +115,36 @@ func (m *generalManager) init() error {
 	}
 	m.cacheDir = filepath.Join(xdg.CacheHome, "envd")
 
+	m.cacheStatusFile = filepath.Join(m.cacheDir, "cache.status")
+	_, err = os.Stat(m.cacheStatusFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			logrus.WithField("filename", m.cacheStatusFile).Debug("Creating file")
+			if _, err := os.Create(m.cacheStatusFile); err != nil {
+				return errors.Wrap(err, "failed to create file")
+			}
+			if err := m.dumpCacheStatus(); err != nil {
+				return errors.Wrap(err, "failed to dump cache status")
+			}
+		} else {
+			return errors.Wrap(err, "failed to stat file")
+		}
+	}
+
+	file, err := os.Open(m.cacheStatusFile)
+	if err != nil {
+		return errors.Wrap(err, "failed to open cache status file")
+	}
+	defer file.Close()
+	e := gob.NewDecoder(file)
+	if err := e.Decode(&m.cacheMap); err != nil {
+		return errors.Wrap(err, "failed to decode cache map")
+	}
+
 	m.logger = logrus.WithFields(logrus.Fields{
-		"cacheDir": m.cacheDir,
-		"config":   m.configFile,
+		"cache-dir":    m.cacheDir,
+		"config":       m.configFile,
+		"cache-status": m.cacheStatusFile,
 	})
 
 	m.logger.Debug("home manager initialized")
