@@ -180,7 +180,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		ExposedPorts: nat.PortSet{},
 	}
 	base := fileutil.Base(buildContext)
-	base = fmt.Sprintf("/root/%s", base)
+	base = fmt.Sprintf("/home/envd/%s", base)
 	config.WorkingDir = base
 
 	mountOption := make([]mount.Mount, len(mountOptionsStr)+1)

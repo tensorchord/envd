@@ -118,10 +118,15 @@ func (g Graph) Compile() (llb.State, error) {
 }
 
 func (g *Graph) compileBase() llb.State {
+	var base llb.State
 	if g.CUDA == nil && g.CUDNN == nil {
-		return llb.Image("docker.io/library/python:3.8")
+		base = llb.Image("docker.io/library/python:3.8")
 	}
-	return g.compileCUDAPackages()
+	base = g.compileCUDAPackages()
+	run := base.
+		Run(llb.Shlex("groupadd -g 1000 envd")).
+		Run(llb.Shlex("useradd -u 1000 -g envd -s /bin/sh -m envd"))
+	return llb.User("envd")(run.Root())
 }
 
 func (g *Graph) compileCUDAPackages() llb.State {
@@ -154,7 +159,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}
 
-	cacheDir := "/root/.cache/pip"
+	cacheDir := "/home/envd/.cache/pip"
 
 	run := root.Run(llb.Shlex(sb.String()))
 	run.AddMount(cacheDir, llb.Scratch(),
@@ -242,7 +247,7 @@ func (g Graph) compileVSCode() (*llb.State, error) {
 		}
 		ext := llb.Scratch().File(llb.Copy(llb.Local(flag.FlagCacheDir),
 			vscodeClient.PluginPath(p),
-			"/root/.vscode-server/extensions/"+p.String(),
+			"/home/envd/.vscode-server/extensions/"+p.String(),
 			&llb.CopyInfo{CreateDestPath: true}))
 		inputs = append(inputs, ext)
 	}
@@ -280,7 +285,7 @@ func (g Graph) compilePyPIMirror(root llb.State) llb.State {
 }
 
 func (g Graph) compileZSH(root llb.State) (llb.State, error) {
-	installPath := "/root/install.sh"
+	installPath := "/home/envd/install.sh"
 	m := shell.NewManager()
 	g.Writer.LogZSH(compileui.ActionStart, false)
 	if cached, err := m.DownloadOrCache(); err != nil {
@@ -289,7 +294,7 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 		g.Writer.LogZSH(compileui.ActionEnd, cached)
 	}
 	zshStage := root.
-		File(llb.Copy(llb.Local(flag.FlagCacheDir), "oh-my-zsh", "/root/.oh-my-zsh",
+		File(llb.Copy(llb.Local(flag.FlagCacheDir), "oh-my-zsh", "/home/envd/.oh-my-zsh",
 			&llb.CopyInfo{CreateDestPath: true})).
 		File(llb.Mkfile(installPath, 0644, []byte(m.InstallScript())))
 	run := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)))

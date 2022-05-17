@@ -135,7 +135,7 @@ func up(clicontext *cli.Context) error {
 	logrus.Debugf("container %s is running", containerID)
 
 	sshClient, err := ssh.NewClient(
-		containerIP, "root", 2222, clicontext.Bool("auth"), clicontext.Path("private-key"), "")
+		containerIP, "envd", 2222, clicontext.Bool("auth"), clicontext.Path("private-key"), "")
 	if err != nil {
 		return err
 	}
