@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
+	"github.com/sirupsen/logrus"
 )
 
 // FileExists returns true if the file exists
@@ -35,7 +36,11 @@ func FileExists(filename string) (bool, error) {
 	return !info.IsDir(), nil
 }
 
-// DirExists returns true if the directory exists
+func RemoveAll(dirname string) error {
+	return os.RemoveAll(dirname)
+}
+
+// DirExists returns true if the directory exists.
 func DirExists(filename string) (bool, error) {
 	info, err := os.Stat(filename)
 	if err != nil {
@@ -45,6 +50,21 @@ func DirExists(filename string) (bool, error) {
 		return false, errors.Wrapf(err, "unable to stat %s", filename)
 	}
 	return info.IsDir(), nil
+}
+
+func CreateIfNotExist(f string) error {
+	_, err := os.Stat(f)
+	if err != nil {
+		if os.IsNotExist(err) {
+			logrus.WithField("filename", f).Debug("Creating file")
+			if _, err := os.Create(f); err != nil {
+				return errors.Wrap(err, "failed to create file")
+			}
+		} else {
+			return errors.Wrap(err, "failed to stat file")
+		}
+	}
+	return nil
 }
 
 func CWD() (string, error) {

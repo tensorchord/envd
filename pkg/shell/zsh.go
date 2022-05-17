@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
@@ -45,12 +46,10 @@ func (m generalManager) InstallScript() string {
 }
 
 func (m generalManager) DownloadOrCache() (bool, error) {
-	if ok, err := fileutil.DirExists(m.OHMyZSHDir()); err != nil {
-		return false, err
-	} else if ok {
+	if home.GetManager().Cached("oh-my-zsh") {
 		logrus.WithFields(logrus.Fields{
 			"cache-dir": m.OHMyZSHDir(),
-		}).Debug("found cached oh-my-zsh")
+		}).Debug("oh-my-zsh already exists in cache")
 		return true, nil
 	}
 	url := "https://github.com/ohmyzsh/ohmyzsh"
@@ -58,13 +57,21 @@ func (m generalManager) DownloadOrCache() (bool, error) {
 		"cache-dir": m.OHMyZSHDir(),
 		"URL":       url,
 	})
-	l.Debug("downloading oh-my-zsh")
+
+	// Cleanup the cache dir.
+	if fileutil.RemoveAll(m.OHMyZSHDir()) != nil {
+		return false, errors.New("failed to remove oh-my-zsh dir")
+	}
+	l.Debug("cache miss, downloading oh-my-zsh")
 	_, err := git.PlainClone(m.OHMyZSHDir(), false, &git.CloneOptions{
-		URL: url,
+		URL:   url,
+		Depth: 1,
 	})
 	if err != nil {
 		return false, err
 	}
+
+	home.GetManager().MarkCache("oh-my-zsh", true)
 	l.Debug("oh-my-zsh is downloaded")
 	return false, nil
 }

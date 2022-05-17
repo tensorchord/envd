@@ -91,9 +91,9 @@ func (g Graph) Compile() (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile shell")
 	}
-	diffShellStage := llb.Diff(builtinSystemStage, shellStage)
-	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage))
-	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage))
+	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
+	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage), llb.WithCustomName("install PyPI packages"))
+	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage), llb.WithCustomName("install system packages"))
 	sshStage := g.copyenvdSSHServer()
 
 	vscodeStage, err := g.compileVSCode()
@@ -105,11 +105,11 @@ func (g Graph) Compile() (llb.State, error) {
 	if vscodeStage != nil {
 		merged = llb.Merge([]llb.State{
 			builtinSystemStage, systemStage, pypiStage, sshStage, *vscodeStage, diffShellStage,
-		})
+		}, llb.WithCustomName("merging all components into one"))
 	} else {
 		merged = llb.Merge([]llb.State{
 			builtinSystemStage, systemStage, pypiStage, sshStage, diffShellStage,
-		})
+		}, llb.WithCustomName("merging all components into one"))
 	}
 
 	// TODO(gaocegege): Support order-based exec.
@@ -164,7 +164,8 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 
 	cacheDir := "/home/envd/.cache/pip"
 
-	run := root.Run(llb.Shlex(sb.String()))
+	run := root.Run(llb.Shlex(sb.String()), llb.WithCustomNamef("pip install",
+		strings.Join(g.PyPIPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
 	return run.Root()
@@ -193,7 +194,9 @@ func (g Graph) compileBuiltinSystemPackages(root llb.State) llb.State {
 	cacheDir := "/var/cache/apt"
 	cacheLibDir := "/var/lib/apt"
 
-	run := root.Run(llb.Shlex(sb.String()))
+	run := root.Run(llb.Shlex(sb.String()),
+		llb.WithCustomNamef("(built-in packages) apt-get install %s",
+			strings.Join(g.BuiltinSystemPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
 	run.AddMount(cacheLibDir, llb.Scratch(),
@@ -218,7 +221,9 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	cacheDir := "/var/cache/apt"
 	cacheLibDir := "/var/lib/apt"
 
-	run := root.Run(llb.Shlex(sb.String()))
+	run := root.Run(llb.Shlex(sb.String()),
+		llb.WithCustomNamef("(user-defined packages) apt-get install %s",
+			strings.Join(g.SystemPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
 	run.AddMount(cacheLibDir, llb.Scratch(),
@@ -231,7 +236,7 @@ func (g Graph) copyenvdSSHServer() llb.State {
 	run := llb.Image(viper.GetString(flag.FlagSSHImage)).
 		File(llb.Copy(llb.Image(viper.GetString(flag.FlagSSHImage)),
 			"usr/bin/envd-ssh", "/var/envd/bin/envd-ssh",
-			&llb.CopyInfo{CreateDestPath: true}))
+			&llb.CopyInfo{CreateDestPath: true}), llb.WithCustomName("install envd-ssh"))
 	return run
 }
 
@@ -251,10 +256,11 @@ func (g Graph) compileVSCode() (*llb.State, error) {
 		ext := llb.Scratch().File(llb.Copy(llb.Local(flag.FlagCacheDir),
 			vscodeClient.PluginPath(p),
 			"/home/envd/.vscode-server/extensions/"+p.String(),
-			&llb.CopyInfo{CreateDestPath: true}))
+			&llb.CopyInfo{CreateDestPath: true}),
+			llb.WithCustomNamef("install vscode plugin %s", p.String()))
 		inputs = append(inputs, ext)
 	}
-	layer := llb.Merge(inputs)
+	layer := llb.Merge(inputs, llb.WithCustomName("merging plugins for vscode"))
 	return &layer, nil
 }
 
@@ -268,9 +274,9 @@ func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
 	if g.UbuntuAPTSource != nil {
 		logrus.WithField("source", *g.UbuntuAPTSource).Debug("using custom APT source")
 		aptSource := llb.Scratch().
-			File(llb.Mkdir(filepath.Dir(aptSourceFilePath), 0755, llb.WithParents(true))).
-			File(llb.Mkfile(aptSourceFilePath, 0644, []byte(*g.UbuntuAPTSource)))
-		return llb.Merge([]llb.State{root, aptSource})
+			File(llb.Mkdir(filepath.Dir(aptSourceFilePath), 0755, llb.WithParents(true)), llb.WithCustomName("create apt source dir")).
+			File(llb.Mkfile(aptSourceFilePath, 0644, []byte(*g.UbuntuAPTSource)), llb.WithCustomName("create apt source file"))
+		return llb.Merge([]llb.State{root, aptSource}, llb.WithCustomName("add apt source"))
 	}
 	return root
 }
@@ -282,7 +288,7 @@ func (g Graph) compilePyPIMirror(root llb.State) llb.State {
 		aptSource := llb.Scratch().
 			File(llb.Mkdir(filepath.Dir(pypiMirrorFilePath), 0755, llb.WithParents(true))).
 			File(llb.Mkfile(pypiMirrorFilePath, 0644, []byte(content)))
-		return llb.Merge([]llb.State{root, aptSource})
+		return llb.Merge([]llb.State{root, aptSource}, llb.WithCustomName("add PyPI mirror"))
 	}
 	return root
 }
@@ -300,7 +306,8 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 		File(llb.Copy(llb.Local(flag.FlagCacheDir), "oh-my-zsh", "/home/envd/.oh-my-zsh",
 			&llb.CopyInfo{CreateDestPath: true})).
 		File(llb.Mkfile(installPath, 0644, []byte(m.InstallScript())))
-	run := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)))
+	run := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)),
+		llb.WithCustomName("install oh-my-zsh"))
 	return run.Root(), nil
 }
 
