@@ -21,10 +21,12 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
@@ -75,6 +77,11 @@ var CommandUp = &cli.Command{
 			Usage: "Timeout of container creation",
 			Value: time.Second * 30,
 		},
+		&cli.BoolFlag{
+			Name:  "detach",
+			Usage: "detach from the container",
+			Value: false,
+		},
 	},
 
 	Action: up,
@@ -103,14 +110,20 @@ func up(clicontext *cli.Context) error {
 	}
 	ctr := fileutil.Base(buildContext)
 
+	detach := clicontext.Bool("detach")
+
 	logger := logrus.WithFields(logrus.Fields{
-		"build-context":  buildContext,
-		"build-file":     manifest,
-		"config":         config,
-		"tag":            tag,
-		"container-name": ctr,
+		"build-context":             buildContext,
+		"build-file":                manifest,
+		"config":                    config,
+		"tag":                       tag,
+		"container-name":            ctr,
+		"detach":                    detach,
+		flag.FlagBuildkitdImage:     viper.GetString(flag.FlagBuildkitdImage),
+		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
+		flag.FlagSSHImage:           viper.GetString(flag.FlagSSHImage),
 	})
-	logger.Debug("starting up")
+	logger.Debug("starting up command")
 
 	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag)
 	if err != nil {
@@ -134,13 +147,15 @@ func up(clicontext *cli.Context) error {
 	}
 	logrus.Debugf("container %s is running", containerID)
 
-	sshClient, err := ssh.NewClient(
-		containerIP, "envd", 2222, clicontext.Bool("auth"), clicontext.Path("private-key"), "")
-	if err != nil {
-		return err
-	}
-	if err := sshClient.Attach(); err != nil {
-		return err
+	if !detach {
+		sshClient, err := ssh.NewClient(
+			containerIP, "root", 2222, clicontext.Bool("auth"), clicontext.Path("private-key"), "")
+		if err != nil {
+			return err
+		}
+		if err := sshClient.Attach(); err != nil {
+			return err
+		}
 	}
 
 	return nil

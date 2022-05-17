@@ -31,7 +31,7 @@ import (
 	"github.com/tensorchord/envd/pkg/version"
 )
 
-func main() {
+func run(args []string) (bool, error) {
 	cli.VersionPrinter = func(c *cli.Context) {
 		fmt.Println(c.App.Name, version.Package, c.App.Version, version.Revision)
 	}
@@ -94,7 +94,7 @@ func main() {
 		viper.Set(flag.FlagSSHImage, context.String(flag.FlagSSHImage))
 		return nil
 	}
-	handleErr(debugEnabled, app.Run(os.Args))
+	return debugEnabled, app.Run(args)
 }
 
 func handleErr(debug bool, err error) {
@@ -109,4 +109,9 @@ func handleErr(debug bool, err error) {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 	}
 	os.Exit(1)
+}
+
+func main() {
+	debug, err := run(os.Args)
+	handleErr(debug, err)
 }

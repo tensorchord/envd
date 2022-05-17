@@ -132,7 +132,7 @@ addlicense:
 	addlicense -c "The envd Authors" **/*.go **/**/*.go **/**/**/*.go
 
 test: generate
-	@go test -race -coverprofile=coverage.out ./...
+	@go test -v -race -coverprofile=coverage.out ./...
 	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
 clean:
