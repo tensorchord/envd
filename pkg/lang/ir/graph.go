@@ -43,6 +43,7 @@ func NewGraph() *Graph {
 			"curl",
 			"openssh-client",
 			"git",
+			"sudo",
 		},
 
 		PyPIPackages:   []string{},
@@ -123,9 +124,11 @@ func (g *Graph) compileBase() llb.State {
 		base = llb.Image("docker.io/library/python:3.8")
 	}
 	base = g.compileCUDAPackages()
+	// TODO(gaocegege): Refactor user to a seperate stage.
 	run := base.
 		Run(llb.Shlex("groupadd -g 1000 envd")).
-		Run(llb.Shlex("useradd -u 1000 -g envd -s /bin/sh -m envd"))
+		Run(llb.Shlex("useradd -p \"\" -u 1000 -g envd -s /bin/sh -m envd")).
+		Run(llb.Shlex("adduser envd sudo"))
 	return llb.User("envd")(run.Root())
 }
 
