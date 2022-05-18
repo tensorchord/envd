@@ -40,9 +40,8 @@ var CommandUp = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "tag",
-			Usage:   "Name and optionally a tag in the 'name:tag' format",
+			Usage:   "Name and optionally a tag in the 'name:tag' format (default: PROJECT:dev)",
 			Aliases: []string{"t"},
-			Value:   "envd:dev",
 		},
 		&cli.PathFlag{
 			Name:    "path",

@@ -160,8 +160,8 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	}
 
 	cacheDir := "/home/envd/.cache/pip"
-
-	run := root.Run(llb.Shlex(sb.String()), llb.WithCustomNamef("pip install %s",
+	cmd := sb.String()
+	run := root.Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s",
 		strings.Join(g.PyPIPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
@@ -214,7 +214,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 
 	// Compose the package install command.
 	var sb strings.Builder
-	sb.WriteString("apt-get install -y --no-install-recommends")
+	sb.WriteString("sudo apt-get install -y --no-install-recommends")
 
 	for _, pkg := range g.SystemPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
