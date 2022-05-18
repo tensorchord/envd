@@ -51,3 +51,10 @@ const (
 	shellBASH = "bash"
 	shellZSH  = "zsh"
 )
+
+const (
+	templateEntrypoint = `#!/usr/bin/env bash
+set -e
+%s
+wait -n`
+)

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -33,7 +34,6 @@ import (
 	"github.com/moby/term"
 	"github.com/sirupsen/logrus"
 
-	"github.com/tensorchord/envd/pkg/editor/jupyter"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -174,14 +174,17 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 	config := &container.Config{
 		Image: tag,
 		Entrypoint: []string{
-			"/var/envd/bin/envd-ssh",
-			"--no-auth",
+			"tini",
+			"--",
+			"bash",
+			"-c",
 		},
 		ExposedPorts: nat.PortSet{},
 	}
 	base := fileutil.Base(buildContext)
-	base = fmt.Sprintf("/home/envd/%s", base)
+	base = filepath.Join("/home/envd", base)
 	config.WorkingDir = base
+	config.Entrypoint = append(config.Entrypoint, entrypointSH(g, config.WorkingDir))
 
 	mountOption := make([]mount.Mount, len(mountOptionsStr)+1)
 	for i, option := range mountOptionsStr {
@@ -226,11 +229,19 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		}
 		config.ExposedPorts[natPort] = struct{}{}
 	}
+
 	if gpuEnabled {
 		logger.Debug("GPU is enabled.")
 		// enable all gpus with -1
 		hostConfig.DeviceRequests = deviceRequests(-1)
 	}
+
+	logger = logger.WithFields(logrus.Fields{
+		"entrypoint":  config.Entrypoint,
+		"working-dir": config.WorkingDir,
+	})
+	logger.Debugf("starting %s container", name)
+
 	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
 	if err != nil {
 		return "", "", err
@@ -254,17 +265,6 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		return "", "", errors.Wrap(err, "failed to wait until the container is running")
 	}
 
-	if g.JupyterConfig != nil {
-		cmd, err := jupyter.GenerateCommand(*ir.DefaultGraph, config.WorkingDir)
-		if err != nil {
-			return "", "", errors.Wrap(err, "failed to generate jupyter command")
-		}
-		logger.WithField("cmd", cmd).Debug("configuring jupyter")
-		err = c.Exec(ctx, container.Name, cmd)
-		if err != nil {
-			return "", "", errors.Wrap(err, "failed to exec the command")
-		}
-	}
 	return container.Name, container.NetworkSettings.IPAddress, nil
 }
 

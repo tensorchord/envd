@@ -12,33 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package jupyter
+package docker
 
 import (
-	"strconv"
+	"fmt"
+	"strings"
 
+	"github.com/tensorchord/envd/pkg/editor/jupyter"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
-func GenerateCommand(g ir.Graph, notebookDir string) []string {
-	if g.JupyterConfig == nil {
-		return nil
-	}
+const (
+	template = `set -e
+/var/envd/bin/envd-ssh --no-auth &
+%s
+wait -n`
+)
 
-	cmd := []string{
-		"jupyter", "notebook", "--allow-root",
-		"--ip", "0.0.0.0", "--notebook-dir", notebookDir,
+func entrypointSH(g ir.Graph, workingDir string) string {
+	if g.JupyterConfig != nil {
+		cmds := jupyter.GenerateCommand(g, workingDir)
+		return fmt.Sprintf(template, strings.Join(cmds, " "))
 	}
-	if g.JupyterConfig.Password != "" {
-		cmd = append(cmd, "--NotebookApp.password", g.JupyterConfig.Password,
-			"--NotebookApp.token", "''")
-	} else {
-		cmd = append(cmd, "--NotebookApp.password", "''",
-			"--NotebookApp.token", "''")
-	}
-	if g.JupyterConfig.Port != 0 {
-		p := strconv.Itoa(int(g.JupyterConfig.Port))
-		cmd = append(cmd, "--port", p)
-	}
-	return cmd
+	return fmt.Sprintf(template, "")
 }
