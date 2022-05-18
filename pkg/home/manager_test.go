@@ -14,13 +14,13 @@ var _ = Describe("home manager", func() {
 		// Cleanup the home cache.
 		Expect(Initialize()).NotTo(HaveOccurred())
 		m := GetManager()
-		Expect(fileutil.RemoveAll(m.CacheDir())).NotTo(HaveOccurred())
+		Expect(fileutil.RemoveAll(m.(*generalManager).cacheStatusFile)).NotTo(HaveOccurred())
 	})
 	AfterEach(func() {
 		// Cleanup the home cache.
 		Expect(Initialize()).NotTo(HaveOccurred())
 		m := GetManager()
-		Expect(fileutil.RemoveAll(m.CacheDir())).NotTo(HaveOccurred())
+		Expect(fileutil.RemoveAll(m.(*generalManager).cacheStatusFile)).NotTo(HaveOccurred())
 	})
 	When("initialized", func() {
 		It("should initialized successfully", func() {
