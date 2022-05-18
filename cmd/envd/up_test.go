@@ -21,6 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/home"
 )
 
 var _ = Describe("up command", func() {
@@ -29,6 +30,7 @@ var _ = Describe("up command", func() {
 		"envd.test", "--debug", "up", "--path", buildContext, "--detach",
 	}
 	BeforeEach(func() {
+		Expect(home.Initialize()).NotTo(HaveOccurred())
 		cli, err := docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())
 		_ = cli.Destroy(context.TODO(), buildContext)

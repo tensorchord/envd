@@ -25,6 +25,10 @@ import (
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
+const (
+	cacheKey = "oh-my-zsh"
+)
+
 //go:embed install.sh
 var installScript string
 
@@ -46,7 +50,7 @@ func (m generalManager) InstallScript() string {
 }
 
 func (m generalManager) DownloadOrCache() (bool, error) {
-	if home.GetManager().Cached("oh-my-zsh") {
+	if home.GetManager().Cached(cacheKey) {
 		logrus.WithFields(logrus.Fields{
 			"cache-dir": m.OHMyZSHDir(),
 		}).Debug("oh-my-zsh already exists in cache")
@@ -71,7 +75,7 @@ func (m generalManager) DownloadOrCache() (bool, error) {
 		return false, err
 	}
 
-	if err := home.GetManager().MarkCache("oh-my-zsh", true); err != nil {
+	if err := home.GetManager().MarkCache(cacheKey, true); err != nil {
 		return false, errors.Wrap(err, "failed to update cache status")
 	}
 	l.Debug("oh-my-zsh is downloaded")
