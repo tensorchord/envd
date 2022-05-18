@@ -39,11 +39,12 @@ func NewGraph() *Graph {
 		CUDA:     nil,
 		CUDNN:    nil,
 		BuiltinSystemPackages: []string{
-			// They are used by vscode remote.
+			// TODO(gaocegege): Move them into the base image.
 			"curl",
 			"openssh-client",
 			"git",
 			"sudo",
+			"tini",
 		},
 
 		PyPIPackages:   []string{},
@@ -168,7 +169,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 }
 
 func (g Graph) compileBuiltinSystemPackages(root llb.State) llb.State {
-	// TODO(gaocegege): Refactor it to avoid configure shell in built-in system packages.
+	// TODO(gaocegege): Refactor it to avoid shell configuration in built-in system packages.
 	// Do not need to install bash or sh since it is built-in
 	if g.Shell == shellZSH {
 		g.BuiltinSystemPackages = append(g.BuiltinSystemPackages, shellZSH)
@@ -213,7 +214,6 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 
 	// Compose the package install command.
 	var sb strings.Builder
-	// TODO(gaocegege): Support per-user config to keep the mirror.
 	sb.WriteString("apt-get install -y --no-install-recommends")
 
 	for _, pkg := range g.SystemPackages {
