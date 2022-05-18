@@ -95,7 +95,7 @@ func (g Graph) Compile() (llb.State, error) {
 	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
 	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage), llb.WithCustomName("install PyPI packages"))
 	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage), llb.WithCustomName("install system packages"))
-	sshStage := g.copyenvdSSHServer()
+	sshStage := g.copyEnvdSSHServer()
 
 	vscodeStage, err := g.compileVSCode()
 	if err != nil {
@@ -233,7 +233,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
-func (g Graph) copyenvdSSHServer() llb.State {
+func (g Graph) copyEnvdSSHServer() llb.State {
 	// TODO(gaocegege): Remove global var ssh image.
 	run := llb.Image(viper.GetString(flag.FlagSSHImage)).
 		File(llb.Copy(llb.Image(viper.GetString(flag.FlagSSHImage)),

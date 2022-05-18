@@ -91,7 +91,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: lint test build container push addlicense debug debug-local build-local generate clean
+.PHONY: lint test build container push addlicense debug debug-local build-local generate clean test-local
 
 build: build-local
 
@@ -131,8 +131,11 @@ debug-local:
 addlicense:
 	addlicense -c "The envd Authors" **/*.go **/**/*.go **/**/**/*.go
 
-test: generate
+test-local:
 	@go test -v -race -coverprofile=coverage.out ./...
+
+test: generate 
+	@go test -race -coverprofile=coverage.out ./...
 	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
 clean:
