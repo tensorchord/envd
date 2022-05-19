@@ -1,7 +1,9 @@
 package ir
 
 import (
+	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
+
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
@@ -13,7 +15,10 @@ func (g Graph) compileVSCode() (*llb.State, error) {
 	}
 	inputs := []llb.State{}
 	for _, p := range g.VSCodePlugins {
-		vscodeClient := vscode.NewClient()
+		vscodeClient, err := vscode.NewClient(vscode.MarketplaceVendorOpenVSX)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create vscode client")
+		}
 		g.Writer.LogVSCodePlugin(p, compileui.ActionStart, false)
 		if cached, err := vscodeClient.DownloadOrCache(p); err != nil {
 			return nil, err
