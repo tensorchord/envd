@@ -147,6 +147,12 @@ func up(clicontext *cli.Context) error {
 	}
 	logrus.Debugf("container %s is running", containerID)
 
+	logrus.Debugf("Add entry %s to SSH config. at %s", buildContext, containerIP)
+	if err = ssh.AddEntry(ctr, containerIP, 2222); err != nil {
+		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
+		return errors.Wrap(err, "failed to add entry to your SSH config file")
+	}
+
 	if !detach {
 		sshClient, err := ssh.NewClient(
 			containerIP, "root", 2222, clicontext.Bool("auth"), clicontext.Path("private-key"), "")
