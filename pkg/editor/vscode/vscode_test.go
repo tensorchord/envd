@@ -20,6 +20,14 @@ import (
 
 var _ = Describe("Visual Studio Code", func() {
 	Describe("Plugin", func() {
+		It("should get the latest version successfully", func() {
+			url, err := GetLatestVersionURL(Plugin{
+				Publisher: "redhat",
+				Extension: "java",
+			})
+			Expect(err).To(BeNil())
+			Expect(url).NotTo(Equal(""))
+		})
 		It("should be able to parse", func() {
 			tcs := []struct {
 				name              string
@@ -57,11 +65,14 @@ var _ = Describe("Visual Studio Code", func() {
 					expectedErr:       false,
 				},
 				{
-					name:        "test",
-					expectedErr: true,
+					name:              "dbaeumer.vscode-eslint",
+					expectedPublisher: "dbaeumer",
+					expectedExtension: "vscode-eslint",
+					expectedVersion:   "",
+					expectedErr:       false,
 				},
 				{
-					name:        "test.test",
+					name:        "test",
 					expectedErr: true,
 				},
 			}
@@ -73,7 +84,10 @@ var _ = Describe("Visual Studio Code", func() {
 					Expect(err).ToNot(HaveOccurred())
 					Expect(p.Publisher).To(Equal(tc.expectedPublisher))
 					Expect(p.Extension).To(Equal(tc.expectedExtension))
-					Expect(p.Version).To(Equal(tc.expectedVersion))
+					if tc.expectedVersion != "" {
+						Expect(p.Version).NotTo(BeNil())
+						Expect(*p.Version).To(Equal(tc.expectedVersion))
+					}
 				}
 			}
 		})

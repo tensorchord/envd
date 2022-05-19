@@ -17,15 +17,26 @@ package vscode
 import "fmt"
 
 const (
-	vscodePackageURLTemplate = "https://%s.gallery.vsassets.io/_apis/public/gallery/publisher/%s/extension/%s/%s/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+	vendorVSCodeTemplate  = "https://%s.gallery.vsassets.io/_apis/public/gallery/publisher/%s/extension/%s/%s/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+	vendorOpenVSXTemplate = "https://open-vsx.org/api/%s/%s/latest"
+)
+
+type MarketplaceVendor string
+
+const (
+	MarketplaceVendorVSCode  MarketplaceVendor = "vscode"
+	MarketplaceVendorOpenVSX MarketplaceVendor = "openvsx"
 )
 
 type Plugin struct {
 	Publisher string
 	Extension string
-	Version   string
+	Version   *string
 }
 
 func (p Plugin) String() string {
-	return fmt.Sprintf("%s.%s-%s", p.Publisher, p.Extension, p.Version)
+	if p.Version != nil {
+		return fmt.Sprintf("%s.%s-%s", p.Publisher, p.Extension, *p.Version)
+	}
+	return fmt.Sprintf("%s.%s", p.Publisher, p.Extension)
 }

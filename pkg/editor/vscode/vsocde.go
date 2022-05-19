@@ -19,7 +19,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
@@ -38,29 +37,67 @@ type Client interface {
 }
 
 type generalClient struct {
+	vendor MarketplaceVendor
+	logger *logrus.Entry
 }
 
-func NewClient() Client {
-	return &generalClient{}
+func NewClient(vendor MarketplaceVendor) (Client, error) {
+	switch vendor {
+	case MarketplaceVendorOpenVSX:
+		return &generalClient{
+			vendor: vendor,
+			logger: logrus.WithField("vendor", MarketplaceVendorOpenVSX),
+		}, nil
+	case MarketplaceVendorVSCode:
+		return &generalClient{
+			vendor: vendor,
+			logger: logrus.WithField("vendor", MarketplaceVendorVSCode),
+		}, nil
+	default:
+		return nil, errors.Errorf("unknown marketplace vendor %s", vendor)
+	}
 }
 
 func (c generalClient) PluginPath(p Plugin) string {
-	return fmt.Sprintf("%s.%s-%s/extension/", p.Publisher, p.Extension, p.Version)
+	if p.Version != nil {
+		return fmt.Sprintf("%s.%s-%s/extension/", p.Publisher, p.Extension, *p.Version)
+
+	}
+	return fmt.Sprintf("%s.%s/extension/", p.Publisher, p.Extension)
 }
 
 func unzipPath(p Plugin) string {
-	return fmt.Sprintf("%s/%s.%s-%s", home.GetManager().CacheDir(),
-		p.Publisher, p.Extension, p.Version)
+	if p.Version != nil {
+		return fmt.Sprintf("%s/%s.%s-%s", home.GetManager().CacheDir(),
+			p.Publisher, p.Extension, *p.Version)
+	}
+	return fmt.Sprintf("%s/%s.%s", home.GetManager().CacheDir(),
+		p.Publisher, p.Extension)
 }
 
 // DownloadOrCache downloads or cache the plugin.
 // If the plugin is already downloaded, it returns true.
 func (c generalClient) DownloadOrCache(p Plugin) (bool, error) {
-	url := fmt.Sprintf(vscodePackageURLTemplate,
-		p.Publisher, p.Publisher, p.Extension, p.Version)
+	var url, filename string
+	if c.vendor == MarketplaceVendorVSCode {
+		if p.Version == nil {
+			return false, errors.New("version is required for vscode marketplace")
+		}
+		// TODO(gaocegege): Support version auto-detection.
+		url = fmt.Sprintf(vendorVSCodeTemplate,
+			p.Publisher, p.Publisher, p.Extension, *p.Version)
+		filename = fmt.Sprintf("%s/%s.%s-%s.vsix", home.GetManager().CacheDir(),
+			p.Publisher, p.Extension, *p.Version)
+	} else {
+		var err error
+		url, err = GetLatestVersionURL(p)
+		if err != nil {
+			return false, errors.Wrap(err, "failed to get latest version url")
+		}
+		filename = fmt.Sprintf("%s/%s.%s.vsix", home.GetManager().CacheDir(),
+			p.Publisher, p.Extension)
+	}
 
-	filename := fmt.Sprintf("%s/%s.%s-%s.vsix", home.GetManager().CacheDir(),
-		p.Publisher, p.Extension, p.Version)
 	logger := logrus.WithFields(logrus.Fields{
 		"publisher": p.Publisher,
 		"extension": p.Extension,
@@ -106,31 +143,4 @@ func (c generalClient) DownloadOrCache(p Plugin) (bool, error) {
 		return false, errors.Wrap(err, "failed to update cache status")
 	}
 	return false, nil
-}
-
-func ParsePlugin(p string) (*Plugin, error) {
-	indexPublisher := strings.Index(p, ".")
-	if indexPublisher == -1 {
-		return nil, errors.New("invalid publisher")
-	}
-	publisher := p[:indexPublisher]
-
-	indexExtension := strings.LastIndex(p[indexPublisher:], "-")
-	if indexExtension == -1 {
-		return nil, errors.New("invalid extension")
-	}
-
-	indexExtension = indexPublisher + indexExtension
-	extension := p[indexPublisher+1 : indexExtension]
-	version := p[indexExtension+1:]
-	logrus.WithFields(logrus.Fields{
-		"publisher": publisher,
-		"extension": extension,
-		"version":   version,
-	}).Debug("vscode plugin is parsed")
-	return &Plugin{
-		Publisher: publisher,
-		Extension: extension,
-		Version:   version,
-	}, nil
 }
