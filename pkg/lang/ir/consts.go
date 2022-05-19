@@ -25,4 +25,6 @@ const (
 	pypiConfigTemplate = `
 [global]
 index-url=%s`
+
+	defaultUID = "1000"
 )
