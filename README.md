@@ -1,8 +1,14 @@
-# envd
+<div align="center">
+<h1>envd</h1>
+<p>Development Environment for Data Scientists</p>
+</div>
 
-[![Discord](https://img.shields.io/discord/974584200327991326?label=discord&style=social)](https://discord.gg/KqswhpVgdU)
+<p align=center>
+<a href="https://discord.gg/KqswhpVgdU"><img alt="discord invitation link" src="https://img.shields.io/discord/974584200327991326?label=discord&style=social"></a>
+<a href="https://github.com/tensorchord/envd/actions/workflows/CI.yml"><img alt="continuous integration" src="https://github.com/tensorchord/envd/actions/workflows/CI.yml/badge.svg"></a>
+</p>
 
-Development Environment for Data Scientists
+envd is a development environment management tool for data scientists.
 
 :snake:  **No docker, only python** - Write python code to build the development environment, we help you take care of Docker.
 
