@@ -21,8 +21,7 @@ func TestGenerateCommand(t *testing.T) {
 			},
 			dir: "test",
 			expected: []string{
-				"jupyter", "notebook", "--allow-root",
-				"--ip", "0.0.0.0", "--notebook-dir", "test",
+				"python3", "-m", "notebook", "--ip", "0.0.0.0", "--notebook-dir", "test",
 				"--NotebookApp.password", "''", "--NotebookApp.token", "''",
 				"--port", "8888",
 			},
@@ -36,8 +35,7 @@ func TestGenerateCommand(t *testing.T) {
 			},
 			dir: "test",
 			expected: []string{
-				"jupyter", "notebook", "--allow-root",
-				"--ip", "0.0.0.0", "--notebook-dir", "test",
+				"python3", "-m", "notebook", "--ip", "0.0.0.0", "--notebook-dir", "test",
 				"--NotebookApp.password", "test", "--NotebookApp.token", "''",
 				"--port", "8888",
 			},
