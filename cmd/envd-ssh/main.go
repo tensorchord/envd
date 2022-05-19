@@ -27,6 +27,7 @@ import (
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/remote/sshd"
+	"github.com/tensorchord/envd/pkg/ssh"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -88,7 +89,7 @@ func sshServer(c *cli.Context) error {
 		logrus.Fatal(err.Error())
 	}
 
-	port := 2222
+	port := ssh.DefaultSSHPort
 	// TODO(gaocegege): Set it as a flag.
 	if p, ok := os.LookupEnv(envPort); ok {
 		var err error

@@ -22,6 +22,7 @@ import (
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/ssh"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -56,6 +57,11 @@ func destroy(clicontext *cli.Context) error {
 
 	if err := dockerClient.Destroy(clicontext.Context, ctr); err != nil {
 		return errors.Wrapf(err, "failed to destroy the environment: %s", ctr)
+	}
+
+	if err = ssh.RemoveEntry(ctr); err != nil {
+		logrus.Infof("failed to remove entry %s from your SSH config file: %s", ctr, err)
+		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}
 	logrus.Info("envd environment destroyed")
 	return nil
