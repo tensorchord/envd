@@ -173,6 +173,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 	})
 	config := &container.Config{
 		Image: tag,
+		User:  "envd",
 		Entrypoint: []string{
 			"tini",
 			"--",

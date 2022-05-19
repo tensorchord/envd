@@ -26,7 +26,7 @@ func GenerateCommand(g ir.Graph, notebookDir string) []string {
 	}
 
 	cmd := []string{
-		"jupyter", "notebook", "--allow-root",
+		"python3", "-m", "notebook",
 		"--ip", "0.0.0.0", "--notebook-dir", notebookDir,
 	}
 	if g.JupyterConfig.Password != "" {
