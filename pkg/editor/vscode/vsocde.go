@@ -26,7 +26,10 @@ import (
 
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/unzip"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
+)
+
+const (
+	cachekeyPrefix = "vscode-plugins"
 )
 
 type Client interface {
@@ -65,12 +68,16 @@ func (c generalClient) DownloadOrCache(p Plugin) (bool, error) {
 		"url":       url,
 		"file":      filename,
 	})
-	if ok, err := fileutil.FileExists(filename); err != nil {
-		return false, err
-	} else if ok {
-		logger.Debug("vscode plugin is cached")
+
+	cacheKey := fmt.Sprintf("%s-%s", cachekeyPrefix, p)
+	if home.GetManager().Cached(cacheKey) {
+		logger.WithFields(logrus.Fields{
+			"cache": cacheKey,
+		}).Debugf("vscode plugin %s already exists in cache", p)
 		return true, nil
 	}
+
+	logger.Debugf("downloading vscode plugin %s", p)
 	out, err := os.Create(filename)
 
 	if err != nil {
@@ -95,6 +102,9 @@ func (c generalClient) DownloadOrCache(p Plugin) (bool, error) {
 		return false, errors.Wrap(err, "failed to unzip")
 	}
 
+	if err := home.GetManager().MarkCache(cacheKey, true); err != nil {
+		return false, errors.Wrap(err, "failed to update cache status")
+	}
 	return false, nil
 }
 
