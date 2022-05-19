@@ -1,7 +1,6 @@
 // Copyright 2022 The envd Authors
 // Copyright 2022 The Okteto Authors
 // based on https://github.com/havoc-io/ssh_config
-
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,6 +47,8 @@ type (
 	}
 )
 
+//nolint
+//will use auth fields in the future
 const (
 	forwardAgentKeyword           = "ForwardAgent"
 	pubkeyAcceptedKeyTypesKeyword = "PubkeyAcceptedKeyTypes"
@@ -275,6 +276,7 @@ func (config *sshConfig) writeToFilepath(p string) error {
 
 }
 
+//nolint:unused
 func (config *sshConfig) getHost(hostname string) *host {
 	for _, host := range config.hosts {
 		for _, hn := range host.hostnames {
