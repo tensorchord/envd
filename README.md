@@ -47,7 +47,7 @@ Checkout the [examples](./examples/mnist), and configure envd with the manifest 
 
 ```python
 vscode(plugins=[
-    "ms-python.python-2021.12.1559732655",
+    "ms-python.python",
 ])
 
 base(os="ubuntu20.04", language="python3")
