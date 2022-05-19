@@ -78,6 +78,14 @@ func unzipPath(p Plugin) string {
 // DownloadOrCache downloads or cache the plugin.
 // If the plugin is already downloaded, it returns true.
 func (c generalClient) DownloadOrCache(p Plugin) (bool, error) {
+	cacheKey := fmt.Sprintf("%s-%s", cachekeyPrefix, p)
+	if home.GetManager().Cached(cacheKey) {
+		logrus.WithFields(logrus.Fields{
+			"cache": cacheKey,
+		}).Debugf("vscode plugin %s already exists in cache", p)
+		return true, nil
+	}
+
 	var url, filename string
 	if c.vendor == MarketplaceVendorVSCode {
 		if p.Version == nil {
@@ -105,14 +113,6 @@ func (c generalClient) DownloadOrCache(p Plugin) (bool, error) {
 		"url":       url,
 		"file":      filename,
 	})
-
-	cacheKey := fmt.Sprintf("%s-%s", cachekeyPrefix, p)
-	if home.GetManager().Cached(cacheKey) {
-		logger.WithFields(logrus.Fields{
-			"cache": cacheKey,
-		}).Debugf("vscode plugin %s already exists in cache", p)
-		return true, nil
-	}
 
 	logger.Debugf("downloading vscode plugin %s", p)
 	out, err := os.Create(filename)
