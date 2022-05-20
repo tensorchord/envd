@@ -56,6 +56,7 @@ var CommandBuild = &cli.Command{
 }
 
 func build(clicontext *cli.Context) error {
+	a := 1
 	buildContext, err := filepath.Abs(clicontext.Path("path"))
 	if err != nil {
 		return errors.Wrap(err, "failed to get absolute path of the build context")
