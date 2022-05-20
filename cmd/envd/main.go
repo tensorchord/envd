@@ -61,7 +61,7 @@ func run(args []string) (bool, error) {
 			Name:  flag.FlagSSHImage,
 			Usage: "Download the envd-ssh image",
 			// TODO(gaocegege): Use version.Version to generate the right URL.
-			Value:  "ghcr.io/tensorchord/envd-ssh-from-scratch:0.0.1-alpha.3",
+			Value:  "ghcr.io/tensorchord/envd-ssh-from-scratch:0.0.1-alpha.5",
 			Hidden: true,
 		},
 	}

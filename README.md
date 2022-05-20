@@ -29,7 +29,7 @@ envd is a development environment management tool for data scientists.
 ### From binary
 
 ```bash
-sudo /bin/sh -c 'wget https://github.com/tensorchord/envd/releases/download/0.0.1-alpha.3/envd_0.0.1-alpha.3_Linux_x86_64 -O /usr/local/bin/envd && chmod +x /usr/local/bin/envd && /usr/local/bin/envd bootstrap'
+sudo /bin/sh -c 'wget https://github.com/tensorchord/envd/releases/download/0.0.1-alpha.5/envd_0.0.1-alpha.5_Linux_x86_64 -O /usr/local/bin/envd && chmod +x /usr/local/bin/envd && /usr/local/bin/envd bootstrap'
 ```
 
 ### From source code
@@ -63,21 +63,23 @@ jupyter(password="", port=8888)
 Then you can run `envd up` and open jupyter notebook at [`http://localhost:8888`](http://localhost:8888), or open vscode remote to attach to the container.
 
 ```
-[+] ⌚ parse build.envd and download/cache dependencies 23.7s ✅ (finished)        
- => download oh-my-zsh                                                       13.5s 
- => download ms-vscode.cpptools-1.7.1                                         2.1s 
- => download github.copilot-1.12.5517                                         1.3s 
- => download ms-python.python-2021.12.1559732655                              6.7s 
-[+] 🐋 build envd environment 4.4s (23/24)                                         
- => 💽 (cached) copy /ms-python.python-2021.12.1559732655/extension /root/     0.0s
- => 💽 (cached) merge (copy /ms-vscode.cpptools-1.7.1/extension /root/.vsc     0.0s
- => 💽 (cached) mkfile /etc/apt/sources.list                                   0.0s
- => 💽 (cached) merge (docker-image://docker.io/nvidia/cuda:11.6.0-cudnn8-     0.0s
- => 💽 (cached) mkfile /etc/pip.conf                                           0.0s
- => 💽 (cached) merge (merge (docker-image://docker.io/nvidia/cuda:11.6.0-     0.0s
- => 💽 (cached) sh -c apt-get update && apt-get install -y --no-install-re     0.0s
- => 💽 (cached) pip install tensorflow numpy jupyter                           0.0s
- => 💽 (cached) diff (sh -c apt-get update && apt-get install -y --no-inst     0.0s
+[+] ⌚ parse build.envd and download/cache dependencies 0.0s ✅ (finished)        
+ => 💽 (cached) download oh-my-zsh                                            0.0s
+ => 💽 (cached) download ms-python.python                                     0.0s
+[+] 🐋 build envd environment 7.7s (24/25)                                        
+ => 💽 (cached) (built-in packages) apt-get install curl openssh-client g     0.0s
+ => 💽 (cached) create user group envd                                        0.0s
+ => 💽 (cached) create user envd                                              0.0s
+ => 💽 (cached) add user envd to sudoers                                      0.0s
+ => 💽 (cached) (user-defined packages) apt-get install screenfetch           0.0s
+ => 💽 (cached) install system packages                                       0.0s
+ => 💽 (cached) pip install jupyter                                           0.0s
+ => 💽 (cached) install PyPI packages                                         0.0s
+ => 💽 (cached) install envd-ssh                                              0.0s
+ => 💽 (cached) install vscode plugin ms-python.python                        0.0s
+ => 💽 (cached) copy /oh-my-zsh /home/envd/.oh-my-zsh                         0.0s
+ => 💽 (cached) mkfile /home/envd/install.sh                                  0.0s
+ => 💽 (cached) install oh-my-zsh                                             0.0s
 ...
 # You are in the docker container for dev
 envd > 
@@ -87,7 +89,7 @@ envd >
 
 ### Configure mirrors
 
-```
+```text
 cat ~/.config/envd/config.envd
 ubuntu_apt(source="""
 deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
@@ -102,8 +104,8 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe mu
 """)
 pip_mirror(mirror = "https://mirror.sjtu.edu.cn/pypi/web/simple")
 vscode(plugins = [
-    "ms-vscode.cpptools-1.7.1",
-    "github.copilot-1.12.5517"
+    "ms-python.python",
+    "github.copilot"
 ])
 ```
 
@@ -118,4 +120,4 @@ envd is backed by [TensorChord](https://github.com/tensorchord) and licensed und
 We welcome all kinds of contributions from the open-source community, individuals, and partners.
 
 - Join our [discord community](https://discord.gg/KqswhpVgdU)! 
-- To build from source, check the [contributing page](./CONTRIBUTING.md).
+- To build from the source, check the [contributing page](./CONTRIBUTING.md).
