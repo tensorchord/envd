@@ -24,7 +24,7 @@ jobs:
             ${{ runner.OS }}-
       - name: Check Go modules
         run: |
-          -compat=1.17 && git add go.* &&
+          go mod tidy -compat=1.17 && git add go.* &&
           git diff --cached --exit-code || (echo 'Please run "go mod tidy" to sync Go modules' && exit 1);
       - name: Verify gofmt
         run: |
