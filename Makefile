@@ -91,7 +91,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: lint test build container push addlicense debug debug-local build-local generate clean test-local
+.PHONY: lint test build container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install
 
 build: build-local
 
@@ -106,6 +106,9 @@ $(GOLANGCI_LINT):
 
 mockgen-install:
 	go install github.com/golang/mock/mockgen@v1.6.0
+
+addlicense-install:
+	go install github.com/google/addlicense@latest
 
 build-local:
 	@for target in $(TARGETS); do                                                      \
@@ -128,7 +131,7 @@ debug-local:
 	    $(CMD_DIR)/$${target};                                                         \
 	done
 
-addlicense:
+addlicense: addlicense-install
 	addlicense -c "The envd Authors" **/*.go **/**/*.go **/**/**/*.go
 
 test-local:
