@@ -32,7 +32,11 @@ const (
 //go:embed install.sh
 var installScript string
 
+//go:embed zshrc
+var zshrc string
+
 type Manager interface {
+	ZSHRC() string
 	InstallScript() string
 	DownloadOrCache() (bool, error)
 	OHMyZSHDir() string
@@ -47,6 +51,10 @@ func NewManager() Manager {
 
 func (m generalManager) InstallScript() string {
 	return installScript
+}
+
+func (m generalManager) ZSHRC() string {
+	return zshrc
 }
 
 func (m generalManager) DownloadOrCache() (bool, error) {
