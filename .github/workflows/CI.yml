@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.17
+          go-version: 1.18
       - uses: actions/checkout@v3
       - name: Cache Go modules
         uses: actions/cache@preview
@@ -24,7 +24,7 @@ jobs:
             ${{ runner.OS }}-
       - name: Check Go modules
         run: |
-          go mod tidy -compat=1.17 && git add go.* &&
+          go mod tidy && git add go.* &&
           git diff --cached --exit-code || (echo 'Please run "go mod tidy" to sync Go modules' && exit 1);
       - name: Verify gofmt
         run: |
@@ -59,7 +59,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17.2
+          go-version: 1.18
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -102,7 +102,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17.2
+          go-version: 1.18
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
