@@ -1,6 +1,6 @@
 module github.com/tensorchord/envd
 
-go 1.17
+go 1.18
 
 require (
 	github.com/adrg/xdg v0.4.0
