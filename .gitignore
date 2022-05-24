@@ -21,6 +21,7 @@ vendor/
 go.work
 
 .vscode/*
+.idea
 
 # Local History for Visual Studio Code
 .history/
