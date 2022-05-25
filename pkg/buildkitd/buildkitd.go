@@ -109,11 +109,6 @@ func (c *generalClient) maybeStart(ctx context.Context,
 		}
 	}
 	c.logger.Debug("container is running, check if it's ready...")
-	cli, err := client.New(ctx, c.BuildkitdAddr(), client.WithFailFast())
-	if err != nil {
-		return "", errors.Wrap(err, "failed to create the buildkit client")
-	}
-	c.Client = cli
 
 	if err := c.waitUntilConnected(ctx, runningTimeout); err != nil {
 		return "", errors.Wrap(err, "failed to connect to buildkitd")
@@ -134,8 +129,8 @@ func (c generalClient) waitUntilConnected(
 		case <-time.After(interval):
 			connected, err := c.connected(ctxTimeout)
 			if err != nil {
-				// Has not yet started. Keep waiting.
-				return errors.Wrap(err, "failed to connect to buildkitd")
+				logrus.Debug("failed to connect to buildkitd")
+				continue
 			}
 			if !connected {
 				continue
