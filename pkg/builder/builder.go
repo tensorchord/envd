@@ -121,7 +121,24 @@ func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
 	return def, nil
 }
 
+func (b generalBuilder) labels(ctx context.Context) (string, error) {
+	labels, err := ir.Labels()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get labels")
+	}
+	data, err := ImageConfigStr(labels)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get image config")
+	}
+	return data, nil
+}
+
 func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progresswriter.Writer) error {
+	labels, err := b.labels(ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to get labels")
+	}
+	// k := platforms.Format(platforms.DefaultSpec())
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	eg, ctx := errgroup.WithContext(ctx)
@@ -136,6 +153,8 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 					Type: client.ExporterDocker,
 					Attrs: map[string]string{
 						"name": b.tag,
+						// Ref https://github.com/r2d4/mockerfile/blob/140c6a912bbfdae220febe59ab535ef0acba0e1f/pkg/build/build.go#L65
+						"containerimage.config": labels,
 					},
 					Output: func(map[string]string) (io.WriteCloser, error) {
 						return pipeW, nil
@@ -183,7 +202,7 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 		return nil
 	})
 
-	err := eg.Wait()
+	err = eg.Wait()
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
 			b.logger.Debug("cancelling the error group")
