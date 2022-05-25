@@ -50,7 +50,7 @@ func run(args []string) (bool, error) {
 		&cli.StringFlag{
 			Name:  flag.FlagBuildkitdImage,
 			Usage: "docker image to use for buildkitd",
-			Value: "docker.io/moby/buildkit:v0.10.1",
+			Value: "docker.io/moby/buildkit:v0.10.3",
 		},
 		&cli.StringFlag{
 			Name:  flag.FlagBuildkitdContainer,
