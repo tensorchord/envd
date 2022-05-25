@@ -30,7 +30,7 @@ import (
 
 var CommandLS = &cli.Command{
 	Name:    "ls",
-	Aliases: []string{"b"},
+	Aliases: []string{"l"},
 	Usage:   "list envd environments",
 
 	Action: list,
