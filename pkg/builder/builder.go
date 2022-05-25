@@ -130,7 +130,6 @@ func (b generalBuilder) labels(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get image config")
 	}
-	logrus.Info(data)
 	return data, nil
 }
 
