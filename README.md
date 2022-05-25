@@ -6,6 +6,7 @@
 <p align=center>
 <a href="https://discord.gg/KqswhpVgdU"><img alt="discord invitation link" src="https://img.shields.io/discord/974584200327991326?label=discord&style=social"></a>
 <a href="https://github.com/tensorchord/envd/actions/workflows/CI.yml"><img alt="continuous integration" src="https://github.com/tensorchord/envd/actions/workflows/CI.yml/badge.svg"></a>
+<a href="https://trackgit.com"><img src="https://us-central1-trackgit-analytics.cloudfunctions.net/token/ping/l3ldvdaswvnjpty9u7l3" alt="trackgit-views" /></a>
 </p>
 
 envd is a development environment management tool for data scientists.
@@ -28,9 +29,7 @@ envd is a development environment management tool for data scientists.
 
 ### From binary
 
-```bash
-sudo /bin/sh -c 'wget https://github.com/tensorchord/envd/releases/download/0.0.1-alpha.5/envd_0.0.1-alpha.5_Linux_x86_64 -O /usr/local/bin/envd && chmod +x /usr/local/bin/envd && /usr/local/bin/envd bootstrap'
-```
+TODO
 
 ### From source code
 
@@ -60,9 +59,12 @@ shell("zsh")
 jupyter(password="", port=8888)
 ```
 
-Then you can run `envd up` and open jupyter notebook at [`http://localhost:8888`](http://localhost:8888), or open vscode remote to attach to the container.
+Then you can run `envd up` to create the development environment.
+
+TODO: illustrate that the cache will be persistent.
 
 ```
+$ envd up
 [+] ⌚ parse build.envd and download/cache dependencies 0.0s ✅ (finished)        
  => 💽 (cached) download oh-my-zsh                                            0.0s
  => 💽 (cached) download ms-python.python                                     0.0s
@@ -82,12 +84,23 @@ Then you can run `envd up` and open jupyter notebook at [`http://localhost:8888`
  => 💽 (cached) install oh-my-zsh                                             0.0s
 ...
 # You are in the docker container for dev
-envd > 
+(envd 🐳)  ➜  mnist-dev git:(master) python3 ./main.py
+...
+```
+
+Jupyter notebook service and sshd server are running inside the container. You can use jupyter or vscode remote-ssh extension to develop AI/ML models.
+
+```
+$ envd ls
+NAME            JUPYTER                 SSH TARGET      GPU     STATUS  CONTAINER ID 
+mnist           http://localhost:8888   mnist.envd      true    running 253f656b8c40
 ```
 
 ## Features
 
 ### Configure mirrors
+
+envd supports PyPI mirror and apt source configuration. You can configure them in `build.env` or `$HOME/.config/envd/config.envd` to set up in all environments.
 
 ```text
 cat ~/.config/envd/config.envd
@@ -108,8 +121,6 @@ vscode(plugins = [
     "github.copilot"
 ])
 ```
-
-envd configures Ubuntu APT source, PyPI mirror, and others in the development environment.
 
 ## Join Us
 
