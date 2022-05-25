@@ -54,6 +54,7 @@ type Client interface {
 	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
 	Exec(ctx context.Context, cname string, cmd []string) error
 	Destroy(ctx context.Context, name string) error
+	List(ctx context.Context) ([]types.Container, error)
 }
 
 type generalClient struct {
@@ -94,9 +95,19 @@ func (g generalClient) WaitUntilRunning(ctx context.Context,
 			}
 
 		case <-ctxTimeout.Done():
-			return errors.Errorf("timeout %s: buildkitd container did not start", timeout)
+			return errors.Errorf("timeout %s: container did not start", timeout)
 		}
 	}
+}
+
+func (c generalClient) List(ctx context.Context) ([]types.Container, error) {
+	ctrs, err := c.ContainerList(ctx, types.ContainerListOptions{
+		Filters: dockerfilters(false),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return ctrs, nil
 }
 
 func (c generalClient) Destroy(ctx context.Context, name string) error {
@@ -236,6 +247,8 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		// enable all gpus with -1
 		hostConfig.DeviceRequests = deviceRequests(-1)
 	}
+
+	config.Labels = labels(gpuEnabled, name, g.JupyterConfig)
 
 	logger = logger.WithFields(logrus.Fields{
 		"entrypoint":  config.Entrypoint,

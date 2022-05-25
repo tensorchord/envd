@@ -70,6 +70,7 @@ func run(args []string) (bool, error) {
 		CommandBootstrap,
 		CommandBuild,
 		CommandDestroy,
+		CommandLS,
 		CommandUp,
 	}
 

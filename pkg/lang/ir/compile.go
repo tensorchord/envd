@@ -16,12 +16,14 @@ package ir
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 
 	"github.com/tensorchord/envd/pkg/progress/compileui"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 func NewGraph() *Graph {
@@ -68,6 +70,25 @@ func Compile(ctx context.Context) (*llb.Definition, error) {
 		return nil, err
 	}
 	return def, nil
+}
+
+func Labels() (map[string]string, error) {
+	return DefaultGraph.Labels()
+}
+
+func (g Graph) Labels() (map[string]string, error) {
+	labels := make(map[string]string)
+	str, err := json.Marshal(g.SystemPackages)
+	if err != nil {
+		return nil, err
+	}
+	labels[types.ImageLabelAPT] = string(str)
+	str, err = json.Marshal(g.PyPIPackages)
+	if err != nil {
+		return nil, err
+	}
+	labels[types.ImageLabelPyPI] = string(str)
+	return labels, nil
 }
 
 func (g Graph) Compile() (llb.State, error) {
