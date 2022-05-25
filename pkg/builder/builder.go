@@ -165,6 +165,7 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 				flag.FlagContextDir: b.buildContextDir,
 				flag.FlagCacheDir:   home.GetManager().CacheDir(),
 			},
+			// TODO(gaocegege): Use llb.WithProxy to implement it.
 			FrontendAttrs: map[string]string{
 				"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
 			},

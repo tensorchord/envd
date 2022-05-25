@@ -26,5 +26,6 @@ const (
 [global]
 index-url=%s`
 
-	defaultUID = "1000"
+	defaultUID = 1000
+	defaultGID = 1000
 )
