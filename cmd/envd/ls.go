@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -50,7 +51,7 @@ func list(clicontext *cli.Context) error {
 
 func render(envs []types.EnvdEnvironment, w io.Writer) {
 	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"Name", "jupyter", "GPU", "Status", "Container ID"})
+	table.SetHeader([]string{"Name", "jupyter", "SSH Target", "GPU", "Status", "Container ID"})
 
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
@@ -65,12 +66,13 @@ func render(envs []types.EnvdEnvironment, w io.Writer) {
 	table.SetNoWhiteSpace(true)
 
 	for _, env := range envs {
-		envRow := make([]string, 5)
+		envRow := make([]string, 6)
 		envRow[0] = env.Name
 		envRow[1] = env.JupyterAddr
-		envRow[2] = strconv.FormatBool(env.GPU)
-		envRow[3] = env.State
-		envRow[4] = stringid.TruncateID(env.Container.ID)
+		envRow[2] = fmt.Sprintf("%s.envd", env.Name)
+		envRow[3] = strconv.FormatBool(env.GPU)
+		envRow[4] = env.State
+		envRow[5] = stringid.TruncateID(env.Container.ID)
 		table.Append(envRow)
 	}
 	table.Render()
