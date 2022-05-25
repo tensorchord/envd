@@ -41,7 +41,7 @@ jobs:
       - name: Add license
         run: |
           make addlicense && git add pkg cmd &&
-          git diff --cached --exit-code || (echo 'Please run "make vet" to verify govet' && exit 1);
+          git diff --cached --exit-code || (echo 'Please run "make addlicense" to verify govet' && exit 1);
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
