@@ -103,3 +103,5 @@ alias zshconfig="vim ~/.zshrc"
 
 # Set prompt
 export PS1="(envd 🐳) $PS1"
+alias python=python3
+export PATH=$PATH:$HOME/.local/bin
