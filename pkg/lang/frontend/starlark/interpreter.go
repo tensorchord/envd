@@ -48,7 +48,6 @@ func (s generalInterpreter) ExecFile(filename string) (interface{}, error) {
 	var src interface{}
 	globals, err := starlark.ExecFile(s.Thread, filename, src, nil)
 	if err != nil {
-		s.printEvalError(err)
 		return globals, err
 	}
 	return globals, nil
@@ -57,16 +56,7 @@ func (s generalInterpreter) ExecFile(filename string) (interface{}, error) {
 func (s generalInterpreter) Eval(script string) (interface{}, error) {
 	globals, err := starlark.ExecFile(s.Thread, "", script, nil)
 	if err != nil {
-		s.printEvalError(err)
 		return globals, err
 	}
 	return globals, nil
-}
-
-func (s generalInterpreter) printEvalError(err error) {
-	if evalErr, ok := err.(*starlark.EvalError); ok {
-		logrus.Error(evalErr.Backtrace())
-	} else {
-		logrus.Error(err)
-	}
 }
