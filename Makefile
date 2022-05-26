@@ -132,7 +132,7 @@ debug-local:
 	done
 
 addlicense: addlicense-install
-	addlicense -c "The envd Authors" **/*.go **/**/*.go **/**/**/*.go
+	addlicense -c "The envd Authors" $$(find . -type f -name '*.go')
 
 test-local:
 	@go test -v -race -coverprofile=coverage.out ./...
