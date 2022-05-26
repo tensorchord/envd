@@ -146,7 +146,7 @@ func up(clicontext *cli.Context) error {
 		}
 	}
 
-	ir.DefaultGraph.PublicKeyPath = clicontext.Path("public-key")
+	ir.DefaultGraph.SetSshPublicKey(clicontext.Path("public-key"))
 
 	if err := builder.Build(clicontext.Context); err != nil {
 		return err

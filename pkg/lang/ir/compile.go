@@ -91,6 +91,10 @@ func (g Graph) Labels() (map[string]string, error) {
 	return labels, nil
 }
 
+func (g *Graph) SetSshPublicKey(pub string) {
+	g.PublicKeyPath = pub
+}
+
 func (g Graph) Compile() (llb.State, error) {
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
@@ -108,7 +112,11 @@ func (g Graph) Compile() (llb.State, error) {
 	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
 	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage), llb.WithCustomName("install PyPI packages"))
 	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage), llb.WithCustomName("install system packages"))
-	sshStage := g.copyEnvdSSHServerWithKey()
+	sshStage, err := g.copyEnvdSSHServerWithKey()
+
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to copy SSH key")
+	}
 
 	vscodeStage, err := g.compileVSCode()
 	if err != nil {

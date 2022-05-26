@@ -14,10 +14,9 @@
 package config
 
 import (
-	"os"
 	"path/filepath"
 
-	"github.com/sirupsen/logrus"
+	"github.com/adrg/xdg"
 )
 
 type UpState string
@@ -30,9 +29,5 @@ const (
 )
 
 func GetEnvdHome() string {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	return filepath.Join(homeDir, envdFolderName)
+	return filepath.Join(xdg.ConfigHome, envdFolderName)
 }

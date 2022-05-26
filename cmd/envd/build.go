@@ -26,6 +26,7 @@ import (
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/ssh"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -50,6 +51,12 @@ var CommandBuild = &cli.Command{
 			Usage:   "Path to the directory containing the build.envd",
 			Aliases: []string{"p"},
 			Value:   ".",
+		},
+		&cli.PathFlag{
+			Name:    "public-key",
+			Usage:   "Path to the public key",
+			Aliases: []string{"pubk"},
+			Value:   ssh.GetPublicKey(),
 		},
 	},
 
@@ -89,10 +96,11 @@ func build(clicontext *cli.Context) error {
 	})
 	logger.Debug("starting build command")
 
+	ir.DefaultGraph.SetSshPublicKey(clicontext.Path("public-key"))
+
 	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
-	ir.DefaultGraph.PublicKeyPath = clicontext.Path("public-key")
 	return builder.Build(clicontext.Context)
 }
