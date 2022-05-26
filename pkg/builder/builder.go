@@ -32,6 +32,7 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/progress/progresswriter"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 type Builder interface {
@@ -113,7 +114,7 @@ func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
 	if err := b.interpret(); err != nil {
 		return nil, errors.Wrap(err, "failed to interpret")
 	}
-	def, err := ir.Compile(ctx)
+	def, err := ir.Compile(ctx, fileutil.Base(b.buildContextDir))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}

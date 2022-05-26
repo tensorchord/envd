@@ -48,7 +48,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		Run(llb.Shlex(fmt.Sprintf(`sh -c "%s"`, cmd)), llb.WithCustomNamef("pip install %s",
 			strings.Join(g.PyPIPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
-		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
+		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
 	return run.Root()
 }
 

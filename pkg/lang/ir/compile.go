@@ -54,12 +54,13 @@ func GPUEnabled() bool {
 	return DefaultGraph.CUDA != nil
 }
 
-func Compile(ctx context.Context) (*llb.Definition, error) {
+func Compile(ctx context.Context, cachePrefix string) (*llb.Definition, error) {
 	w, err := compileui.New(ctx, os.Stdout, "auto")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
 	}
 	DefaultGraph.Writer = w
+	DefaultGraph.CachePrefix = cachePrefix
 	state, err := DefaultGraph.Compile()
 	if err != nil {
 		return nil, err
