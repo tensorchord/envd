@@ -25,6 +25,7 @@ import (
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -92,5 +93,6 @@ func build(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
+	ir.DefaultGraph.PublicKeyPath = clicontext.Path("public-key")
 	return builder.Build(clicontext.Context)
 }

@@ -16,12 +16,14 @@ package ir
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/flag"
 )
 
@@ -135,11 +137,19 @@ func (g *Graph) compileBase() llb.State {
 	return base
 }
 
-func (g Graph) copyEnvdSSHServer() llb.State {
+func (g Graph) copyEnvdSSHServerWithKey() llb.State {
 	// TODO(gaocegege): Remove global var ssh image.
+	public := DefaultGraph.PublicKeyPath
+	bdat, err := os.ReadFile(public)
+	dat := strings.TrimSuffix(string(bdat), "\n")
+	if err != nil {
+		logrus.Fatal("Cannot read public SSH key")
+	}
 	run := llb.Image(viper.GetString(flag.FlagSSHImage)).
 		File(llb.Copy(llb.Image(viper.GetString(flag.FlagSSHImage)),
 			"usr/bin/envd-ssh", "/var/envd/bin/envd-ssh",
-			&llb.CopyInfo{CreateDestPath: true}), llb.WithCustomName("install envd-ssh"))
+			&llb.CopyInfo{CreateDestPath: true}), llb.WithCustomName("install envd-ssh")).
+		File(llb.Mkfile(config.ContainerauthorizedKeysPath,
+			0644, []byte(dat+" envd"), llb.WithUIDGID(defaultUID, defaultGID)))
 	return run
 }

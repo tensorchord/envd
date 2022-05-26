@@ -108,7 +108,7 @@ func (g Graph) Compile() (llb.State, error) {
 	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
 	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage), llb.WithCustomName("install PyPI packages"))
 	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage), llb.WithCustomName("install system packages"))
-	sshStage := g.copyEnvdSSHServer()
+	sshStage := g.copyEnvdSSHServerWithKey()
 
 	vscodeStage, err := g.compileVSCode()
 	if err != nil {

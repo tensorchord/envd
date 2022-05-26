@@ -31,6 +31,8 @@ type Graph struct {
 	UbuntuAPTSource *string
 	PyPIMirror      *string
 
+	PublicKeyPath string
+
 	BuiltinSystemPackages []string
 	PyPIPackages          []string
 	SystemPackages        []string
