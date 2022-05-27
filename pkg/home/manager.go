@@ -86,7 +86,7 @@ func (m generalManager) Cached(key string) bool {
 func (m *generalManager) dumpCacheStatus() error {
 	file, err := os.Create(m.cacheStatusFile)
 	if err != nil {
-		return errors.Wrap(err, "failed to open cache status file")
+		return errors.Wrap(err, "failed to create cache status file")
 	}
 	defer file.Close()
 
@@ -121,8 +121,13 @@ func (m *generalManager) init() error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			logrus.WithField("filename", m.cacheStatusFile).Debug("Creating file")
-			if _, err := os.Create(m.cacheStatusFile); err != nil {
+			file, err := os.Create(m.cacheStatusFile)
+			if err != nil {
 				return errors.Wrap(err, "failed to create file")
+			}
+			err = file.Close()
+			if err != nil {
+				return errors.Wrap(err, "failed to close file")
 			}
 			if err := m.dumpCacheStatus(); err != nil {
 				return errors.Wrap(err, "failed to dump cache status")

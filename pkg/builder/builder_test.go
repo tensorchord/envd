@@ -91,7 +91,6 @@ var _ = Describe("Builder", func() {
 					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 						gomock.Eq(configFilePath),
 					).Return(nil, expected)
-					sshconfig.GenerateKeys()
 					pub := sshconfig.GetPublicKey()
 					err := b.Build(pub, context.TODO())
 					Expect(err).To(HaveOccurred())
@@ -101,7 +100,6 @@ var _ = Describe("Builder", func() {
 			When("failed to interpret manifest", func() {
 				It("should get an error", func() {
 					expected := errors.New("failed to interpret manifest")
-					sshconfig.GenerateKeys()
 					pub := sshconfig.GetPublicKey()
 					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 						gomock.Eq(configFilePath),
