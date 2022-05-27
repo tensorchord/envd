@@ -16,7 +16,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -26,7 +25,6 @@ import (
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
-	envd_config "github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
@@ -135,9 +133,6 @@ func up(clicontext *cli.Context) error {
 	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
-	}
-	if err := os.MkdirAll(envd_config.GetEnvdHome(), os.ModePerm); err != nil {
-		return errors.Wrap(err, "failed to create the home directory ~/.envd for envd")
 	}
 
 	if !ssh.KeyExists(clicontext.String("public-key"), clicontext.String("private-key")) {
