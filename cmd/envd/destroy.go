@@ -22,7 +22,7 @@ import (
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/docker"
-	"github.com/tensorchord/envd/pkg/ssh/ssh_config"
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -59,7 +59,7 @@ func destroy(clicontext *cli.Context) error {
 		return errors.Wrapf(err, "failed to destroy the environment: %s", ctr)
 	}
 
-	if err = ssh_config.RemoveEntry(ctr); err != nil {
+	if err = sshconfig.RemoveEntry(ctr); err != nil {
 		logrus.Infof("failed to remove entry %s from your SSH config file: %s", ctr, err)
 		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}

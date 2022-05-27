@@ -34,7 +34,7 @@ import (
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	compileuimock "github.com/tensorchord/envd/pkg/progress/compileui/mock"
 	"github.com/tensorchord/envd/pkg/progress/progresswriter"
-	"github.com/tensorchord/envd/pkg/ssh/ssh_config"
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
 
 var _ = Describe("Builder", func() {
@@ -91,7 +91,7 @@ var _ = Describe("Builder", func() {
 					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 						gomock.Eq(configFilePath),
 					).Return(nil, expected)
-					pub := ssh_config.GetPublicKey()
+					pub := sshconfig.GetPublicKey()
 					err := b.Build(pub, context.TODO())
 					Expect(err).To(HaveOccurred())
 				})
@@ -100,7 +100,7 @@ var _ = Describe("Builder", func() {
 			When("failed to interpret manifest", func() {
 				It("should get an error", func() {
 					expected := errors.New("failed to interpret manifest")
-					pub := ssh_config.GetPublicKey()
+					pub := sshconfig.GetPublicKey()
 					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 						gomock.Eq(configFilePath),
 					).Return(nil, nil)

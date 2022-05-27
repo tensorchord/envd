@@ -23,7 +23,7 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/envd/pkg/ssh/ssh_config"
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -133,7 +133,7 @@ func (m *generalManager) init() error {
 	}
 
 	// Generate SSH keys when init
-	if err := ssh_config.GenerateKeys(); err != nil {
+	if err := sshconfig.GenerateKeys(); err != nil {
 		return errors.Wrap(err, "failed to generate ssh key")
 	}
 

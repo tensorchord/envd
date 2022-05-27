@@ -1,6 +1,6 @@
 // Copyright 2022 The envd Authors
 // Copyright 2022 The Okteto Authors
-// based on https://github.com/havoc-io/ssh_config
+// based on https://github.com/havoc-io/sshconfig
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ssh_config
+package sshconfig
 
 import (
 	"bufio"
@@ -237,7 +237,7 @@ func (config *sshConfig) writeToFilepath(p string) error {
 			return fmt.Errorf("failed to get info on %s: %s", p, err)
 		}
 
-		// default for ssh_config
+		// default for sshconfig
 		mode = 0600
 	} else {
 		mode = stat.Mode()
