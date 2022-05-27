@@ -39,7 +39,8 @@ type Graph struct {
 	Exec []string
 	*JupyterConfig
 
-	Writer compileui.Writer
+	Writer      compileui.Writer
+	CachePrefix string
 }
 
 type JupyterConfig struct {
