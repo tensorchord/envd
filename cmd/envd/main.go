@@ -25,6 +25,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
+	"go.starlark.net/starlark"
+	"go.starlark.net/syntax"
 
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
@@ -102,13 +104,21 @@ func handleErr(debug bool, err error) {
 	if err == nil {
 		return
 	}
-	// TODO(gaocegege): Print the error with starlark stacks.
+
 	if debug {
 		// TODO(gaocegege): Add debug info.
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-	} else {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 	}
+
+	rootCause := errors.Cause(err)
+	if evalErr, ok := rootCause.(*starlark.EvalError); ok {
+		fmt.Fprintln(os.Stderr, evalErr.Backtrace())
+	} else if syntaxErr, ok := rootCause.(*syntax.Error); ok {
+		fmt.Fprintln(os.Stderr, syntaxErr)
+	} else {
+		fmt.Fprintf(os.Stderr, "error: %v\n", rootCause)
+	}
+
 	os.Exit(1)
 }
 

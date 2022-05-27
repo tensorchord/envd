@@ -80,9 +80,9 @@ func (g Graph) compileBuiltinSystemPackages(root llb.State) llb.State {
 		llb.WithCustomNamef("(built-in packages) apt-get install %s",
 			strings.Join(g.BuiltinSystemPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
-		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
+		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
 	run.AddMount(cacheLibDir, llb.Scratch(),
-		llb.AsPersistentCacheDir("/"+cacheLibDir, llb.CacheMountShared))
+		llb.AsPersistentCacheDir(g.CacheID(cacheLibDir), llb.CacheMountShared))
 
 	// TODO(gaocegege): Refactor user to a seperate stage.
 	res := run.
@@ -122,9 +122,9 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 		llb.WithCustomNamef("(user-defined packages) apt-get install %s",
 			strings.Join(g.SystemPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
-		llb.AsPersistentCacheDir("/"+cacheDir, llb.CacheMountShared))
+		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
 	run.AddMount(cacheLibDir, llb.Scratch(),
-		llb.AsPersistentCacheDir("/"+cacheLibDir, llb.CacheMountShared))
+		llb.AsPersistentCacheDir(g.CacheID(cacheLibDir), llb.CacheMountShared))
 	return run.Root()
 }
 
