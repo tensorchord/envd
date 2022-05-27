@@ -21,8 +21,9 @@ import (
 	"encoding/pem"
 	"fmt"
 	"os"
-	"path/filepath"
 
+	"github.com/adrg/xdg"
+	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
@@ -56,7 +57,10 @@ func KeyExists(public, private string) bool {
 
 // GenerateKeys generates a SSH key pair on path
 func GenerateKeys() error {
-	publicKeyPath, privateKeyPath := getKeyPaths()
+	publicKeyPath, privateKeyPath, err := getKeyPaths()
+	if err != nil {
+		return err
+	}
 	return generateKeys(publicKeyPath, privateKeyPath, bitSize)
 }
 
@@ -126,21 +130,33 @@ func generatePublicKey(privatekey *rsa.PublicKey) ([]byte, error) {
 	return pubKeyBytes, nil
 }
 
-func getKeyPaths() (string, string) {
-	dir := config.GetEnvdHome()
-	public := filepath.Join(dir, config.PublicKeyFile)
-	private := filepath.Join(dir, config.PrivateKeyFile)
-	return public, private
+func getKeyPaths() (string, string, error) {
+	public, err := xdg.ConfigFile("envd/" + config.PublicKeyFile)
+	if err != nil {
+		return "", "", errors.Wrap(err, "Cannot get public key path")
+	}
+
+	private, err := xdg.ConfigFile("envd/" + config.PrivateKeyFile)
+	if err != nil {
+		return "", "", errors.Wrap(err, "Cannot get private key path")
+	}
+	return public, private, nil
 }
 
 // GetPublicKey returns the path to the public key
 func GetPublicKey() string {
-	pub, _ := getKeyPaths()
+	pub, _, err := getKeyPaths()
+	if err != nil {
+		logrus.Fatal("Cannot get public key path")
+	}
 	return pub
 }
 
 // GetPrivateKey returns the path to the private key
 func GetPrivateKey() string {
-	_, pri := getKeyPaths()
+	_, pri, err := getKeyPaths()
+	if err != nil {
+		logrus.Fatal("Cannot get private key path")
+	}
 	return pri
 }
