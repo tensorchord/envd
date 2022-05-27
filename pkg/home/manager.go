@@ -23,6 +23,7 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/envd/pkg/ssh/ssh_config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -129,6 +130,11 @@ func (m *generalManager) init() error {
 		} else {
 			return errors.Wrap(err, "failed to stat file")
 		}
+	}
+
+	// Generate SSH keys when init
+	if err := ssh_config.GenerateKeys(); err != nil {
+		return errors.Wrap(err, "failed to generate ssh key")
 	}
 
 	file, err := os.Open(m.cacheStatusFile)

@@ -26,7 +26,7 @@ import (
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
-	"github.com/tensorchord/envd/pkg/ssh"
+	"github.com/tensorchord/envd/pkg/ssh/ssh_config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -56,7 +56,7 @@ var CommandBuild = &cli.Command{
 			Name:    "public-key",
 			Usage:   "Path to the public key",
 			Aliases: []string{"pubk"},
-			Value:   ssh.GetPublicKey(),
+			Value:   ssh_config.GetPublicKey(),
 		},
 	},
 

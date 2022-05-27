@@ -30,6 +30,7 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
+	"github.com/tensorchord/envd/pkg/ssh/ssh_config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -69,13 +70,13 @@ var CommandUp = &cli.Command{
 			Name:    "private-key",
 			Usage:   "Path to the private key",
 			Aliases: []string{"k"},
-			Value:   ssh.GetPrivateKey(),
+			Value:   ssh_config.GetPrivateKey(),
 		},
 		&cli.PathFlag{
 			Name:    "public-key",
 			Usage:   "Path to the public key",
 			Aliases: []string{"pubk"},
-			Value:   ssh.GetPublicKey(),
+			Value:   ssh_config.GetPublicKey(),
 		},
 		&cli.DurationFlag{
 			Name:  "timeout",
@@ -135,12 +136,6 @@ func up(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to create the builder")
 	}
 
-	if !ssh.KeyExists(clicontext.String("public-key"), clicontext.String("private-key")) {
-		if err := ssh.GenerateKeys(); err != nil {
-			return errors.Wrap(err, "failed to generate ssh key")
-		}
-	}
-
 	ir.DefaultGraph.SetSshPublicKey(clicontext.Path("public-key"))
 
 	if err := builder.Build(clicontext.Context); err != nil {
@@ -162,7 +157,7 @@ func up(clicontext *cli.Context) error {
 	logrus.Debugf("container %s is running", containerID)
 
 	logrus.Debugf("Add entry %s to SSH config. at %s", buildContext, containerIP)
-	if err = ssh.AddEntry(ctr, containerIP, ssh.DefaultSSHPort, clicontext.Path("private-key")); err != nil {
+	if err = ssh_config.AddEntry(ctr, containerIP, ssh.DefaultSSHPort, clicontext.Path("private-key")); err != nil {
 		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
