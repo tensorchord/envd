@@ -25,7 +25,6 @@ import (
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh/ssh_config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -96,11 +95,9 @@ func build(clicontext *cli.Context) error {
 	})
 	logger.Debug("starting build command")
 
-	ir.DefaultGraph.SetSshPublicKey(clicontext.Path("public-key"))
-
 	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
-	return builder.Build(clicontext.Context)
+	return builder.Build(clicontext.Path("public-key"), clicontext.Context)
 }

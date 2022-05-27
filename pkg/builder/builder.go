@@ -36,7 +36,7 @@ import (
 )
 
 type Builder interface {
-	Build(ctx context.Context) error
+	Build(pub string, ctx context.Context) error
 	GPUEnabled() bool
 }
 
@@ -81,8 +81,8 @@ func (b generalBuilder) GPUEnabled() bool {
 	return ir.GPUEnabled()
 }
 
-func (b generalBuilder) Build(ctx context.Context) error {
-	def, err := b.compile(ctx)
+func (b generalBuilder) Build(pub string, ctx context.Context) error {
+	def, err := b.compile(pub, ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to compile")
 	}
@@ -110,11 +110,11 @@ func (b generalBuilder) interpret() error {
 	return nil
 }
 
-func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
+func (b generalBuilder) compile(pub string, ctx context.Context) (*llb.Definition, error) {
 	if err := b.interpret(); err != nil {
 		return nil, errors.Wrap(err, "failed to interpret")
 	}
-	def, err := ir.Compile(ctx, fileutil.Base(b.buildContextDir))
+	def, err := ir.Compile(ctx, fileutil.Base(b.buildContextDir), pub)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}

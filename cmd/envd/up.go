@@ -136,9 +136,7 @@ func up(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to create the builder")
 	}
 
-	ir.DefaultGraph.SetSshPublicKey(clicontext.Path("public-key"))
-
-	if err := builder.Build(clicontext.Context); err != nil {
+	if err := builder.Build(clicontext.Path("public-key"), clicontext.Context); err != nil {
 		return err
 	}
 	gpu := builder.GPUEnabled()

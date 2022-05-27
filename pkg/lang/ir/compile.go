@@ -54,13 +54,14 @@ func GPUEnabled() bool {
 	return DefaultGraph.CUDA != nil
 }
 
-func Compile(ctx context.Context, cachePrefix string) (*llb.Definition, error) {
+func Compile(ctx context.Context, cachePrefix string, pub string) (*llb.Definition, error) {
 	w, err := compileui.New(ctx, os.Stdout, "auto")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
 	}
 	DefaultGraph.Writer = w
 	DefaultGraph.CachePrefix = cachePrefix
+	DefaultGraph.PublicKeyPath = pub
 	state, err := DefaultGraph.Compile()
 	if err != nil {
 		return nil, err
@@ -90,10 +91,6 @@ func (g Graph) Labels() (map[string]string, error) {
 	}
 	labels[types.ImageLabelPyPI] = string(str)
 	return labels, nil
-}
-
-func (g *Graph) SetSshPublicKey(pub string) {
-	g.PublicKeyPath = pub
 }
 
 func (g Graph) Compile() (llb.State, error) {
