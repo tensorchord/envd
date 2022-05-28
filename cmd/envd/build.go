@@ -25,6 +25,7 @@ import (
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -49,6 +50,12 @@ var CommandBuild = &cli.Command{
 			Usage:   "Path to the directory containing the build.envd",
 			Aliases: []string{"p"},
 			Value:   ".",
+		},
+		&cli.PathFlag{
+			Name:    "public-key",
+			Usage:   "Path to the public key",
+			Aliases: []string{"pubk"},
+			Value:   sshconfig.GetPublicKey(),
 		},
 	},
 
@@ -92,5 +99,5 @@ func build(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
-	return builder.Build(clicontext.Context)
+	return builder.Build(clicontext.Path("public-key"), clicontext.Context)
 }

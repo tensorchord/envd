@@ -26,17 +26,17 @@ import (
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/remote/sshd"
 	"github.com/tensorchord/envd/pkg/ssh"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
 const (
-	authorizedKeysPath = "/var/envd/remote/authorized_keys"
-	envPort            = "envd_SSH_PORT"
-	flagDebug          = "debug"
-	flagAuthKey        = "authorized-keys"
-	flagNoAuth         = "no-auth"
+	envPort     = "envd_SSH_PORT"
+	flagDebug   = "debug"
+	flagAuthKey = "authorized-keys"
+	flagNoAuth  = "no-auth"
 )
 
 func main() {
@@ -55,8 +55,8 @@ func main() {
 		},
 		&cli.StringFlag{
 			Name:    flagAuthKey,
-			Usage:   "path to authorized keys file, defaults to " + authorizedKeysPath,
-			Value:   authorizedKeysPath,
+			Usage:   "path to authorized keys file, defaults to " + config.ContainerauthorizedKeysPath,
+			Value:   config.ContainerauthorizedKeysPath,
 			Aliases: []string{"a"},
 		},
 		&cli.BoolFlag{

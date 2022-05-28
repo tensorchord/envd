@@ -54,13 +54,14 @@ func GPUEnabled() bool {
 	return DefaultGraph.CUDA != nil
 }
 
-func Compile(ctx context.Context, cachePrefix string) (*llb.Definition, error) {
+func Compile(ctx context.Context, cachePrefix string, pub string) (*llb.Definition, error) {
 	w, err := compileui.New(ctx, os.Stdout, "auto")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
 	}
 	DefaultGraph.Writer = w
 	DefaultGraph.CachePrefix = cachePrefix
+	DefaultGraph.PublicKeyPath = pub
 	state, err := DefaultGraph.Compile()
 	if err != nil {
 		return nil, err
@@ -109,7 +110,11 @@ func (g Graph) Compile() (llb.State, error) {
 	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
 	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage), llb.WithCustomName("install PyPI packages"))
 	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage), llb.WithCustomName("install system packages"))
-	sshStage := g.copyEnvdSSHServer()
+	sshStage, err := g.copyEnvdSSHServerWithKey()
+
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to copy SSH key")
+	}
 
 	vscodeStage, err := g.compileVSCode()
 	if err != nil {

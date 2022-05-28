@@ -30,6 +30,7 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -60,16 +61,22 @@ var CommandUp = &cli.Command{
 			Aliases: []string{"f"},
 			Value:   "build.envd",
 		},
-		&cli.BoolFlag{
-			Name:  "auth",
-			Usage: "Enable authentication for ssh",
-			Value: false,
-		},
+		// &cli.BoolFlag{
+		// 	Name:  "auth",
+		// 	Usage: "Enable authentication for ssh",
+		// 	Value: false,
+		// },
 		&cli.PathFlag{
 			Name:    "private-key",
 			Usage:   "Path to the private key",
 			Aliases: []string{"k"},
-			Value:   "~/.ssh/id_rsa",
+			Value:   sshconfig.GetPrivateKey(),
+		},
+		&cli.PathFlag{
+			Name:    "public-key",
+			Usage:   "Path to the public key",
+			Aliases: []string{"pubk"},
+			Value:   sshconfig.GetPublicKey(),
 		},
 		&cli.DurationFlag{
 			Name:  "timeout",
@@ -129,7 +136,7 @@ func up(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to create the builder")
 	}
 
-	if err := builder.Build(clicontext.Context); err != nil {
+	if err := builder.Build(clicontext.Path("public-key"), clicontext.Context); err != nil {
 		return err
 	}
 	gpu := builder.GPUEnabled()
@@ -138,6 +145,7 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
 	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
 		tag, ctr, buildContext, gpu, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))
@@ -147,14 +155,14 @@ func up(clicontext *cli.Context) error {
 	logrus.Debugf("container %s is running", containerID)
 
 	logrus.Debugf("Add entry %s to SSH config. at %s", buildContext, containerIP)
-	if err = ssh.AddEntry(ctr, containerIP, ssh.DefaultSSHPort); err != nil {
+	if err = sshconfig.AddEntry(ctr, containerIP, ssh.DefaultSSHPort, clicontext.Path("private-key")); err != nil {
 		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 
 	if !detach {
 		sshClient, err := ssh.NewClient(
-			containerIP, "root", ssh.DefaultSSHPort, clicontext.Bool("auth"), clicontext.Path("private-key"), "")
+			containerIP, "envd", ssh.DefaultSSHPort, true, clicontext.Path("private-key"), "")
 		if err != nil {
 			return err
 		}

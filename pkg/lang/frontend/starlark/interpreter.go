@@ -44,7 +44,7 @@ func NewInterpreter() Interpreter {
 }
 
 func (s generalInterpreter) ExecFile(filename string) (interface{}, error) {
-	logrus.WithField("filename", filename).Debug("inperprete the file")
+	logrus.WithField("filename", filename).Debug("interprete the file")
 	var src interface{}
 	globals, err := starlark.ExecFile(s.Thread, filename, src, nil)
 	if err != nil {

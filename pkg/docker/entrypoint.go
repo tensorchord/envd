@@ -18,13 +18,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/editor/jupyter"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 const (
 	template = `set -e
-/var/envd/bin/envd-ssh --no-auth &
+/var/envd/bin/envd-ssh --authorized-keys %s &
 %s
 wait -n`
 )
@@ -32,7 +33,9 @@ wait -n`
 func entrypointSH(g ir.Graph, workingDir string) string {
 	if g.JupyterConfig != nil {
 		cmds := jupyter.GenerateCommand(g, workingDir)
-		return fmt.Sprintf(template, strings.Join(cmds, " "))
+		return fmt.Sprintf(template,
+			config.ContainerauthorizedKeysPath, strings.Join(cmds, " "))
 	}
-	return fmt.Sprintf(template, "")
+	return fmt.Sprintf(template,
+		config.ContainerauthorizedKeysPath, "")
 }
