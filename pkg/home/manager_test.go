@@ -35,6 +35,7 @@ var _ = Describe("home manager", func() {
 			Expect(os.RemoveAll(filepath.Join(xdg.CacheHome, "envd/cache.status"))).NotTo(HaveOccurred())
 			Expect(Initialize()).NotTo(HaveOccurred())
 			m := GetManager()
+			m.(*generalManager).cacheMap = make(map[string]bool)
 			Expect(m.Cached("test")).To(BeFalse())
 			Expect(m.MarkCache("test", true)).To(Succeed())
 			Expect(m.Cached("test")).To(BeTrue())
