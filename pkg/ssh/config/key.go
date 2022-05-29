@@ -19,7 +19,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
 	"os"
 
 	"github.com/adrg/xdg"
@@ -39,19 +38,19 @@ func KeyExists(public, private string) bool {
 	// public, private := getKeyPaths()
 	publicKeyExists, _ := fileutil.FileExists(public)
 	if !publicKeyExists {
-		logrus.Infof("%s doesn't exist", public)
+		logrus.Debugf("%s doesn't exist", public)
 		return false
 	}
 
-	logrus.Infof("%s already present", public)
+	logrus.Debugf("%s already present", public)
 
 	privateKeyExists, _ := fileutil.FileExists(private)
 	if !privateKeyExists {
-		logrus.Infof("%s doesn't exist", private)
+		logrus.Debugf("%s doesn't exist", private)
 		return false
 	}
 
-	logrus.Infof("%s already present", private)
+	logrus.Debugf("%s already present", private)
 	return true
 }
 
@@ -65,27 +64,31 @@ func GenerateKeys() error {
 }
 
 func generateKeys(public, private string, bitSize int) error {
+	if KeyExists(public, private) {
+		return nil
+	}
+
 	privateKey, err := generatePrivateKey(bitSize)
 	if err != nil {
-		return fmt.Errorf("failed to generate private SSH key: %s", err)
+		return errors.Wrap(err, "failed to generate private SSH key")
 	}
 
 	publicKeyBytes, err := generatePublicKey(&privateKey.PublicKey)
 	if err != nil {
-		return fmt.Errorf("failed to generate public SSH key: %s", err)
+		return errors.Wrap(err, "failed to generate public SSH key")
 	}
 
 	privateKeyBytes := encodePrivateKeyToPEM(privateKey)
 
 	if err := os.WriteFile(public, publicKeyBytes, 0600); err != nil {
-		return fmt.Errorf("failed to write public SSH key: %s", err)
+		return errors.Wrap(err, "failed to write public SSH key")
 	}
 
 	if err := os.WriteFile(private, privateKeyBytes, 0600); err != nil {
-		return fmt.Errorf("failed to write private SSH key: %s", err)
+		return errors.Wrap(err, "failed to write private SSH key")
 	}
 
-	logrus.Infof("created ssh keypair at  %s and %s", public, private)
+	logrus.Debugf("created ssh keypair at  %s and %s", public, private)
 	return nil
 }
 
