@@ -137,11 +137,6 @@ func (m *generalManager) init() error {
 		}
 	}
 
-	// Generate SSH keys when init
-	if err := sshconfig.GenerateKeys(); err != nil {
-		return errors.Wrap(err, "failed to generate ssh key")
-	}
-
 	file, err := os.Open(m.cacheStatusFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to open cache status file")
@@ -150,6 +145,11 @@ func (m *generalManager) init() error {
 	e := gob.NewDecoder(file)
 	if err := e.Decode(&m.cacheMap); err != nil {
 		return errors.Wrap(err, "failed to decode cache map")
+	}
+
+	// Generate SSH keys when init
+	if err := sshconfig.GenerateKeys(); err != nil {
+		return errors.Wrap(err, "failed to generate ssh key")
 	}
 
 	m.logger = logrus.WithFields(logrus.Fields{
