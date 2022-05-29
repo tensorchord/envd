@@ -146,6 +146,16 @@ func up(clicontext *cli.Context) error {
 		return err
 	}
 
+	if gpu {
+		nvruntimeExists, err := dockerClient.GPUEnabled(clicontext.Context)
+		if err != nil {
+			return err
+		}
+		if !nvruntimeExists {
+			return errors.New("GPUs are required but nvidia container runtime is not installed, please refer to https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker")
+		}
+	}
+
 	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
 		tag, ctr, buildContext, gpu, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))
