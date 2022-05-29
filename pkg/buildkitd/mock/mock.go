@@ -36,21 +36,6 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// Bootstrap mocks base method.
-func (m *MockClient) Bootstrap(ctx context.Context) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Bootstrap", ctx)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Bootstrap indicates an expected call of Bootstrap.
-func (mr *MockClientMockRecorder) Bootstrap(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Bootstrap", reflect.TypeOf((*MockClient)(nil).Bootstrap), ctx)
-}
-
 // BuildkitdAddr mocks base method.
 func (m *MockClient) BuildkitdAddr() string {
 	m.ctrl.T.Helper()
