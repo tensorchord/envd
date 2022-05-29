@@ -30,14 +30,15 @@ import (
 )
 
 var (
-	interval = time.Second * 1
+	interval          = time.Second * 1
+	timeoutConnection = time.Second * 5
+	timeoutRun        = time.Second * 3
 )
 
 // Client is a client for the buildkitd daemon.
 // It's up to the caller to close the client.
 type Client interface {
 	BuildkitdAddr() string
-	Bootstrap(ctx context.Context) (string, error)
 	// Solve calls Solve on the controller.
 	Solve(ctx context.Context, def *llb.Definition, opt client.SolveOpt, statusChan chan *client.SolveStatus) (*client.SolveResponse, error)
 	Close() error
@@ -67,14 +68,15 @@ func NewClient(ctx context.Context) (Client, error) {
 	}
 	c.Client = cli
 
-	if _, err := c.Bootstrap(ctx); err != nil {
+	if _, err := c.Bootstrap(ctx, timeoutRun, timeoutConnection); err != nil {
 		return nil, errors.Wrap(err, "failed to bootstrap the buildkitd")
 	}
 	return c, nil
 }
 
-func (c *generalClient) Bootstrap(ctx context.Context) (string, error) {
-	address, err := c.maybeStart(ctx, time.Second*100, time.Second*100)
+func (c *generalClient) Bootstrap(ctx context.Context,
+	runningTimeout, connectingTimeout time.Duration) (string, error) {
+	address, err := c.maybeStart(ctx, runningTimeout, connectingTimeout)
 	if err != nil {
 		return "", err
 	}
