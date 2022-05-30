@@ -61,6 +61,8 @@ jupyter(password="", port=8888)
 
 Then you can run `envd up` to create the development environment.
 
+<a href="https://asciinema.org/a/498012" target="_blank"><img src="https://asciinema.org/a/498012.svg" /></a>
+
 TODO: illustrate that the cache will be persistent.
 
 ```
