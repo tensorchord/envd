@@ -72,7 +72,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	cacheDir := "/var/cache/apt"
 	cacheLibDir := "/var/lib/apt"
 
-	run := root.Run(llb.Shlex(sb.String()),
+	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
 		llb.WithCustomNamef("(user-defined packages) apt-get install %s",
 			strings.Join(g.SystemPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
