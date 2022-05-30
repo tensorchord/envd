@@ -127,7 +127,6 @@ func up(clicontext *cli.Context) error {
 		"detach":                    detach,
 		flag.FlagBuildkitdImage:     viper.GetString(flag.FlagBuildkitdImage),
 		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
-		flag.FlagSSHImage:           viper.GetString(flag.FlagSSHImage),
 	})
 	logger.Debug("starting up command")
 

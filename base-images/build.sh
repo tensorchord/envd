@@ -13,6 +13,6 @@ docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
      --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -t gaocegege/python:3.8-ubuntu2004-cuda11.6-cudnn8 \
-    -f python3.8-ubuntu2004-cuda11.6.Dockerfile .
+    -t gaocegege/python:3.8-ubuntu20.04-cuda11.6-cudnn8 \
+    -f python3.8-ubuntu20.04-cuda11.6.Dockerfile .
 cd - > /dev/null

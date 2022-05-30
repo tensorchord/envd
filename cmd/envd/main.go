@@ -59,13 +59,6 @@ func run(args []string) (bool, error) {
 			Usage: "buildkitd container to use for buildkitd",
 			Value: "envd_buildkitd",
 		},
-		&cli.StringFlag{
-			Name:  flag.FlagSSHImage,
-			Usage: "Download the envd-ssh image",
-			// TODO(gaocegege): Use version.Version to generate the right URL.
-			Value:  "ghcr.io/tensorchord/envd-ssh-from-scratch:0.0.1-alpha.5",
-			Hidden: true,
-		},
 	}
 
 	app.Commands = []*cli.Command{
@@ -94,7 +87,6 @@ func run(args []string) (bool, error) {
 		// TODO(gaocegege): Add a config struct to keep them.
 		viper.Set(flag.FlagBuildkitdContainer, context.String(flag.FlagBuildkitdContainer))
 		viper.Set(flag.FlagBuildkitdImage, context.String(flag.FlagBuildkitdImage))
-		viper.Set(flag.FlagSSHImage, context.String(flag.FlagSSHImage))
 		return nil
 	}
 	return debugEnabled, app.Run(args)

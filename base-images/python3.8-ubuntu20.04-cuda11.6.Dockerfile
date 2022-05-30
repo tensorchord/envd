@@ -55,8 +55,10 @@ LABEL maintainer "envd authors <cegao@tensorchord.ai>"
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libtinfo5 libncursesw5 \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends --no-install-suggests --fix-missing bash-static \
+    apt-utils libtinfo5 libncursesw5 && \
+    apt-get install -y --no-install-recommends --no-install-suggests --fix-missing bash-static \
     cuda-cudart-dev-11-6=${NV_CUDA_CUDART_DEV_VERSION} \
     cuda-command-line-tools-11-6=${NV_CUDA_LIB_VERSION} \
     cuda-minimal-build-11-6=${NV_CUDA_LIB_VERSION} \
@@ -68,7 +70,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ${NV_LIBCUBLAS_DEV_PACKAGE} \
     ${NV_LIBNCCL_DEV_PACKAGE} \
     # envd dependencies
-    python3 curl openssh-client git tini sudo python3-pip jupyter \
+    python3 curl openssh-client git tini sudo python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=envd /usr/bin/envd-ssh /var/envd/bin/envd-ssh

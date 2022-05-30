@@ -23,9 +23,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/tensorchord/envd/pkg/config"
-	"github.com/tensorchord/envd/pkg/flag"
 )
 
 func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
@@ -93,12 +91,7 @@ func (g Graph) compileBuiltinSystemPackages(root llb.State) llb.State {
 }
 
 func (g *Graph) compileCUDAPackages() llb.State {
-	root := llb.Image(
-		fmt.Sprintf("nvidia/cuda:%s.0-cudnn%s-devel-%s", *g.CUDA, *g.CUDNN, g.OS))
-	g.BuiltinSystemPackages = append(g.BuiltinSystemPackages, []string{
-		g.Language,
-		fmt.Sprintf("%s-pip", g.Language),
-	}...)
+	root := llb.Image(fmt.Sprintf("gaocegege/python:3.8-%s-cuda%s-cudnn%s", g.OS, *g.CUDA, *g.CUDNN))
 	return root
 }
 
@@ -138,7 +131,7 @@ func (g *Graph) compileBase() llb.State {
 	return base
 }
 
-func (g Graph) copyEnvdSSHServerWithKey() (llb.State, error) {
+func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 	// TODO(gaocegege): Remove global var ssh image.
 	public := DefaultGraph.PublicKeyPath
 	bdat, err := os.ReadFile(public)
@@ -146,10 +139,7 @@ func (g Graph) copyEnvdSSHServerWithKey() (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "Cannot read public SSH key")
 	}
-	run := llb.Image(viper.GetString(flag.FlagSSHImage)).
-		File(llb.Copy(llb.Image(viper.GetString(flag.FlagSSHImage)),
-			"usr/bin/envd-ssh", "/var/envd/bin/envd-ssh",
-			&llb.CopyInfo{CreateDestPath: true}), llb.WithCustomName("install envd-ssh")).
+	run := root.
 		File(llb.Mkfile(config.ContainerauthorizedKeysPath,
 			0644, []byte(dat+" envd"), llb.WithUIDGID(defaultUID, defaultGID)), llb.WithCustomName("install ssh keys"))
 	return run, nil
