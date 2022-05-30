@@ -63,7 +63,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 
 	// Compose the package install command.
 	var sb strings.Builder
-	sb.WriteString("sudo apt-get install -y --no-install-recommends")
+	sb.WriteString("sudo apt-get update && sudo apt-get install -y --no-install-recommends")
 
 	for _, pkg := range g.SystemPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
