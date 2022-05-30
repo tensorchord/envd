@@ -36,7 +36,7 @@ func NewGraph() *Graph {
 		PyPIPackages:   []string{},
 		SystemPackages: []string{},
 		Exec:           []string{},
-		Shell:          shellBASH,
+		Shell:          shellZSH,
 	}
 }
 

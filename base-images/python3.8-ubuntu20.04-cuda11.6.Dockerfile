@@ -69,8 +69,12 @@ RUN apt-get update && \
     libcusparse-dev-11-6=${NV_LIBCUSPARSE_DEV_VERSION} \
     ${NV_LIBCUBLAS_DEV_PACKAGE} \
     ${NV_LIBNCCL_DEV_PACKAGE} \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends --no-install-suggests --fix-missing bash-static \
     # envd dependencies
-    python3 curl openssh-client git tini sudo python3-pip \
+    python3 curl openssh-client git tini sudo python3-pip zsh vim \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=envd /usr/bin/envd-ssh /var/envd/bin/envd-ssh
