@@ -36,7 +36,7 @@ func NewGraph() *Graph {
 		PyPIPackages:   []string{},
 		SystemPackages: []string{},
 		Exec:           []string{},
-		Shell:          shellZSH,
+		Shell:          shellBASH,
 	}
 }
 
@@ -92,7 +92,7 @@ func (g Graph) Compile() (llb.State, error) {
 	pypiMirrorStage := g.compilePyPIMirror(aptStage)
 
 	g.compileJupyter()
-	builtinSystemStage := g.compileBuiltinSystemPackages(pypiMirrorStage)
+	builtinSystemStage := pypiMirrorStage
 	sshStage, err := g.copySSHKey(builtinSystemStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")

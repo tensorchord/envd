@@ -95,7 +95,6 @@ func (g *Graph) compileBase() llb.State {
 		Run(llb.Shlex("useradd -p \"\" -u 1000 -g envd -s /bin/sh -m envd"), llb.WithCustomName("create user envd")).
 		Run(llb.Shlex("adduser envd sudo"), llb.WithCustomName("add user envd to sudoers"))
 	return llb.User("envd")(res.Root())
-	return base
 }
 
 func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
