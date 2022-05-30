@@ -12,8 +12,7 @@ FROM base-${TARGETARCH}
 
 ARG TARGETARCH
 
-# Update it
-LABEL maintainer "envd authors <cegao@tensorchord.ai>"
+LABEL maintainer "envd-maintainers <envd-maintainers@tensorchord.ai>"
 
 ENV DEBIAN_FRONTEND noninteractive
 
