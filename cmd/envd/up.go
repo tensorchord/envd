@@ -152,7 +152,7 @@ func up(clicontext *cli.Context) error {
 			return err
 		}
 		if !nvruntimeExists {
-			return errors.New("GPUs are required but nvidia container runtime is not installed, please refer to https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker")
+			return errors.New("GPU is required but nvidia container runtime is not installed, please refer to https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker")
 		}
 	}
 
