@@ -55,6 +55,8 @@ type Client interface {
 	Exec(ctx context.Context, cname string, cmd []string) error
 	Destroy(ctx context.Context, name string) error
 	List(ctx context.Context) ([]types.Container, error)
+	// GPUEnabled returns true if nvidia container runtime exists in docker daemon.
+	GPUEnabled(ctx context.Context) (bool, error)
 }
 
 type generalClient struct {
@@ -68,6 +70,18 @@ func NewClient(ctx context.Context) (Client, error) {
 	}
 	cli.NegotiateAPIVersion(ctx)
 	return generalClient{cli}, nil
+}
+
+func (g generalClient) GPUEnabled(ctx context.Context) (bool, error) {
+	info, err := g.Info(ctx)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to get docker info")
+	}
+	logrus.WithField("info", info).Debug("docker info")
+	if nv, ok := info.Runtimes["nvidia"]; ok {
+		return nv.Path != "", nil
+	}
+	return false, nil
 }
 
 func (g generalClient) WaitUntilRunning(ctx context.Context,
