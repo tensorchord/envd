@@ -32,14 +32,6 @@ func NewGraph() *Graph {
 		Language: languageDefault,
 		CUDA:     nil,
 		CUDNN:    nil,
-		BuiltinSystemPackages: []string{
-			// TODO(gaocegege): Move them into the base image.
-			"curl",
-			"openssh-client",
-			"git",
-			"sudo",
-			"tini",
-		},
 
 		PyPIPackages:   []string{},
 		SystemPackages: []string{},
@@ -100,17 +92,19 @@ func (g Graph) Compile() (llb.State, error) {
 	pypiMirrorStage := g.compilePyPIMirror(aptStage)
 
 	g.compileJupyter()
-	// TODO(gaocegege): Make apt update a seperate stage to
-	// parallel system and user-defined package installation.
-	builtinSystemStage := g.compileBuiltinSystemPackages(pypiMirrorStage)
+	builtinSystemStage := pypiMirrorStage
+	sshStage, err := g.copySSHKey(builtinSystemStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
+	}
 	shellStage, err := g.compileShell(builtinSystemStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile shell")
 	}
 	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
+	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
 	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage), llb.WithCustomName("install PyPI packages"))
 	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage), llb.WithCustomName("install system packages"))
-	sshStage, err := g.copyEnvdSSHServerWithKey()
 
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to copy SSH key")
@@ -124,11 +118,11 @@ func (g Graph) Compile() (llb.State, error) {
 	var merged llb.State
 	if vscodeStage != nil {
 		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, pypiStage, sshStage, *vscodeStage, diffShellStage,
+			builtinSystemStage, systemStage, diffSSHStage, pypiStage, *vscodeStage, diffShellStage,
 		}, llb.WithCustomName("merging all components into one"))
 	} else {
 		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, pypiStage, sshStage, diffShellStage,
+			builtinSystemStage, systemStage, diffSSHStage, pypiStage, diffShellStage,
 		}, llb.WithCustomName("merging all components into one"))
 	}
 

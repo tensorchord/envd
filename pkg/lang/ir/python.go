@@ -35,7 +35,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	// Wait until https://github.com/moby/buildkit/commit/31054718bf775bf32d1376fe1f3611985f837584 is released in v0.10.4
 	sb.WriteString("sudo chown -R 1000:1000 ")
 	sb.WriteString(filepath.Dir(cacheDir))
-	sb.WriteString("&& pip install")
+	sb.WriteString("&& pip install --no-warn-script-location")
 	for _, pkg := range g.PyPIPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}

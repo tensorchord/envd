@@ -91,7 +91,6 @@ func build(clicontext *cli.Context) error {
 		"tag":                       tag,
 		flag.FlagBuildkitdImage:     viper.GetString(flag.FlagBuildkitdImage),
 		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
-		flag.FlagSSHImage:           viper.GetString(flag.FlagSSHImage),
 	})
 	logger.Debug("starting build command")
 
