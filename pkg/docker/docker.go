@@ -53,7 +53,7 @@ type Client interface {
 	IsCreated(ctx context.Context, name string) (bool, error)
 	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
 	Exec(ctx context.Context, cname string, cmd []string) error
-	Destroy(ctx context.Context, name string) error
+	Destroy(ctx context.Context, name string) (string, error)
 	List(ctx context.Context) ([]types.Container, error)
 	// GPUEnabled returns true if nvidia container runtime exists in docker daemon.
 	GPUEnabled(ctx context.Context) (bool, error)
@@ -124,15 +124,27 @@ func (c generalClient) List(ctx context.Context) ([]types.Container, error) {
 	return ctrs, nil
 }
 
-func (c generalClient) Destroy(ctx context.Context, name string) error {
+func (c generalClient) Destroy(ctx context.Context, name string) (string, error) {
+	logger := logrus.WithField("container", name)
 	// Refer to https://docs.docker.com/engine/reference/commandline/container_kill/
 	if err := c.ContainerKill(ctx, name, "KILL"); err != nil {
-		return errors.Wrap(err, "failed to kill the container")
+		errCause := errors.UnwrapAll(err)
+		if strings.Contains(errCause.Error(), "is not running") {
+			// If the container is not running, there is no need to kill it.
+			logger.Debug("container is not running, there is no need to kill it")
+		} else if strings.Contains(errCause.Error(), "No such container") {
+			// If the container is not found, it is already destroyed.
+			logger.Debug("container is not found, there is no need to destroy it")
+			return "", nil
+		} else {
+			return "", errors.Wrap(err, "failed to kill the container")
+		}
 	}
+
 	if err := c.ContainerRemove(ctx, name, types.ContainerRemoveOptions{}); err != nil {
-		return errors.Wrap(err, "failed to remove the container")
+		return "", errors.Wrap(err, "failed to remove the container")
 	}
-	return nil
+	return name, nil
 }
 
 func (g generalClient) StartBuildkitd(ctx context.Context,
@@ -272,7 +284,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 
 	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
 	if err != nil {
-		return "", "", err
+		return "", "", errors.Wrap(err, "failed to create the container")
 	}
 
 	for _, w := range resp.Warnings {
@@ -280,12 +292,18 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 	}
 
 	if err := c.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-		return "", "", err
+		errCause := errors.UnwrapAll(err)
+		// Hack to check if the port is already allocated.
+		if strings.Contains(errCause.Error(), "port is already allocated") {
+			logrus.Debugf("failed to allocate the port: %s", err)
+			return "", "", errors.New("jupyter port is already allocated in the host")
+		}
+		return "", "", errors.Wrap(err, "failed to run the container")
 	}
 
 	container, err := c.ContainerInspect(ctx, resp.ID)
 	if err != nil {
-		return "", "", err
+		return "", "", errors.Wrap(err, "failed to inpsect the container")
 	}
 
 	if err := c.WaitUntilRunning(

@@ -55,14 +55,15 @@ func destroy(clicontext *cli.Context) error {
 
 	ctr := fileutil.Base(buildContext)
 
-	if err := dockerClient.Destroy(clicontext.Context, ctr); err != nil {
+	if name, err := dockerClient.Destroy(clicontext.Context, ctr); err != nil {
 		return errors.Wrapf(err, "failed to destroy the environment: %s", ctr)
+	} else if name != "" {
+		logrus.Infof("%s is destroyed", name)
 	}
 
 	if err = sshconfig.RemoveEntry(ctr); err != nil {
 		logrus.Infof("failed to remove entry %s from your SSH config file: %s", ctr, err)
 		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}
-	logrus.Info("envd environment destroyed")
 	return nil
 }
