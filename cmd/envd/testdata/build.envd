@@ -1,5 +1,6 @@
-base(os="ubuntu20.04", language="python3")
-pip_package(name = [
-    "ormb",
-])
-install_package(name = ["screenfetch"])
+def build():
+    base(os="ubuntu20.04", language="python3")
+    pip_package(name = [
+        "ormb",
+    ])
+    install_package(name = ["screenfetch"])

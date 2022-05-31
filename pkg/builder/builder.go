@@ -100,11 +100,11 @@ func (b generalBuilder) Build(pub string, ctx context.Context) error {
 
 func (b generalBuilder) interpret() error {
 	// Evaluate config first.
-	if _, err := b.ExecFile(b.configFilePath); err != nil {
+	if _, err := b.ExecFile(b.configFilePath, ""); err != nil {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 
-	if _, err := b.ExecFile(b.manifestFilePath); err != nil {
+	if _, err := b.ExecFile(b.manifestFilePath, "build"); err != nil {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 	return nil
