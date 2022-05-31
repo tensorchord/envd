@@ -33,7 +33,8 @@ var _ = Describe("up command", func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
 		cli, err := docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())
-		_ = cli.Destroy(context.TODO(), buildContext)
+		_, err = cli.Destroy(context.TODO(), buildContext)
+		Expect(err).NotTo(HaveOccurred())
 	})
 	When("given the right arguments", func() {
 		It("should up and destroy successfully", func() {

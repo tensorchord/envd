@@ -128,15 +128,16 @@ func (c generalClient) Destroy(ctx context.Context, name string) (string, error)
 	logger := logrus.WithField("container", name)
 	// Refer to https://docs.docker.com/engine/reference/commandline/container_kill/
 	if err := c.ContainerKill(ctx, name, "KILL"); err != nil {
-		errCause := errors.UnwrapAll(err)
-		if strings.Contains(errCause.Error(), "is not running") {
+		errCause := errors.UnwrapAll(err).Error()
+		switch {
+		case strings.Contains(errCause, "is not running"):
 			// If the container is not running, there is no need to kill it.
 			logger.Debug("container is not running, there is no need to kill it")
-		} else if strings.Contains(errCause.Error(), "No such container") {
+		case strings.Contains(errCause, "No such container"):
 			// If the container is not found, it is already destroyed.
 			logger.Debug("container is not found, there is no need to destroy it")
 			return "", nil
-		} else {
+		default:
 			return "", errors.Wrap(err, "failed to kill the container")
 		}
 	}
