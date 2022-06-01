@@ -81,7 +81,7 @@ func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
 		envRow[5] = strconv.FormatBool(env.GPU)
 		envRow[6] = stringOrNone(env.CUDA)
 		envRow[7] = stringOrNone(env.CUDNN)
-		envRow[8] = env.State
+		envRow[8] = env.Status
 		envRow[9] = stringid.TruncateID(env.Container.ID)
 		table.Append(envRow)
 	}

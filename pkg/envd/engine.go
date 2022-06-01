@@ -26,6 +26,9 @@ import (
 type Engine interface {
 	ListImage(ctx context.Context) ([]types.EnvdImage, error)
 	ListImageDependency(ctx context.Context, image string) (*types.Dependency, error)
+
+	PauseEnvironment(ctx context.Context, env string) (string, error)
+	ResumeEnvironment(ctx context.Context, env string) (string, error)
 	ListEnvironment(ctx context.Context) ([]types.EnvdEnvironment, error)
 	ListEnvDependency(ctx context.Context, env string) (*types.Dependency, error)
 	ListEnvFullDependency(ctx context.Context, env, SSHKeyPath string) (string, error)
@@ -77,6 +80,30 @@ func (e generalEngine) ListEnvironment(
 		envs = append(envs, *env)
 	}
 	return envs, nil
+}
+
+func (e generalEngine) PauseEnvironment(ctx context.Context, env string) (string, error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"env": env,
+	})
+	logger.Debug("pausing environment")
+	name, err := e.dockerCli.PauseContainer(ctx, env)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to pause the environment")
+	}
+	return name, nil
+}
+
+func (e generalEngine) ResumeEnvironment(ctx context.Context, env string) (string, error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"env": env,
+	})
+	logger.Debug("resuming environment")
+	name, err := e.dockerCli.ResumeContainer(ctx, env)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to resume the environment")
+	}
+	return name, nil
 }
 
 // ListEnvDependency gets the dependencies of the given environment.

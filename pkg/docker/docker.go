@@ -59,6 +59,8 @@ type Client interface {
 
 	ListContainer(ctx context.Context) ([]types.Container, error)
 	GetContainer(ctx context.Context, cname string) (types.ContainerJSON, error)
+	PauseContainer(ctx context.Context, name string) (string, error)
+	ResumeContainer(ctx context.Context, name string) (string, error)
 
 	ListImage(ctx context.Context) ([]types.ImageSummary, error)
 	GetImage(ctx context.Context, image string) (types.ImageSummary, error)
@@ -154,6 +156,44 @@ func (c generalClient) ListContainer(ctx context.Context) ([]types.Container, er
 		return nil, err
 	}
 	return ctrs, nil
+}
+
+func (c generalClient) PauseContainer(ctx context.Context, name string) (string, error) {
+	logger := logrus.WithField("container", name)
+	err := c.ContainerPause(ctx, name)
+	if err != nil {
+		errCause := errors.UnwrapAll(err).Error()
+		switch {
+		case strings.Contains(errCause, "is already paused"):
+			logger.Debug("container is already paused, there is no need to pause it again")
+			return "", nil
+		case strings.Contains(errCause, "No such container"):
+			logger.Debug("container is not found, there is no need to pause it")
+			return "", errors.New("container not found")
+		default:
+			return "", errors.Wrap(err, "failed to pause container")
+		}
+	}
+	return name, nil
+}
+
+func (c generalClient) ResumeContainer(ctx context.Context, name string) (string, error) {
+	logger := logrus.WithField("container", name)
+	err := c.ContainerUnpause(ctx, name)
+	if err != nil {
+		errCause := errors.UnwrapAll(err).Error()
+		switch {
+		case strings.Contains(errCause, "is not paused"):
+			logger.Debug("container is not paused, there is no need to resume")
+			return "", nil
+		case strings.Contains(errCause, "No such container"):
+			logger.Debug("container is not found, there is no need to resume it")
+			return "", errors.New("container not found")
+		default:
+			return "", errors.Wrap(err, "failed to resume container")
+		}
+	}
+	return name, nil
 }
 
 func (c generalClient) GetContainer(ctx context.Context, cname string) (types.ContainerJSON, error) {
