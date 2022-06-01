@@ -23,22 +23,23 @@ import (
 type EnvdImage struct {
 	types.ImageSummary
 
-	GPU        bool   `json:"gpu,omitempty"`
-	CUDA       string `json:"cuda,omitempty"`
-	CUDNN      string `json:"cudnn,omitempty"`
-	Dependency `json:",inline,omitempty"`
+	EnvdManifest `json:",inline,omitempty"`
 }
 
 type EnvdEnvironment struct {
 	types.Container
 
-	// The name of the environment.
-	Name        string `json:"name,omitempty"`
-	GPU         bool   `json:"gpu,omitempty"`
-	CUDA        string `json:"cuda,omitempty"`
-	CUDNN       string `json:"cudnn,omitempty"`
-	JupyterAddr string `json:"jupyter_addr,omitempty"`
-	Dependency  `json:",inline,omitempty"`
+	Name         string `json:"name,omitempty"`
+	JupyterAddr  string `json:"jupyter_addr,omitempty"`
+	EnvdManifest `json:",inline,omitempty"`
+}
+
+type EnvdManifest struct {
+	GPU          bool   `json:"gpu,omitempty"`
+	CUDA         string `json:"cuda,omitempty"`
+	CUDNN        string `json:"cudnn,omitempty"`
+	BuildContext string `json:"build_context,omitempty"`
+	Dependency   `json:",inline,omitempty"`
 }
 
 type Dependency struct {
@@ -50,12 +51,13 @@ const (
 	ContainerLabelName        = "ai.tensorchord.envd.name"
 	ContainerLabelJupyterAddr = "ai.tensorchord.envd.jupyter.address"
 
-	ImageLabelVendor = "ai.tensorchord.envd.vendor"
-	ImageLabelGPU    = "ai.tensorchord.envd.gpu"
-	ImageLabelAPT    = "ai.tensorchord.envd.apt.packages"
-	ImageLabelPyPI   = "ai.tensorchord.envd.pypi.packages"
-	ImageLabelCUDA   = "ai.tensorchord.envd.gpu.cuda"
-	ImageLabelCUDNN  = "ai.tensorchord.envd.gpu.cudnn"
+	ImageLabelVendor  = "ai.tensorchord.envd.vendor"
+	ImageLabelGPU     = "ai.tensorchord.envd.gpu"
+	ImageLabelAPT     = "ai.tensorchord.envd.apt.packages"
+	ImageLabelPyPI    = "ai.tensorchord.envd.pypi.packages"
+	ImageLabelCUDA    = "ai.tensorchord.envd.gpu.cuda"
+	ImageLabelCUDNN   = "ai.tensorchord.envd.gpu.cudnn"
+	ImageLabelContext = "ai.tensorchord.envd.build.context"
 
 	ImageVendorEnvd = "envd"
 )
@@ -64,27 +66,17 @@ func NewImage(image types.ImageSummary) (*EnvdImage, error) {
 	img := EnvdImage{
 		ImageSummary: image,
 	}
-	if gpuEnabled, ok := image.Labels[ImageLabelGPU]; ok {
-		img.GPU = gpuEnabled == "true"
-		img.CUDA = image.Labels[ImageLabelCUDA]
-		img.CUDNN = image.Labels[ImageLabelCUDNN]
-	}
-	dep, err := newDependencyFromLabels(image.Labels)
+	m, err := newManifest(image.Labels)
 	if err != nil {
 		return nil, err
 	}
-	img.Dependency = *dep
+	img.EnvdManifest = m
 	return &img, nil
 }
 
 func NewEnvironment(ctr types.Container) (*EnvdEnvironment, error) {
 	env := EnvdEnvironment{
 		Container: ctr,
-	}
-	if gpuEnabled, ok := ctr.Labels[ImageLabelGPU]; ok {
-		env.GPU = gpuEnabled == "true"
-		env.CUDA = ctr.Labels[ImageLabelCUDA]
-		env.CUDNN = ctr.Labels[ImageLabelCUDNN]
 	}
 	if name, ok := ctr.Labels[ContainerLabelName]; ok {
 		env.Name = name
@@ -93,12 +85,34 @@ func NewEnvironment(ctr types.Container) (*EnvdEnvironment, error) {
 		env.JupyterAddr = jupyterAddr
 	}
 
-	dep, err := newDependencyFromLabels(ctr.Labels)
+	m, err := newManifest(ctr.Labels)
 	if err != nil {
 		return nil, err
 	}
-	env.Dependency = *dep
+	env.EnvdManifest = m
 	return &env, nil
+}
+
+func newManifest(labels map[string]string) (EnvdManifest, error) {
+	manifest := EnvdManifest{}
+	if gpuEnabled, ok := labels[ImageLabelGPU]; ok {
+		manifest.GPU = gpuEnabled == "true"
+	}
+	if cuda, ok := labels[ImageLabelCUDA]; ok {
+		manifest.CUDA = cuda
+	}
+	if cudnn, ok := labels[ImageLabelCUDNN]; ok {
+		manifest.CUDNN = cudnn
+	}
+	if context, ok := labels[ImageLabelContext]; ok {
+		manifest.BuildContext = context
+	}
+	dep, err := newDependencyFromLabels(labels)
+	if err != nil {
+		return manifest, err
+	}
+	manifest.Dependency = *dep
+	return manifest, nil
 }
 
 func NewDependencyFromContainerJSON(ctr types.ContainerJSON) (*Dependency, error) {

@@ -42,7 +42,7 @@ func getImage(clicontext *cli.Context) error {
 
 func renderImages(imgs []types.EnvdImage, w io.Writer) {
 	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"Name", "GPU", "CUDA", "CUDNN", "Image ID", "Created", "Size"})
+	table.SetHeader([]string{"Name", "Context", "GPU", "CUDA", "CUDNN", "Image ID", "Created", "Size"})
 
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
@@ -57,31 +57,25 @@ func renderImages(imgs []types.EnvdImage, w io.Writer) {
 	table.SetNoWhiteSpace(true)
 
 	for _, img := range imgs {
-		envRow := make([]string, 7)
+		envRow := make([]string, 8)
 		envRow[0] = types.GetImageName(img)
-		envRow[1] = strconv.FormatBool(img.GPU)
-		envRow[2] = cudaString(img.CUDA)
-		envRow[3] = cudnnString(img.CUDNN)
-		envRow[4] = stringid.TruncateID(img.ImageSummary.ID)
-		envRow[5] = createdSinceString(img.ImageSummary.Created)
-		envRow[6] = units.HumanSizeWithPrecision(float64(img.ImageSummary.Size), 3)
+		envRow[1] = stringOrNone(img.BuildContext)
+		envRow[2] = strconv.FormatBool(img.GPU)
+		envRow[3] = stringOrNone(img.CUDA)
+		envRow[4] = stringOrNone(img.CUDNN)
+		envRow[5] = stringid.TruncateID(img.ImageSummary.ID)
+		envRow[6] = createdSinceString(img.ImageSummary.Created)
+		envRow[7] = units.HumanSizeWithPrecision(float64(img.ImageSummary.Size), 3)
 		table.Append(envRow)
 	}
 	table.Render()
 }
 
-func cudaString(cuda string) string {
+func stringOrNone(cuda string) string {
 	if cuda == "" {
 		return "<none>"
 	}
 	return cuda
-}
-
-func cudnnString(cudnn string) string {
-	if cudnn == "" {
-		return "<none>"
-	}
-	return cudnn
 }
 
 func createdSinceString(created int64) string {

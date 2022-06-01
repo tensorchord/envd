@@ -32,6 +32,7 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/progress/progresswriter"
+	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -127,6 +128,7 @@ func (b generalBuilder) labels(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get labels")
 	}
+	labels[types.ImageLabelContext] = b.buildContextDir
 	data, err := ImageConfigStr(labels)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get image config")
