@@ -17,12 +17,18 @@ import (
 	"context"
 
 	"github.com/cockroachdb/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/ssh"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
 type Engine interface {
-	List(ctx context.Context) ([]types.EnvdEnvironment, error)
+	ListImage(ctx context.Context) ([]types.EnvdImage, error)
+	ListImageDependency(ctx context.Context, image string) (*types.Dependency, error)
+	ListEnvironment(ctx context.Context) ([]types.EnvdEnvironment, error)
+	ListEnvDependency(ctx context.Context, env string) (*types.Dependency, error)
+	ListEnvFullDependency(ctx context.Context, env, SSHKeyPath string) (string, error)
 }
 
 type generalEngine struct {
@@ -39,15 +45,104 @@ func New(ctx context.Context) (Engine, error) {
 	}, nil
 }
 
-func (e generalEngine) List(ctx context.Context) ([]types.EnvdEnvironment, error) {
-	ctrs, err := e.dockerCli.List(ctx)
+func (e generalEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) {
+	imgs, err := e.dockerCli.ListImage(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to list images")
+	}
+	envdImgs := make([]types.EnvdImage, 0)
+	for _, img := range imgs {
+		envdImg, err := types.NewImage(img)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create envd image from the docker image")
+		}
+		envdImgs = append(envdImgs, *envdImg)
+	}
+	return envdImgs, nil
+}
+
+func (e generalEngine) ListEnvironment(
+	ctx context.Context) ([]types.EnvdEnvironment, error) {
+	ctrs, err := e.dockerCli.ListContainer(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list containers")
 	}
 
 	envs := make([]types.EnvdEnvironment, 0)
 	for _, ctr := range ctrs {
-		envs = append(envs, types.FromContainer(ctr))
+		env, err := types.NewEnvironment(ctr)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create env from the container")
+		}
+		envs = append(envs, *env)
 	}
 	return envs, nil
+}
+
+// ListEnvDependency gets the dependencies of the given environment.
+func (e generalEngine) ListImageDependency(
+	ctx context.Context, image string) (*types.Dependency, error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"image": image,
+	})
+	logger.Debug("getting dependencies")
+	img, err := e.dockerCli.GetImage(ctx, image)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get container")
+	}
+	dep, err := types.NewDependencyFromImage(img)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create dependency from image")
+	}
+	return dep, nil
+}
+
+// ListEnvDependency gets the dependencies of the given environment.
+func (e generalEngine) ListEnvDependency(
+	ctx context.Context, env string) (*types.Dependency, error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"env": env,
+	})
+	logger.Debug("getting dependencies")
+	ctr, err := e.dockerCli.GetContainer(ctx, env)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get container")
+	}
+	dep, err := types.NewDependencyFromContainerJSON(ctr)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create dependency from the container")
+	}
+	return dep, nil
+}
+
+// ListEnvFullDependency attaches into the environment and gets the dependencies of the given environment.
+func (e generalEngine) ListEnvFullDependency(
+	ctx context.Context, env, SSHKeyPath string) (string, error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"env":             env,
+		"ssh-private-key": SSHKeyPath,
+	})
+	logger.Debug("getting full dependencies")
+	ctr, err := e.dockerCli.GetContainer(ctx, env)
+	if err != nil {
+		return "", err
+	}
+	ctrIP := ctr.NetworkSettings.IPAddress
+	if ctrIP == "" {
+		return "", errors.New("failed to get the ip address of the container")
+	}
+	return e.getDependencyListFromSSH(ctx, ctrIP, SSHKeyPath)
+}
+
+func (e generalEngine) getDependencyListFromSSH(ctx context.Context, ip, SSHKeyPath string) (string, error) {
+	sshClient, err := ssh.NewClient(
+		ip, "envd", ssh.DefaultSSHPort, true, SSHKeyPath, "")
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create ssh client")
+	}
+	output, err := sshClient.ExecWithOutput("pip list")
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get pip list")
+	}
+	return string(output), nil
 }

@@ -49,12 +49,20 @@ type Client interface {
 	StartEnvd(ctx context.Context, tag, name, buildContext string,
 		gpuEnabled bool, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error)
 	StartBuildkitd(ctx context.Context, tag, name string) (string, error)
+
 	IsRunning(ctx context.Context, name string) (bool, error)
 	IsCreated(ctx context.Context, name string) (bool, error)
 	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
+
 	Exec(ctx context.Context, cname string, cmd []string) error
 	Destroy(ctx context.Context, name string) (string, error)
-	List(ctx context.Context) ([]types.Container, error)
+
+	ListContainer(ctx context.Context) ([]types.Container, error)
+	GetContainer(ctx context.Context, cname string) (types.ContainerJSON, error)
+
+	ListImage(ctx context.Context) ([]types.ImageSummary, error)
+	GetImage(ctx context.Context, image string) (types.ImageSummary, error)
+
 	// GPUEnabled returns true if nvidia container runtime exists in docker daemon.
 	GPUEnabled(ctx context.Context) (bool, error)
 }
@@ -114,7 +122,31 @@ func (g generalClient) WaitUntilRunning(ctx context.Context,
 	}
 }
 
-func (c generalClient) List(ctx context.Context) ([]types.Container, error) {
+func (c generalClient) ListImage(ctx context.Context) ([]types.ImageSummary, error) {
+	images, err := c.ImageList(ctx, types.ImageListOptions{
+		Filters: dockerfilters(false),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return images, nil
+}
+
+func (c generalClient) GetImage(
+	ctx context.Context, image string) (types.ImageSummary, error) {
+	images, err := c.ImageList(ctx, types.ImageListOptions{
+		Filters: dockerfiltersWithName(image),
+	})
+	if err != nil {
+		return types.ImageSummary{}, err
+	}
+	if len(images) == 0 {
+		return types.ImageSummary{}, errors.Errorf("image %s not found", image)
+	}
+	return images[0], nil
+}
+
+func (c generalClient) ListContainer(ctx context.Context) ([]types.Container, error) {
 	ctrs, err := c.ContainerList(ctx, types.ContainerListOptions{
 		Filters: dockerfilters(false),
 	})
@@ -122,6 +154,10 @@ func (c generalClient) List(ctx context.Context) ([]types.Container, error) {
 		return nil, err
 	}
 	return ctrs, nil
+}
+
+func (c generalClient) GetContainer(ctx context.Context, cname string) (types.ContainerJSON, error) {
+	return c.ContainerInspect(ctx, cname)
 }
 
 func (c generalClient) Destroy(ctx context.Context, name string) (string, error) {
@@ -275,7 +311,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		hostConfig.DeviceRequests = deviceRequests(-1)
 	}
 
-	config.Labels = labels(gpuEnabled, name, g.JupyterConfig)
+	config.Labels = labels(name, g.JupyterConfig)
 
 	logger = logger.WithFields(logrus.Fields{
 		"entrypoint":  config.Entrypoint,

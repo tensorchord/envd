@@ -43,7 +43,7 @@ func NewGraph() *Graph {
 var DefaultGraph = NewGraph()
 
 func GPUEnabled() bool {
-	return DefaultGraph.CUDA != nil
+	return DefaultGraph.GPUEnabled()
 }
 
 func Compile(ctx context.Context, cachePrefix string, pub string) (*llb.Definition, error) {
@@ -70,6 +70,10 @@ func Labels() (map[string]string, error) {
 	return DefaultGraph.Labels()
 }
 
+func (g Graph) GPUEnabled() bool {
+	return g.CUDA != nil
+}
+
 func (g Graph) Labels() (map[string]string, error) {
 	labels := make(map[string]string)
 	str, err := json.Marshal(g.SystemPackages)
@@ -82,6 +86,15 @@ func (g Graph) Labels() (map[string]string, error) {
 		return nil, err
 	}
 	labels[types.ImageLabelPyPI] = string(str)
+	if g.GPUEnabled() {
+		labels[types.ImageLabelGPU] = "true"
+		labels[types.ImageLabelCUDA] = *g.CUDA
+		if g.CUDNN != nil {
+			labels[types.ImageLabelCUDNN] = *g.CUDNN
+		}
+	}
+	labels[types.ImageLabelVendor] = types.ImageVendorEnvd
+
 	return labels, nil
 }
 
