@@ -15,34 +15,68 @@
 package types
 
 import (
+	"encoding/json"
+
 	"github.com/docker/docker/api/types"
 )
+
+type EnvdImage struct {
+	types.ImageSummary
+
+	EnvdManifest `json:",inline,omitempty"`
+}
 
 type EnvdEnvironment struct {
 	types.Container
 
-	// The name of the environment.
-	Name        string `json:"name"`
-	GPU         bool   `json:"gpu"`
-	JupyterAddr string `json:"jupyter_addr"`
+	Name         string `json:"name,omitempty"`
+	JupyterAddr  string `json:"jupyter_addr,omitempty"`
+	EnvdManifest `json:",inline,omitempty"`
+}
+
+type EnvdManifest struct {
+	GPU          bool   `json:"gpu,omitempty"`
+	CUDA         string `json:"cuda,omitempty"`
+	CUDNN        string `json:"cudnn,omitempty"`
+	BuildContext string `json:"build_context,omitempty"`
+	Dependency   `json:",inline,omitempty"`
+}
+
+type Dependency struct {
+	APTPackages  []string `json:"apt_packages,omitempty"`
+	PyPIPackages []string `json:"pypi_packages,omitempty"`
 }
 
 const (
-	ContainerLabelGPU         = "ai.tensorchord.envd.gpu"
-	ContainerLabelVendor      = "ai.tensorchord.envd.vendor"
 	ContainerLabelName        = "ai.tensorchord.envd.name"
 	ContainerLabelJupyterAddr = "ai.tensorchord.envd.jupyter.address"
 
-	ImageLabelAPT  = "ai.tensorchord.envd.apt.packages"
-	ImageLabelPyPI = "ai.tensorchord.envd.pypi.packages"
+	ImageLabelVendor  = "ai.tensorchord.envd.vendor"
+	ImageLabelGPU     = "ai.tensorchord.envd.gpu"
+	ImageLabelAPT     = "ai.tensorchord.envd.apt.packages"
+	ImageLabelPyPI    = "ai.tensorchord.envd.pypi.packages"
+	ImageLabelCUDA    = "ai.tensorchord.envd.gpu.cuda"
+	ImageLabelCUDNN   = "ai.tensorchord.envd.gpu.cudnn"
+	ImageLabelContext = "ai.tensorchord.envd.build.context"
+
+	ImageVendorEnvd = "envd"
 )
 
-func FromContainer(ctr types.Container) EnvdEnvironment {
+func NewImage(image types.ImageSummary) (*EnvdImage, error) {
+	img := EnvdImage{
+		ImageSummary: image,
+	}
+	m, err := newManifest(image.Labels)
+	if err != nil {
+		return nil, err
+	}
+	img.EnvdManifest = m
+	return &img, nil
+}
+
+func NewEnvironment(ctr types.Container) (*EnvdEnvironment, error) {
 	env := EnvdEnvironment{
 		Container: ctr,
-	}
-	if gpuEnabled, ok := ctr.Labels[ContainerLabelGPU]; ok {
-		env.GPU = gpuEnabled == "true"
 	}
 	if name, ok := ctr.Labels[ContainerLabelName]; ok {
 		env.Name = name
@@ -51,5 +85,82 @@ func FromContainer(ctr types.Container) EnvdEnvironment {
 		env.JupyterAddr = jupyterAddr
 	}
 
-	return env
+	m, err := newManifest(ctr.Labels)
+	if err != nil {
+		return nil, err
+	}
+	env.EnvdManifest = m
+	return &env, nil
+}
+
+func newManifest(labels map[string]string) (EnvdManifest, error) {
+	manifest := EnvdManifest{}
+	if gpuEnabled, ok := labels[ImageLabelGPU]; ok {
+		manifest.GPU = gpuEnabled == "true"
+	}
+	if cuda, ok := labels[ImageLabelCUDA]; ok {
+		manifest.CUDA = cuda
+	}
+	if cudnn, ok := labels[ImageLabelCUDNN]; ok {
+		manifest.CUDNN = cudnn
+	}
+	if context, ok := labels[ImageLabelContext]; ok {
+		manifest.BuildContext = context
+	}
+	dep, err := newDependencyFromLabels(labels)
+	if err != nil {
+		return manifest, err
+	}
+	manifest.Dependency = *dep
+	return manifest, nil
+}
+
+func NewDependencyFromContainerJSON(ctr types.ContainerJSON) (*Dependency, error) {
+	return newDependencyFromLabels(ctr.Config.Labels)
+}
+
+func NewDependencyFromImage(img types.ImageSummary) (*Dependency, error) {
+	return newDependencyFromLabels(img.Labels)
+}
+
+func GetImageName(image EnvdImage) string {
+	if len(image.ImageSummary.RepoTags) != 0 {
+		return image.ImageSummary.RepoTags[0]
+	}
+	return "<none>"
+}
+
+func newDependencyFromLabels(label map[string]string) (*Dependency, error) {
+	dep := Dependency{}
+	if pkgs, ok := label[ImageLabelAPT]; ok {
+		lst, err := parseAPTPackages(pkgs)
+		if err != nil {
+			return nil, err
+		}
+		dep.APTPackages = lst
+	}
+	if pkgs, ok := label[ImageLabelPyPI]; ok {
+		lst, err := parsePyPIPackages(pkgs)
+		if err != nil {
+			return nil, err
+		}
+		dep.PyPIPackages = lst
+	}
+	return &dep, nil
+}
+
+func parseAPTPackages(lst string) ([]string, error) {
+	var pkgs []string
+	if err := json.Unmarshal([]byte(lst), &pkgs); err != nil {
+		return nil, err
+	}
+	return pkgs, nil
+}
+
+func parsePyPIPackages(lst string) ([]string, error) {
+	var pkgs []string
+	if err := json.Unmarshal([]byte(lst), &pkgs); err != nil {
+		return nil, err
+	}
+	return pkgs, nil
 }

@@ -40,6 +40,8 @@ const DefaultSSHPort = 2222
 
 type Client interface {
 	Attach() error
+	ExecWithOutput(cmd string) ([]byte, error)
+	Close() error
 }
 
 type generalClient struct {
@@ -62,7 +64,7 @@ func NewClient(server, user string,
 		// read private key file
 		pemBytes, err := ioutil.ReadFile(privateKeyPath)
 		if err != nil {
-			return nil, fmt.Errorf("reading private key file failed %v", err)
+			return nil, errors.Wrapf(err, "reading private key %s failed", privateKeyPath)
 		}
 		// create signer
 		signer, err := signerFromPem(pemBytes, []byte(privateKeyPwd))
@@ -105,9 +107,28 @@ func NewClient(server, user string,
 	}, nil
 }
 
-func (c generalClient) Attach() error {
+func (c generalClient) Close() error {
+	return c.cli.Close()
+}
+
+func (c generalClient) ExecWithOutput(cmd string) ([]byte, error) {
 	defer c.cli.Close()
 
+	// open session
+	session, err := c.cli.NewSession()
+	if err != nil {
+		return nil, errors.Wrap(err, "creating session failed")
+	}
+	defer session.Close()
+
+	if err := agent.RequestAgentForwarding(session); err != nil {
+		return nil, errors.Wrap(err, "requesting agent forwarding failed")
+	}
+
+	return session.Output(cmd)
+}
+
+func (c generalClient) Attach() error {
 	// open session
 	session, err := c.cli.NewSession()
 	if err != nil {

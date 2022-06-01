@@ -11,19 +11,31 @@
 
 envd is a development environment management tool for data scientists.
 
-:snake:  **No docker, only python** - Write python code to build the development environment, we help you take care of Docker.
+🐍 **No docker, only python** - Write python code to build the development environment, we help you take care of Docker.
 
-:pager: **Built-in jupyter/vscode** - Provision jupyter notebooks and vscode remote in the image, remote development is possible.
+🖨️ **Built-in jupyter/vscode** - Jupyter and VSCode remote extension are the first-class support.
 
-:man_technologist: **Manage code and data** - Help you manage the source code and dataset in the environment
-
-:stopwatch: **Save time** - Better cache management to save your time, keep the focus on the model, instead of dependencies
+⏱️ **Save time** - Better cache management to save your time, keep the focus on the model, instead of dependencies
 
 ☁️ **Local & cloud** - Run the environment locally or in the cloud, without any code change
 
-:whale: **Container native** - Leverage container technologies but no need to learn how to use them, we optimize it for you
+🐳 **Container native** - Leverage container technologies but no need to learn how to use them, we optimize it for you
 
-🤟  **Infrastructure as code** - Describe your project in a declarative way, 100% reproducible
+🤟 **Infrastructure as code** - Describe your project in a declarative way, 100% reproducible
+
+## Why use envd?
+
+It is still too difficult to configure development environments and reproduce results for data scientists and AI/ML researchers.
+
+They have to play with Docker, conda, CUDA, GPU Drivers, and even Kubernetes if the training jobs are running in the cloud, to make things happen.
+
+Thus, researchers have to find infra guys to help them. But the infra guys also struggle to build environments for machine learning. Infra guys love immutable infrastructure. But researchers optimize AI/ML models by trial and error. The environment will be updated, modified, or rebuilt again, and again, in place. Researchers do not have the bandwidth to be the expert on Dockerfile. They prefer `docker commit`, then the image is error-prone and hard to maintain, or debug.
+
+envd provides another way to solve the problem. As the infra guys, we accept the reality of the differences between AI/ML and traditional workloads. We do not expect researchers to learn the basics of infrastructure, instead, we build tools to help researchers manage their development environments easily, and in a cloud-native way.
+
+envd provides build language similar to Python and has first-class support for jupyter, vscode, and python dependencies in container technologies.
+
+## How does envd work?
 
 ## Install
 

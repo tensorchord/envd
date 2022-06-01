@@ -11,6 +11,7 @@ require (
 	github.com/creack/pty v1.1.18
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/docker/go-connections v0.4.0
+	github.com/docker/go-units v0.4.0
 	github.com/gliderlabs/ssh v0.3.3
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/golang/mock v1.6.0
@@ -54,7 +55,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/cli v20.10.13+incompatible // indirect
 	github.com/docker/distribution v2.8.0+incompatible // indirect
-	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/getsentry/sentry-go v0.12.0 // indirect

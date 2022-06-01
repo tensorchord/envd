@@ -90,7 +90,7 @@ var _ = Describe("Builder", func() {
 						gomock.Eq(configFilePath), "",
 					).Return(nil, expected)
 					pub := sshconfig.GetPublicKey()
-					err := b.Build(pub, context.TODO())
+					err := b.Build(context.TODO(), pub)
 					Expect(err).To(HaveOccurred())
 				})
 			})
@@ -105,7 +105,7 @@ var _ = Describe("Builder", func() {
 					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 						gomock.Eq(b.manifestFilePath), gomock.Eq("build"),
 					).Return(nil, expected)
-					err := b.Build(pub, context.TODO())
+					err := b.Build(context.TODO(), pub)
 					Expect(err).To(HaveOccurred())
 				})
 			})

@@ -6,15 +6,13 @@ on:
       - main
     paths:
       - '.github/workflows/**'
-      - 'cmd/**'
-      - 'pkg/**'
+      - '**.go'
       - 'Makefile'
   pull_request:
     types: [review_requested, ready_for_review]
     paths:
       - '.github/workflows/**'
-      - 'cmd/**'
-      - 'pkg/**'
+      - '**.go'
       - 'Makefile'
     branches:
       - main
