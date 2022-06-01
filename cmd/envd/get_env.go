@@ -28,30 +28,36 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-var CommandLS = &cli.Command{
-	Name:    "ls",
-	Aliases: []string{"l"},
-	Usage:   "list envd environments",
+var CommandGetEnvironment = &cli.Command{
+	Name:    "envs",
+	Aliases: []string{"env", "e"},
+	Usage:   "List envd environments",
 
-	Action: list,
+	Subcommands: []*cli.Command{
+		CommandGetEnvironmentDependency,
+	},
+	Action: getEnvironment,
 }
 
-func list(clicontext *cli.Context) error {
+func getEnvironment(clicontext *cli.Context) error {
 	envdEngine, err := envd.New(clicontext.Context)
 	if err != nil {
 		return err
 	}
-	envs, err := envdEngine.List(clicontext.Context)
+	envs, err := envdEngine.ListEnvironment(clicontext.Context)
 	if err != nil {
 		return err
 	}
-	render(envs, os.Stdout)
+	renderEnvironments(envs, os.Stdout)
 	return nil
 }
 
-func render(envs []types.EnvdEnvironment, w io.Writer) {
+func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
 	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"Name", "jupyter", "SSH Target", "GPU", "Status", "Container ID"})
+	table.SetHeader([]string{
+		"Name", "jupyter", "SSH Target", "Context", "Image",
+		"GPU", "CUDA", "CUDNN", "Status", "Container ID",
+	})
 
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
@@ -66,13 +72,17 @@ func render(envs []types.EnvdEnvironment, w io.Writer) {
 	table.SetNoWhiteSpace(true)
 
 	for _, env := range envs {
-		envRow := make([]string, 6)
+		envRow := make([]string, 10)
 		envRow[0] = env.Name
 		envRow[1] = env.JupyterAddr
 		envRow[2] = fmt.Sprintf("%s.envd", env.Name)
-		envRow[3] = strconv.FormatBool(env.GPU)
-		envRow[4] = env.State
-		envRow[5] = stringid.TruncateID(env.Container.ID)
+		envRow[3] = stringOrNone(env.BuildContext)
+		envRow[4] = env.Container.Image
+		envRow[5] = strconv.FormatBool(env.GPU)
+		envRow[6] = stringOrNone(env.CUDA)
+		envRow[7] = stringOrNone(env.CUDNN)
+		envRow[8] = env.State
+		envRow[9] = stringid.TruncateID(env.Container.ID)
 		table.Append(envRow)
 	}
 	table.Render()

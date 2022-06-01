@@ -98,5 +98,5 @@ func build(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
-	return builder.Build(clicontext.Path("public-key"), clicontext.Context)
+	return builder.Build(clicontext.Context, clicontext.Path("public-key"))
 }

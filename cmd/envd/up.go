@@ -135,7 +135,7 @@ func up(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to create the builder")
 	}
 
-	if err := builder.Build(clicontext.Path("public-key"), clicontext.Context); err != nil {
+	if err := builder.Build(clicontext.Context, clicontext.Path("public-key")); err != nil {
 		return err
 	}
 	gpu := builder.GPUEnabled()
