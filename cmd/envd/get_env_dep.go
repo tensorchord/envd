@@ -24,7 +24,6 @@ import (
 	"github.com/tensorchord/envd/pkg/envd"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 	cli "github.com/urfave/cli/v2"
 )
 
@@ -37,7 +36,6 @@ var CommandGetEnvironmentDependency = &cli.Command{
 			Name:    "env",
 			Usage:   "Specify the envd environment to use",
 			Aliases: []string{"e"},
-			Value:   defaultEnvName(),
 		},
 		&cli.PathFlag{
 			Name:    "private-key",
@@ -54,18 +52,11 @@ var CommandGetEnvironmentDependency = &cli.Command{
 	Action: getEnvironmentDependency,
 }
 
-func defaultEnvName() string {
-	name, err := fileutil.RootDir()
-	// TODO(gaocegege): https://github.com/tensorchord/envd/issues/210
-	// remove the panic.
-	if err != nil {
-		panic(err)
-	}
-	return name
-}
-
 func getEnvironmentDependency(clicontext *cli.Context) error {
 	envName := clicontext.String("env")
+	if envName == "" {
+		return errors.New("env is required")
+	}
 	envdEngine, err := envd.New(clicontext.Context)
 	if err != nil {
 		return errors.Wrap(err, "failed to create envd engine")
