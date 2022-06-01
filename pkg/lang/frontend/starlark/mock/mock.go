@@ -49,16 +49,16 @@ func (mr *MockInterpreterMockRecorder) Eval(script interface{}) *gomock.Call {
 }
 
 // ExecFile mocks base method.
-func (m *MockInterpreter) ExecFile(filename string) (interface{}, error) {
+func (m *MockInterpreter) ExecFile(filename, funcname string) (interface{}, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExecFile", filename)
+	ret := m.ctrl.Call(m, "ExecFile", filename, funcname)
 	ret0, _ := ret[0].(interface{})
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ExecFile indicates an expected call of ExecFile.
-func (mr *MockInterpreterMockRecorder) ExecFile(filename interface{}) *gomock.Call {
+func (mr *MockInterpreterMockRecorder) ExecFile(filename, funcname interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecFile", reflect.TypeOf((*MockInterpreter)(nil).ExecFile), filename)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecFile", reflect.TypeOf((*MockInterpreter)(nil).ExecFile), filename, funcname)
 }
