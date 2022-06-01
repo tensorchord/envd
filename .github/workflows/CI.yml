@@ -4,7 +4,18 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '.github/workflows/**'
+      - 'cmd/**'
+      - 'pkg/**'
+      - 'Makefile'
   pull_request:
+    types: [review_requested, ready_for_review]
+    paths:
+      - '.github/workflows/**'
+      - 'cmd/**'
+      - 'pkg/**'
+      - 'Makefile'
     branches:
       - main
 
