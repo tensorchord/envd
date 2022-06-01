@@ -15,7 +15,7 @@
 package starlark
 
 import (
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/repl"
 	"go.starlark.net/starlark"
