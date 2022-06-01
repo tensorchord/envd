@@ -102,7 +102,7 @@ func (g Graph) Compile() (llb.State, error) {
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
 	aptStage := g.compileUbuntuAPT(base)
-	pypiMirrorStage := g.compilePyPIMirror(aptStage)
+	pypiMirrorStage := g.compilePyPIIndex(aptStage)
 
 	g.compileJupyter()
 	builtinSystemStage := pypiMirrorStage

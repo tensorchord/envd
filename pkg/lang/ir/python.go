@@ -52,14 +52,19 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
-func (g Graph) compilePyPIMirror(root llb.State) llb.State {
-	if g.PyPIMirror != nil {
-		logrus.WithField("mirror", *g.PyPIMirror).Debug("using custom PyPI mirror")
-		content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIMirror)
+func (g Graph) compilePyPIIndex(root llb.State) llb.State {
+	if g.PyPIIndexURL != nil {
+		logrus.WithField("index", *g.PyPIIndexURL).Debug("using custom PyPI index")
+		var extraIndex string
+		if g.PyPIExtraIndexURL != nil {
+			logrus.WithField("index", *g.PyPIIndexURL).Debug("using extra PyPI index")
+			extraIndex = "extra-index-url=" + *g.PyPIExtraIndexURL
+		}
+		content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIIndexURL, extraIndex)
 		pypiMirror := llb.Scratch().
-			File(llb.Mkdir(filepath.Dir(pypiMirrorFilePath),
+			File(llb.Mkdir(filepath.Dir(pypiIndexFilePath),
 				0755, llb.WithParents(true), llb.WithUIDGID(defaultUID, defaultGID))).
-			File(llb.Mkfile(pypiMirrorFilePath,
+			File(llb.Mkfile(pypiIndexFilePath,
 				0644, []byte(content), llb.WithUIDGID(defaultUID, defaultGID)))
 		return llb.Merge([]llb.State{root, pypiMirror}, llb.WithCustomName("add PyPI mirror"))
 	}
