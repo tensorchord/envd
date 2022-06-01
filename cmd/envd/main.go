@@ -66,6 +66,8 @@ func run(args []string) (bool, error) {
 		CommandBuild,
 		CommandDestroy,
 		CommandGet,
+		CommandPause,
+		CommandResume,
 		CommandUp,
 	}
 

@@ -18,8 +18,8 @@ import (
 	_ "embed"
 	"path/filepath"
 
+	"github.com/cockroachdb/errors"
 	"github.com/go-git/go-git/v5"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
