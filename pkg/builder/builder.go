@@ -36,7 +36,7 @@ import (
 )
 
 type Builder interface {
-	Build(pub string, ctx context.Context) error
+	Build(ctx context.Context, pub string) error
 	GPUEnabled() bool
 }
 
@@ -81,8 +81,8 @@ func (b generalBuilder) GPUEnabled() bool {
 	return ir.GPUEnabled()
 }
 
-func (b generalBuilder) Build(pub string, ctx context.Context) error {
-	def, err := b.compile(pub, ctx)
+func (b generalBuilder) Build(ctx context.Context, pub string) error {
+	def, err := b.compile(ctx, pub)
 	if err != nil {
 		return errors.Wrap(err, "failed to compile")
 	}
@@ -110,7 +110,7 @@ func (b generalBuilder) interpret() error {
 	return nil
 }
 
-func (b generalBuilder) compile(pub string, ctx context.Context) (*llb.Definition, error) {
+func (b generalBuilder) compile(ctx context.Context, pub string) (*llb.Definition, error) {
 	if err := b.interpret(); err != nil {
 		return nil, errors.Wrap(err, "failed to interpret")
 	}
