@@ -112,7 +112,7 @@ func (c *generalClient) maybeStart(ctx context.Context,
 	}
 	c.logger.Debug("container is running, check if it's ready...")
 
-	if err := c.waitUntilConnected(ctx, runningTimeout); err != nil {
+	if err := c.waitUntilConnected(ctx, connectingTimeout); err != nil {
 		return "", errors.Wrap(err, "failed to connect to buildkitd")
 	}
 
