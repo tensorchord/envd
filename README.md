@@ -147,7 +147,7 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-backports main restricted universe m
 deb http://archive.canonical.com/ubuntu focal partner
 deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe multiverse
 """)
-pip_mirror(mirror = "https://mirror.sjtu.edu.cn/pypi/web/simple")
+pip_index(url = "https://mirror.sjtu.edu.cn/pypi/web/simple")
 vscode(plugins = [
     "ms-python.python",
     "github.copilot"
