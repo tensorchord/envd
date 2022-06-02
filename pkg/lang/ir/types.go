@@ -28,8 +28,9 @@ type Graph struct {
 	CUDA     *string
 	CUDNN    *string
 
-	UbuntuAPTSource *string
-	PyPIMirror      *string
+	UbuntuAPTSource   *string
+	PyPIIndexURL      *string
+	PyPIExtraIndexURL *string
 
 	PublicKeyPath string
 

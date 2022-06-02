@@ -36,7 +36,7 @@ func registerenvdRules() {
 	starlark.Universe[ruleCUDA] = starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA)
 	starlark.Universe[ruleVSCode] = starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode)
 	starlark.Universe[ruleUbuntuAPT] = starlark.NewBuiltin(ruleUbuntuAPT, ruleFuncUbuntuAPT)
-	starlark.Universe[rulePyPIMirror] = starlark.NewBuiltin(rulePyPIMirror, ruleFuncPyPIMirror)
+	starlark.Universe[rulePyPIIndex] = starlark.NewBuiltin(rulePyPIIndex, ruleFuncPyPIIndex)
 	starlark.Universe[ruleShell] = starlark.NewBuiltin(ruleShell, ruleFuncShell)
 	starlark.Universe[ruleJupyter] = starlark.NewBuiltin(ruleJupyter, ruleFuncJupyter)
 	starlark.Universe[ruleRun] = starlark.NewBuiltin(ruleRun, ruleFuncRun)
@@ -186,12 +186,12 @@ func ruleFuncUbuntuAPT(thread *starlark.Thread, _ *starlark.Builtin,
 	return starlark.None, nil
 }
 
-func ruleFuncPyPIMirror(thread *starlark.Thread, _ *starlark.Builtin,
+func ruleFuncPyPIIndex(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var mode, mirror starlark.String
+	var mode, url, extraURL starlark.String
 
-	if err := starlark.UnpackArgs(rulePyPIMirror, args, kwargs,
-		"mode?", &mode, "mirror?", &mirror); err != nil {
+	if err := starlark.UnpackArgs(rulePyPIIndex, args, kwargs,
+		"mode?", &mode, "url?", &url, "extra_url?", &extraURL); err != nil {
 		return nil, err
 	}
 
@@ -199,14 +199,18 @@ func ruleFuncPyPIMirror(thread *starlark.Thread, _ *starlark.Builtin,
 	if mode != starlark.String("") {
 		modeStr = mode.GoString()
 	}
-	mirrorStr := ""
-	if mirror != starlark.String("") {
-		mirrorStr = mirror.GoString()
+	indexStr := ""
+	if url != starlark.String("") {
+		indexStr = url.GoString()
+	}
+	extraIndexStr := ""
+	if extraURL != starlark.String("") {
+		extraIndexStr = extraURL.GoString()
 	}
 
-	logger.Debugf("rule `%s` is invoked, mode=%s, mirror=%s", rulePyPIMirror,
-		modeStr, mirrorStr)
-	if err := ir.PyPIMirror(modeStr, mirrorStr); err != nil {
+	logger.Debugf("rule `%s` is invoked, mode=%s, index=%s, extraIndex=%s", rulePyPIIndex,
+		modeStr, indexStr, extraIndexStr)
+	if err := ir.PyPIIndex(modeStr, indexStr, extraIndexStr); err != nil {
 		return nil, err
 	}
 

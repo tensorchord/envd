@@ -15,16 +15,18 @@
 package ir
 
 const (
-	osDefault       = "ubuntu20.04"
-	languageDefault = "python3.8"
-	mirrorModeAuto  = "auto"
+	osDefault         = "ubuntu20.04"
+	languageDefault   = "python3.8"
+	pypiIndexModeAuto = "auto"
 
-	aptSourceFilePath  = "/etc/apt/sources.list"
-	pypiMirrorFilePath = "/etc/pip.conf"
+	aptSourceFilePath = "/etc/apt/sources.list"
+	pypiIndexFilePath = "/etc/pip.conf"
 
 	pypiConfigTemplate = `
 [global]
-index-url=%s`
+index-url=%s
+%s
+`
 
 	defaultUID = 1000
 	defaultGID = 1000
