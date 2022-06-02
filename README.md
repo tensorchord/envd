@@ -41,7 +41,9 @@ envd provides build language similar to Python and has first-class support for j
 
 ### From binary
 
-TODO
+You can download the binary from the [latest release page](https://github.com/tensorchord/envd/releases/latest).
+
+After the download, please run `envd bootstrap` to bootstrap.
 
 ### From source code
 
@@ -105,12 +107,28 @@ $ envd up
 Jupyter notebook service and sshd server are running inside the container. You can use jupyter or vscode remote-ssh extension to develop AI/ML models.
 
 ```
-$ envd ls
-NAME            JUPYTER                 SSH TARGET      GPU     STATUS  CONTAINER ID 
-mnist           http://localhost:8888   mnist.envd      true    running 253f656b8c40
+$ envd get envs
+NAME         JUPYTER                 SSH TARGET   CONTEXT  IMAGE      GPU  CUDA  CUDNN  STATUS      CONTAINER ID 
+mnist        http://localhost:9999   mnist.envd   /mnist   mnist:dev  true 11.6  8      Up 23 hours 74a9f1007004
+$ envd get images
+NAME         CONTEXT GPU     CUDA    CUDNN   IMAGE ID        CREATED         SIZE   
+mnist:dev    /mnist  true    11.6    8       034ae55c5f4f    23 hours ago    7.28GB
 ```
 
 ## Features
+
+### Pause and resume
+
+```
+$ envd pause --env mnist
+mnist
+$ env get envs
+NAME         JUPYTER                 SSH TARGET   CONTEXT  IMAGE      GPU  CUDA  CUDNN  STATUS              CONTAINER ID 
+mnist        http://localhost:9999   mnist.envd   /mnist   mnist:dev  true 11.6  8      Up 23 hours(Paused) 74a9f1007004
+$ envd resume --env mnist
+$ ssh mnist.envd
+(envd 🐳) $ # The environment is resumed!
+```
 
 ### Configure mirrors
 

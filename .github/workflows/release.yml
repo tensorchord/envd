@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - '*'
+  pull_request:
+    paths:
+    - '.github/workflows/release.yml'
+    - '.goreleaser/'
+    - '.goreleaser.yaml'
 
 jobs:
   goreleaser:
