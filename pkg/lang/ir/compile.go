@@ -141,6 +141,10 @@ func (g Graph) Compile() (llb.State, error) {
 
 	// TODO(gaocegege): Support order-based exec.
 	run := g.compileRun(merged)
+	finalStage, err := g.compileGit(run)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile git")
+	}
 	g.Writer.Finish()
-	return run, nil
+	return finalStage, nil
 }
