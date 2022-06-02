@@ -41,9 +41,16 @@ type Graph struct {
 
 	Exec []string
 	*JupyterConfig
+	*GitConfig
 
 	Writer      compileui.Writer
 	CachePrefix string
+}
+
+type GitConfig struct {
+	Name   string
+	Email  string
+	Editor string
 }
 
 type JupyterConfig struct {

@@ -97,3 +97,12 @@ func Run(commands []string) error {
 	DefaultGraph.Exec = commands
 	return nil
 }
+
+func Git(name, email, editor string) error {
+	DefaultGraph.GitConfig = &GitConfig{
+		Name:   name,
+		Email:  email,
+		Editor: editor,
+	}
+	return nil
+}

@@ -40,6 +40,7 @@ func registerenvdRules() {
 	starlark.Universe[ruleShell] = starlark.NewBuiltin(ruleShell, ruleFuncShell)
 	starlark.Universe[ruleJupyter] = starlark.NewBuiltin(ruleJupyter, ruleFuncJupyter)
 	starlark.Universe[ruleRun] = starlark.NewBuiltin(ruleRun, ruleFuncRun)
+	starlark.Universe[ruleGitConfig] = starlark.NewBuiltin(ruleGitConfig, ruleFuncGitConfig)
 }
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
@@ -271,7 +272,7 @@ func ruleFuncRun(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var commands *starlark.List
 
-	if err := starlark.UnpackArgs(rulePyPIPackage,
+	if err := starlark.UnpackArgs(ruleRun,
 		args, kwargs, "commands?", &commands); err != nil {
 		return nil, err
 	}
@@ -285,6 +286,39 @@ func ruleFuncRun(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked, commands=%v", ruleRun, goCommands)
 	if err := ir.Run(goCommands); err != nil {
+		return nil, err
+	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncGitConfig(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var name, email, editor starlark.String
+
+	if err := starlark.UnpackArgs(ruleGitConfig,
+		args, kwargs, "name?", &name, "email?", &email, "editor?", &editor); err != nil {
+		return nil, err
+	}
+
+	nameStr := ""
+	if name != starlark.String("") {
+		nameStr = name.GoString()
+	}
+
+	emailStr := ""
+	if email != starlark.String("") {
+		nameStr = email.GoString()
+	}
+
+	editorStr := ""
+	if editor != starlark.String("") {
+		editorStr = editor.GoString()
+	}
+
+	logger.Debugf("rule `%s` is invoked, name=%s, email=%s, editor=%s",
+		ruleGitConfig, nameStr, emailStr, editorStr)
+	if err := ir.Git(nameStr, emailStr, editorStr); err != nil {
 		return nil, err
 	}
 
