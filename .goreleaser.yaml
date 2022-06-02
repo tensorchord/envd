@@ -2,12 +2,13 @@
 # Make sure to check the documentation at https://goreleaser.com
 before:
   hooks:
-    - go mod tidy -compat=1.17
+    - go mod tidy
 builds:
   - env:
       - CGO_ENABLED=0
     goos:
       - linux
+      - darwin
     id: envd
     main: ./cmd/envd
     binary: envd
@@ -19,6 +20,7 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
+      - darwin
     id: envd-ssh
     main: ./cmd/envd-ssh
     binary: envd-ssh
