@@ -43,7 +43,7 @@ func run(args []string) (bool, error) {
 	app.EnableBashCompletion = true
 	app.Name = "envd"
 	app.Usage = "Build tools for data scientists"
-	app.Version = version.Version
+	app.Version = version.GetVersion().String()
 	app.Flags = []cli.Flag{
 		&cli.BoolFlag{
 			Name:  "debug",
@@ -69,6 +69,7 @@ func run(args []string) (bool, error) {
 		CommandPause,
 		CommandResume,
 		CommandUp,
+		CommandVersion,
 	}
 
 	// Deal with debug flag.
