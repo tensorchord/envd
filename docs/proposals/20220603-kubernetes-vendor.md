@@ -30,12 +30,62 @@ We can provide native support for ease of use.
 - [Support context in envd CLI to switch runtimes between Docker and Kubernetes](https://github.com/tensorchord/envd/issues/92)
 - Pause and unpause environments on Kubernetes (Kubernetes does not support the primitives)
 - Build the envd environments with the buildkitd pod on Kubernetes
+- Manage envd images on Kubernetes
 
 ## Proposal
 
 ### User Stories
 
 ### Implementation Details/Notes/Constraints
+
+#### Runtime Interface
+
+A new interface `Runtime` will be introduced. And the interface `docker.Client` will be updated.
+
+```go
+type Runtime interface {
+	StartEnvironment()
+
+    ListEnvironments()
+    GetEnvironment()
+    PauseEnvironment()
+    ResumeEnvironment()
+    DestroyEnvironment()
+
+    GPUEnabled()
+}
+```
+
+`docker.Client` is used to:
+
+- Destroy the environment via `envd destroy`
+- Check if GPU is supported and run the docker container via `envd up`
+- Load the image into the local docker host via `builder`
+- Check if the buildkitd container is running in `buildkit.Client`
+- List images, environments in `envd.Engine`
+
+`envd destroy`, `envd up`, and `envd.Engine` should not use `docker.Client` any more. It should be migrated to `Runtime`. Because these func calls are related to runtime.
+
+`builder` and `buildkit.Client` still needs to use `docker.Client` since we keep using docker to build the images.
+
+The pseudocode of the new logic will be like:
+
+```go
+// Destroy the environment
+func destroy(clicontext *cli.Context) error {
+    runtime := runtime.New(getCLIFlag("runtime-vendor"))
+    runtime.DestroyEnvironment(...)
+}
+
+func up(clicontext *cli.Context) error {
+    runtime := runtime.New(getCLIFlag("runtime-vendor"))
+    runtime.StartEnvironment(...)
+}
+```
+
+#### `StartEnvironment` Implementation
+
+
 
 ## Design Details
 
