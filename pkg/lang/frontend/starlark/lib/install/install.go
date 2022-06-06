@@ -44,7 +44,7 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 	var name *starlark.List
 
 	if err := starlark.UnpackArgs(rulePyPIPackage,
-		args, kwargs, "name?", &name); err != nil {
+		args, kwargs, "name", &name); err != nil {
 		return nil, err
 	}
 

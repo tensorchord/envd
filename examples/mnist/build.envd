@@ -1,10 +1,10 @@
 def build():
+    base(os="ubuntu20.04", language="python3")
     install.vscode(plugins = [
         "ms-python.python",
     ])
 
-    base(os="ubuntu20.04", language="python3")
-    install.pip_package(name = [
+    install.pip_package([
         "tensorflow",
         "numpy",
     ])
