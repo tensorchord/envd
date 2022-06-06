@@ -78,12 +78,22 @@ func destroy(clicontext *cli.Context) error {
 }
 
 func up(clicontext *cli.Context) error {
+    // Build the image first
+    builder.Build()
+    // Push the image to a registry
+    pushImage()
     runtime := runtime.New(getCLIFlag("runtime-vendor"))
     runtime.StartEnvironment(...)
 }
 ```
 
 #### `StartEnvironment` Implementation
+
+`StartEnvironment` of the Kubernetes runtime is responsible for:
+
+- port forward for ssh servers and jupyter notebook services.
+- Kubernetes deployments/pods/services creation.
+- File system sync between the container and the local host.
 
 
 
