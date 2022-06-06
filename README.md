@@ -11,25 +11,39 @@
 
 envd is a development environment management tool for data scientists.
 
-:snake:  **No docker, only python** - Write python code to build the development environment, we help you take care of Docker.
+🐍 **No docker, only python** - Write python code to build the development environment, we help you take care of Docker.
 
-:pager: **Built-in jupyter/vscode** - Provision jupyter notebooks and vscode remote in the image, remote development is possible.
+🖨️ **Built-in jupyter/vscode** - Jupyter and VSCode remote extension are the first-class support.
 
-:man_technologist: **Manage code and data** - Help you manage the source code and dataset in the environment
-
-:stopwatch: **Save time** - Better cache management to save your time, keep the focus on the model, instead of dependencies
+⏱️ **Save time** - Better cache management to save your time, keep the focus on the model, instead of dependencies
 
 ☁️ **Local & cloud** - Run the environment locally or in the cloud, without any code change
 
-:whale: **Container native** - Leverage container technologies but no need to learn how to use them, we optimize it for you
+🐳 **Container native** - Leverage container technologies but no need to learn how to use them, we optimize it for you
 
-🤟  **Infrastructure as code** - Describe your project in a declarative way, 100% reproducible
+🤟 **Infrastructure as code** - Describe your project in a declarative way, 100% reproducible
+
+## Why use envd?
+
+It is still too difficult to configure development environments and reproduce results for data scientists and AI/ML researchers.
+
+They have to play with Docker, conda, CUDA, GPU Drivers, and even Kubernetes if the training jobs are running in the cloud, to make things happen.
+
+Thus, researchers have to find infra guys to help them. But the infra guys also struggle to build environments for machine learning. Infra guys love immutable infrastructure. But researchers optimize AI/ML models by trial and error. The environment will be updated, modified, or rebuilt again, and again, in place. Researchers do not have the bandwidth to be the expert on Dockerfile. They prefer `docker commit`, then the image is error-prone and hard to maintain, or debug.
+
+envd provides another way to solve the problem. As the infra guys, we accept the reality of the differences between AI/ML and traditional workloads. We do not expect researchers to learn the basics of infrastructure, instead, we build tools to help researchers manage their development environments easily, and in a cloud-native way.
+
+envd provides build language similar to Python and has first-class support for jupyter, vscode, and python dependencies in container technologies.
+
+## How does envd work?
 
 ## Install
 
 ### From binary
 
-TODO
+You can download the binary from the [latest release page](https://github.com/tensorchord/envd/releases/latest).
+
+After the download, please run `envd bootstrap` to bootstrap.
 
 ### From source code
 
@@ -45,18 +59,19 @@ make
 Checkout the [examples](./examples/mnist), and configure envd with the manifest `build.envd`:
 
 ```python
-vscode(plugins=[
-    "ms-python.python",
-])
+def build():
+    vscode(plugins = [
+        "ms-python.python",
+    ])
 
-base(os="ubuntu20.04", language="python3")
-pip_package(name=[
-    "tensorflow",
-    "numpy",
-])
-cuda(version="11.6", cudnn="8")
-shell("zsh")
-jupyter(password="", port=8888)
+    base(os="ubuntu20.04", language="python3")
+    pip_package(name = [
+        "tensorflow",
+        "numpy",
+    ])
+    cuda(version="11.6", cudnn="8")
+    shell("zsh")
+    jupyter(password="", port=8888)
 ```
 
 Then you can run `envd up` to create the development environment.
@@ -93,12 +108,28 @@ $ envd up
 Jupyter notebook service and sshd server are running inside the container. You can use jupyter or vscode remote-ssh extension to develop AI/ML models.
 
 ```
-$ envd ls
-NAME            JUPYTER                 SSH TARGET      GPU     STATUS  CONTAINER ID 
-mnist           http://localhost:8888   mnist.envd      true    running 253f656b8c40
+$ envd get envs
+NAME         JUPYTER                 SSH TARGET   CONTEXT  IMAGE      GPU  CUDA  CUDNN  STATUS      CONTAINER ID 
+mnist        http://localhost:9999   mnist.envd   /mnist   mnist:dev  true 11.6  8      Up 23 hours 74a9f1007004
+$ envd get images
+NAME         CONTEXT GPU     CUDA    CUDNN   IMAGE ID        CREATED         SIZE   
+mnist:dev    /mnist  true    11.6    8       034ae55c5f4f    23 hours ago    7.28GB
 ```
 
 ## Features
+
+### Pause and resume
+
+```
+$ envd pause --env mnist
+mnist
+$ env get envs
+NAME         JUPYTER                 SSH TARGET   CONTEXT  IMAGE      GPU  CUDA  CUDNN  STATUS              CONTAINER ID 
+mnist        http://localhost:9999   mnist.envd   /mnist   mnist:dev  true 11.6  8      Up 23 hours(Paused) 74a9f1007004
+$ envd resume --env mnist
+$ ssh mnist.envd
+(envd 🐳) $ # The environment is resumed!
+```
 
 ### Configure mirrors
 
@@ -117,7 +148,7 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-backports main restricted universe m
 deb http://archive.canonical.com/ubuntu focal partner
 deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe multiverse
 """)
-pip_mirror(mirror = "https://mirror.sjtu.edu.cn/pypi/web/simple")
+pip_index(url = "https://mirror.sjtu.edu.cn/pypi/web/simple")
 vscode(plugins = [
     "ms-python.python",
     "github.copilot"

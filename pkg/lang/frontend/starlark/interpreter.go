@@ -15,6 +15,7 @@
 package starlark
 
 import (
+	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/repl"
 	"go.starlark.net/starlark"
@@ -25,7 +26,7 @@ import (
 
 type Interpreter interface {
 	Eval(script string) (interface{}, error)
-	ExecFile(filename string) (interface{}, error)
+	ExecFile(filename string, funcname string) (interface{}, error)
 }
 
 // generalInterpreter is the interpreter implementation for Starlark.
@@ -47,12 +48,29 @@ func NewInterpreter() Interpreter {
 	}
 }
 
-func (s generalInterpreter) ExecFile(filename string) (interface{}, error) {
+func (s generalInterpreter) ExecFile(filename string, funcname string) (interface{}, error) {
 	logrus.WithField("filename", filename).Debug("interprete the file")
 	var src interface{}
 	globals, err := starlark.ExecFile(s.Thread, filename, src, s.predeclared)
 	if err != nil {
-		return globals, err
+		return nil, err
+	}
+	if funcname != "" {
+		logrus.Debugf("Execute %s func", funcname)
+		if globals.Has(funcname) {
+			buildVar := globals[funcname]
+			if fn, ok := buildVar.(*starlark.Function); ok {
+				_, err := starlark.Call(s.Thread, fn, nil, nil)
+				if err != nil {
+					return nil, errors.Wrapf(err, "Exception when exec %s func", funcname)
+				}
+			} else {
+				return nil, errors.Errorf("%s is not a function", funcname)
+			}
+		} else {
+			return nil, errors.Errorf("envd file doesn't has %s function", funcname)
+		}
+
 	}
 	return globals, nil
 }

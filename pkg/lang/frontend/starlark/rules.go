@@ -37,10 +37,11 @@ func registerenvdRules() {
 	starlark.Universe[ruleCUDA] = starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA)
 	starlark.Universe[ruleVSCode] = starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode)
 	// starlark.Universe[ruleUbuntuAPT] = starlark.NewBuiltin(ruleUbuntuAPT, ruleFuncUbuntuAPT)
-	starlark.Universe[rulePyPIMirror] = starlark.NewBuiltin(rulePyPIMirror, ruleFuncPyPIMirror)
+	starlark.Universe[rulePyPIIndex] = starlark.NewBuiltin(rulePyPIIndex, ruleFuncPyPIIndex)
 	starlark.Universe[ruleShell] = starlark.NewBuiltin(ruleShell, ruleFuncShell)
 	starlark.Universe[ruleJupyter] = starlark.NewBuiltin(ruleJupyter, ruleFuncJupyter)
 	starlark.Universe[ruleRun] = starlark.NewBuiltin(ruleRun, ruleFuncRun)
+	starlark.Universe[ruleGitConfig] = starlark.NewBuiltin(ruleGitConfig, ruleFuncGitConfig)
 }
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
@@ -116,12 +117,12 @@ func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin,
 	return starlark.None, nil
 }
 
-func ruleFuncPyPIMirror(thread *starlark.Thread, _ *starlark.Builtin,
+func ruleFuncUbuntuAPT(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var mode, mirror starlark.String
+	var mode, source starlark.String
 
-	if err := starlark.UnpackArgs(rulePyPIMirror, args, kwargs,
-		"mode?", &mode, "mirror?", &mirror); err != nil {
+	if err := starlark.UnpackArgs(ruleUbuntuAPT, args, kwargs,
+		"mode?", &mode, "source?", &source); err != nil {
 		return nil, err
 	}
 
@@ -129,14 +130,45 @@ func ruleFuncPyPIMirror(thread *starlark.Thread, _ *starlark.Builtin,
 	if mode != starlark.String("") {
 		modeStr = mode.GoString()
 	}
-	mirrorStr := ""
-	if mirror != starlark.String("") {
-		mirrorStr = mirror.GoString()
+	sourceStr := ""
+	if source != starlark.String("") {
+		sourceStr = source.GoString()
 	}
 
-	logger.Debugf("rule `%s` is invoked, mode=%s, mirror=%s", rulePyPIMirror,
-		modeStr, mirrorStr)
-	if err := ir.PyPIMirror(modeStr, mirrorStr); err != nil {
+	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s", ruleUbuntuAPT,
+		modeStr, sourceStr)
+	if err := ir.UbuntuAPT(modeStr, sourceStr); err != nil {
+		return nil, err
+	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncPyPIIndex(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var mode, url, extraURL starlark.String
+
+	if err := starlark.UnpackArgs(rulePyPIIndex, args, kwargs,
+		"mode?", &mode, "url?", &url, "extra_url?", &extraURL); err != nil {
+		return nil, err
+	}
+
+	modeStr := ""
+	if mode != starlark.String("") {
+		modeStr = mode.GoString()
+	}
+	indexStr := ""
+	if url != starlark.String("") {
+		indexStr = url.GoString()
+	}
+	extraIndexStr := ""
+	if extraURL != starlark.String("") {
+		extraIndexStr = extraURL.GoString()
+	}
+
+	logger.Debugf("rule `%s` is invoked, mode=%s, index=%s, extraIndex=%s", rulePyPIIndex,
+		modeStr, indexStr, extraIndexStr)
+	if err := ir.PyPIIndex(modeStr, indexStr, extraIndexStr); err != nil {
 		return nil, err
 	}
 
@@ -211,6 +243,39 @@ func ruleFuncRun(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked, commands=%v", ruleRun, goCommands)
 	if err := ir.Run(goCommands); err != nil {
+		return nil, err
+	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncGitConfig(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var name, email, editor starlark.String
+
+	if err := starlark.UnpackArgs(ruleGitConfig,
+		args, kwargs, "name?", &name, "email?", &email, "editor?", &editor); err != nil {
+		return nil, err
+	}
+
+	nameStr := ""
+	if name != starlark.String("") {
+		nameStr = name.GoString()
+	}
+
+	emailStr := ""
+	if email != starlark.String("") {
+		nameStr = email.GoString()
+	}
+
+	editorStr := ""
+	if editor != starlark.String("") {
+		editorStr = editor.GoString()
+	}
+
+	logger.Debugf("rule `%s` is invoked, name=%s, email=%s, editor=%s",
+		ruleGitConfig, nameStr, emailStr, editorStr)
+	if err := ir.Git(nameStr, emailStr, editorStr); err != nil {
 		return nil, err
 	}
 

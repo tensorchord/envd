@@ -11,6 +11,7 @@ require (
 	github.com/creack/pty v1.1.18
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/docker/go-connections v0.4.0
+	github.com/docker/go-units v0.4.0
 	github.com/gliderlabs/ssh v0.3.3
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/golang/mock v1.6.0
@@ -23,7 +24,6 @@ require (
 	github.com/onsi/gomega v1.19.0
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799
-	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.4
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.4.0
@@ -54,7 +54,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/cli v20.10.13+incompatible // indirect
 	github.com/docker/distribution v2.8.0+incompatible // indirect
-	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/getsentry/sentry-go v0.12.0 // indirect
@@ -83,6 +82,7 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/moby/sys/signal v0.6.0 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect

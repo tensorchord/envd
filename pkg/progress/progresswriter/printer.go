@@ -19,9 +19,9 @@ import (
 	"context"
 	"os"
 
+	"github.com/cockroachdb/errors"
 	"github.com/containerd/console"
 	"github.com/moby/buildkit/client"
-	"github.com/pkg/errors"
 
 	"github.com/tensorchord/envd/pkg/progress/progressui"
 )

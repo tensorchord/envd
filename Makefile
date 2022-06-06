@@ -68,7 +68,11 @@ DEBUG_DIR := ./debug-bin
 BUILD_DIR := ./build
 
 # Current version of the project.
-VERSION ?= $(shell git describe --match 'v[0-9]*' --dirty='.m' --always)
+VERSION ?= $(shell git describe --match 'v[0-9]*' --always)
+BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+GIT_COMMIT=$(shell git rev-parse HEAD)
+GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-match --tags HEAD 2>/dev/null; fi)
+GIT_TREE_STATE=$(shell if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)
 GITSHA ?= $(shell git rev-parse --short HEAD)
 
 # Track code version with Docker Label.
@@ -113,7 +117,7 @@ addlicense-install:
 build-local:
 	@for target in $(TARGETS); do                                                      \
 	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath -v -o $(OUTPUT_DIR)/$${target}     \
-	    -ldflags "-s -w -X $(ROOT)/pkg/version.Version=$(VERSION)"                     \
+	    -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) -X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) -X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) -X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)"                     \
 	    $(CMD_DIR)/$${target};                                                         \
 	done
 

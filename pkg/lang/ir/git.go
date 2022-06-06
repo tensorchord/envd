@@ -12,18 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package starlark
+package ir
+
+import (
+	"fmt"
+
+	"github.com/moby/buildkit/client/llb"
+)
 
 const (
-	ruleBase          = "base"
-	ruleSystemPackage = "install_package"
-	rulePyPIPackage   = "pip_package"
-	ruleCUDA          = "cuda"
-	ruleVSCode        = "vscode"
-	ruleUbuntuAPT     = "ubuntu_apt"
-	rulePyPIIndex     = "pip_index"
-	ruleShell         = "shell"
-	ruleJupyter       = "jupyter"
-	ruleRun           = "run"
-	ruleGitConfig     = "git_config"
+	templateGitConfig = `
+[user]
+	email = %s
+	name = %s
+[core]
+	editor = %s
+
+`
 )
+
+func (g *Graph) compileGit(root llb.State) (llb.State, error) {
+	if g.GitConfig == nil {
+		return root, nil
+	}
+	content := fmt.Sprintf(templateGitConfig, g.GitConfig.Email, g.GitConfig.Name, g.GitConfig.Editor)
+	installPath := "/home/envd/.gitconfig"
+	gitStage := root.File(llb.Mkfile(installPath,
+		0644, []byte(content), llb.WithUIDGID(defaultUID, defaultGID)))
+	return gitStage, nil
+}

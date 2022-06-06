@@ -41,13 +41,13 @@ const (
 
 func main() {
 	cli.VersionPrinter = func(c *cli.Context) {
-		fmt.Println(c.App.Name, version.Package, c.App.Version, version.Revision)
+		fmt.Println(c.App.Name, version.Package, version.GetVersion().String())
 	}
 
 	app := cli.NewApp()
 	app.Name = "envd-ssh"
 	app.Usage = "ssh server for envd"
-	app.Version = version.Version
+	app.Version = version.GetVersion().String()
 	app.Flags = []cli.Flag{
 		&cli.BoolFlag{
 			Name:  flagDebug,
@@ -128,7 +128,7 @@ func sshServer(c *cli.Context) error {
 		AuthorizedKeys: keys,
 	}
 
-	logrus.Infof("ssh server %s started in 0.0.0.0:%d", version.Version, srv.Port)
+	logrus.Infof("ssh server %s started in 0.0.0.0:%d", version.GetVersion().String(), srv.Port)
 	return srv.ListenAndServe()
 }
 

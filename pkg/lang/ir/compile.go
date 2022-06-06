@@ -32,14 +32,6 @@ func NewGraph() *Graph {
 		Language: languageDefault,
 		CUDA:     nil,
 		CUDNN:    nil,
-		BuiltinSystemPackages: []string{
-			// TODO(gaocegege): Move them into the base image.
-			"curl",
-			"openssh-client",
-			"git",
-			"sudo",
-			"tini",
-		},
 
 		PyPIPackages:   []string{},
 		SystemPackages: []string{},
@@ -51,7 +43,7 @@ func NewGraph() *Graph {
 var DefaultGraph = NewGraph()
 
 func GPUEnabled() bool {
-	return DefaultGraph.CUDA != nil
+	return DefaultGraph.GPUEnabled()
 }
 
 func Compile(ctx context.Context, cachePrefix string, pub string) (*llb.Definition, error) {
@@ -78,6 +70,10 @@ func Labels() (map[string]string, error) {
 	return DefaultGraph.Labels()
 }
 
+func (g Graph) GPUEnabled() bool {
+	return g.CUDA != nil
+}
+
 func (g Graph) Labels() (map[string]string, error) {
 	labels := make(map[string]string)
 	str, err := json.Marshal(g.SystemPackages)
@@ -90,6 +86,15 @@ func (g Graph) Labels() (map[string]string, error) {
 		return nil, err
 	}
 	labels[types.ImageLabelPyPI] = string(str)
+	if g.GPUEnabled() {
+		labels[types.ImageLabelGPU] = "true"
+		labels[types.ImageLabelCUDA] = *g.CUDA
+		if g.CUDNN != nil {
+			labels[types.ImageLabelCUDNN] = *g.CUDNN
+		}
+	}
+	labels[types.ImageLabelVendor] = types.ImageVendorEnvd
+
 	return labels, nil
 }
 
@@ -97,20 +102,22 @@ func (g Graph) Compile() (llb.State, error) {
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
 	aptStage := g.compileUbuntuAPT(base)
-	pypiMirrorStage := g.compilePyPIMirror(aptStage)
+	pypiMirrorStage := g.compilePyPIIndex(aptStage)
 
 	g.compileJupyter()
-	// TODO(gaocegege): Make apt update a seperate stage to
-	// parallel system and user-defined package installation.
-	builtinSystemStage := g.compileBuiltinSystemPackages(pypiMirrorStage)
+	builtinSystemStage := pypiMirrorStage
+	sshStage, err := g.copySSHKey(builtinSystemStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
+	}
 	shellStage, err := g.compileShell(builtinSystemStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile shell")
 	}
 	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
+	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
 	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage), llb.WithCustomName("install PyPI packages"))
 	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage), llb.WithCustomName("install system packages"))
-	sshStage, err := g.copyEnvdSSHServerWithKey()
 
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to copy SSH key")
@@ -124,16 +131,20 @@ func (g Graph) Compile() (llb.State, error) {
 	var merged llb.State
 	if vscodeStage != nil {
 		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, pypiStage, sshStage, *vscodeStage, diffShellStage,
+			builtinSystemStage, systemStage, diffSSHStage, pypiStage, *vscodeStage, diffShellStage,
 		}, llb.WithCustomName("merging all components into one"))
 	} else {
 		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, pypiStage, sshStage, diffShellStage,
+			builtinSystemStage, systemStage, diffSSHStage, pypiStage, diffShellStage,
 		}, llb.WithCustomName("merging all components into one"))
 	}
 
 	// TODO(gaocegege): Support order-based exec.
 	run := g.compileRun(merged)
+	finalStage, err := g.compileGit(run)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile git")
+	}
 	g.Writer.Finish()
-	return run, nil
+	return finalStage, nil
 }

@@ -2,30 +2,36 @@
 # Make sure to check the documentation at https://goreleaser.com
 before:
   hooks:
-    - go mod tidy -compat=1.17
+    - go mod tidy
 builds:
   - env:
       - CGO_ENABLED=0
     goos:
       - linux
+      - darwin
     id: envd
     main: ./cmd/envd
     binary: envd
     ldflags:
       - -s -w 
-      - -X github.com/tensorchord/envd/pkg/version.Version={{ .Version }} 
-      - -X github.com/tensorchord/envd/pkg/version.Revision={{ .Commit }}
+      - -X github.com/tensorchord/envd/pkg/version.version={{ .Version }}
+      - -X github.com/tensorchord/envd/pkg/version.buildDate={{ .Date }}
+      - -X github.com/tensorchord/envd/pkg/version.gitCommit={{ .Commit }}
+      - -X github.com/tensorchord/envd/pkg/version.gitTreeState=clean
   - env:
       - CGO_ENABLED=0
     goos:
       - linux
+      - darwin
     id: envd-ssh
     main: ./cmd/envd-ssh
     binary: envd-ssh
     ldflags:
-      - -s -w 
-      - -X github.com/tensorchord/envd/pkg/version.Version={{ .Version }} 
-      - -X github.com/tensorchord/envd/pkg/version.Revision={{ .Commit }}
+      - -s -w
+      - -X github.com/tensorchord/envd/pkg/version.version={{ .Version }}
+      - -X github.com/tensorchord/envd/pkg/version.buildDate={{ .Date }}
+      - -X github.com/tensorchord/envd/pkg/version.gitCommit={{ .Commit }}
+      - -X github.com/tensorchord/envd/pkg/version.gitTreeState=clean
 archives:
   - id: envd
     format: binary

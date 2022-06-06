@@ -91,7 +91,6 @@ func build(clicontext *cli.Context) error {
 		"tag":                       tag,
 		flag.FlagBuildkitdImage:     viper.GetString(flag.FlagBuildkitdImage),
 		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
-		flag.FlagSSHImage:           viper.GetString(flag.FlagSSHImage),
 	})
 	logger.Debug("starting build command")
 
@@ -99,5 +98,5 @@ func build(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
-	return builder.Build(clicontext.Path("public-key"), clicontext.Context)
+	return builder.Build(clicontext.Context, clicontext.Path("public-key"))
 }

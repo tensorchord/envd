@@ -127,7 +127,6 @@ func up(clicontext *cli.Context) error {
 		"detach":                    detach,
 		flag.FlagBuildkitdImage:     viper.GetString(flag.FlagBuildkitdImage),
 		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
-		flag.FlagSSHImage:           viper.GetString(flag.FlagSSHImage),
 	})
 	logger.Debug("starting up command")
 
@@ -136,7 +135,7 @@ func up(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to create the builder")
 	}
 
-	if err := builder.Build(clicontext.Path("public-key"), clicontext.Context); err != nil {
+	if err := builder.Build(clicontext.Context, clicontext.Path("public-key")); err != nil {
 		return err
 	}
 	gpu := builder.GPUEnabled()
@@ -144,6 +143,16 @@ func up(clicontext *cli.Context) error {
 	dockerClient, err := docker.NewClient(clicontext.Context)
 	if err != nil {
 		return err
+	}
+
+	if gpu {
+		nvruntimeExists, err := dockerClient.GPUEnabled(clicontext.Context)
+		if err != nil {
+			return err
+		}
+		if !nvruntimeExists {
+			return errors.New("GPU is required but nvidia container runtime is not installed, please refer to https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker")
+		}
 	}
 
 	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,

@@ -28,8 +28,9 @@ type Graph struct {
 	CUDA     *string
 	CUDNN    *string
 
-	UbuntuAPTSource *string
-	PyPIMirror      *string
+	UbuntuAPTSource   *string
+	PyPIIndexURL      *string
+	PyPIExtraIndexURL *string
 
 	PublicKeyPath string
 
@@ -40,9 +41,16 @@ type Graph struct {
 
 	Exec []string
 	*JupyterConfig
+	*GitConfig
 
 	Writer      compileui.Writer
 	CachePrefix string
+}
+
+type GitConfig struct {
+	Name   string
+	Email  string
+	Editor string
 }
 
 type JupyterConfig struct {

@@ -32,11 +32,12 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/progress/progresswriter"
+	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 type Builder interface {
-	Build(pub string, ctx context.Context) error
+	Build(ctx context.Context, pub string) error
 	GPUEnabled() bool
 }
 
@@ -81,8 +82,8 @@ func (b generalBuilder) GPUEnabled() bool {
 	return ir.GPUEnabled()
 }
 
-func (b generalBuilder) Build(pub string, ctx context.Context) error {
-	def, err := b.compile(pub, ctx)
+func (b generalBuilder) Build(ctx context.Context, pub string) error {
+	def, err := b.compile(ctx, pub)
 	if err != nil {
 		return errors.Wrap(err, "failed to compile")
 	}
@@ -100,17 +101,17 @@ func (b generalBuilder) Build(pub string, ctx context.Context) error {
 
 func (b generalBuilder) interpret() error {
 	// Evaluate config first.
-	if _, err := b.ExecFile(b.configFilePath); err != nil {
+	if _, err := b.ExecFile(b.configFilePath, ""); err != nil {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 
-	if _, err := b.ExecFile(b.manifestFilePath); err != nil {
+	if _, err := b.ExecFile(b.manifestFilePath, "build"); err != nil {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 	return nil
 }
 
-func (b generalBuilder) compile(pub string, ctx context.Context) (*llb.Definition, error) {
+func (b generalBuilder) compile(ctx context.Context, pub string) (*llb.Definition, error) {
 	if err := b.interpret(); err != nil {
 		return nil, errors.Wrap(err, "failed to interpret")
 	}
@@ -127,6 +128,7 @@ func (b generalBuilder) labels(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get labels")
 	}
+	labels[types.ImageLabelContext] = b.buildContextDir
 	data, err := ImageConfigStr(labels)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get image config")

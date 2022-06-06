@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package starlark
+package main
 
-const (
-	ruleBase          = "base"
-	ruleSystemPackage = "install_package"
-	rulePyPIPackage   = "pip_package"
-	ruleCUDA          = "cuda"
-	ruleVSCode        = "vscode"
-	ruleUbuntuAPT     = "ubuntu_apt"
-	rulePyPIIndex     = "pip_index"
-	ruleShell         = "shell"
-	ruleJupyter       = "jupyter"
-	ruleRun           = "run"
-	ruleGitConfig     = "git_config"
+import (
+	cli "github.com/urfave/cli/v2"
 )
+
+var CommandGet = &cli.Command{
+	Name:    "get",
+	Aliases: []string{"g"},
+	Usage:   "Get images, or environments",
+
+	Subcommands: []*cli.Command{
+		CommandGetEnvironment,
+		CommandGetImage,
+	},
+}
