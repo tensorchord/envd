@@ -20,7 +20,9 @@ import (
 	"go.starlark.net/repl"
 	"go.starlark.net/starlark"
 
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/lib/config"
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/lib/install"
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/lib/universe"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
@@ -39,12 +41,14 @@ type generalInterpreter struct {
 
 func NewInterpreter() Interpreter {
 	// Register envd rules to Starlark.
-	registerenvdRules()
+	universe.RegisterenvdRules()
 	return &generalInterpreter{
 		Thread: &starlark.Thread{Load: repl.MakeLoad()},
 		Graph:  ir.NewGraph(),
 		predeclared: starlark.StringDict{
-			"install": install.Module},
+			"install": install.Module,
+			"config":  config.Module,
+		},
 	}
 }
 

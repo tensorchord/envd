@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package install
+package universe
 
 const (
-	ruleSystemPackage = "install.system_package"
-	rulePyPIPackage   = "install.pip_package"
-	ruleCUDA          = "install.cuda"
-	ruleVSCode        = "install.vscode"
-	ruleUbuntuAPT     = "install.apt_package"
+	ruleBase      = "base"
+	ruleShell     = "shell"
+	ruleRun       = "run"
+	ruleGitConfig = "git_config"
 )
