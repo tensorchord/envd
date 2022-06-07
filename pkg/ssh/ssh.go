@@ -15,6 +15,7 @@
 // limitations under the License.
 
 // https://gist.github.com/stefanprodan/2d20d0c6fdab6f14ce8219464e8b4b9a
+// Refer to okteto/pkg/ssh/exec.go
 package ssh
 
 import (
