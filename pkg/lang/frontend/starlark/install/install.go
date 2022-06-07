@@ -28,13 +28,13 @@ var (
 var Module = &starlarkstruct.Module{
 	Name: "install",
 	Members: starlark.StringDict{
-		"pip_package": starlark.NewBuiltin(
+		"py_packages": starlark.NewBuiltin(
 			rulePyPIPackage, ruleFuncPyPIPackage),
-		"sys_package": starlark.NewBuiltin(
+		"sys_packages": starlark.NewBuiltin(
 			ruleSystemPackage, ruleFuncSystemPackage),
-		"cuda":   starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
-		"vscode": starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
-		"shell":  starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
+		"cuda":              starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
+		"vscode_extensions": starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
+		"shell":             starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
 	},
 }
 
@@ -112,7 +112,7 @@ func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin,
 	var plugins *starlark.List
 
 	if err := starlark.UnpackArgs(ruleVSCode,
-		args, kwargs, "plugins?", &plugins); err != nil {
+		args, kwargs, "name", &plugins); err != nil {
 		return nil, err
 	}
 
