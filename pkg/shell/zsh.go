@@ -16,11 +16,14 @@ package shell
 
 import (
 	_ "embed"
+	"os"
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/sirupsen/logrus"
+
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -64,7 +67,7 @@ func (m generalManager) DownloadOrCache() (bool, error) {
 		}).Debug("oh-my-zsh already exists in cache")
 		return true, nil
 	}
-	url := "https://github.com/ohmyzsh/ohmyzsh"
+	url := "https://github.com/ohmyzsh/ohmyzsh.git"
 	l := logrus.WithFields(logrus.Fields{
 		"cache-dir": m.OHMyZSHDir(),
 		"URL":       url,
@@ -75,12 +78,67 @@ func (m generalManager) DownloadOrCache() (bool, error) {
 		return false, errors.New("failed to remove oh-my-zsh dir")
 	}
 	l.Debug("cache miss, downloading oh-my-zsh")
-	_, err := git.PlainClone(m.OHMyZSHDir(), false, &git.CloneOptions{
-		URL:   url,
-		Depth: 1,
-	})
+
+	// Init the git repository.
+	repo, err := git.PlainInit(m.OHMyZSHDir(), false)
 	if err != nil {
-		return false, err
+		return false, errors.Wrap(err, "failed to init oh-my-zsh repo")
+	}
+	cfg, err := repo.Config()
+	if err != nil {
+		return false, errors.Wrap(err, "failed to get repo config")
+	}
+	// Refer to https://github.com/tensorchord/envd/issues/183#issuecomment-1148113323
+	cfg.Raw.AddOption("core", "", "eol", "lf")
+	cfg.Raw.AddOption("core", "", "autocrlf", "false")
+	cfg.Raw.AddOption("core", "", "filemode", "true")
+	cfg.Raw.AddOption("core", "", "logallrefupdates", "true")
+	cfg.Raw.AddOption("core", "", "repositoryformatversion", "0")
+	cfg.Raw.AddOption("core", "", "bare", "false")
+	cfg.Raw.AddOption("fsck", "", "zeroPaddedFilemode", "ignore")
+	cfg.Raw.AddOption("fetch", "fsck", "zeroPaddedFilemode", "ignore")
+	cfg.Raw.AddOption("receive", "fsck", "zeroPaddedFilemode", "ignore")
+	cfg.Remotes["origin"] = &config.RemoteConfig{
+		Name: "origin",
+		URLs: []string{url},
+		Fetch: []config.RefSpec{
+			config.RefSpec("+refs/heads/master:refs/remotes/origin/master"),
+		},
+	}
+	cfg.Branches["master"] = &config.Branch{
+		Name:   "master",
+		Remote: "origin",
+		Merge:  "refs/heads/master",
+	}
+
+	if err := cfg.Validate(); err != nil {
+		return false, errors.Wrap(err, "failed to validate config")
+	}
+	if err := repo.SetConfig(cfg); err != nil {
+		return false, errors.Wrap(err, "failed to set config")
+	}
+
+	if err := repo.Fetch(&git.FetchOptions{
+		RemoteName: "origin",
+		RefSpecs: []config.RefSpec{
+			config.RefSpec("+refs/heads/master:refs/remotes/origin/master"),
+		},
+		Depth: 1,
+	}); err != nil {
+		return false, errors.Wrap(err, "failed to fetch oh-my-zsh")
+	}
+	wktree, err := repo.Worktree()
+	if err != nil {
+		return false, errors.Wrap(err, "failed to get worktree")
+	}
+	if err := wktree.Checkout(&git.CheckoutOptions{
+		Branch: "refs/remotes/origin/master",
+	}); err != nil {
+		return false, errors.Wrap(err, "failed to checkout master")
+	}
+
+	if err := m.createEnvdPromptTheme(); err != nil {
+		return false, errors.Wrap(err, "failed to create envd.zsh-theme")
 	}
 
 	if err := home.GetManager().MarkCache(cacheKey, true); err != nil {
@@ -88,6 +146,28 @@ func (m generalManager) DownloadOrCache() (bool, error) {
 	}
 	l.Debug("oh-my-zsh is downloaded")
 	return false, nil
+}
+
+// Refer to https://github.com/tensorchord/envd/issues/183#issuecomment-1148172564
+func (m generalManager) createEnvdPromptTheme() error {
+	path := "themes/envd.zsh-theme"
+	content := `
+PROMPT="(envd) %(?:%{$fg_bold[green]%}%{%G➜%} :%{$fg_bold[red]%}%{%G➜%} )"
+PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%} $(git_prompt_info)'
+
+ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"
+ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
+ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[blue]%}) %{$fg[yellow]%}%{%G✗%}"
+ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
+`
+	absolutePath := filepath.Join(m.OHMyZSHDir(), path)
+	logger := logrus.WithField("path", absolutePath)
+	logger.Debug("creating envd.zsh-theme")
+	if err := os.WriteFile(
+		absolutePath, []byte(content), 0644); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (m generalManager) OHMyZSHDir() string {
