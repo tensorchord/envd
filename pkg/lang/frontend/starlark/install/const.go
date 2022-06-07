@@ -19,5 +19,4 @@ const (
 	rulePyPIPackage   = "install.pip_package"
 	ruleCUDA          = "install.cuda"
 	ruleVSCode        = "install.vscode"
-	ruleUbuntuAPT     = "install.apt_package"
 )

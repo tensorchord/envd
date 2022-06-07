@@ -32,10 +32,9 @@ var Module = &starlarkstruct.Module{
 			rulePyPIPackage, ruleFuncPyPIPackage),
 		"sys_package": starlark.NewBuiltin(
 			ruleSystemPackage, ruleFuncSystemPackage),
-		"apt_package": starlark.NewBuiltin(ruleUbuntuAPT, ruleFuncUbuntuAPT),
-		"cuda":        starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
-		"vscode":      starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
-		"shell":       starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
+		"cuda":   starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
+		"vscode": starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
+		"shell":  starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
 	},
 }
 
@@ -79,33 +78,6 @@ func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked, name=%v", ruleSystemPackage, nameList)
 	ir.SystemPackage(nameList)
-
-	return starlark.None, nil
-}
-
-func ruleFuncUbuntuAPT(thread *starlark.Thread, _ *starlark.Builtin,
-	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var mode, source starlark.String
-
-	if err := starlark.UnpackArgs(ruleUbuntuAPT, args, kwargs,
-		"mode?", &mode, "source?", &source); err != nil {
-		return nil, err
-	}
-
-	modeStr := ""
-	if mode != starlark.String("") {
-		modeStr = mode.GoString()
-	}
-	sourceStr := ""
-	if source != starlark.String("") {
-		sourceStr = source.GoString()
-	}
-
-	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s", ruleUbuntuAPT,
-		modeStr, sourceStr)
-	if err := ir.UbuntuAPT(modeStr, sourceStr); err != nil {
-		return nil, err
-	}
 
 	return starlark.None, nil
 }

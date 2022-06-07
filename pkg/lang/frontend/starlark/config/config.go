@@ -29,7 +29,8 @@ var (
 var Module = &starlarkstruct.Module{
 	Name: "config",
 	Members: starlark.StringDict{
-		"jupyter": starlark.NewBuiltin(ruleJupyter, ruleFuncJupyter),
+		"apt_source": starlark.NewBuiltin(ruleUbuntuAptSource, ruleFuncUbuntuAptSource),
+		"jupyter":    starlark.NewBuiltin(ruleJupyter, ruleFuncJupyter),
 		"pip_index": starlark.NewBuiltin(
 			rulePyPIIndex, ruleFuncPyPIIndex),
 	},
@@ -88,6 +89,33 @@ func ruleFuncPyPIIndex(thread *starlark.Thread, _ *starlark.Builtin,
 	logger.Debugf("rule `%s` is invoked, mode=%s, index=%s, extraIndex=%s", rulePyPIIndex,
 		modeStr, indexStr, extraIndexStr)
 	if err := ir.PyPIIndex(modeStr, indexStr, extraIndexStr); err != nil {
+		return nil, err
+	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncUbuntuAptSource(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var mode, source starlark.String
+
+	if err := starlark.UnpackArgs(ruleUbuntuAptSource, args, kwargs,
+		"mode?", &mode, "source?", &source); err != nil {
+		return nil, err
+	}
+
+	modeStr := ""
+	if mode != starlark.String("") {
+		modeStr = mode.GoString()
+	}
+	sourceStr := ""
+	if source != starlark.String("") {
+		sourceStr = source.GoString()
+	}
+
+	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s", ruleUbuntuAptSource,
+		modeStr, sourceStr)
+	if err := ir.UbuntuAPT(modeStr, sourceStr); err != nil {
 		return nil, err
 	}
 

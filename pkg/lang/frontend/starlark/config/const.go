@@ -15,6 +15,7 @@
 package config
 
 const (
-	rulePyPIIndex = "config.pip_index"
-	ruleJupyter   = "config.jupyter"
+	ruleUbuntuAptSource = "config.apt_source"
+	rulePyPIIndex       = "config.pip_index"
+	ruleJupyter         = "config.jupyter"
 )
