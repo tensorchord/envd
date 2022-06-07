@@ -17,5 +17,4 @@ package config
 const (
 	rulePyPIIndex = "config.pip_index"
 	ruleJupyter   = "config.jupyter"
-	ruleRun       = "run"
 )
