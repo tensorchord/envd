@@ -15,14 +15,6 @@
 package config
 
 const (
-	// ruleBase          = "base"
-	// ruleSystemPackage = "install.system_package"
-	// rulePyPIPackage   = "install.pip_package"
-	// ruleCUDA          = "install.cuda"
-	// ruleVSCode        = "install.vscode"
-	// ruleUbuntuAPT     = "install.apt_package"
-	// ruleShell         = "install.shell"
-
 	rulePyPIIndex = "config.pip_index"
 	ruleJupyter   = "config.jupyter"
 	ruleRun       = "run"
