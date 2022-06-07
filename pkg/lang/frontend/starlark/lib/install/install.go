@@ -30,7 +30,7 @@ var Module = &starlarkstruct.Module{
 	Members: starlark.StringDict{
 		"pip_package": starlark.NewBuiltin(
 			rulePyPIPackage, ruleFuncPyPIPackage),
-		"system_package": starlark.NewBuiltin(
+		"sys_package": starlark.NewBuiltin(
 			ruleSystemPackage, ruleFuncSystemPackage),
 		"apt_package": starlark.NewBuiltin(ruleUbuntuAPT, ruleFuncUbuntuAPT),
 		"cuda":        starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
