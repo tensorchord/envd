@@ -4,7 +4,7 @@ def build():
         "ms-python.python",
     ])
 
-    install.py_packages([
+    install.python_packages([
         "tensorflow",
         "numpy",
     ])

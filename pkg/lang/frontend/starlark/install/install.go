@@ -28,9 +28,9 @@ var (
 var Module = &starlarkstruct.Module{
 	Name: "install",
 	Members: starlark.StringDict{
-		"py_packages": starlark.NewBuiltin(
+		"python_packages": starlark.NewBuiltin(
 			rulePyPIPackage, ruleFuncPyPIPackage),
-		"sys_packages": starlark.NewBuiltin(
+		"system_packages": starlark.NewBuiltin(
 			ruleSystemPackage, ruleFuncSystemPackage),
 		"cuda":              starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
 		"vscode_extensions": starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
