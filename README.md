@@ -60,18 +60,18 @@ Checkout the [examples](./examples/mnist), and configure envd with the manifest 
 
 ```python
 def build():
-    vscode(plugins = [
+    install.vscode_extensions([
         "ms-python.python",
     ])
 
     base(os="ubuntu20.04", language="python3")
-    pip_package(name = [
+    install.python_packages(name = [
         "tensorflow",
         "numpy",
     ])
-    cuda(version="11.6", cudnn="8")
+    install.cuda(version="11.6", cudnn="8")
     shell("zsh")
-    jupyter(password="", port=8888)
+    config.jupyter(password="", port=8888)
 ```
 
 Then you can run `envd up` to create the development environment.
