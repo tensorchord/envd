@@ -137,7 +137,7 @@ envd supports PyPI mirror and apt source configuration. You can configure them i
 
 ```text
 cat ~/.config/envd/config.envd
-ubuntu_apt(source="""
+config.apt_source(source="""
 deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
 deb https://mirror.sjtu.edu.cn/ubuntu focal-updates main restricted
 deb https://mirror.sjtu.edu.cn/ubuntu focal universe
@@ -148,8 +148,8 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-backports main restricted universe m
 deb http://archive.canonical.com/ubuntu focal partner
 deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe multiverse
 """)
-pip_index(url = "https://mirror.sjtu.edu.cn/pypi/web/simple")
-vscode(plugins = [
+config.pip_index(url = "https://mirror.sjtu.edu.cn/pypi/web/simple")
+install.vscode_extensions([
     "ms-python.python",
     "github.copilot"
 ])
