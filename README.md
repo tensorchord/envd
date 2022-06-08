@@ -37,72 +37,62 @@ envd provides build language similar to Python and has first-class support for j
 
 ## How does envd work?
 
-## Install
+TODO
 
-### From binary
+## Getting Started
 
-You can download the binary from the [latest release page](https://github.com/tensorchord/envd/releases/latest).
+Get started by **creating a new envd environment**.
+
+### What you'll need
+
+- Docker (20.10.0 or above)
+
+### Install envd
+
+You can download the binary from the [latest release page](https://github.com/tensorchord/envd/releases/latest), and add it in `$PATH`.
 
 After the download, please run `envd bootstrap` to bootstrap.
 
-### From source code
+### Create an envd environment
 
-```bash
-git clone https://github.com/tensorchord/envd
-go mod tidy
-make
-./bin/envd --version
-```
-
-## Quickstart
-
-Checkout the [examples](./examples/mnist), and configure envd with the manifest `build.envd`:
+Create a file `build.envd`:
 
 ```python
 def build():
-    install.vscode_extensions([
-        "ms-python.python",
-    ])
-
     base(os="ubuntu20.04", language="python3")
     install.python_packages(name = [
-        "tensorflow",
         "numpy",
     ])
-    install.cuda(version="11.6", cudnn="8")
     shell("zsh")
-    config.jupyter(password="", port=8888)
 ```
 
-Then you can run `envd up` to create the development environment.
-
-<a href="https://asciinema.org/a/498012" target="_blank"><img src="https://asciinema.org/a/498012.svg" /></a>
-
-TODO: illustrate that the cache will be persistent.
+Then run `envd up`, the environment will be built and provisioned.
 
 ```
-$ envd up
-[+] ⌚ parse build.envd and download/cache dependencies 0.0s ✅ (finished)        
- => 💽 (cached) download oh-my-zsh                                            0.0s
- => 💽 (cached) download ms-python.python                                     0.0s
-[+] 🐋 build envd environment 7.7s (24/25)                                        
- => 💽 (cached) (built-in packages) apt-get install curl openssh-client g     0.0s
- => 💽 (cached) create user group envd                                        0.0s
- => 💽 (cached) create user envd                                              0.0s
- => 💽 (cached) add user envd to sudoers                                      0.0s
- => 💽 (cached) (user-defined packages) apt-get install screenfetch           0.0s
- => 💽 (cached) install system packages                                       0.0s
- => 💽 (cached) pip install jupyter                                           0.0s
- => 💽 (cached) install PyPI packages                                         0.0s
- => 💽 (cached) install envd-ssh                                              0.0s
- => 💽 (cached) install vscode plugin ms-python.python                        0.0s
- => 💽 (cached) copy /oh-my-zsh /home/envd/.oh-my-zsh                         0.0s
- => 💽 (cached) mkfile /home/envd/install.sh                                  0.0s
- => 💽 (cached) install oh-my-zsh                                             0.0s
+> envd u -p cmd/envd/testdata
+[+] ⌚ parse build.envd and download/cache dependencies 2.8s ✅ (finished)     
+ => download oh-my-zsh                                                    2.8s 
+[+] 🐋 build envd environment 18.3s (25/25) ✅ (finished)                      
+ => create apt source dir                                                 0.0s 
+ => local://cache-dir                                                     0.1s 
+ => => transferring cache-dir: 5.12MB                                     0.1s 
 ...
-# You are in the docker container for dev
-(envd 🐳)  ➜  mnist-dev git:(master) python3 ./main.py
-...
+ => pip install numpy                                                    13.0s 
+ => copy /oh-my-zsh /home/envd/.oh-my-zsh                                 0.1s 
+ => mkfile /home/envd/install.sh                                          0.0s 
+ => install oh-my-zsh                                                     0.1s 
+ => mkfile /home/envd/.zshrc                                              0.0s 
+ => install shell                                                         0.0s
+ => install PyPI packages                                                 0.0s
+ => merging all components into one                                       0.3s
+ => => merging                                                            0.3s
+ => mkfile /home/envd/.gitconfig                                          0.0s 
+ => exporting to oci image format                                         2.4s 
+ => => exporting layers                                                   2.0s 
+ => => exporting manifest sha256:7dbe9494d2a7a39af16d514b997a5a8f08b637f  0.0s
+ => => exporting config sha256:1da06b907d53cf8a7312c138c3221e590dedc2717  0.0s
+ => => sending tarball                                                    0.4s
+(envd) ➜  demo git:(master) ✗ # You are in the container-based environment!
 ```
 
 Jupyter notebook service and sshd server are running inside the container. You can use jupyter or vscode remote-ssh extension to develop AI/ML models.

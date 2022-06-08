@@ -1,0 +1,8 @@
+{
+  "label": "Reference Documentation",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "This section includes the reference documentation for the envd's various APIs, CLIs, and file formats."
+  }
+}
