@@ -12,18 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package starlark
+package install
 
 const (
-	ruleBase          = "base"
-	ruleSystemPackage = "install_package"
-	rulePyPIPackage   = "pip_package"
-	ruleCUDA          = "cuda"
-	ruleVSCode        = "vscode"
-	ruleUbuntuAPT     = "ubuntu_apt"
-	rulePyPIIndex     = "pip_index"
-	ruleShell         = "shell"
-	ruleJupyter       = "jupyter"
-	ruleRun           = "run"
-	ruleGitConfig     = "git_config"
+	ruleSystemPackage = "install.system_packages"
+	rulePyPIPackage   = "install.python_packages"
+	ruleCUDA          = "install.cuda"
+	ruleVSCode        = "install.vscode_extensions"
 )
