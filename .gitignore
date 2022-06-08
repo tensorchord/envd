@@ -37,3 +37,4 @@ debug-bin/
 cover.html
 
 dist/
+.demo/
