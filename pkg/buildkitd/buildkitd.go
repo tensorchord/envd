@@ -47,15 +47,17 @@ type Client interface {
 type generalClient struct {
 	containerName string
 	image         string
+	mirror        string
 
 	*client.Client
 	logger *logrus.Entry
 }
 
-func NewClient(ctx context.Context) (Client, error) {
+func NewClient(ctx context.Context, mirror string) (Client, error) {
 	c := &generalClient{
 		containerName: viper.GetString(flag.FlagBuildkitdContainer),
 		image:         viper.GetString(flag.FlagBuildkitdImage),
+		mirror:        mirror,
 	}
 	c.logger = logrus.WithFields(logrus.Fields{
 		"container": c.containerName,
@@ -103,7 +105,7 @@ func (c *generalClient) maybeStart(ctx context.Context,
 
 	if !created {
 		c.logger.Debug("container not created, creating...")
-		if _, err := dockerClient.StartBuildkitd(ctx, c.image, c.containerName); err != nil {
+		if _, err := dockerClient.StartBuildkitd(ctx, c.image, c.containerName, c.mirror); err != nil {
 			return "", err
 		}
 		if err := dockerClient.WaitUntilRunning(ctx, c.containerName, runningTimeout); err != nil {
