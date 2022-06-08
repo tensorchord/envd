@@ -14,12 +14,20 @@
 
 package ir
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/sirupsen/logrus"
+)
 
 func (g Graph) CacheID(filename string) string {
-	gpu := g.CUDA == nil || g.CUDNN == nil
+	gpu := g.CUDA != nil || g.CUDNN != nil
+	var cacheID string
 	if gpu {
-		return fmt.Sprintf("/%s-gpu-%s", g.CachePrefix, filename)
+		cacheID = fmt.Sprintf("/%s-gpu-%s", g.CachePrefix, filename)
+	} else {
+		cacheID = fmt.Sprintf("/%s-cpu-%s", g.CachePrefix, filename)
 	}
-	return fmt.Sprintf("/%s-cpu-%s", g.CachePrefix, filename)
+	logrus.Debugf("apt/pypi calculated cacheID: %s", cacheID)
+	return cacheID
 }
