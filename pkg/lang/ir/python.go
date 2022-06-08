@@ -28,27 +28,25 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		return root
 	}
 
-	cacheDir := "/home/envd/.cache/pip"
+	cacheDir := "/home/envd/.cache"
 
 	// Compose the package install command.
 	var sb strings.Builder
-	// Wait until https://github.com/moby/buildkit/commit/31054718bf775bf32d1376fe1f3611985f837584 is released in v0.10.4
-	sb.WriteString("sudo chown -R 1000:1000 ")
-	sb.WriteString(filepath.Dir(cacheDir))
-	sb.WriteString("&& pip install --no-warn-script-location")
+	sb.WriteString("pip install --no-warn-script-location")
 	for _, pkg := range g.PyPIPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}
 
 	cmd := sb.String()
-	// Wait until https://github.com/moby/buildkit/commit/31054718bf775bf32d1376fe1f3611985f837584 is released in v0.10.4
-	// run := root.File(llb.Mkdir(cacheDir,
-	// 	0755, llb.WithParents(true), llb.WithUIDGID(1000, 1000)), llb.WithCustomName("[internal] settings pip cache mount permissions")).
+	root = llb.User("envd")(root)
+	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
+	cache := root.File(llb.Mkdir("/cache",
+		0755, llb.WithParents(true), llb.WithUIDGID(1000, 1000)), llb.WithCustomName("[internal] settings pip cache mount permissions"))
 	run := root.
-		Run(llb.Shlex(fmt.Sprintf(`sh -c "%s"`, cmd)), llb.WithCustomNamef("pip install %s",
+		Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s",
 			strings.Join(g.PyPIPackages, " ")))
-	run.AddMount(cacheDir, llb.Scratch(),
-		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
+	run.AddMount(cacheDir, cache,
+		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))
 	return run.Root()
 }
 
@@ -61,12 +59,12 @@ func (g Graph) compilePyPIIndex(root llb.State) llb.State {
 			extraIndex = "extra-index-url=" + *g.PyPIExtraIndexURL
 		}
 		content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIIndexURL, extraIndex)
-		pypiMirror := llb.Scratch().
+		pypiMirror := root.
 			File(llb.Mkdir(filepath.Dir(pypiIndexFilePath),
 				0755, llb.WithParents(true), llb.WithUIDGID(defaultUID, defaultGID))).
 			File(llb.Mkfile(pypiIndexFilePath,
 				0644, []byte(content), llb.WithUIDGID(defaultUID, defaultGID)))
-		return llb.Merge([]llb.State{root, pypiMirror}, llb.WithCustomName("add PyPI mirror"))
+		return pypiMirror
 	}
 	return root
 }

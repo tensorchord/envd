@@ -73,7 +73,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	cacheLibDir := "/var/lib/apt"
 
 	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
-		llb.WithCustomNamef("(user-defined packages) apt-get install %s",
+		llb.WithCustomNamef("apt-get install %s",
 			strings.Join(g.SystemPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
@@ -93,7 +93,7 @@ func (g *Graph) compileBase() llb.State {
 	res := base.
 		Run(llb.Shlex("groupadd -g 1000 envd"), llb.WithCustomName("create user group envd")).
 		Run(llb.Shlex("useradd -p \"\" -u 1000 -g envd -s /bin/sh -m envd"), llb.WithCustomName("create user envd")).
-		Run(llb.Shlex("adduser envd sudo"), llb.WithCustomName("add user envd to sudoers"))
+		Run(llb.Shlex("adduser envd sudo"), llb.WithCustomName("add user envd to sudoers")).Run(llb.Shlex("chown -R envd:envd /usr/local/lib"))
 	return llb.User("envd")(res.Root())
 }
 

@@ -37,6 +37,11 @@ var CommandBootstrap = &cli.Command{
 			Usage: "Add envd autocompletions",
 			Value: true,
 		},
+		&cli.StringFlag{
+			Name:    "dockerhub-mirror",
+			Usage:   "Dockerhub mirror to use",
+			Aliases: []string{"m"},
+		},
 	},
 
 	Action: bootstrap,
@@ -64,7 +69,7 @@ func bootstrap(clicontext *cli.Context) error {
 
 	if buildkit {
 		logrus.Debug("bootstrap the buildkitd container")
-		bkClient, err := buildkitd.NewClient(clicontext.Context)
+		bkClient, err := buildkitd.NewClient(clicontext.Context, clicontext.String("dockerhub-mirror"))
 		if err != nil {
 			return errors.Wrap(err, "failed to create buildkit client")
 		}

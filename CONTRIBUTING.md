@@ -8,7 +8,7 @@ Please refer to the [CNCF Community Code of Conduct v1.0](https://github.com/cnc
 
 ### Requirements
 
-- Go 1.17
+- Go 1.18
 - Docker
 
 ### Build from source

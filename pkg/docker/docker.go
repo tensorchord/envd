@@ -48,7 +48,7 @@ type Client interface {
 	// Start creates the container for the given tag and container name.
 	StartEnvd(ctx context.Context, tag, name, buildContext string,
 		gpuEnabled bool, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error)
-	StartBuildkitd(ctx context.Context, tag, name string) (string, error)
+	StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error)
 
 	IsRunning(ctx context.Context, name string) (bool, error)
 	IsCreated(ctx context.Context, name string) (bool, error)
@@ -225,10 +225,11 @@ func (c generalClient) Destroy(ctx context.Context, name string) (string, error)
 }
 
 func (g generalClient) StartBuildkitd(ctx context.Context,
-	tag, name string) (string, error) {
+	tag, name, mirror string) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
+		"mirror":    mirror,
 	})
 	logger.Debug("starting buildkitd")
 	if _, _, err := g.ImageInspectWithRaw(ctx, tag); err != nil {
@@ -251,6 +252,15 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 	}
 	config := &container.Config{
 		Image: tag,
+	}
+	if mirror != "" {
+		cfg := fmt.Sprintf(`
+[registry."docker.io"]
+	mirrors = ["%s"]`, mirror)
+		config.Entrypoint = []string{
+			"/bin/sh", "-c", fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg),
+		}
+		logger.Debugf("setting buildkit config: %s", cfg)
 	}
 	hostConfig := &container.HostConfig{
 		Privileged: true,

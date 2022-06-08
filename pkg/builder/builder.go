@@ -67,7 +67,7 @@ func New(ctx context.Context,
 		}),
 	}
 
-	cli, err := buildkitd.NewClient(ctx)
+	cli, err := buildkitd.NewClient(ctx, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create buildkit client")
 	}
