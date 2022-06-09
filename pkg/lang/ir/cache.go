@@ -24,9 +24,9 @@ func (g Graph) CacheID(filename string) string {
 	gpu := g.CUDA != nil || g.CUDNN != nil
 	var cacheID string
 	if gpu {
-		cacheID = fmt.Sprintf("/%s-gpu-%s", g.CachePrefix, filename)
+		cacheID = fmt.Sprintf("%s/%s-gpu", filename, g.CachePrefix)
 	} else {
-		cacheID = fmt.Sprintf("/%s-cpu-%s", g.CachePrefix, filename)
+		cacheID = fmt.Sprintf("%s/%s-cpu", filename, g.CachePrefix)
 	}
 	logrus.Debugf("apt/pypi calculated cacheID: %s", cacheID)
 	return cacheID
