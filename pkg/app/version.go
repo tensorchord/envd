@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package app
 
 import (
 	"fmt"
+
 	"github.com/tensorchord/envd/pkg/version"
 	"github.com/urfave/cli/v2"
 )

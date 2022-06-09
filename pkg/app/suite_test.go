@@ -12,34 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package app
 
 import (
-	"context"
+	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"github.com/tensorchord/envd/pkg/docker"
-	"github.com/tensorchord/envd/pkg/home"
 )
 
-var _ = Describe("build command", func() {
-	buildContext := "testdata"
-	args := []string{
-		"envd.test", "--debug", "build", "--path", buildContext,
-	}
-	BeforeEach(func() {
-		Expect(home.Initialize()).NotTo(HaveOccurred())
-		cli, err := docker.NewClient(context.TODO())
-		Expect(err).NotTo(HaveOccurred())
-		_, err = cli.Destroy(context.TODO(), buildContext)
-		Expect(err).NotTo(HaveOccurred())
-	})
-	When("given the right arguments", func() {
-		It("should build successfully", func() {
-			_, err := run(args)
-			Expect(err).NotTo(HaveOccurred())
-		})
-	})
-})
+func TestMain(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "envd Suite")
+}

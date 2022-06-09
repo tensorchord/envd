@@ -12,43 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package app
 
 import (
+	"os"
+
 	"github.com/cockroachdb/errors"
-	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/envd"
-	"github.com/urfave/cli/v2"
+	cli "github.com/urfave/cli/v2"
 )
 
-var CommandResume = &cli.Command{
-	Name:    "resume",
-	Aliases: []string{"r"},
-	Usage:   "resume the envd environment",
+var CommandGetImageDependency = &cli.Command{
+	Name:    "deps",
+	Aliases: []string{"dep", "d"},
+	Usage:   "List all dependencies in the image",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    "env",
-			Usage:   "environment name",
-			Aliases: []string{"e"},
+			Name:    "image",
+			Usage:   "Specify the image to use",
+			Aliases: []string{"i"},
 		},
 	},
-
-	Action: resume,
+	Action: getImageDependency,
 }
 
-func resume(clicontext *cli.Context) error {
-	env := clicontext.String("env")
-	if env == "" {
-		return errors.New("env is required")
+func getImageDependency(clicontext *cli.Context) error {
+	envName := clicontext.String("image")
+	if envName == "" {
+		return errors.New("image is required")
 	}
 	envdEngine, err := envd.New(clicontext.Context)
 	if err != nil {
 		return errors.Wrap(err, "failed to create envd engine")
 	}
-	if name, err := envdEngine.ResumeEnvironment(clicontext.Context, env); err != nil {
-		return errors.Wrap(err, "failed to pause the environment")
-	} else if name != "" {
-		logrus.Infof("%s is resumed", name)
+	dep, err := envdEngine.ListImageDependency(clicontext.Context, envName)
+	if err != nil {
+		return errors.Wrap(err, "failed to list dependencies")
 	}
+	renderDependencies(dep, os.Stdout)
 	return nil
 }

@@ -19,17 +19,11 @@ import (
 	"os"
 
 	"github.com/cockroachdb/errors"
-	_ "github.com/moby/buildkit/client/connhelper/dockercontainer"
-	_ "github.com/moby/buildkit/client/connhelper/kubepod"
-	_ "github.com/moby/buildkit/client/connhelper/podmancontainer"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 	"go.starlark.net/starlark"
 	"go.starlark.net/syntax"
 
-	"github.com/tensorchord/envd/pkg/flag"
-	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -38,61 +32,8 @@ func run(args []string) (bool, error) {
 		fmt.Println(c.App.Name, version.Package, c.App.Version, version.Revision)
 	}
 
-	// TODO(gaocegege): Enclose the app, maybe create the struct envdApp.
-	app := cli.NewApp()
-	app.EnableBashCompletion = true
-	app.Name = "envd"
-	app.Usage = "Build tools for data scientists"
-	app.Version = version.GetVersion().String()
-	app.Flags = []cli.Flag{
-		&cli.BoolFlag{
-			Name:  "debug",
-			Usage: "enable debug output in logs",
-		},
-		&cli.StringFlag{
-			Name:  flag.FlagBuildkitdImage,
-			Usage: "docker image to use for buildkitd",
-			Value: "docker.io/moby/buildkit:v0.10.3",
-		},
-		&cli.StringFlag{
-			Name:  flag.FlagBuildkitdContainer,
-			Usage: "buildkitd container to use for buildkitd",
-			Value: "envd_buildkitd",
-		},
-	}
-
-	app.Commands = []*cli.Command{
-		CommandBootstrap,
-		CommandBuild,
-		CommandDestroy,
-		CommandGet,
-		CommandPause,
-		CommandResume,
-		CommandUp,
-		CommandVersion,
-	}
-
-	// Deal with debug flag.
-	var debugEnabled bool
-
-	app.Before = func(context *cli.Context) error {
-		debugEnabled = context.Bool("debug")
-
-		logrus.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
-		if debugEnabled {
-			logrus.SetLevel(logrus.DebugLevel)
-		}
-
-		if err := home.Initialize(); err != nil {
-			return errors.Wrap(err, "failed to initialize home manager")
-		}
-
-		// TODO(gaocegege): Add a config struct to keep them.
-		viper.Set(flag.FlagBuildkitdContainer, context.String(flag.FlagBuildkitdContainer))
-		viper.Set(flag.FlagBuildkitdImage, context.String(flag.FlagBuildkitdImage))
-		return nil
-	}
-	return debugEnabled, app.Run(args)
+	app := app.New()
+	return app.Debug, app.Run(args)
 }
 
 func handleErr(debug bool, err error) {

@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package app
 
 import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	cli "github.com/urfave/cli/v2"
 )
 
-func TestMain(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "envd Suite")
+var CommandGet = &cli.Command{
+	Name:    "get",
+	Aliases: []string{"g"},
+	Usage:   "Get images, or environments",
+
+	Subcommands: []*cli.Command{
+		CommandGetEnvironment,
+		CommandGetImage,
+	},
 }

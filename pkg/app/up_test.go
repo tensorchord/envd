@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package app
 
 import (
 	"context"
@@ -31,6 +31,9 @@ var _ = Describe("up command", func() {
 	}
 	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
+		app := New()
+		err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
+		Expect(err).NotTo(HaveOccurred())
 		cli, err := docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())
 		_, err = cli.Destroy(context.TODO(), buildContext)
@@ -38,12 +41,13 @@ var _ = Describe("up command", func() {
 	})
 	When("given the right arguments", func() {
 		It("should up and destroy successfully", func() {
-			_, err := run(args)
+			app := New()
+			err := app.Run(args)
 			Expect(err).NotTo(HaveOccurred())
 			destroyArgs := []string{
 				"envd.test", "--debug", "destroy", "--path", buildContext,
 			}
-			_, err = run(destroyArgs)
+			err = app.Run(destroyArgs)
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})

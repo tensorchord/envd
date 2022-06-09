@@ -15,8 +15,10 @@
 package shell
 
 import (
+	"os"
 	"path/filepath"
 
+	"github.com/adrg/xdg"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/tensorchord/envd/pkg/home"
@@ -31,8 +33,7 @@ var _ = Describe("zsh manager", func() {
 	AfterEach(func() {
 		// Cleanup the home cache.
 		Expect(home.Initialize()).NotTo(HaveOccurred())
-		m := home.GetManager()
-		Expect(fileutil.RemoveAll(m.CacheDir())).NotTo(HaveOccurred())
+		Expect(os.RemoveAll(filepath.Join(xdg.CacheHome, "envd/cache.status"))).NotTo(HaveOccurred())
 	})
 	When("cached", func() {
 		It("should skip", func() {
