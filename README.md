@@ -37,6 +37,94 @@ envd provides another way to solve the problem. As the infra guys, we accept the
 
 envd provides build language similar to Python and has first-class support for jupyter, vscode, and python dependencies in container technologies.
 
+<details>
+  <summary>Comparasion between build.envd and Dockerfile</summary>
+<table>
+<tr>
+<td> build.envd (less than 15 lines) </td> <td> Dockerfile (more than 40 lines) </td>
+</tr>
+<tr>
+<td>
+
+```python
+def build():
+    base(os="ubuntu20.04", language="python3")
+    install.vscode_extensions([
+        "ms-python.python",
+    ])
+    install.python_packages([
+        "tensorflow",
+        "numpy",
+    ])
+    install.cuda(version="11.6", cudnn="8")
+    shell("zsh")
+    config.jupyter(password="", port=8888)
+```
+
+</td>
+<td>
+
+```dockerfile
+FROM nvidia:cuda:11.6.2-devel-ubuntu20.04
+
+# Install tools such as sshd or python.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    --no-install-suggests --fix-missing bash-static \
+    python3 curl openssh-server openssh-client \
+    git tini sudo python3-pip zsh vim \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd -r normaluser && \
+    useradd -r -g normaluser normaluser
+
+USER normaluser
+
+RUN mkdir /var/run/sshd
+
+RUN mkdir /root/.ssh
+
+COPY ./key /root/.ssh/id_rsa
+
+RUN echo 'root:root' |chpasswd
+
+RUN sed -ri \
+    's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -ri \
+    's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+
+RUN mkdir /home/normaluser/.cache
+
+RUN --mount=type=cache,target=/home/normaluser/.cache \
+    pip install --upgrade pip
+
+RUN --mount=type=cache,target=/home/normaluser/.cache \
+    pip install tensorflow==2.9.1 numpy jupyter
+
+
+RUN echo '[user]\n\
+        email = anonymous@email.com \n\
+        name = Name \n\
+[core]\n\
+        editor = vim \n' >> /home/normaluser/.gitconfig
+
+RUN wget \
+    https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
+
+RUN echo 'set -e\n\
+sshd &\n\
+python -m jupyter notebook --no-browser --ip=* \
+--port=8888 --allow-root --NotebookApp.token=''\n\
+wait -n`' >> /init.bash
+
+ENTRYPOINT ["tini", "--", "bash", "init.bash"]
+```
+
+</td>
+</tr>
+</table>
+</details>
+
 ## Documentation
 
 See [envd documentation](https://envd.tensorchord.ai/docs/intro).
