@@ -33,7 +33,6 @@ var _ = Describe("zsh manager", func() {
 	AfterEach(func() {
 		// Cleanup the home cache.
 		Expect(home.Initialize()).NotTo(HaveOccurred())
-		m := home.GetManager()
 		Expect(os.RemoveAll(filepath.Join(xdg.CacheHome, "envd/cache.status"))).NotTo(HaveOccurred())
 	})
 	When("cached", func() {
