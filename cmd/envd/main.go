@@ -19,9 +19,6 @@ import (
 	"os"
 
 	"github.com/cockroachdb/errors"
-	_ "github.com/moby/buildkit/client/connhelper/dockercontainer"
-	_ "github.com/moby/buildkit/client/connhelper/kubepod"
-	_ "github.com/moby/buildkit/client/connhelper/podmancontainer"
 	cli "github.com/urfave/cli/v2"
 	"go.starlark.net/starlark"
 	"go.starlark.net/syntax"

@@ -31,6 +31,9 @@ var _ = Describe("up command", func() {
 	}
 	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
+		app := New()
+		err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
+		Expect(err).NotTo(HaveOccurred())
 		cli, err := docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())
 		_, err = cli.Destroy(context.TODO(), buildContext)
