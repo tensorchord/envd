@@ -84,19 +84,23 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 
 func (g *Graph) compileBase() llb.State {
 	var base llb.State
+	var groupID string
 	if g.CUDA == nil && g.CUDNN == nil {
 		if g.Language == "r" {
 			base = llb.Image("docker.io/r-base:4.2.0")
+			// r-base image already has GID 1000.
+			groupID = "1001"
 		} else {
 			base = llb.Image("docker.io/gaocegege/python:3.8-ubuntu20.04")
+			groupID = "1000"
 		}
 	} else {
 		base = g.compileCUDAPackages()
 	}
 	// TODO(gaocegege): Refactor user to a seperate stage.
 	res := base.
-		Run(llb.Shlex("groupadd -g 1001 envd"), llb.WithCustomName("create user group envd")).
-		Run(llb.Shlex("useradd -p \"\" -u 1001 -g envd -s /bin/sh -m envd"), llb.WithCustomName("create user envd")).
+		Run(llb.Shlex(fmt.Sprintf("groupadd -g %s envd", groupID)), llb.WithCustomName("create user group envd")).
+		Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %s -g envd -s /bin/sh -m envd", groupID)), llb.WithCustomName("create user envd")).
 		Run(llb.Shlex("adduser envd sudo"), llb.WithCustomName("add user envd to sudoers")).Run(llb.Shlex("chown -R envd:envd /usr/local/lib"))
 	return llb.User("envd")(res.Root())
 }
