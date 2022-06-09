@@ -38,7 +38,7 @@ envd provides another way to solve the problem. As the infra guys, we accept the
 envd provides build language similar to Python and has first-class support for jupyter, vscode, and python dependencies in container technologies.
 
 <details>
-  <summary>Comparasion between build.envd and Dockerfile</summary>
+  <summary>The same logic in build.envd and in Dockerfile</summary>
 <table>
 <tr>
 <td> build.envd (less than 15 lines) </td> <td> Dockerfile (more than 40 lines) </td>
