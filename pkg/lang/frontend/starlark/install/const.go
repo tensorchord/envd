@@ -17,6 +17,7 @@ package install
 const (
 	ruleSystemPackage = "install.system_packages"
 	rulePyPIPackage   = "install.python_packages"
+	ruleRPackage      = "install.r_packages"
 	ruleCUDA          = "install.cuda"
 	ruleVSCode        = "install.vscode_extensions"
 )

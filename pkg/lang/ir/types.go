@@ -36,6 +36,7 @@ type Graph struct {
 
 	BuiltinSystemPackages []string
 	PyPIPackages          []string
+	RPackages             []string
 	SystemPackages        []string
 	VSCodePlugins         []vscode.Plugin
 

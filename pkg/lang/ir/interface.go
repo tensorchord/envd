@@ -29,6 +29,10 @@ func PyPIPackage(deps []string) {
 	DefaultGraph.PyPIPackages = append(DefaultGraph.PyPIPackages, deps...)
 }
 
+func RPackage(deps []string) {
+	DefaultGraph.RPackages = append(DefaultGraph.RPackages, deps...)
+}
+
 func SystemPackage(deps []string) {
 	DefaultGraph.SystemPackages = append(DefaultGraph.SystemPackages, deps...)
 }
