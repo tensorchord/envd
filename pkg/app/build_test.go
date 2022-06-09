@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package app
 
 import (
 	"context"
@@ -24,10 +24,10 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 )
 
-var _ = Describe("up command", func() {
+var _ = Describe("build command", func() {
 	buildContext := "testdata"
 	args := []string{
-		"envd.test", "--debug", "up", "--path", buildContext, "--detach",
+		"envd.test", "--debug", "build", "--path", buildContext,
 	}
 	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
@@ -37,13 +37,9 @@ var _ = Describe("up command", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 	When("given the right arguments", func() {
-		It("should up and destroy successfully", func() {
-			_, err := run(args)
-			Expect(err).NotTo(HaveOccurred())
-			destroyArgs := []string{
-				"envd.test", "--debug", "destroy", "--path", buildContext,
-			}
-			_, err = run(destroyArgs)
+		It("should build successfully", func() {
+			app := New()
+			err := app.Run(args)
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})
