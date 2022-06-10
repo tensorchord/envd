@@ -20,8 +20,3 @@ from pkg_resources import resource_filename
 def envd():
     path = resource_filename("envd", "bin/envd")
     subprocess.run([path] + sys.argv[1:])
-
-
-def envd_ssh():
-    path = resource_filename("envd", "bin/envd-ssh")
-    subprocess.run([path] + sys.argv[1:])

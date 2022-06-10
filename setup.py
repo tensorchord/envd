@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from distutils.dir_util import copy_tree
+import shutil
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 import subprocess
@@ -36,7 +36,7 @@ class EnvdBuildExt(build_ext):
         errno = subprocess.call(["make", "build"])
         assert errno == 0, "Failed to build envd"
         os.makedirs(bin_path, exist_ok=True)
-        copy_tree("bin", bin_path)
+        shutil.copy("bin/envd", bin_path)
 
 
 def get_version():
@@ -54,13 +54,14 @@ setup(
     long_description=readme,
     url="https://github.com/tensorchord/envd",
     license="Apache License 2.0",
+    author="TensorChord",
+    author_email="envd-maintainers@tensorchord.ai",
     packages=find_packages(),
     include_package_data=True,
     python_requires=">=3.6",
     entry_points={
         "console_scripts": [
             "envd=envd.cmd:envd",
-            "envd-ssh=envd.cmd:envd_ssh",
         ],
     },
     zip_safe=False,
