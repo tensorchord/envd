@@ -34,6 +34,7 @@ func NewGraph() *Graph {
 		CUDNN:    nil,
 
 		PyPIPackages:   []string{},
+		RPackages:      []string{},
 		SystemPackages: []string{},
 		Exec:           []string{},
 		Shell:          shellBASH,
@@ -86,6 +87,11 @@ func (g Graph) Labels() (map[string]string, error) {
 		return nil, err
 	}
 	labels[types.ImageLabelPyPI] = string(str)
+	str, err = json.Marshal(g.RPackages)
+	if err != nil {
+		return nil, err
+	}
+	labels[types.ImageLabelR] = string(str)
 	if g.GPUEnabled() {
 		labels[types.ImageLabelGPU] = "true"
 		labels[types.ImageLabelCUDA] = *g.CUDA
@@ -102,41 +108,49 @@ func (g Graph) Compile() (llb.State, error) {
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
 	aptStage := g.compileUbuntuAPT(base)
-	pypiMirrorStage := g.compilePyPIIndex(aptStage)
-
-	g.compileJupyter()
-	builtinSystemStage := pypiMirrorStage
-	sshStage, err := g.copySSHKey(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
-	}
-	shellStage, err := g.compileShell(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile shell")
-	}
-	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
-	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
-	pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage), llb.WithCustomName("install PyPI packages"))
-	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage), llb.WithCustomName("install system packages"))
-
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to copy SSH key")
-	}
-
-	vscodeStage, err := g.compileVSCode()
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
-	}
-
 	var merged llb.State
-	if vscodeStage != nil {
+	if g.Language == "r" {
+		// TODO(terrytangyuan): Support RStudio local server
+		rPackageInstallStage := llb.Diff(aptStage, g.installRPackages(aptStage), llb.WithCustomName("install R packages"))
 		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, diffSSHStage, pypiStage, *vscodeStage, diffShellStage,
+			aptStage, rPackageInstallStage,
 		}, llb.WithCustomName("merging all components into one"))
 	} else {
-		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, diffSSHStage, pypiStage, diffShellStage,
-		}, llb.WithCustomName("merging all components into one"))
+		pypiMirrorStage := g.compilePyPIIndex(aptStage)
+
+		g.compileJupyter()
+		builtinSystemStage := pypiMirrorStage
+		sshStage, err := g.copySSHKey(builtinSystemStage)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
+		}
+		shellStage, err := g.compileShell(builtinSystemStage)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to compile shell")
+		}
+		diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
+		diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
+		pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage), llb.WithCustomName("install PyPI packages"))
+		systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage), llb.WithCustomName("install system packages"))
+
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to copy SSH key")
+		}
+
+		vscodeStage, err := g.compileVSCode()
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
+		}
+
+		if vscodeStage != nil {
+			merged = llb.Merge([]llb.State{
+				builtinSystemStage, systemStage, diffSSHStage, pypiStage, *vscodeStage, diffShellStage,
+			}, llb.WithCustomName("merging all components into one"))
+		} else {
+			merged = llb.Merge([]llb.State{
+				builtinSystemStage, systemStage, diffSSHStage, pypiStage, diffShellStage,
+			}, llb.WithCustomName("merging all components into one"))
+		}
 	}
 
 	// TODO(gaocegege): Support order-based exec.
