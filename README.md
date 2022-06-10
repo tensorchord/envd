@@ -25,11 +25,11 @@ envd is a **machine learning development environment** for data scientists, AI/M
 
 ## Why use envd?
 
-It is still too difficult to configure development environments and reproduce results in AI/ML scenario.
+It is still too difficult to configure development environments and reproduce results in AI/ML scenarios.
 
 envd is a **machine learning development environment** for data scientists, AI/ML engineers, or teams. Environments built with envd enjoy the following features out-of-the-box:
 
-🐍 **Life is shore, we use Python[^1]**
+🐍 **Life is short, we use Python[^1]**
 
 Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files. And they are always breaking. envd builds are isolated and clean. You can write simple instructions in Python, instead of Bash / Makefile / Dockerfile / ...
 
