@@ -84,7 +84,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 
 func (g *Graph) compileBase() llb.State {
 	var base llb.State
-	var groupID string
+	var groupID string = "1000"
 	if g.CUDA == nil && g.CUDNN == nil {
 		if g.Language == "r" {
 			base = llb.Image("docker.io/r-base:4.2.0")
@@ -92,7 +92,6 @@ func (g *Graph) compileBase() llb.State {
 			groupID = "1001"
 		} else {
 			base = llb.Image("docker.io/gaocegege/python:3.8-ubuntu20.04")
-			groupID = "1000"
 		}
 	} else {
 		base = g.compileCUDAPackages()
