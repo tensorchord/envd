@@ -11,119 +11,79 @@
 
 > **⚠️ envd is still under heavy development, and subject to change. it is not feature-complete or production-ready. Please contact us in [discord](https://discord.gg/KqswhpVgdU) if there is any problem.**
 
-envd is a development environment management tool for data scientists.
+envd is a **machine learning development environment** for data scientists, AI/ML engineers, or teams.
 
-🐍 **No docker, only python** - Write python code, we help you take care of Docker, CUDA, SSH keys and so on.
+🐍 **No docker, only python** - Write python code to build the development environment, we help you take care of Docker.
 
 🖨️ **Built-in jupyter/vscode** - Jupyter and VSCode remote extension are first-class support.
 
 ⏱️ **Save time** - Better cache management to save your time, keep the focus on the model, instead of dependencies.
 
-☁️ **Local & cloud** - Run the environment locally or in the cloud, without any code change.
+☁️ **Local & cloud** - envd integrates with Docker seamlessly, you can share, version, and publish envd environments with Docker Hub or any other OCI image registries.
 
-🐳 **Container native** - Leverage container technologies but no need to learn how to use them, we optimize it for you.
-
-🤟 **Infrastructure as code** - Describe your project in a declarative way, 100% reproducible.
+🔁 **Repeatable builds, reproducible results** - You can reproduce the same dev environment, on your laptop, public cloud VMs, or Docker containers, without any setup or change.
 
 ## Why use envd?
 
-It is still too difficult to configure development environments and reproduce results for data scientists and AI/ML researchers.
+It is still too difficult to configure development environments and reproduce results in AI/ML scenario.
 
-They have to play with Docker, conda, CUDA, GPU Drivers, and even Kubernetes if the training jobs are running in the cloud, to make things happen.
+envd is a **machine learning development environment** for data scientists, AI/ML engineers, or teams. Environments built with envd enjoy the following features out-of-the-box:
 
-Thus, researchers have to find infra guys to help them. But the infra guys also struggle to build environments for machine learning. Infra guys love immutable infrastructure. But researchers optimize AI/ML models by trial and error. The environment will be updated, modified, or rebuilt again, and again, in place. Researchers do not have the bandwidth to be the expert on Dockerfile. They prefer `docker commit`, then the image is error-prone and hard to maintain, or debug.
+🐍 **Life is shore, we use Python[^1]**
 
-envd provides another way to solve the problem. As the infra guys, we accept the reality of the differences between AI/ML and traditional workloads. We do not expect researchers to learn the basics of infrastructure, instead, we build tools to help researchers manage their development environments easily, and in a cloud-native way.
+Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files. And they are always breaking. envd builds are isolated and clean. You can write simple instructions in Python, instead of Bash / Makefile / Dockerfile / ...
 
-envd provides build language similar to Python and has first-class support for jupyter, vscode, and python dependencies in container technologies.
+![envd](./docs/images/envd.png)
 
-<details>
-  <summary>The same logic in build.envd and in Dockerfile</summary>
+[^1]: The build language is [starlark](https://docs.bazel.build/versions/main/skylark/language.html), which is a dialect of Python.
+
+⏱️ **Save you plenty of time**
+
+envd adopts a multi-level cache mechanism to accelerate the building process. For example, the PyPI cache is shared between different builds. Thus the package will be cached if it is downloaded before. It saves plenty of time, especially when you update the environment by trial and error.
+
 <table>
 <tr>
-<td> build.envd (less than 15 lines) </td> <td> Dockerfile (more than 40 lines) </td>
+<td> envd </td> <td>
+
+Docker[^2]
+
+</td>
 </tr>
 <tr>
 <td>
 
-```python
-def build():
-    base(os="ubuntu20.04", language="python3")
-    install.vscode_extensions([
-        "ms-python.python",
-    ])
-    install.python_packages([
-        "tensorflow",
-        "numpy",
-    ])
-    install.cuda(version="11.6", cudnn="8")
-    shell("zsh")
-    config.jupyter(password="", port=8888)
+```diff
+$ envd build
+=> pip install tensorflow       5s
++ => Using cached tensorflow-...-.whl (511.7 MB)
 ```
 
 </td>
 <td>
 
-```dockerfile
-FROM nvidia:cuda:11.6.2-devel-ubuntu20.04
-
-# Install tools such as sshd or python.
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    --no-install-suggests --fix-missing bash-static \
-    python3 curl openssh-server openssh-client \
-    git tini sudo python3-pip zsh vim \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN groupadd -r normaluser && \
-    useradd -r -g normaluser normaluser
-
-USER normaluser
-
-RUN mkdir /var/run/sshd
-
-RUN mkdir /root/.ssh
-
-COPY ./key /root/.ssh/id_rsa
-
-RUN echo 'root:root' |chpasswd
-
-RUN sed -ri \
-    's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN sed -ri \
-    's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
-
-RUN mkdir /home/normaluser/.cache
-
-RUN --mount=type=cache,target=/home/normaluser/.cache \
-    pip install --upgrade pip
-
-RUN --mount=type=cache,target=/home/normaluser/.cache \
-    pip install tensorflow==2.9.1 numpy jupyter
-
-
-RUN echo '[user]\n\
-        email = anonymous@email.com \n\
-        name = Name \n\
-[core]\n\
-        editor = vim \n' >> /home/normaluser/.gitconfig
-
-RUN wget \
-    https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
-
-RUN echo 'set -e\n\
-sshd &\n\
-python -m jupyter notebook --no-browser --ip=* \
---port=8888 --allow-root --NotebookApp.token=''\n\
-wait -n`' >> /init.bash
-
-ENTRYPOINT ["tini", "--", "bash", "init.bash"]
+```diff
+$ docker build
+=> pip install tensorflow      278s
+- => Downloading tensorflow-...-.whl (511.7 MB)
 ```
 
 </td>
 </tr>
 </table>
-</details>
+
+[^2]: Docker without [buildkit](https://github.com/moby/buildkit)
+
+☁️ **Local & cloud native**
+
+envd integrates with Docker seamlessly, you can share, version, and publish envd environments with Docker Hub or any other OCI image registries. And the envd environments can be run on Docker, or Kubernetes.
+
+🔁 **Repeatable builds, reproducible results**
+
+You can reproduce the same dev environment, on your laptop, public cloud VMs, or Docker containers, without any setup or change. And you can also collaborate with your colleagues without "let me configure the environment in your machine".
+
+🖨️ **Seamless experience of jupyter/vsocde** 
+
+Jupyter and VSCode remote extension are first-class support. You benefit without sacrificing any developer experience.
 
 ## Documentation
 
