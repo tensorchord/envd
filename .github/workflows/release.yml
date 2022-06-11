@@ -46,6 +46,7 @@ jobs:
             dist/envd-ssh${{ github.event.release.tag_name }}_Linux_x86_64
           if-no-files-found: error
   pypi_publish:
+    needs: goreleaser
     runs-on: ubuntu-latest
     steps:    
     - uses: actions/checkout@v3
