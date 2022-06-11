@@ -36,37 +36,35 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}      
-      - name: See gobin
-        run: |
-          ls -a
-          ls dist/ -a
-
-        # uses: actions/upload-artifact@v3
-        # with:
-        #   name: gobin_${{ github.event.release.tag_name }}
-        #   retention-days: 1
-        #   path: |
-        #     dist/envd_${{ github.event.release.tag_name }}_Linux_x86_64
-        #     dist/envd-ssh${{ github.event.release.tag_name }}_Linux_x86_64
-        #   if-no-files-found: error
-  # pypi_publish:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Get gobin
-  #     uses: actions/download-artifact@v3
-  #     with:
-  #       name: gobin_${{ github.event.release.tag_name }}
-  #   - name: Build wheel
-  #     with:
-  #       python-version: "3.9"
-  #     run: |
-  #         python -m pip install --upgrade pip
-  #         python -m pip install twine wheel auditwheel
-  #         python setup.py bdist_wheel
-  #         auditwheel repair dist/*
-  #         ls .
-  #         ls dist/
-  #         ls wheelhouse/
+      - name: upload gobin
+        uses: actions/upload-artifact@v3
+        with:
+          name: gobin_${{ github.event.release.tag_name }}
+          retention-days: 1
+          path: |
+            dist/envd_${{ github.event.release.tag_name }}_Linux_x86_64
+            dist/envd-ssh${{ github.event.release.tag_name }}_Linux_x86_64
+          if-no-files-found: error
+  pypi_publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get gobin
+      uses: actions/download-artifact@v3
+      with:
+        name: gobin_${{ github.event.release.tag_name }}
+        path: bin/
+    - name: Build wheel
+      with:
+        python-version: "3.9"
+      run: |      
+          ls bin/
+          python -m pip install --upgrade pip
+          python -m pip install twine wheel auditwheel
+          python setup.py bdist_wheel
+          auditwheel repair dist/*
+          ls .
+          ls dist/
+          ls wheelhouse/
 
 
 
