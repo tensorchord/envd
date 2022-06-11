@@ -42,7 +42,7 @@ class EnvdBuildExt(build_ext):
 def get_version():
     subprocess.call(["make", "build"])
     version = subprocess.check_output(
-        ["./bin/envd", "-v"], universal_newlines=True
+        ["./bin/envd", "version", "--short"], universal_newlines=True
     ).strip()
     return version.rsplit(" ", 1)[-1]
 
@@ -51,7 +51,8 @@ setup(
     name="envd",
     version=get_version(),
     description="A development environment management tool for data scientists.",
-    long_description=readme,
+    long_description=readme,    
+    long_description_content_type="text/markdown",
     url="https://github.com/tensorchord/envd",
     license="Apache License 2.0",
     author="TensorChord",
