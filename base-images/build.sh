@@ -2,6 +2,8 @@
 
 ROOT_DIR=`dirname $0`
 
+ENVD_VERSION="${ENVD_VERSION:-0.0.1}"
+
 cd ${ROOT_DIR}
 # ubuntu 22.04 build require moby/buildkit version greater than 0.8.1
 if ! docker buildx inspect cuda; then
@@ -12,7 +14,7 @@ fi
 docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
 docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
-    --build-arg ENVD_VERSION=0.0.1 \
+    --build-arg ENVD_VERSION=${ENVD_VERSION} \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
      --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
@@ -20,7 +22,7 @@ docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
     -t tensorchord/python:3.8-ubuntu20.04-cuda11.6-cudnn8 \
     -f python3.8-ubuntu20.04-cuda11.6.Dockerfile .
 docker buildx build \
-    --build-arg ENVD_VERSION=0.0.1 \
+    --build-arg ENVD_VERSION=${ENVD_VERSION} \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
      --build-arg HTTPS_PROXY=${HTTPS_PROXY} \

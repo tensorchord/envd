@@ -31,7 +31,6 @@ import (
 )
 
 const (
-	envPort     = "envd_SSH_PORT"
 	flagDebug   = "debug"
 	flagAuthKey = "authorized-keys"
 	flagNoAuth  = "no-auth"
