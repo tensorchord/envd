@@ -52,7 +52,7 @@ func (g Graph) compileRun(root llb.State) llb.State {
 }
 
 func (g *Graph) compileCUDAPackages() llb.State {
-	root := llb.Image(fmt.Sprintf("docker.io/gaocegege/python:3.8-%s-cuda%s-cudnn%s", g.OS, *g.CUDA, *g.CUDNN))
+	root := llb.Image(fmt.Sprintf("docker.io/tensorchord/python:3.8-%s-cuda%s-cudnn%s", g.OS, *g.CUDA, *g.CUDNN))
 	return root
 }
 
@@ -91,7 +91,7 @@ func (g *Graph) compileBase() llb.State {
 			// r-base image already has GID 1000.
 			groupID = "1001"
 		} else {
-			base = llb.Image("docker.io/gaocegege/python:3.8-ubuntu20.04")
+			base = llb.Image("docker.io/tensorchord/python:3.8-ubuntu20.04")
 		}
 	} else {
 		base = g.compileCUDAPackages()
