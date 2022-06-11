@@ -20,7 +20,6 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/olekukonko/tablewriter"
-	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/envd"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
@@ -43,11 +42,6 @@ var CommandGetEnvironmentDependency = &cli.Command{
 			Aliases: []string{"k"},
 			Value:   sshconfig.GetPrivateKey(),
 		},
-		&cli.BoolFlag{
-			Name:    "full",
-			Usage:   "Show full dependency information",
-			Aliases: []string{"f"},
-		},
 	},
 	Action: getEnvironmentDependency,
 }
@@ -61,20 +55,12 @@ func getEnvironmentDependency(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create envd engine")
 	}
-	full := clicontext.Bool("full")
-	if full {
-		output, err := envdEngine.ListEnvFullDependency(clicontext.Context, envName, clicontext.Path("private-key"))
-		if err != nil {
-			return errors.Wrap(err, "failed to list dependencies")
-		}
-		logrus.Infof("%s", output)
-	} else {
-		dep, err := envdEngine.ListEnvDependency(clicontext.Context, envName)
-		if err != nil {
-			return errors.Wrap(err, "failed to list dependencies")
-		}
-		renderDependencies(dep, os.Stdout)
+
+	dep, err := envdEngine.ListEnvDependency(clicontext.Context, envName)
+	if err != nil {
+		return errors.Wrap(err, "failed to list dependencies")
 	}
+	renderDependencies(dep, os.Stdout)
 	return nil
 }
 

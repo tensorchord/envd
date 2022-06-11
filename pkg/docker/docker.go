@@ -38,6 +38,10 @@ import (
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
+const (
+	localhost = "127.0.0.1"
+)
+
 var (
 	interval = 1 * time.Second
 )
@@ -47,7 +51,8 @@ type Client interface {
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
 	// Start creates the container for the given tag and container name.
 	StartEnvd(ctx context.Context, tag, name, buildContext string,
-		gpuEnabled bool, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error)
+		gpuEnabled bool, sshPort int, g ir.Graph, timeout time.Duration,
+		mountOptionsStr []string) (string, string, error)
 	StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error)
 
 	IsRunning(ctx context.Context, name string) (bool, error)
@@ -288,7 +293,7 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 
 // Start creates the container for the given tag and container name.
 func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext string,
-	gpuEnabled bool, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error) {
+	gpuEnabled bool, sshPort int, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":           tag,
 		"container":     name,
@@ -309,7 +314,8 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 	base := fileutil.Base(buildContext)
 	base = filepath.Join("/home/envd", base)
 	config.WorkingDir = base
-	config.Entrypoint = append(config.Entrypoint, entrypointSH(g, config.WorkingDir))
+	config.Entrypoint = append(config.Entrypoint,
+		entrypointSH(g, config.WorkingDir, sshPort))
 
 	mountOption := make([]mount.Mount, len(mountOptionsStr)+1)
 	for i, option := range mountOptionsStr {
@@ -343,12 +349,23 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		PortBindings: nat.PortMap{},
 		Mounts:       mountOption,
 	}
+
+	// Configure ssh port.
+	natPort := nat.Port(fmt.Sprintf("%d/tcp", sshPort))
+	hostConfig.PortBindings[natPort] = []nat.PortBinding{
+		{
+			HostIP:   localhost,
+			HostPort: strconv.Itoa(sshPort),
+		},
+	}
+	config.ExposedPorts[natPort] = struct{}{}
+
 	// TODO(gaocegege): Avoid specific logic to set the port.
 	if g.JupyterConfig != nil {
 		natPort := nat.Port(fmt.Sprintf("%d/tcp", g.JupyterConfig.Port))
 		hostConfig.PortBindings[natPort] = []nat.PortBinding{
 			{
-				HostIP:   "localhost",
+				HostIP:   localhost,
 				HostPort: strconv.Itoa(int(g.JupyterConfig.Port)),
 			},
 		}
@@ -361,7 +378,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		hostConfig.DeviceRequests = deviceRequests(-1)
 	}
 
-	config.Labels = labels(name, g.JupyterConfig)
+	config.Labels = labels(name, g.JupyterConfig, sshPort)
 
 	logger = logger.WithFields(logrus.Fields{
 		"entrypoint":  config.Entrypoint,
