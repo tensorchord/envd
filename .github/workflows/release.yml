@@ -35,7 +35,12 @@ jobs:
           version: latest
           args: release --rm-dist
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}      
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}    
+      - name: list file
+        run: |
+          sudo apt-get install -y tree
+          echo "------------"
+          tree dist/
       - name: upload gobin
         uses: actions/upload-artifact@v3
         with:
