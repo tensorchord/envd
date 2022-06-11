@@ -61,7 +61,10 @@ jobs:
           version: v1.46.2
   test:
     name: test
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && [ubuntu-latest, macos-latest] || [ubuntu-latest] }}
+    runs-on: ${{ matrix.os }}
     env:
       GOPATH: ${{ github.workspace }}/go
     defaults:
@@ -103,7 +106,10 @@ jobs:
       #     parallel: true
   build:
     name: build
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && [ubuntu-latest, macos-latest] || [ubuntu-latest] }}
+    runs-on: ${{ matrix.os }}
     env:
       GOPATH: ${{ github.workspace }}/go
     defaults:
