@@ -33,11 +33,11 @@ var (
 	// the program at linking time.
 	Revision = ""
 
-	version      = "0.1.0-alpha"
+	version      = "0.0.0+unknown"
 	buildDate    = "1970-01-01T00:00:00Z" // output from `date -u +'%Y-%m-%dT%H:%M:%SZ'`
 	gitCommit    = ""                     // output from `git rev-parse HEAD`
 	gitTag       = ""                     // output from `git describe --exact-match --tags HEAD` (if clean tree state)
-	gitTreeState = "clean"                // determined from `git status --porcelain`. either 'clean' or 'dirty'
+	gitTreeState = ""                     // determined from `git status --porcelain`. either 'clean' or 'dirty'
 )
 
 // Version contains envd version information

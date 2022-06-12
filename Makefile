@@ -68,7 +68,7 @@ DEBUG_DIR := ./debug-bin
 BUILD_DIR := ./build
 
 # Current version of the project.
-VERSION ?= $(shell git describe --match 'v[0-9]*' --always)
+VERSION ?= $(shell git describe --always --tags)
 BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 GIT_COMMIT=$(shell git rev-parse HEAD)
 GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-match --tags HEAD 2>/dev/null; fi)
