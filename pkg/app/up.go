@@ -32,6 +32,11 @@ import (
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/util/netutil"
+)
+
+const (
+	localhost = "127.0.0.1"
 )
 
 var CommandUp = &cli.Command{
@@ -155,8 +160,13 @@ func up(clicontext *cli.Context) error {
 		}
 	}
 
+	sshPort, err := netutil.GetFreePort()
+	if err != nil {
+		return errors.Wrap(err, "failed to get a free port")
+	}
+
 	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
-		tag, ctr, buildContext, gpu, *ir.DefaultGraph, clicontext.Duration("timeout"),
+		tag, ctr, buildContext, gpu, sshPort, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))
 	if err != nil {
 		return err
@@ -164,14 +174,15 @@ func up(clicontext *cli.Context) error {
 	logrus.Debugf("container %s is running", containerID)
 
 	logrus.Debugf("Add entry %s to SSH config. at %s", buildContext, containerIP)
-	if err = sshconfig.AddEntry(ctr, containerIP, ssh.DefaultSSHPort, clicontext.Path("private-key")); err != nil {
+	if err = sshconfig.AddEntry(
+		ctr, localhost, sshPort, clicontext.Path("private-key")); err != nil {
 		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 
 	if !detach {
 		sshClient, err := ssh.NewClient(
-			containerIP, "envd", ssh.DefaultSSHPort, true, clicontext.Path("private-key"), "")
+			localhost, "envd", sshPort, true, clicontext.Path("private-key"), "")
 		if err != nil {
 			return err
 		}

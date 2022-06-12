@@ -19,7 +19,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/cockroachdb/errors"
 	rawssh "github.com/gliderlabs/ssh"
@@ -28,15 +27,14 @@ import (
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/remote/sshd"
-	"github.com/tensorchord/envd/pkg/ssh"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
 const (
-	envPort     = "envd_SSH_PORT"
 	flagDebug   = "debug"
 	flagAuthKey = "authorized-keys"
 	flagNoAuth  = "no-auth"
+	flagPort    = "port"
 )
 
 func main() {
@@ -64,6 +62,10 @@ func main() {
 			Usage: "disable authentication",
 			Value: false,
 		},
+		&cli.IntFlag{
+			Name:  flagPort,
+			Usage: "port to listen on",
+		},
 	}
 
 	// Deal with debug flag.
@@ -89,18 +91,11 @@ func sshServer(c *cli.Context) error {
 		logrus.Fatal(err.Error())
 	}
 
-	port := ssh.DefaultSSHPort
-	// TODO(gaocegege): Set it as a flag.
-	if p, ok := os.LookupEnv(envPort); ok {
-		var err error
-		port, err = strconv.Atoi(p)
-		if err != nil {
-			return errors.Wrap(err, "failed to parse port")
-		}
-
-		if port <= 1024 {
-			return errors.New("failed to parse port: port is reserved")
-		}
+	port := c.Int(flagPort)
+	if port == 0 {
+		return errors.New("port must be set")
+	} else if port <= 1024 {
+		return errors.New("failed to parse port: port is reserved")
 	}
 
 	noAuth := c.Bool(flagNoAuth)

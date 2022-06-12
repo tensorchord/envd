@@ -19,7 +19,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/docker"
-	"github.com/tensorchord/envd/pkg/ssh"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
@@ -31,7 +30,6 @@ type Engine interface {
 	ResumeEnvironment(ctx context.Context, env string) (string, error)
 	ListEnvironment(ctx context.Context) ([]types.EnvdEnvironment, error)
 	ListEnvDependency(ctx context.Context, env string) (*types.Dependency, error)
-	ListEnvFullDependency(ctx context.Context, env, SSHKeyPath string) (string, error)
 }
 
 type generalEngine struct {
@@ -140,36 +138,4 @@ func (e generalEngine) ListEnvDependency(
 		return nil, errors.Wrap(err, "failed to create dependency from the container")
 	}
 	return dep, nil
-}
-
-// ListEnvFullDependency attaches into the environment and gets the dependencies of the given environment.
-func (e generalEngine) ListEnvFullDependency(
-	ctx context.Context, env, SSHKeyPath string) (string, error) {
-	logger := logrus.WithFields(logrus.Fields{
-		"env":             env,
-		"ssh-private-key": SSHKeyPath,
-	})
-	logger.Debug("getting full dependencies")
-	ctr, err := e.dockerCli.GetContainer(ctx, env)
-	if err != nil {
-		return "", err
-	}
-	ctrIP := ctr.NetworkSettings.IPAddress
-	if ctrIP == "" {
-		return "", errors.New("failed to get the ip address of the container")
-	}
-	return e.getDependencyListFromSSH(ctx, ctrIP, SSHKeyPath)
-}
-
-func (e generalEngine) getDependencyListFromSSH(ctx context.Context, ip, SSHKeyPath string) (string, error) {
-	sshClient, err := ssh.NewClient(
-		ip, "envd", ssh.DefaultSSHPort, true, SSHKeyPath, "")
-	if err != nil {
-		return "", errors.Wrap(err, "failed to create ssh client")
-	}
-	output, err := sshClient.ExecWithOutput("pip list")
-	if err != nil {
-		return "", errors.Wrap(err, "failed to get pip list")
-	}
-	return string(output), nil
 }

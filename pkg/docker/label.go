@@ -16,6 +16,7 @@ package docker
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/docker/docker/api/types/filters"
 
@@ -23,9 +24,10 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func labels(name string, jupyterConfig *ir.JupyterConfig) map[string]string {
+func labels(name string, jupyterConfig *ir.JupyterConfig, sshPort int) map[string]string {
 	res := make(map[string]string)
 	res[types.ContainerLabelName] = name
+	res[types.ContainerLabelSSHPort] = strconv.Itoa(sshPort)
 	if jupyterConfig != nil {
 		res[types.ContainerLabelJupyterAddr] = fmt.Sprintf("http://localhost:%d", jupyterConfig.Port)
 	}
