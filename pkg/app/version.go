@@ -26,11 +26,23 @@ var CommandVersion = &cli.Command{
 	Aliases: []string{"v"},
 	Usage:   "Print envd version information",
 	Action:  printVersion,
+	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:    "short",
+			Usage:   "Only print the version number",
+			Value:   false,
+			Aliases: []string{"s"},
+		},
+	},
 }
 
-func printVersion(*cli.Context) error {
+func printVersion(ctx *cli.Context) error {
+	short := ctx.Bool("short")
 	ver := version.GetVersion()
 	fmt.Printf("envd: %s\n", ver)
+	if short {
+		return nil
+	}
 	fmt.Printf("  BuildDate: %s\n", ver.BuildDate)
 	fmt.Printf("  GitCommit: %s\n", ver.GitCommit)
 	fmt.Printf("  GitTreeState: %s\n", ver.GitTreeState)

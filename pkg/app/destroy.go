@@ -19,7 +19,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	cli "github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/docker"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
@@ -35,7 +35,11 @@ var CommandDestroy = &cli.Command{
 			Name:    "path",
 			Usage:   "Path to the directory containing the build.envd",
 			Aliases: []string{"p"},
-			Value:   ".",
+		},
+		&cli.PathFlag{
+			Name:    "name",
+			Usage:   "Name of the environment",
+			Aliases: []string{"n"},
 		},
 	},
 
@@ -43,26 +47,36 @@ var CommandDestroy = &cli.Command{
 }
 
 func destroy(clicontext *cli.Context) error {
+	path := clicontext.Path("path")
+	name := clicontext.String("name")
+	if path != "" && name != "" {
+		return errors.New("Cannot specify --path and --name at the same time.")
+	}
+	if path == "" && name == "" {
+		return errors.New("One of the following flags is required: --path and --name.")
+	}
 	dockerClient, err := docker.NewClient(clicontext.Context)
 	if err != nil {
 		return err
 	}
-
-	buildContext, err := filepath.Abs(clicontext.Path("path"))
-	if err != nil {
-		return errors.Wrap(err, "failed to get absolute path of the build context")
+	var ctrName string
+	if name != "" {
+		ctrName = name
+	} else {
+		buildContext, err := filepath.Abs(path)
+		if err != nil {
+			return errors.Wrap(err, "failed to get absolute path of the build context")
+		}
+		ctrName = fileutil.Base(buildContext)
 	}
-
-	ctr := fileutil.Base(buildContext)
-
-	if name, err := dockerClient.Destroy(clicontext.Context, ctr); err != nil {
-		return errors.Wrapf(err, "failed to destroy the environment: %s", ctr)
+	if ctrName, err := dockerClient.Destroy(clicontext.Context, ctrName); err != nil {
+		return errors.Wrapf(err, "failed to destroy the environment: %s", ctrName)
 	} else if name != "" {
-		logrus.Infof("%s is destroyed", name)
+		logrus.Infof("%s is destroyed", ctrName)
 	}
 
-	if err = sshconfig.RemoveEntry(ctr); err != nil {
-		logrus.Infof("failed to remove entry %s from your SSH config file: %s", ctr, err)
+	if err = sshconfig.RemoveEntry(ctrName); err != nil {
+		logrus.Infof("failed to remove entry %s from your SSH config file: %s", ctrName, err)
 		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}
 	return nil

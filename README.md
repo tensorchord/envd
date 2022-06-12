@@ -6,6 +6,7 @@
 <p align=center>
 <a href="https://discord.gg/KqswhpVgdU"><img alt="discord invitation link" src="https://img.shields.io/discord/974584200327991326?label=discord&style=social"></a>
 <a href="https://github.com/tensorchord/envd/actions/workflows/CI.yml"><img alt="continuous integration" src="https://github.com/tensorchord/envd/actions/workflows/CI.yml/badge.svg"></a>
+<a href="https://pypi.org/project/envd/"><img alt="envd package donwloads" src="https://static.pepy.tech/personalized-badge/envd?period=month&units=international_system&left_color=grey&right_color=brightgreen&left_text=downloads/month"</a>
 <a href="https://trackgit.com"><img src="https://us-central1-trackgit-analytics.cloudfunctions.net/token/ping/l3ldvdaswvnjpty9u7l3" alt="trackgit-views" /></a>
 </p>
 
@@ -87,7 +88,7 @@ Jupyter and VSCode remote extension are first-class support. You benefit without
 
 ## Documentation
 
-See [envd documentation](https://envd.tensorchord.ai/docs/intro).
+See [envd documentation](https://envd.tensorchord.ai/docs/get-started).
 
 ## Getting Started
 
@@ -239,4 +240,4 @@ install.vscode_extensions([
 We welcome all kinds of contributions from the open-source community, individuals, and partners.
 
 - Join our [discord community](https://discord.gg/KqswhpVgdU)! 
-- To build from the source, check the [contributing page](./CONTRIBUTING.md).
+- To build from the source, please read our [contributing documentation](https://envd.tensorchord.ai/docs/community/contributing) and [development tutorial](https://envd.tensorchord.ai/docs/community/development).

@@ -12,30 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package docker
+package netutil
 
 import (
-	"fmt"
-	"strings"
-
-	"github.com/tensorchord/envd/pkg/config"
-	"github.com/tensorchord/envd/pkg/editor/jupyter"
-	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/phayes/freeport"
 )
 
-const (
-	template = `set -e
-/var/envd/bin/envd-ssh --authorized-keys %s --port %d &
-%s
-wait -n`
-)
-
-func entrypointSH(g ir.Graph, workingDir string, sshPort int) string {
-	if g.JupyterConfig != nil {
-		cmds := jupyter.GenerateCommand(g, workingDir)
-		return fmt.Sprintf(template,
-			config.ContainerauthorizedKeysPath, sshPort, strings.Join(cmds, " "))
+func GetFreePort() (int, error) {
+	port, err := freeport.GetFreePort()
+	if err != nil {
+		return 0, err
 	}
-	return fmt.Sprintf(template,
-		config.ContainerauthorizedKeysPath, sshPort, "")
+	return port, nil
 }

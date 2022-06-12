@@ -37,8 +37,6 @@ import (
 	"golang.org/x/term"
 )
 
-const DefaultSSHPort = 2222
-
 type Client interface {
 	Attach() error
 	ExecWithOutput(cmd string) ([]byte, error)

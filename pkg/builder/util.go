@@ -21,7 +21,6 @@ import (
 )
 
 func ImageConfigStr(labels map[string]string) (string, error) {
-	// Refer to https://github.com/moby/buildkit/blob/3eed7fdf41c1fa626c35b3589b403c34dd3b2205/exporter/containerimage/writer.go#L344
 	pl := platforms.Normalize(platforms.DefaultSpec())
 	img := v1.Image{
 		Config: v1.ImageConfig{
@@ -30,8 +29,8 @@ func ImageConfigStr(labels map[string]string) (string, error) {
 			Env:        []string{"PATH=" + DefaultPathEnv(pl.OS)},
 		},
 		Architecture: pl.Architecture,
-		OS:           pl.OS,
-		Variant:      pl.Variant,
+		// Refer to https://github.com/tensorchord/envd/issues/269#issuecomment-1152944914
+		OS: "linux",
 		RootFS: v1.RootFS{
 			Type: "layers",
 		},
