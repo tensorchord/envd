@@ -88,7 +88,7 @@ Jupyter and VSCode remote extension are first-class support. You benefit without
 
 ## Documentation
 
-See [envd documentation](https://envd.tensorchord.ai/docs/intro).
+See [envd documentation](https://envd.tensorchord.ai/docs/get-started).
 
 ## Getting Started
 
