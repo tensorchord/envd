@@ -240,4 +240,4 @@ install.vscode_extensions([
 We welcome all kinds of contributions from the open-source community, individuals, and partners.
 
 - Join our [discord community](https://discord.gg/KqswhpVgdU)! 
-- To build from the source, check the [contributing page](./CONTRIBUTING.md).
+- To build from the source, please read our [contributing documentation](https://envd.tensorchord.ai/docs/community/contributing) and [development tutorial](https://envd.tensorchord.ai/docs/community/development).
