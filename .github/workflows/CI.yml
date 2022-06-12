@@ -59,9 +59,29 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.46.2
+  setup:
+    name: setup
+    runs-on: ubuntu-latest
+    outputs:
+      os: ${{ steps.setup.outputs.os }}
+    steps:
+      - name: setup
+        id: setup
+        run: |
+          if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}; then
+            os='["ubuntu-latest","macos-latest"]'
+          else
+            os='["ubuntu-latest"]'
+          fi
+          list=$(echo ${os} | jq -c)
+          echo "::set-output name=os::${list}"
   test:
     name: test
-    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      matrix:
+        os: ${{ fromJson(needs.setup.outputs.os) }}
+    runs-on: ${{ matrix.os }}
     env:
       GOPATH: ${{ github.workspace }}/go
     defaults:
@@ -103,13 +123,16 @@ jobs:
       #     parallel: true
   build:
     name: build
-    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      matrix:
+        os: ${{ fromJson(needs.setup.outputs.os) }}
+    runs-on: ${{ matrix.os }}
     env:
       GOPATH: ${{ github.workspace }}/go
     defaults:
       run:
         working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
-
     steps:
       - name: Check out code
         uses: actions/checkout@v2
