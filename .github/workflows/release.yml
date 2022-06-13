@@ -51,7 +51,7 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [macos-latest]
     # if: startsWith(github.ref, 'refs/tags/v') # only trigger when tag starts with v
     steps:    
     - uses: actions/checkout@v3
