@@ -59,13 +59,12 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: gobin_${{ github.event.release.tag_name }}
-        path: bin/    
-    
-    - name: list file
+        path: dist/    
+    - name: Move file to 
       run: |
-        sudo apt-get install -y tree
-        echo "------------"
-        tree bin/
+        mkdir -p bin
+        mv dist/envd_linux_amd64_v1/envd bin/envd
+        mv dist/envd-ssh_linux_amd64_v1/envd-ssh bin/envd-ssh
     - uses: actions/setup-python@v2
       with:
         python-version: 3.9
@@ -75,10 +74,14 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install twine wheel auditwheel
           python setup.py bdist_wheel
-          auditwheel repair dist/*
-          ls .
-          ls dist/
+          auditwheel repair dist/*.whl
           ls wheelhouse/
+    - name: Upload to Pypi    
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: |         
+        twine upload wheelhouse/*
 
 
 
