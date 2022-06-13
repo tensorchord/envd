@@ -12,27 +12,27 @@
 
 > **⚠️ envd is still under heavy development, and subject to change. it is not feature-complete or production-ready. Please contact us in [discord](https://discord.gg/KqswhpVgdU) if there is any problem.**
 
-envd is a **machine learning development environment** for data scientists, AI/ML engineers, or teams.
+envd is a **machine learning development environment** for data science and AI/ML engineering teams.
 
-🐍 **No docker, only python** - Write python code to build the development environment, we help you take care of Docker.
+🐍 **No Docker, only Python** - Focus on writing Python code, we will take care of Docker and development environment setup.
 
-🖨️ **Built-in jupyter/vscode** - Jupyter and VSCode remote extension are first-class support.
+🖨️ **Built-in Jupyter/VSCode** - First-class support for Jupyter and VSCode remote extension.
 
 ⏱️ **Save time** - Better cache management to save your time, keep the focus on the model, instead of dependencies.
 
-☁️ **Local & cloud** - envd integrates with Docker seamlessly, you can share, version, and publish envd environments with Docker Hub or any other OCI image registries.
+☁️ **Local & cloud** - `envd` integrates seamlessly with Docker so that you can easily share, version, and publish `envd` environments with Docker Hub or any other OCI image registries.
 
-🔁 **Repeatable builds, reproducible results** - You can reproduce the same dev environment, on your laptop, public cloud VMs, or Docker containers, without any setup or change.
+🔁 **Repeatable builds & reproducible results** - You can reproduce the same dev environment on your laptop, public cloud VMs, or Docker containers, without any change in setup.
 
-## Why use envd?
+## Why use `envd`?
 
-It is still too difficult to configure development environments and reproduce results in AI/ML scenarios.
+It is still too difficult to configure development environments and reproduce results in AI/ML applications.
 
-envd is a **machine learning development environment** for data scientists, AI/ML engineers, or teams. Environments built with envd enjoy the following features out-of-the-box:
+`envd` is a **machine learning development environment** for data science and AI/ML engineering teams. Environments built with `envd` provide the following features out-of-the-box:
 
-🐍 **Life is short, we use Python[^1]**
+🐍 **Life is short, use Python[^1]**
 
-Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files. And they are always breaking. envd builds are isolated and clean. You can write simple instructions in Python, instead of Bash / Makefile / Dockerfile / ...
+Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. `envd` builds are isolated and clean. You can write simple instructions in Python, instead of Bash / Makefile / Dockerfile / ...
 
 ![envd](./docs/images/envd.png)
 
@@ -40,7 +40,7 @@ Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML 
 
 ⏱️ **Save you plenty of time**
 
-envd adopts a multi-level cache mechanism to accelerate the building process. For example, the PyPI cache is shared between different builds. Thus the package will be cached if it is downloaded before. It saves plenty of time, especially when you update the environment by trial and error.
+`envd` adopts a multi-level cache mechanism to accelerate the building process. For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before. It saves plenty of time, especially when you update the environment by trial and error.
 
 <table>
 <tr>
@@ -76,15 +76,15 @@ $ docker build
 
 ☁️ **Local & cloud native**
 
-envd integrates with Docker seamlessly, you can share, version, and publish envd environments with Docker Hub or any other OCI image registries. And the envd environments can be run on Docker, or Kubernetes.
+`envd` integrates seamlessly with Docker, you can share, version, and publish `envd` environments with Docker Hub or any other OCI image registries. The `envd` environments can be run on Docker or Kubernetes.
 
-🔁 **Repeatable builds, reproducible results**
+🔁 **Repeatable builds & reproducible results**
 
-You can reproduce the same dev environment, on your laptop, public cloud VMs, or Docker containers, without any setup or change. And you can also collaborate with your colleagues without "let me configure the environment in your machine".
+You can reproduce the same dev environment, on your laptop, public cloud VMs, or Docker containers, without any change in setup. You can also collaborate with your colleagues without "let me configure the environment in your machine".
 
-🖨️ **Seamless experience of jupyter/vsocde** 
+🖨️ **Seamless experience of Jupyter/VSCode** 
 
-Jupyter and VSCode remote extension are first-class support. You benefit without sacrificing any developer experience.
+`envd` provides first-class support for Jupyter and VSCode remote extension. You benefit without sacrificing any developer experience.
 
 ## Documentation
 
@@ -98,9 +98,9 @@ Get started by **creating a new envd environment**.
 
 - Docker (20.10.0 or above)
 
-### Install envd
+### Install `envd`
 
-envd can be installed with `pip`. After the installation, please run `envd bootstrap` to bootstrap.
+`envd` can be installed with `pip`. After the installation, please run `envd bootstrap` to bootstrap.
 
 ```bash
 pip install --pre envd
@@ -113,7 +113,7 @@ envd bootstrap
 >envd bootstrap --dockerhub-mirror https://docker.mirrors.sjtug.sjtu.edu.cn
 >```
 
-### Create an envd environment
+### Create an `envd` environment
 
 Please clone the [`envd-quick-start`](https://github.com/tensorchord/envd-quick-start):
 
@@ -132,7 +132,7 @@ def build():
     shell("zsh")
 ```
 
-Then please run the command below to setup a new environment:
+Then please run the command below to set up a new environment:
 
 ```
 cd envd-quick-start && envd up
@@ -176,7 +176,7 @@ $ git fetch
 $
 ```
 
-### Setup jupyter notebook
+### Set up Jupyter notebook
 
 Please edit the `build.envd` to enable jupyter notebook:
 
@@ -190,7 +190,7 @@ def build():
     config.jupyter(password="", port=8888)
 ```
 
-You can get the endpoint of jupyter notebook via `envd get envs`.
+You can get the endpoint of the running Jupyter notebook via `envd get envs`.
 
 ```bash
 $ envd up --detach
@@ -216,7 +216,7 @@ $ ssh mnist.envd
 
 ### Configure mirrors
 
-envd supports PyPI mirror and apt source configuration. You can configure them in `build.env` or `$HOME/.config/envd/config.envd` to set up in all environments.
+`envd` supports PyPI mirror and apt source configuration. You can configure them in `build.env` or `$HOME/.config/envd/config.envd` to set up in all environments.
 
 ```text
 cat ~/.config/envd/config.envd
