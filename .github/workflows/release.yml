@@ -52,7 +52,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-10.15, ubuntu-20.04]
-    # if: startsWith(github.ref, 'refs/tags/v') # only trigger when tag starts with v
+    if: startsWith(github.ref, 'refs/tags/v') # only trigger when tag starts with v
     steps:    
     - uses: actions/checkout@v3
     - name: Get gobin
