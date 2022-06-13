@@ -43,11 +43,15 @@ jobs:
           retention-days: 1
           path: |
             dist/envd_linux_amd64_v1/envd
-            dist/envd-ssh_linux_amd64_v1/envd-ssh
+            dist/envd_darwin_amd64_v1/envd
           if-no-files-found: error
   pypi_publish:
     needs: goreleaser
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     if: startsWith(github.ref, 'refs/tags/v') # only trigger when tag starts with v
     steps:    
     - uses: actions/checkout@v3
@@ -56,33 +60,35 @@ jobs:
       with:
         name: gobin_${{ github.event.release.tag_name }}
         path: dist/    
-    - name: Move file to 
+    - name: Configure linux build environment
+      if: runner.os == 'Linux'
       run: |
         mkdir -p bin
         mv dist/envd_linux_amd64_v1/envd bin/envd
-        mv dist/envd-ssh_linux_amd64_v1/envd-ssh bin/envd-ssh
+        mv dist/
         chmod +x bin/envd
-        chmod +x bin/envd-ssh
+    - name: Configure macOS build environment
+      if: runner.os == 'macOS'
+      run: |
+        mkdir -p bin
+        mv dist/envd_darwin_amd64_v1/envd bin/envd
+        mv dist/
+        chmod +x bin/envd
     - uses: actions/setup-python@v2
       with:
         python-version: 3.9
     - name: Build wheel
       run: |      
-          ls bin/
           python -m pip install --upgrade pip
           python -m pip install twine wheel auditwheel setuptools_scm
           python setup.py bdist_wheel sdist
           auditwheel repair dist/*.whl
-          ls wheelhouse/
           pushd wheelhouse
           for file in *.whl ; do mv $file ${file//"cp39-cp39"/"py2.py3-none"} ; done
           popd
-    - name: Upload to Pypi    
+    - name: Upload to PyPI    
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
       run: |
         twine upload wheelhouse/*
-
-
-
