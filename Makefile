@@ -44,8 +44,8 @@ REGISTRY ?= ghcr.io/tensorchord
 # Container registry for base images.
 BASE_REGISTRY ?= docker.io
 
-# Enable CGO by default.
-CGO_ENABLED ?= 1
+# Disable CGO by default.
+CGO_ENABLED ?= 0
 
 #
 # These variables should not need tweaking.
@@ -95,7 +95,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: lint test build container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install
+.PHONY: lint test build container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build
 
 build: build-local
 
@@ -120,6 +120,9 @@ build-local:
 	    -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) -X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) -X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) -X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)"                     \
 	    $(CMD_DIR)/$${target};                                                         \
 	done
+
+pypi-build: clean
+	@python setup.py sdist bdist_wheel
 
 generate: mockgen-install
 	@mockgen -source pkg/buildkitd/buildkitd.go -destination pkg/buildkitd/mock/mock.go -package mock
@@ -148,6 +151,7 @@ test: generate
 clean:
 	@-rm -vrf ${OUTPUT_DIR}
 	@-rm -vrf ${DEBUG_DIR}
+	@-rm -vrf build dist .eggs *.egg-info
 
 fmt: ## Run go fmt against code.
 	go fmt ./...
