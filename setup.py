@@ -23,11 +23,12 @@ with open("README.md", "r", encoding="utf-8") as f:
     readme = f.read()
 
 
-def build_envd_if_not_found():    
-    if not os.path.exists("bin/envd"):            
-        logging.info("envd not found. Build from scratch")            
+def build_envd_if_not_found():
+    if not os.path.exists("bin/envd"):
+        logging.info("envd not found. Build from scratch")
         errno = subprocess.call(["make", "build"])
         assert errno == 0, "Failed to build envd"
+
 
 class EnvdExtension(Extension):
     """Extension for `envd`"""
@@ -57,10 +58,10 @@ def get_version():
 setup(
     name="envd",
     version=get_version(),
-    use_scm_version = True,
-    setup_requires=['setuptools_scm'],
+    use_scm_version=True,
+    setup_requires=["setuptools_scm"],
     description="A development environment management tool for data scientists.",
-    long_description=readme,    
+    long_description=readme,
     long_description_content_type="text/markdown",
     url="https://github.com/tensorchord/envd",
     license="Apache License 2.0",
