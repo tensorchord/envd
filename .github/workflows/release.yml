@@ -73,7 +73,7 @@ jobs:
         mv dist/envd_darwin_amd64_v1/envd bin/envd
         chmod +x bin/envd
     - name: Build wheels
-      uses: pypa/cibuildwheel@v1.12.0
+      uses: pypa/cibuildwheel@v2.6.1
     - name: Upload to PyPI    
       env:
         TWINE_USERNAME: __token__
