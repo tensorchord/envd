@@ -31,14 +31,16 @@ type Graph struct {
 	UbuntuAPTSource   *string
 	PyPIIndexURL      *string
 	PyPIExtraIndexURL *string
+	CondaChannel      *string
 
 	PublicKeyPath string
 
-	BuiltinSystemPackages []string
-	PyPIPackages          []string
-	RPackages             []string
-	SystemPackages        []string
-	VSCodePlugins         []vscode.Plugin
+	PyPIPackages   []string
+	RPackages      []string
+	CondaPackages  []string
+	SystemPackages []string
+
+	VSCodePlugins []vscode.Plugin
 
 	Exec []string
 	*JupyterConfig

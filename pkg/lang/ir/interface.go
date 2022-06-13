@@ -110,3 +110,16 @@ func Git(name, email, editor string) error {
 	}
 	return nil
 }
+
+func CondaChannel(channel string) error {
+	if channel == "" {
+		return errors.New("channel is required")
+	}
+
+	DefaultGraph.CondaChannel = &channel
+	return nil
+}
+
+func CondaPackage(deps []string) {
+	DefaultGraph.CondaPackages = append(DefaultGraph.CondaPackages, deps...)
+}

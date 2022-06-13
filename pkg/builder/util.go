@@ -45,7 +45,7 @@ func ImageConfigStr(labels map[string]string) (string, error) {
 // DefaultPathEnvUnix is unix style list of directories to search for
 // executables. Each directory is separated from the next by a colon
 // ':' character .
-const DefaultPathEnvUnix = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+const DefaultPathEnvUnix = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/conda/bin"
 
 // DefaultPathEnvWindows is windows style list of directories to search for
 // executables. Each directory is separated from the next by a colon

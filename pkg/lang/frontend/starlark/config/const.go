@@ -18,4 +18,5 @@ const (
 	ruleUbuntuAptSource = "config.apt_source"
 	rulePyPIIndex       = "config.pip_index"
 	ruleJupyter         = "config.jupyter"
+	ruleCondaChannel    = "config.conda_channel"
 )

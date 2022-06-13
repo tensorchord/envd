@@ -33,6 +33,8 @@ var Module = &starlarkstruct.Module{
 		"jupyter":    starlark.NewBuiltin(ruleJupyter, ruleFuncJupyter),
 		"pip_index": starlark.NewBuiltin(
 			rulePyPIIndex, ruleFuncPyPIIndex),
+		"conda_channel": starlark.NewBuiltin(
+			ruleCondaChannel, ruleFuncCondaChannel),
 	},
 }
 
@@ -116,6 +118,29 @@ func ruleFuncUbuntuAptSource(thread *starlark.Thread, _ *starlark.Builtin,
 	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s", ruleUbuntuAptSource,
 		modeStr, sourceStr)
 	if err := ir.UbuntuAPT(modeStr, sourceStr); err != nil {
+		return nil, err
+	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncCondaChannel(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var channel starlark.String
+
+	if err := starlark.UnpackArgs(ruleCondaChannel, args, kwargs,
+		"channel?", &channel); err != nil {
+		return nil, err
+	}
+
+	channelStr := ""
+	if channel != starlark.String("") {
+		channelStr = channel.GoString()
+	}
+
+	logger.Debugf("rule `%s` is invoked, channel=%s", ruleCondaChannel,
+		channelStr)
+	if err := ir.CondaChannel(channelStr); err != nil {
 		return nil, err
 	}
 

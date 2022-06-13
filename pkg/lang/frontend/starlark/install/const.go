@@ -20,4 +20,5 @@ const (
 	ruleRPackage      = "install.r_packages"
 	ruleCUDA          = "install.cuda"
 	ruleVSCode        = "install.vscode_extensions"
+	ruleConda         = "install.conda_packages"
 )
