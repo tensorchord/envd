@@ -17,11 +17,17 @@ import shutil
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 import subprocess
-
+import logging
 
 with open("README.md", "r", encoding="utf-8") as f:
     readme = f.read()
 
+
+def build_envd_if_not_found():    
+    if not os.path.exists("bin/envd"):            
+        logging.info("envd not found. Build from scratch")            
+        errno = subprocess.call(["make", "build"])
+        assert errno == 0, "Failed to build envd"
 
 class EnvdExtension(Extension):
     """Extension for `envd`"""
@@ -33,32 +39,35 @@ class EnvdBuildExt(build_ext):
             return super().build_extension(ext)
 
         bin_path = os.path.join(self.build_lib, "envd", "bin")
-        errno = subprocess.call(["make", "build"])
-        assert errno == 0, "Failed to build envd"
+        build_envd_if_not_found()
         os.makedirs(bin_path, exist_ok=True)
         shutil.copy("bin/envd", bin_path)
 
 
 def get_version():
-    subprocess.call(["make", "build"])
+    # Remove prefix v in versioning
+    build_envd_if_not_found()
     version = subprocess.check_output(
-        ["./bin/envd", "-v"], universal_newlines=True
+        ["./bin/envd", "version", "--short"], universal_newlines=True
     ).strip()
-    return version.rsplit(" ", 1)[-1]
+    ver = version.rsplit(" ", 1)[-1][1:]
+    return ver
 
 
 setup(
     name="envd",
     version=get_version(),
+    use_scm_version = True,
+    setup_requires=['setuptools_scm'],
     description="A development environment management tool for data scientists.",
-    long_description=readme,
+    long_description=readme,    
+    long_description_content_type="text/markdown",
     url="https://github.com/tensorchord/envd",
     license="Apache License 2.0",
     author="TensorChord",
     author_email="envd-maintainers@tensorchord.ai",
     packages=find_packages(),
     include_package_data=True,
-    python_requires=">=3.6",
     entry_points={
         "console_scripts": [
             "envd=envd.cmd:envd",
