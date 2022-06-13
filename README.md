@@ -100,9 +100,12 @@ Get started by **creating a new envd environment**.
 
 ### Install envd
 
-You can download the binary from the [latest release page](https://github.com/tensorchord/envd/releases/latest), and add it in `$PATH`.
+envd can be installed with `pip`. After the installation, please run `envd bootstrap` to bootstrap.
 
-After the download, please run `envd bootstrap` to bootstrap.
+```bash
+pip install --pre envd
+envd bootstrap
+```
 
 > You can add `--dockerhub-mirror` or `-m` flag when running `envd boostrap`, to configure the mirror for docker.io registry:
 >
