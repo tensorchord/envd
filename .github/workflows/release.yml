@@ -9,7 +9,7 @@ on:
     - '.github/workflows/release.yml'
     - '.goreleaser/'
     - '.goreleaser.yaml'
-  workflow_call:
+  workflow_dispatch:
     inputs:
       pypi_version:
         description: 'Manually specify pypi version. Leave blank to use `envd version --short`'
