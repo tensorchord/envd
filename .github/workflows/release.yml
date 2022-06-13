@@ -65,14 +65,12 @@ jobs:
       run: |
         mkdir -p bin
         mv dist/envd_linux_amd64_v1/envd bin/envd
-        mv dist/
         chmod +x bin/envd
     - name: Configure macOS build environment
       if: runner.os == 'macOS'
       run: |
         mkdir -p bin
         mv dist/envd_darwin_amd64_v1/envd bin/envd
-        mv dist/
         chmod +x bin/envd
     - uses: actions/setup-python@v2
       with:
