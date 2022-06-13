@@ -54,13 +54,14 @@ def get_version():
         ["./bin/envd", "version", "--short"], universal_newlines=True
     ).strip()
     ver = version.rsplit(" ", 1)[-1][1:]
-    ver = ver.replace("-", ".") # pypi version cannot include -
     return ver
 
 
 setup(
     name="envd",
     version=get_version(),
+    use_scm_version = True,
+    setup_requires=['setuptools_scm'],
     description="A development environment management tool for data scientists.",
     long_description=readme,    
     long_description_content_type="text/markdown",

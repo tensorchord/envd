@@ -78,7 +78,7 @@ jobs:
       run: |      
           ls bin/
           python -m pip install --upgrade pip
-          python -m pip install twine wheel auditwheel
+          python -m pip install twine wheel auditwheel setuptools_scm
           python setup.py bdist_wheel
           auditwheel repair dist/*.whl
           ls wheelhouse/
