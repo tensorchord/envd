@@ -32,7 +32,11 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 
 	// Compose the package install command.
 	var sb strings.Builder
-	sb.WriteString("pip install --no-warn-script-location")
+	if len(g.CondaPackages) != 0 {
+		sb.WriteString("/opt/conda/bin/pip install --no-warn-script-location")
+	} else {
+		sb.WriteString("pip install --no-warn-script-location")
+	}
 	for _, pkg := range g.PyPIPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}
@@ -41,7 +45,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	root = llb.User("envd")(root)
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 	cache := root.File(llb.Mkdir("/cache",
-		0755, llb.WithParents(true), llb.WithUIDGID(1000, 1000)), llb.WithCustomName("[internal] settings pip cache mount permissions"))
+		0755, llb.WithParents(true), llb.WithUIDGID(defaultUID, defaultGID)), llb.WithCustomName("[internal] settings pip cache mount permissions"))
 	run := root.
 		Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s",
 			strings.Join(g.PyPIPackages, " ")))
@@ -61,9 +65,11 @@ func (g Graph) compilePyPIIndex(root llb.State) llb.State {
 		content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIIndexURL, extraIndex)
 		pypiMirror := root.
 			File(llb.Mkdir(filepath.Dir(pypiIndexFilePath),
-				0755, llb.WithParents(true), llb.WithUIDGID(defaultUID, defaultGID))).
+				0755, llb.WithParents(true), llb.WithUIDGID(defaultUID, defaultGID)),
+				llb.WithCustomName("[internal] settings PyPI index")).
 			File(llb.Mkfile(pypiIndexFilePath,
-				0644, []byte(content), llb.WithUIDGID(defaultUID, defaultGID)))
+				0644, []byte(content), llb.WithUIDGID(defaultUID, defaultGID)),
+				llb.WithCustomName("[internal] settings PyPI index"))
 		return pypiMirror
 	}
 	return root

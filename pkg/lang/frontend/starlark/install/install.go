@@ -37,6 +37,7 @@ var Module = &starlarkstruct.Module{
 		"cuda":              starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
 		"vscode_extensions": starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
 		"shell":             starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
+		"conda_packages":    starlark.NewBuiltin(ruleConda, ruleFuncConda),
 	},
 }
 
@@ -151,6 +152,28 @@ func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin,
 	if err := ir.VSCodePlugins(pluginList); err != nil {
 		return starlark.None, err
 	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var name *starlark.List
+
+	if err := starlark.UnpackArgs(ruleConda,
+		args, kwargs, "name", &name); err != nil {
+		return nil, err
+	}
+
+	nameList := []string{}
+	if name != nil {
+		for i := 0; i < name.Len(); i++ {
+			nameList = append(nameList, name.Index(i).(starlark.String).GoString())
+		}
+	}
+
+	logger.Debugf("rule `%s` is invoked, name=%v", ruleConda, nameList)
+	ir.CondaPackage(nameList)
 
 	return starlark.None, nil
 }

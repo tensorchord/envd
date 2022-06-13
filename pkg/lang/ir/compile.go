@@ -116,22 +116,32 @@ func (g Graph) Compile() (llb.State, error) {
 			aptStage, rPackageInstallStage,
 		}, llb.WithCustomName("merging all components into one"))
 	} else {
-		pypiMirrorStage := g.compilePyPIIndex(aptStage)
+		condaChanelStage := g.compileCondaChannel(aptStage)
+		pypiMirrorStage := g.compilePyPIIndex(condaChanelStage)
 
 		g.compileJupyter()
 		builtinSystemStage := pypiMirrorStage
+
 		sshStage, err := g.copySSHKey(builtinSystemStage)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
 		}
+		diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
+
+		// Conda affects shell and python, thus we cannot do it parallelly.
 		shellStage, err := g.compileShell(builtinSystemStage)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile shell")
 		}
-		diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
-		diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
-		pypiStage := llb.Diff(builtinSystemStage, g.compilePyPIPackages(builtinSystemStage), llb.WithCustomName("install PyPI packages"))
-		systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage), llb.WithCustomName("install system packages"))
+		condaStage := llb.Diff(builtinSystemStage,
+			g.compileCondaPackages(shellStage),
+			llb.WithCustomName("install PyPI packages"))
+
+		pypiStage := llb.Diff(builtinSystemStage,
+			g.compilePyPIPackages(builtinSystemStage),
+			llb.WithCustomName("install PyPI packages"))
+		systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
+			llb.WithCustomName("install system packages"))
 
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to copy SSH key")
@@ -144,11 +154,13 @@ func (g Graph) Compile() (llb.State, error) {
 
 		if vscodeStage != nil {
 			merged = llb.Merge([]llb.State{
-				builtinSystemStage, systemStage, diffSSHStage, pypiStage, *vscodeStage, diffShellStage,
+				builtinSystemStage, systemStage, condaStage,
+				diffSSHStage, pypiStage, *vscodeStage,
 			}, llb.WithCustomName("merging all components into one"))
 		} else {
 			merged = llb.Merge([]llb.State{
-				builtinSystemStage, systemStage, diffSSHStage, pypiStage, diffShellStage,
+				builtinSystemStage, systemStage, condaStage,
+				diffSSHStage, pypiStage,
 			}, llb.WithCustomName("merging all components into one"))
 		}
 	}

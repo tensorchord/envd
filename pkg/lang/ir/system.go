@@ -30,9 +30,12 @@ func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
 	if g.UbuntuAPTSource != nil {
 		logrus.WithField("source", *g.UbuntuAPTSource).Debug("using custom APT source")
 		aptSource := llb.Scratch().
-			File(llb.Mkdir(filepath.Dir(aptSourceFilePath), 0755, llb.WithParents(true)), llb.WithCustomName("create apt source dir")).
-			File(llb.Mkfile(aptSourceFilePath, 0644, []byte(*g.UbuntuAPTSource)), llb.WithCustomName("create apt source file"))
-		return llb.Merge([]llb.State{root, aptSource}, llb.WithCustomName("add apt source"))
+			File(llb.Mkdir(filepath.Dir(aptSourceFilePath), 0755, llb.WithParents(true)),
+				llb.WithCustomName("[internal] settings apt source")).
+			File(llb.Mkfile(aptSourceFilePath, 0644, []byte(*g.UbuntuAPTSource)),
+				llb.WithCustomName("[internal] settings apt source"))
+		return llb.Merge([]llb.State{root, aptSource},
+			llb.WithCustomName("[internal] settings apt source"))
 	}
 	return root
 }
@@ -98,9 +101,14 @@ func (g *Graph) compileBase() llb.State {
 	}
 	// TODO(gaocegege): Refactor user to a seperate stage.
 	res := base.
-		Run(llb.Shlex(fmt.Sprintf("groupadd -g %s envd", groupID)), llb.WithCustomName("create user group envd")).
-		Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %s -g envd -s /bin/sh -m envd", groupID)), llb.WithCustomName("create user envd")).
-		Run(llb.Shlex("adduser envd sudo"), llb.WithCustomName("add user envd to sudoers")).Run(llb.Shlex("chown -R envd:envd /usr/local/lib"))
+		Run(llb.Shlex(fmt.Sprintf("groupadd -g %s envd", groupID)), llb.WithCustomName("[internal] create user group envd")).
+		Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %s -g envd -s /bin/sh -m envd", groupID)), llb.WithCustomName("[internal] create user envd")).
+		Run(llb.Shlex("adduser envd sudo"),
+			llb.WithCustomName("[internal] add user envd to sudoers")).
+		Run(llb.Shlex("chown -R envd:envd /usr/local/lib"),
+			llb.WithCustomName("[internal] configure user permissions")).
+		Run(llb.Shlex("chown -R envd:envd /opt/conda"),
+			llb.WithCustomName("[internal] configure user permissions"))
 	return llb.User("envd")(res.Root())
 }
 

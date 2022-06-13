@@ -3,6 +3,8 @@
 ROOT_DIR=`dirname $0`
 
 ENVD_VERSION="${ENVD_VERSION:-0.0.1}"
+DOCKER_HUB_ORG="${DOCKER_HUB_ORG:-tensorchord}"
+
 
 cd ${ROOT_DIR}
 # ubuntu 22.04 build require moby/buildkit version greater than 0.8.1
@@ -19,7 +21,7 @@ docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
      --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -t tensorchord/python:3.8-ubuntu20.04-cuda11.6-cudnn8 \
+    -t ${DOCKER_HUB_ORG}/python:3.8-ubuntu20.04-cuda11.6-cudnn8 \
     -f python3.8-ubuntu20.04-cuda11.6.Dockerfile .
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
@@ -27,6 +29,6 @@ docker buildx build \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
      --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -t tensorchord/python:3.8-ubuntu20.04 \
+    -t ${DOCKER_HUB_ORG}/python:3.8-ubuntu20.04 \
     -f python3.8-ubuntu20.04.Dockerfile .
 cd - > /dev/null

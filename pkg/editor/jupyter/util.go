@@ -25,10 +25,19 @@ func GenerateCommand(g ir.Graph, notebookDir string) []string {
 		return nil
 	}
 
-	cmd := []string{
-		"python3", "-m", "notebook",
-		"--ip", "0.0.0.0", "--notebook-dir", notebookDir,
+	var cmd []string
+	// Use python in conda env.
+	if len(g.CondaPackages) != 0 {
+		cmd = append(cmd, "/opt/conda/bin/python3")
+	} else {
+		cmd = append(cmd, "python3")
 	}
+
+	cmd = append(cmd, []string{
+		"-m", "notebook",
+		"--ip", "0.0.0.0", "--notebook-dir", notebookDir,
+	}...)
+
 	if g.JupyterConfig.Password != "" {
 		cmd = append(cmd, "--NotebookApp.password", g.JupyterConfig.Password,
 			"--NotebookApp.token", "''")
