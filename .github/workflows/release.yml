@@ -76,6 +76,10 @@ jobs:
       uses: pypa/cibuildwheel@v2.6.1
       env:
         CIBW_ARCHS: auto64
+    - name: Build source distribution
+      run: |
+        python setup.py sdist
+        mv dist/*.tar.gz wheelhouse/
     - name: Upload to PyPI    
       env:
         TWINE_USERNAME: __token__
