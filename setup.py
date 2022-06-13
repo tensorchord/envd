@@ -45,6 +45,9 @@ class EnvdBuildExt(build_ext):
 
 
 def get_version():
+    env_ver = os.getenv("ENVD_PYPI_VERSION", "")
+    if len(env_ver) != 0:
+        return env_ver
     # Remove prefix v in versioning
     build_envd_if_not_found()
     version = subprocess.check_output(
