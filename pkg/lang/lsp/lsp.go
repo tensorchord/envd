@@ -23,13 +23,14 @@ import (
 	"os"
 
 	"github.com/cockroachdb/errors"
-	"github.com/sirupsen/logrus"
 	"github.com/tilt-dev/starlark-lsp/pkg/analysis"
 	"github.com/tilt-dev/starlark-lsp/pkg/document"
 	"github.com/tilt-dev/starlark-lsp/pkg/server"
 	"go.lsp.dev/jsonrpc2"
 	"go.lsp.dev/protocol"
 	"go.uber.org/zap"
+
+	"github.com/tensorchord/envd/envd"
 )
 
 type BuiltinAnalyzerOptionProvider = func() analysis.AnalyzerOption
@@ -43,14 +44,22 @@ type Server interface {
 }
 
 type generalServer struct {
+	fsProvider func() fs.FS
 }
 
 func New() Server {
-	return &generalServer{}
+	return &generalServer{
+		fsProvider: envd.ApiStubs,
+	}
 }
 
 func (s generalServer) Start(ctx context.Context, addr string) error {
 	var err error
+
+	builtinAnalyzerOption = func() analysis.AnalyzerOption {
+		return analysis.WithBuiltins(s.fsProvider())
+	}
+
 	analyzer, err := createAnalyzer(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to create analyzer")
@@ -68,7 +77,8 @@ func (s generalServer) Start(ctx context.Context, addr string) error {
 
 func runStdioServer(ctx context.Context, analyzer *analysis.Analyzer) error {
 	ctx, cancel := context.WithCancel(ctx)
-	logrus.Debug("running in stdio mode")
+	logger := protocol.LoggerFromContext(ctx)
+	logger.Debug("running in stdio mode")
 	stdio := struct {
 		io.ReadCloser
 		io.Writer
@@ -92,8 +102,9 @@ func runSocketServer(ctx context.Context, addr string, analyzer *analysis.Analyz
 		_ = listener.Close()
 	}()
 
-	logger := logrus.WithField("addr", addr)
-	logger.Debug("running in socket mode")
+	logger := protocol.LoggerFromContext(ctx).
+		With(zap.String("local_addr", listener.Addr().String()))
+	ctx = protocol.WithLogger(ctx, logger)
 
 	for {
 		conn, err := listener.Accept()
@@ -104,8 +115,8 @@ func runSocketServer(ctx context.Context, addr string, analyzer *analysis.Analyz
 			}
 			logger.Warn("failed to accept connection", zap.Error(err))
 		}
-		logger.WithField("remote-addr", conn.RemoteAddr().String()).
-			Debug("accepted connection")
+		logger.Debug("accepted connection",
+			zap.String("remote_addr", conn.RemoteAddr().String()))
 
 		err = launchHandler(ctx, cancel, conn, analyzer)
 		if err != nil {
@@ -154,10 +165,7 @@ func launchHandler(ctx context.Context, cancel context.CancelFunc, conn io.ReadW
 
 func createAnalyzer(ctx context.Context) (*analysis.Analyzer, error) {
 	opts := []analysis.AnalyzerOption{
-		analysis.WithStarlarkBuiltins(),
-	}
-	if builtinAnalyzerOption != nil {
-		opts = append(opts, builtinAnalyzerOption())
+		analysis.WithStarlarkBuiltins(), builtinAnalyzerOption(),
 	}
 
 	return analysis.NewAnalyzer(ctx, opts...)

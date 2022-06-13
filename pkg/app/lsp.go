@@ -15,13 +15,22 @@
 package app
 
 import (
-	"context"
+	"fmt"
 
 	"github.com/tensorchord/envd/pkg/lang/lsp"
 	cli "github.com/urfave/cli/v2"
+	"go.lsp.dev/protocol"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
+// go lsp server uses zap, thus we have to keep two loggers (logrus and zap) in envd.
+// zap is only used in lsp subcommand.
+var logLevel = zap.NewAtomicLevelAt(zapcore.WarnLevel)
+
 var CommandLSP = &cli.Command{
+	// Hide the command since users are not expected to use it directly.
+	// it is only used in vscode-envd extension.
 	Hidden: true,
 	Name:   "lsp",
 	Usage:  "Start envd language server",
@@ -30,12 +39,43 @@ var CommandLSP = &cli.Command{
 			Name:  "address",
 			Usage: "Address (hostname:port) to listen on",
 		},
+		// It is not possible to use the global debug flag because we cannot get it here.
+		// The UX is not good enough since we provide two flags about debug:
+		// envd --debug lsp --debug
+		// Users are not expected to use this command directly, thus it should be fine.
+		&cli.BoolFlag{
+			Name:  "debug",
+			Usage: "Enable debug logging",
+		},
 	},
 	Action: startLSP,
 }
 
 func startLSP(clicontext *cli.Context) error {
+	if clicontext.Bool("debug") {
+		logLevel.SetLevel(zapcore.DebugLevel)
+	}
+
+	logger, cleanup := newzapLogger()
+	defer cleanup()
+	ctx := protocol.WithLogger(clicontext.Context, logger)
+
 	s := lsp.New()
-	err := s.Start(context.Background(), clicontext.String("address"))
+	err := s.Start(ctx, clicontext.String("address"))
 	return err
+}
+
+func newzapLogger() (logger *zap.Logger, cleanup func()) {
+	cfg := zap.NewDevelopmentConfig()
+	cfg.Level = logLevel
+	cfg.Development = false
+	logger, err := cfg.Build()
+	if err != nil {
+		panic(fmt.Errorf("failed to initialize logger: %v", err))
+	}
+
+	cleanup = func() {
+		_ = logger.Sync()
+	}
+	return logger, cleanup
 }
