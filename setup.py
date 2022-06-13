@@ -68,7 +68,6 @@ setup(
     author_email="envd-maintainers@tensorchord.ai",
     packages=find_packages(),
     include_package_data=True,
-    python_requires=">=3.6",
     entry_points={
         "console_scripts": [
             "envd=envd.cmd:envd",
