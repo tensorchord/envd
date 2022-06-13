@@ -9,7 +9,7 @@ on:
       - '**.go'
       - 'Makefile'
   pull_request:
-    types: [review_requested, ready_for_review]
+    types: [ready_for_review]
     paths:
       - '.github/workflows/**'
       - '**.go'
