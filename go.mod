@@ -28,7 +28,7 @@ require (
 	github.com/pkg/sftp v1.13.4
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.4.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.2
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
 	github.com/urfave/cli/v2 v2.4.0
@@ -109,7 +109,7 @@ require (
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 // Copied from buildkit to make github.com/tonistiigi/fsutil happy.
