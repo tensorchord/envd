@@ -51,7 +51,7 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        os: [macos-10.15]
+        os: [macos-10.15, ubuntu-20.04]
     # if: startsWith(github.ref, 'refs/tags/v') # only trigger when tag starts with v
     steps:    
     - uses: actions/checkout@v3
@@ -74,6 +74,8 @@ jobs:
         chmod +x bin/envd
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.6.1
+      env:
+        CIBW_ARCHS: auto64
     - name: Upload to PyPI    
       env:
         TWINE_USERNAME: __token__
