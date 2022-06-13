@@ -45,6 +45,7 @@ class EnvdBuildExt(build_ext):
 
 
 def get_version():
+    # Can override pypi version by env var
     env_ver = os.getenv("ENVD_PYPI_VERSION", "")
     if len(env_ver) != 0:
         return env_ver

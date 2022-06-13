@@ -9,13 +9,6 @@ on:
     - '.github/workflows/release.yml'
     - '.goreleaser/'
     - '.goreleaser.yaml'
-  workflow_dispatch:
-    inputs:
-      pypi_version:
-        description: 'Manually specify pypi version. Leave blank to use `envd version --short`'
-        default: ""
-        required: false
-        type: string
 
 jobs:
   goreleaser:
@@ -55,6 +48,7 @@ jobs:
   pypi_publish:
     needs: goreleaser
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') # only trigger when tag starts with v
     steps:    
     - uses: actions/checkout@v3
     - name: Get gobin
@@ -73,8 +67,6 @@ jobs:
       with:
         python-version: 3.9
     - name: Build wheel
-      env:
-        ENVD_PYPI_VERSION: ${{ inputs.pypi_version }}
       run: |      
           ls bin/
           python -m pip install --upgrade pip
