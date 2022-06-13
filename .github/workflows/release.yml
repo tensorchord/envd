@@ -51,7 +51,7 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-10.15]
     # if: startsWith(github.ref, 'refs/tags/v') # only trigger when tag starts with v
     steps:    
     - uses: actions/checkout@v3
@@ -72,18 +72,8 @@ jobs:
         mkdir -p bin
         mv dist/envd_darwin_amd64_v1/envd bin/envd
         chmod +x bin/envd
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-    - name: Build wheel
-      run: |      
-          python -m pip install --upgrade pip
-          python -m pip install twine wheel auditwheel setuptools_scm
-          python setup.py bdist_wheel sdist
-          auditwheel repair dist/*.whl
-          pushd wheelhouse
-          for file in *.whl ; do mv $file ${file//"cp39-cp39"/"py2.py3-none"} ; done
-          popd
+    - name: Build wheels
+      uses: pypa/cibuildwheel@v1.12.0
     - name: Upload to PyPI    
       env:
         TWINE_USERNAME: __token__
