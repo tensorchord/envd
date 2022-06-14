@@ -16,8 +16,6 @@ on:
       - '**.go'
       - 'Makefile'
       - 'go.**'
-    branches:
-      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
