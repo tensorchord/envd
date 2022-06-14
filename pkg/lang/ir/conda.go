@@ -99,13 +99,12 @@ func (g Graph) setCondaENV(root llb.State) llb.State {
 	switch g.Shell {
 	case shellBASH:
 		run = run.Run(
-			llb.Shlex(`echo "source /opt/conda/bin/activate envd" >> /home/envd/.bashrc`),
-			llb.WithCustomName("[internal] add conda environment to bashrc"))
+			llb.Shlex(`bash -c 'echo "source /opt/conda/bin/activate envd" >> /home/envd/.bashrc'`))
 	case shellZSH:
 		run = run.Run(
 			llb.Shlex(fmt.Sprintf("bash -c \"/opt/conda/bin/conda init %s\"", g.Shell)),
 			llb.WithCustomNamef("[internal] initialize conda %s environment", g.Shell)).Run(
-			llb.Shlex(`echo "source /opt/conda/bin/activate envd" >> /home/envd/.zshrc`),
+			llb.Shlex(`bash -c 'echo "source /opt/conda/bin/activate envd" >> /home/envd/.zshrc'`),
 			llb.WithCustomName("[internal] add conda environment to zshrc"))
 	}
 	return run.Root()
