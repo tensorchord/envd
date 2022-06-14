@@ -108,7 +108,7 @@ pip install --pre envd
 envd bootstrap
 ```
 
-> You can add `--dockerhub-mirror` or `-m` flag when running `envd boostrap`, to configure the mirror for docker.io registry:
+> You can add `--dockerhub-mirror` or `-m` flag when running `envd bootstrap`, to configure the mirror for docker.io registry:
 >
 >```bash title="Set docker mirror"
 >envd bootstrap --dockerhub-mirror https://docker.mirrors.sjtug.sjtu.edu.cn
