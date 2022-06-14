@@ -25,7 +25,8 @@ import (
 )
 
 var _ = Describe("up command", func() {
-	buildContext := "testdata"
+	buildContext := "testdata/up"
+	env := "up"
 	baseArgs := []string{
 		"envd.test", "--debug",
 	}
@@ -36,7 +37,7 @@ var _ = Describe("up command", func() {
 		Expect(err).NotTo(HaveOccurred())
 		cli, err := docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())
-		_, err = cli.Destroy(context.TODO(), buildContext)
+		_, err = cli.Destroy(context.TODO(), env)
 		Expect(err).NotTo(HaveOccurred())
 	})
 	When("given the right arguments", func() {
@@ -49,7 +50,7 @@ var _ = Describe("up command", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			depsArgs := append(baseArgs, []string{
-				"get", "envs", "deps", "--env", buildContext,
+				"get", "envs", "deps", "--env", env,
 			}...)
 
 			err = app.Run(depsArgs)

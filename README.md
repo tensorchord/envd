@@ -234,8 +234,7 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe mu
 """)
 config.pip_index(url = "https://mirror.sjtu.edu.cn/pypi/web/simple")
 install.vscode_extensions([
-    "ms-python.python",
-    "github.copilot"
+    "ms-python.python"
 ])
 ```
 
