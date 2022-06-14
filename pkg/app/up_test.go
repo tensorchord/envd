@@ -25,8 +25,8 @@ import (
 )
 
 var _ = Describe("up command", func() {
-	buildContext := "testdata/up"
-	env := "up"
+	buildContext := "testdata/up-test"
+	env := "up-test"
 	baseArgs := []string{
 		"envd.test", "--debug",
 	}

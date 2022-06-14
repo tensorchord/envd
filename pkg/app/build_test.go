@@ -25,7 +25,7 @@ import (
 )
 
 var _ = Describe("build command", func() {
-	buildContext := "testdata/build"
+	buildContext := "testdata/build-test"
 	args := []string{
 		"envd.test", "--debug", "build", "--path", buildContext,
 	}
