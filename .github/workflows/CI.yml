@@ -58,28 +58,11 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.46.2
-  setup:
-    name: setup
-    runs-on: ubuntu-latest
-    outputs:
-      os: ${{ steps.setup.outputs.os }}
-    steps:
-      - name: setup
-        id: setup
-        run: |
-          if ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}; then
-            os='["ubuntu-latest","macos-latest"]'
-          else
-            os='["ubuntu-latest"]'
-          fi
-          list=$(echo ${os} | jq -c)
-          echo "::set-output name=os::${list}"
   test:
     name: test
-    needs: setup
     strategy:
       matrix:
-        os: ${{ fromJson(needs.setup.outputs.os) }}
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
       GOPATH: ${{ github.workspace }}/go
@@ -122,10 +105,9 @@ jobs:
           parallel: true
   build:
     name: build
-    needs: setup
     strategy:
       matrix:
-        os: ${{ fromJson(needs.setup.outputs.os) }}
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
       GOPATH: ${{ github.workspace }}/go
