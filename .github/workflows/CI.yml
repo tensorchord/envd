@@ -10,11 +10,14 @@ on:
       - 'Makefile'
       - 'go.**'
   pull_request:
+    types: [ready_for_review]
     paths:
       - '.github/workflows/**'
       - '**.go'
       - 'Makefile'
       - 'go.**'
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
