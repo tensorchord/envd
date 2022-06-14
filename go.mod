@@ -31,7 +31,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
-	github.com/urfave/cli/v2 v2.4.0
+	github.com/urfave/cli/v2 v2.8.1
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.0.0-20211202192323-5770296d904e
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -94,6 +94,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tonistiigi/fsutil v0.0.0-20220115021204-b19f7f9cb274 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
+	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.29.0 // indirect
 	go.opentelemetry.io/otel v1.4.1 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.4.1 // indirect
