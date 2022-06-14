@@ -20,9 +20,17 @@ import (
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 )
 
-func Base(os, language string) {
-	DefaultGraph.Language = language
+func Base(os, language string) error {
+	l, version, err := parseLanguage(language)
+	if err != nil {
+		return err
+	}
+	DefaultGraph.Language = Language{
+		Name:    l,
+		Version: version,
+	}
 	DefaultGraph.OS = os
+	return nil
 }
 
 func PyPIPackage(deps []string) {
@@ -116,10 +124,23 @@ func CondaChannel(channel string) error {
 		return errors.New("channel is required")
 	}
 
-	DefaultGraph.CondaChannel = &channel
+	if !DefaultGraph.CondaEnabled() {
+		DefaultGraph.CondaConfig = &CondaConfig{}
+	}
+
+	DefaultGraph.CondaConfig.CondaChannel = &channel
 	return nil
 }
 
-func CondaPackage(deps []string) {
-	DefaultGraph.CondaPackages = append(DefaultGraph.CondaPackages, deps...)
+func CondaPackage(deps []string, channel []string) {
+	if !DefaultGraph.CondaEnabled() {
+		DefaultGraph.CondaConfig = &CondaConfig{}
+	}
+	DefaultGraph.CondaConfig.CondaPackages = append(
+		DefaultGraph.CondaConfig.CondaPackages, deps...)
+
+	if len(channel) != 0 {
+		DefaultGraph.CondaConfig.AdditionalChannels = append(
+			DefaultGraph.CondaConfig.AdditionalChannels, channel...)
+	}
 }

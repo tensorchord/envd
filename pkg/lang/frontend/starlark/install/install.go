@@ -158,10 +158,10 @@ func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin,
 
 func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var name *starlark.List
+	var name, channel *starlark.List
 
 	if err := starlark.UnpackArgs(ruleConda,
-		args, kwargs, "name", &name); err != nil {
+		args, kwargs, "name", &name, "channel?", &channel); err != nil {
 		return nil, err
 	}
 
@@ -172,8 +172,15 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 		}
 	}
 
-	logger.Debugf("rule `%s` is invoked, name=%v", ruleConda, nameList)
-	ir.CondaPackage(nameList)
+	channelList := []string{}
+	if channel != nil {
+		for i := 0; i < channel.Len(); i++ {
+			channelList = append(channelList, channel.Index(i).(starlark.String).GoString())
+		}
+	}
+
+	logger.Debugf("rule `%s` is invoked, name=%v, channel=%v", ruleConda, nameList, channelList)
+	ir.CondaPackage(nameList, channelList)
 
 	return starlark.None, nil
 }

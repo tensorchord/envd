@@ -28,10 +28,12 @@ import (
 
 func NewGraph() *Graph {
 	return &Graph{
-		OS:       osDefault,
-		Language: languageDefault,
-		CUDA:     nil,
-		CUDNN:    nil,
+		OS: osDefault,
+		Language: Language{
+			Name: languageDefault,
+		},
+		CUDA:  nil,
+		CUDNN: nil,
 
 		PyPIPackages:   []string{},
 		RPackages:      []string{},
@@ -109,7 +111,7 @@ func (g Graph) Compile() (llb.State, error) {
 	base := g.compileBase()
 	aptStage := g.compileUbuntuAPT(base)
 	var merged llb.State
-	if g.Language == "r" {
+	if g.Language.Name == "r" {
 		// TODO(terrytangyuan): Support RStudio local server
 		rPackageInstallStage := llb.Diff(aptStage, g.installRPackages(aptStage), llb.WithCustomName("install R packages"))
 		merged = llb.Merge([]llb.State{
@@ -133,12 +135,15 @@ func (g Graph) Compile() (llb.State, error) {
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile shell")
 		}
-		condaStage := llb.Diff(builtinSystemStage,
-			g.compileCondaPackages(shellStage),
-			llb.WithCustomName("install PyPI packages"))
 
-		pypiStage := llb.Diff(builtinSystemStage,
-			g.compilePyPIPackages(builtinSystemStage),
+		condaEnvStage := g.setCondaENV(shellStage)
+
+		condaStage := llb.Diff(builtinSystemStage,
+			g.compileCondaPackages(condaEnvStage),
+			llb.WithCustomName("install conda packages"))
+
+		pypiStage := llb.Diff(condaEnvStage,
+			g.compilePyPIPackages(condaEnvStage),
 			llb.WithCustomName("install PyPI packages"))
 		systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
 			llb.WithCustomName("install system packages"))

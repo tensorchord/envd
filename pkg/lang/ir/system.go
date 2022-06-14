@@ -86,10 +86,19 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 }
 
 func (g *Graph) compileBase() llb.State {
+	logger := logrus.WithFields(logrus.Fields{
+		"os":       g.OS,
+		"language": g.Language.Name,
+	})
+	if g.Language.Version != nil {
+		logger = logger.WithField("version", *g.Language.Version)
+	}
+	logger.Debug("compile base image")
+
 	var base llb.State
 	var groupID string = "1000"
 	if g.CUDA == nil && g.CUDNN == nil {
-		if g.Language == "r" {
+		if g.Language.Name == "r" {
 			base = llb.Image("docker.io/r-base:4.2.0")
 			// r-base image already has GID 1000.
 			groupID = "1001"
