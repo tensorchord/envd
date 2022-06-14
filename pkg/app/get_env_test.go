@@ -15,50 +15,26 @@
 package app
 
 import (
-	"context"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
 )
 
-var _ = Describe("up command", func() {
-	buildContext := "testdata"
-	baseArgs := []string{
-		"envd.test", "--debug",
+var _ = Describe("get env command", func() {
+	args := []string{
+		"envd.test", "--debug", "get", "envs",
 	}
 	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
 		app := New()
-		err := app.Run(append(baseArgs, "bootstrap"))
-		Expect(err).NotTo(HaveOccurred())
-		cli, err := docker.NewClient(context.TODO())
-		Expect(err).NotTo(HaveOccurred())
-		_, err = cli.Destroy(context.TODO(), buildContext)
+		err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
 		Expect(err).NotTo(HaveOccurred())
 	})
 	When("given the right arguments", func() {
-		It("should up and destroy successfully", func() {
-			args := append(baseArgs, []string{
-				"up", "--path", buildContext, "--detach",
-			}...)
+		It("should get the environments successfully", func() {
 			app := New()
 			err := app.Run(args)
-			Expect(err).NotTo(HaveOccurred())
-
-			depsArgs := append(baseArgs, []string{
-				"get", "envs", "deps", "--env", buildContext,
-			}...)
-
-			err = app.Run(depsArgs)
-			Expect(err).NotTo(HaveOccurred())
-
-			destroyArgs := append(baseArgs, []string{
-				"destroy", "--path", buildContext,
-			}...)
-			err = app.Run(destroyArgs)
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})

@@ -19,7 +19,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/docker"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
