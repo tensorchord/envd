@@ -32,8 +32,9 @@ func NewGraph() *Graph {
 		Language: Language{
 			Name: languageDefault,
 		},
-		CUDA:  nil,
-		CUDNN: nil,
+		CUDA:    nil,
+		CUDNN:   nil,
+		NumGPUs: -1,
 
 		PyPIPackages:   []string{},
 		RPackages:      []string{},
@@ -47,6 +48,10 @@ var DefaultGraph = NewGraph()
 
 func GPUEnabled() bool {
 	return DefaultGraph.GPUEnabled()
+}
+
+func NumGPUs() int {
+	return DefaultGraph.NumGPUs
 }
 
 func Compile(ctx context.Context, cachePrefix string, pub string) (*llb.Definition, error) {

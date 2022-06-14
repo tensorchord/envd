@@ -51,7 +51,7 @@ type Client interface {
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
 	// Start creates the container for the given tag and container name.
 	StartEnvd(ctx context.Context, tag, name, buildContext string,
-		gpuEnabled bool, sshPort int, g ir.Graph, timeout time.Duration,
+		gpuEnabled bool, numGPUs int, sshPort int, g ir.Graph, timeout time.Duration,
 		mountOptionsStr []string) (string, string, error)
 	StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error)
 
@@ -293,11 +293,12 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 
 // Start creates the container for the given tag and container name.
 func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext string,
-	gpuEnabled bool, sshPort int, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error) {
+	gpuEnabled bool, numGPUs int, sshPort int, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":           tag,
 		"container":     name,
 		"gpu":           gpuEnabled,
+		"numGPUs":       numGPUs,
 		"build-context": buildContext,
 	})
 	config := &container.Config{
@@ -374,8 +375,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 
 	if gpuEnabled {
 		logger.Debug("GPU is enabled.")
-		// enable all gpus with -1
-		hostConfig.DeviceRequests = deviceRequests(-1)
+		hostConfig.DeviceRequests = deviceRequests(numGPUs)
 	}
 
 	config.Labels = labels(name, g.JupyterConfig, sshPort)
