@@ -20,17 +20,20 @@ import (
 )
 
 var _ = Describe("ssh config", func() {
-	var sshConfigPath = "ssh_config"
 	When("giving a empty ssh config", func() {
 		It("Should add/remove the config successfully", func() {
 			env := "test-ssh-config"
 			iface := "localhost"
 			port := 8888
 			keyPath := "key"
-			err := add(sshConfigPath, env, iface, port, keyPath)
+			err := add(getSSHConfigPath(), buildHostname(env), iface, port, keyPath)
 			Expect(err).NotTo(HaveOccurred())
 
-			err = remove(sshConfigPath, env)
+			actual, err := GetPort(env)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(actual).To(Equal(port))
+
+			err = remove(getSSHConfigPath(), env)
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})
