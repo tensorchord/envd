@@ -17,10 +17,11 @@ custom_channels:
   pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
   simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
 """)
-    # install.conda_packages(name = [
-    #     "pytorch=0.4.1", "cuda90"
-    # ], channel= ["pytorch"])
+    install.conda_packages(name = [
+        "pytorch=0.4.1", "cuda90"
+    ], channel= ["pytorch"])
     base(os="ubuntu20.04", language="python3.5")
     install.python_packages(name = [
         "flask"
     ])
+    install.cuda(version="11.6", cudnn="8")
