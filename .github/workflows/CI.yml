@@ -113,13 +113,13 @@ jobs:
           git diff --cached --exit-code || (echo 'Please run "make generate" to verify generate' && exit 1);
       - name: Test
         run: make test
-      # - name: send coverage
-      #   uses: shogo82148/actions-goveralls@v1
-      #   with:
-      #     path-to-profile: coverage.out
-      #     working-directory: src/github.com/tensorchord/envd
-      #     flag-name: unit-test
-      #     parallel: true
+      - name: send coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: coverage.out
+          working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+          flag-name: ${{ matrix.os }}
+          parallel: true
   build:
     name: build
     needs: setup
@@ -152,3 +152,12 @@ jobs:
             ${{ runner.OS }}-
       - name: Build
         run: make
+
+  # notifies that all test jobs are finished.
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+          parallel-finished: true
