@@ -25,28 +25,40 @@ import (
 )
 
 var _ = Describe("up command", func() {
-	buildContext := "testdata"
-	args := []string{
-		"envd.test", "--debug", "up", "--path", buildContext, "--detach",
+	buildContext := "testdata/up-test"
+	env := "up-test"
+	baseArgs := []string{
+		"envd.test", "--debug",
 	}
 	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
 		app := New()
-		err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
+		err := app.Run(append(baseArgs, "bootstrap"))
 		Expect(err).NotTo(HaveOccurred())
 		cli, err := docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())
-		_, err = cli.Destroy(context.TODO(), buildContext)
+		_, err = cli.Destroy(context.TODO(), env)
 		Expect(err).NotTo(HaveOccurred())
 	})
 	When("given the right arguments", func() {
 		It("should up and destroy successfully", func() {
+			args := append(baseArgs, []string{
+				"up", "--path", buildContext, "--detach",
+			}...)
 			app := New()
 			err := app.Run(args)
 			Expect(err).NotTo(HaveOccurred())
-			destroyArgs := []string{
-				"envd.test", "--debug", "destroy", "--path", buildContext,
-			}
+
+			depsArgs := append(baseArgs, []string{
+				"get", "envs", "deps", "--env", env,
+			}...)
+
+			err = app.Run(depsArgs)
+			Expect(err).NotTo(HaveOccurred())
+
+			destroyArgs := append(baseArgs, []string{
+				"destroy", "--path", buildContext,
+			}...)
 			err = app.Run(destroyArgs)
 			Expect(err).NotTo(HaveOccurred())
 		})

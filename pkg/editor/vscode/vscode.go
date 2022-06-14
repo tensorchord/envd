@@ -24,7 +24,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/unzip"
+	"github.com/tensorchord/envd/pkg/util/ziputil"
 )
 
 const (
@@ -134,7 +134,7 @@ func (c generalClient) DownloadOrCache(p Plugin) (bool, error) {
 		return false, err
 	}
 
-	_, err = unzip.Unzip(filename, unzipPath(p))
+	_, err = ziputil.Unzip(filename, unzipPath(p))
 	if err != nil {
 		return false, errors.Wrap(err, "failed to unzip")
 	}
