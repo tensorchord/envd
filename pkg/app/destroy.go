@@ -71,7 +71,7 @@ func destroy(clicontext *cli.Context) error {
 	}
 	if ctrName, err := dockerClient.Destroy(clicontext.Context, ctrName); err != nil {
 		return errors.Wrapf(err, "failed to destroy the environment: %s", ctrName)
-	} else if name != "" {
+	} else if ctrName != "" {
 		logrus.Infof("%s is destroyed", ctrName)
 	}
 

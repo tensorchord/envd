@@ -22,22 +22,21 @@ import (
 // A Graph contains the state,
 // such as its call stack and thread-local storage.
 type Graph struct {
-	OS       string
-	Language string
-	Shell    string
-	CUDA     *string
-	CUDNN    *string
+	OS string
+	Language
+
+	Shell string
+	CUDA  *string
+	CUDNN *string
 
 	UbuntuAPTSource   *string
 	PyPIIndexURL      *string
 	PyPIExtraIndexURL *string
-	CondaChannel      *string
 
 	PublicKeyPath string
 
 	PyPIPackages   []string
 	RPackages      []string
-	CondaPackages  []string
 	SystemPackages []string
 
 	VSCodePlugins []vscode.Plugin
@@ -45,9 +44,21 @@ type Graph struct {
 	Exec []string
 	*JupyterConfig
 	*GitConfig
+	*CondaConfig
 
 	Writer      compileui.Writer
 	CachePrefix string
+}
+
+type Language struct {
+	Name    string
+	Version *string
+}
+
+type CondaConfig struct {
+	CondaPackages      []string
+	AdditionalChannels []string
+	CondaChannel       *string
 }
 
 type GitConfig struct {
