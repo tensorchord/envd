@@ -57,6 +57,18 @@
         "design",
         "doc"
       ]
+    },
+    {
+      "login": "rudeigerc",
+      "name": "Yuchen Cheng",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18243819?v=4",
+      "profile": "https://rudeigerc.dev/",
+      "contributions": [
+        "bug",
+        "infra",
+        "maintenance",
+        "tool"
+      ]
     }
   ],
   "contributorsPerLine": 7
