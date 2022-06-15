@@ -152,7 +152,17 @@
         "ideas",
         "userTesting"
       ]
+    },
+    {
+      "login": "popfido",
+      "name": "Aka.Fido",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3928409?v=4",
+      "profile": "https://github.com/popfido",
+      "contributions": [
+        "platform"
+      ]
     }
   ],
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "skipCi": true
 }
