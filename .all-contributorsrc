@@ -55,14 +55,7 @@
         "bug",
         "code",
         "design",
-        "doc",
-        "example",
-        "fundingFinding",
-        "ideas",
-        "maintenance",
-        "projectManagement",
-        "research",
-        "review"
+        "doc"
       ]
     }
   ],
