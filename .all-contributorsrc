@@ -23,6 +23,28 @@
         "infra",
         "maintenance"
       ]
+    },
+    {
+      "login": "terrytangyuan",
+      "name": "Yuan Tang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4269898?v=4",
+      "profile": "https://terrytangyuan.github.io/about/",
+      "contributions": [
+        "question",
+        "bug",
+        "code",
+        "design",
+        "doc",
+        "ideas",
+        "infra",
+        "maintenance",
+        "platform",
+        "review",
+        "test",
+        "tool",
+        "translation",
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7
