@@ -101,6 +101,16 @@
         "bug",
         "infra"
       ]
+    },
+    {
+      "login": "Triple-Z",
+      "name": "Zhenzhen Zhao",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16285716?v=4",
+      "profile": "https://blog.triplez.cn/",
+      "contributions": [
+        "infra",
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7
