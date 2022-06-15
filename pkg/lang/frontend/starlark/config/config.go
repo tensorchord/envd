@@ -30,12 +30,32 @@ var Module = &starlarkstruct.Module{
 	Name: "config",
 	Members: starlark.StringDict{
 		"apt_source": starlark.NewBuiltin(ruleUbuntuAptSource, ruleFuncUbuntuAptSource),
+		"gpu":        starlark.NewBuiltin(ruleGPU, ruleFuncGPU),
 		"jupyter":    starlark.NewBuiltin(ruleJupyter, ruleFuncJupyter),
 		"pip_index": starlark.NewBuiltin(
 			rulePyPIIndex, ruleFuncPyPIIndex),
 		"conda_channel": starlark.NewBuiltin(
 			ruleCondaChannel, ruleFuncCondaChannel),
 	},
+}
+
+func ruleFuncGPU(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var numGPUs starlark.Int
+
+	if err := starlark.UnpackArgs(ruleGPU, args, kwargs,
+		"count?", &numGPUs); err != nil {
+		return nil, err
+	}
+
+	numGPUsInt, ok := numGPUs.Int64()
+	if ok {
+		ir.GPU(int(numGPUsInt))
+		logger.Debugf("Using %d GPUs", int(numGPUsInt))
+	} else {
+		logger.Debugf("Failed to convert gpu count to int64")
+	}
+	return starlark.None, nil
 }
 
 func ruleFuncJupyter(thread *starlark.Thread, _ *starlark.Builtin,

@@ -45,6 +45,10 @@ func SystemPackage(deps []string) {
 	DefaultGraph.SystemPackages = append(DefaultGraph.SystemPackages, deps...)
 }
 
+func GPU(numGPUs int) {
+	DefaultGraph.NumGPUs = numGPUs
+}
+
 func CUDA(version, cudnn string) {
 	DefaultGraph.CUDA = &version
 	DefaultGraph.CUDNN = &cudnn

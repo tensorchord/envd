@@ -25,9 +25,10 @@ type Graph struct {
 	OS string
 	Language
 
-	Shell string
-	CUDA  *string
-	CUDNN *string
+	Shell   string
+	CUDA    *string
+	CUDNN   *string
+	NumGPUs int
 
 	UbuntuAPTSource   *string
 	PyPIIndexURL      *string
