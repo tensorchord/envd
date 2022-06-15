@@ -91,6 +91,16 @@
         "infra",
         "maintenance"
       ]
+    },
+    {
+      "login": "3AceShowHand",
+      "name": "Ling Jin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7138436?v=4",
+      "profile": "https://github.com/3AceShowHand",
+      "contributions": [
+        "bug",
+        "infra"
+      ]
     }
   ],
   "contributorsPerLine": 7
