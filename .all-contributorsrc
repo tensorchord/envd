@@ -120,6 +120,18 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Xuanwo",
+      "name": "Xuanwo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5351546?v=4",
+      "profile": "https://xuanwo.io/",
+      "contributions": [
+        "question",
+        "design",
+        "ideas",
+        "review"
+      ]
     }
   ],
   "contributorsPerLine": 7
