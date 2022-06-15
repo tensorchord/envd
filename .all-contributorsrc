@@ -80,6 +80,17 @@
         "ideas",
         "research"
       ]
+    },
+    {
+      "login": "Thrimbda",
+      "name": "Siyuan Wang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15231162?v=4",
+      "profile": "https://blog.thrimbda.com/",
+      "contributions": [
+        "code",
+        "infra",
+        "maintenance"
+      ]
     }
   ],
   "contributorsPerLine": 7
