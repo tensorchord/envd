@@ -132,6 +132,15 @@
         "ideas",
         "review"
       ]
+    },
+    {
+      "login": "jimoosciuc",
+      "name": "jimoosciuc",
+      "avatar_url": "https://avatars.githubusercontent.com/u/33337387?v=4",
+      "profile": "https://github.com/jimoosciuc",
+      "contributions": [
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7
