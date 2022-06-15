@@ -19,4 +19,4 @@ from pkg_resources import resource_filename
 
 def envd():
     path = resource_filename("envd", "bin/envd")
-    subprocess.check_call([path] + sys.argv[1:])
+    subprocess.call([path] + sys.argv[1:])
