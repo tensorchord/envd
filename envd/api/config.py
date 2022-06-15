@@ -16,7 +16,7 @@ from typing import Optional
 
 
 def apt_source(mode: Optional[str], source: Optional[str]):
-    r"""Config apt sources
+    r"""Configure apt sources
 
     Example usage:
     ```
@@ -43,7 +43,7 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe mu
 
 def jupyter(password: str, port: int):
     """
-    Config jupyter notebook configuration
+    Configure jupyter notebook configuration
 
     Args:
         password (str): Password for access authenticatioin
@@ -53,9 +53,33 @@ def jupyter(password: str, port: int):
 
 def pip_index(url):
     """
-    Config pypi index mirror
+    Configure pypi index mirror
 
     Args:
         url (str): Pypi index url (i.e. https://mirror.sjtu.edu.cn/pypi/web/simple)
     """
     pass
+
+def conda_channel(channel:str):
+    """
+    Configure conda channel mirror
+
+    Example usage:
+    ```
+    config.conda_channel(channel='''
+channels:
+  - defaults
+show_channel_urls: true
+default_channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+custom_channels:
+  conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    '''
+    )
+    ```
+
+    Args:
+        channel (str): Basically the same with file content of an usual .condarc
+    """
