@@ -1,0 +1,29 @@
+{
+  "projectName": "envd",
+  "projectOwner": "tensorchord",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 50,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "gaocegege",
+      "name": "Ce Gao",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5100735?v=4",
+      "profile": "http://gaocegege.com/Blog",
+      "contributions": [
+        "code",
+        "doc",
+        "fundingFinding",
+        "ideas",
+        "infra",
+        "maintenance"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7
+}
