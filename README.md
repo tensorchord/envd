@@ -1,9 +1,5 @@
-<div align="center">
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-13-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
 <h1>envd</h1>
-<p>Development Environment for Data Scientists</p>
+<p>Development Environment for data science and AI/ML</p>
 </div>
 
 <p align=center>
