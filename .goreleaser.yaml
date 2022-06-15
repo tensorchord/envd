@@ -65,6 +65,7 @@ changelog:
       - '^ci:'
       - '^docs:'
       - '^test:'
+      - '^chore:'
 dockers:
 - image_templates:
   - "ghcr.io/tensorchord/envd-ssh-from-scratch:{{ .Version }}-amd64"
