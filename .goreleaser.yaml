@@ -61,6 +61,8 @@ changelog:
   sort: asc
   filters:
     exclude:
+      - '^build:'
+      - '^ci:'
       - '^docs:'
       - '^test:'
 dockers:
