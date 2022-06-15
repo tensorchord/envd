@@ -162,6 +162,15 @@
         "platform",
         "doc"
       ]
+    },
+    {
+      "login": "kenwoodjw",
+      "name": "kenwoodjw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10386710?v=4",
+      "profile": "https://kenwoodjw.github.io",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
