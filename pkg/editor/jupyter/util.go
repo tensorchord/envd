@@ -27,7 +27,7 @@ func GenerateCommand(g ir.Graph, notebookDir string) []string {
 
 	var cmd []string
 	// Use python in conda env.
-	if len(g.CondaPackages) != 0 {
+	if g.CondaEnabled() {
 		cmd = append(cmd, "/opt/conda/bin/python3")
 	} else {
 		cmd = append(cmd, "python3")

@@ -164,9 +164,10 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get a free port")
 	}
+	numGPUs := builder.NumGPUs()
 
 	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
-		tag, ctr, buildContext, gpu, sshPort, *ir.DefaultGraph, clicontext.Duration("timeout"),
+		tag, ctr, buildContext, gpu, numGPUs, sshPort, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))
 	if err != nil {
 		return err

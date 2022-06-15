@@ -32,8 +32,8 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 
 	// Compose the package install command.
 	var sb strings.Builder
-	if len(g.CondaPackages) != 0 {
-		sb.WriteString("/opt/conda/bin/pip install --no-warn-script-location")
+	if g.CondaEnabled() {
+		sb.WriteString("/opt/conda/bin/conda run -n envd pip install")
 	} else {
 		sb.WriteString("pip install --no-warn-script-location")
 	}

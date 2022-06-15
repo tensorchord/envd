@@ -52,7 +52,10 @@ func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked, os=%s, language=%s", ruleBase,
 		osStr, langStr)
-	ir.Base(osStr, langStr)
+	err := ir.Base(osStr, langStr)
+	if err != nil {
+		return starlark.None, err
+	}
 
 	return starlark.None, nil
 }

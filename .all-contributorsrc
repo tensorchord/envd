@@ -1,0 +1,158 @@
+{
+  "projectName": "envd",
+  "projectOwner": "tensorchord",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 70,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributorsSortAlphabetically": true,
+  "contributors": [
+    {
+      "login": "gaocegege",
+      "name": "Ce Gao",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5100735?v=4",
+      "profile": "http://gaocegege.com/Blog",
+      "contributions": [
+        "code",
+        "doc",
+        "design",
+        "projectManagement"
+      ]
+    },
+    {
+      "login": "terrytangyuan",
+      "name": "Yuan Tang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4269898?v=4",
+      "profile": "https://terrytangyuan.github.io/about/",
+      "contributions": [
+        "code",
+        "design",
+        "doc",
+        "ideas"
+      ]
+    },
+    {
+      "login": "kemingy",
+      "name": "Keming",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12974685?v=4",
+      "profile": "https://kemingy.github.io/",
+      "contributions": [
+        "code",
+        "doc",
+        "ideas",
+        "infra"
+      ]
+    },
+    {
+      "login": "VoVAllen",
+      "name": "Jinjing Zhou",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8686776?v=4",
+      "profile": "https://github.com/VoVAllen",
+      "contributions": [
+        "bug",
+        "code",
+        "design",
+        "doc"
+      ]
+    },
+    {
+      "login": "rudeigerc",
+      "name": "Yuchen Cheng",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18243819?v=4",
+      "profile": "https://rudeigerc.dev/",
+      "contributions": [
+        "bug",
+        "infra",
+        "maintenance",
+        "tool"
+      ]
+    },
+    {
+      "login": "knight42",
+      "name": "Jian Zeng",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4237254?v=4",
+      "profile": "https://github.com/knight42",
+      "contributions": [
+        "design",
+        "ideas",
+        "research"
+      ]
+    },
+    {
+      "login": "Thrimbda",
+      "name": "Siyuan Wang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15231162?v=4",
+      "profile": "https://blog.thrimbda.com/",
+      "contributions": [
+        "code",
+        "infra",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "3AceShowHand",
+      "name": "Ling Jin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7138436?v=4",
+      "profile": "https://github.com/3AceShowHand",
+      "contributions": [
+        "bug",
+        "infra"
+      ]
+    },
+    {
+      "login": "Triple-Z",
+      "name": "Zhenzhen Zhao",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16285716?v=4",
+      "profile": "https://blog.triplez.cn/",
+      "contributions": [
+        "infra",
+        "userTesting"
+      ]
+    },
+    {
+      "login": "hezhizhen",
+      "name": "Zhizhen He",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7611700?v=4",
+      "profile": "https://t.me/littlepoint",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Xuanwo",
+      "name": "Xuanwo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5351546?v=4",
+      "profile": "https://xuanwo.io/",
+      "contributions": [
+        "question",
+        "design",
+        "ideas",
+        "review"
+      ]
+    },
+    {
+      "login": "jimoosciuc",
+      "name": "jimoosciuc",
+      "avatar_url": "https://avatars.githubusercontent.com/u/33337387?v=4",
+      "profile": "https://github.com/jimoosciuc",
+      "contributions": [
+        "userTesting"
+      ]
+    },
+    {
+      "login": "xing0821",
+      "name": "xing0821",
+      "avatar_url": "https://avatars.githubusercontent.com/u/54933318?v=4",
+      "profile": "https://github.com/xing0821",
+      "contributions": [
+        "ideas",
+        "userTesting"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7
+}

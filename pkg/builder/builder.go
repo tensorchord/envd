@@ -39,6 +39,7 @@ import (
 type Builder interface {
 	Build(ctx context.Context, pub string) error
 	GPUEnabled() bool
+	NumGPUs() int
 }
 
 type generalBuilder struct {
@@ -80,6 +81,11 @@ func New(ctx context.Context,
 // GPUEnabled returns true if cuda is enabled.
 func (b generalBuilder) GPUEnabled() bool {
 	return ir.GPUEnabled()
+}
+
+// NumGPUs returns the number of GPUs requested.
+func (b generalBuilder) NumGPUs() int {
+	return ir.NumGPUs()
 }
 
 func (b generalBuilder) Build(ctx context.Context, pub string) error {

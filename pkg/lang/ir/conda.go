@@ -26,8 +26,12 @@ const (
 	condarc = "/home/envd/.condarc"
 )
 
+func (g Graph) CondaEnabled() bool {
+	return g.CondaConfig != nil
+}
+
 func (g Graph) compileCondaChannel(root llb.State) llb.State {
-	if g.CondaChannel != nil {
+	if g.CondaConfig != nil && g.CondaConfig.CondaChannel != nil {
 		logrus.WithField("conda-channel", *g.CondaChannel).Debug("using custom connda channel")
 		stage := root.
 			File(llb.Mkfile(condarc,
@@ -38,7 +42,7 @@ func (g Graph) compileCondaChannel(root llb.State) llb.State {
 }
 
 func (g Graph) compileCondaPackages(root llb.State) llb.State {
-	if len(g.CondaPackages) == 0 {
+	if !g.CondaEnabled() || len(g.CondaConfig.CondaPackages) == 0 {
 		return root
 	}
 
@@ -46,8 +50,17 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 
 	// Compose the package install command.
 	var sb strings.Builder
-	sb.WriteString("/opt/conda/bin/conda install")
-	for _, pkg := range g.CondaPackages {
+	if len(g.CondaConfig.AdditionalChannels) == 0 {
+		sb.WriteString("/opt/conda/bin/conda install -n envd")
+
+	} else {
+		sb.WriteString("/opt/conda/bin/conda install -n envd -c")
+		for _, channel := range g.CondaConfig.AdditionalChannels {
+			sb.WriteString(fmt.Sprintf(" %s", channel))
+		}
+	}
+
+	for _, pkg := range g.CondaConfig.CondaPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}
 
@@ -62,16 +75,38 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 			strings.Join(g.CondaPackages, " ")))
 	run.AddMount(cacheDir, cache,
 		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))
-	return g.setCondaENV(run.Root())
+	return run.Root()
 }
 
 func (g Graph) setCondaENV(root llb.State) llb.State {
+	if !g.CondaEnabled() {
+		return root
+	}
+
 	root = llb.User("envd")(root)
 	// Always init bash since we will use it to create jupyter notebook service.
-	run := root.Run(llb.Shlex("/opt/conda/bin/conda init bash"), llb.WithCustomName("[internal] initialize conda bash environment"))
-	if g.Shell != shellBASH {
-		run = run.Run(llb.Shlex(fmt.Sprintf("/opt/conda/bin/conda init %s", g.Shell)),
-			llb.WithCustomNamef("[internal] initialize conda %s environment", g.Shell))
+	run := root.Run(llb.Shlex("bash -c \"/opt/conda/bin/conda init bash\""), llb.WithCustomName("[internal] initialize conda bash environment"))
+
+	pythonVersion := "3.9"
+	if g.Language.Version != nil {
+		pythonVersion = *g.Language.Version
+	}
+	cmd := fmt.Sprintf(
+		"bash -c \"/opt/conda/bin/conda create -n envd python=%s\"", pythonVersion)
+	// Create a conda environment.
+	run = run.Run(llb.Shlex(cmd), llb.WithCustomName("[internal] create conda environment"))
+
+	switch g.Shell {
+	case shellBASH:
+		run = run.Run(
+			llb.Shlex(`bash -c 'echo "source /opt/conda/bin/activate envd" >> /home/envd/.bashrc'`),
+			llb.WithCustomName("[internal] add conda environment to bashrc"))
+	case shellZSH:
+		run = run.Run(
+			llb.Shlex(fmt.Sprintf("bash -c \"/opt/conda/bin/conda init %s\"", g.Shell)),
+			llb.WithCustomNamef("[internal] initialize conda %s environment", g.Shell)).Run(
+			llb.Shlex(`bash -c 'echo "source /opt/conda/bin/activate envd" >> /home/envd/.zshrc'`),
+			llb.WithCustomName("[internal] add conda environment to zshrc"))
 	}
 	return run.Root()
 }

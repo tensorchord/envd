@@ -14,20 +14,33 @@
 
 package ir
 
-const (
-	osDefault         = "ubuntu20.04"
-	languageDefault   = "python"
-	pypiIndexModeAuto = "auto"
-
-	aptSourceFilePath = "/etc/apt/sources.list"
-	pypiIndexFilePath = "/etc/pip.conf"
-
-	pypiConfigTemplate = `
-[global]
-index-url=%s
-%s
-`
-
-	defaultUID = 1000
-	defaultGID = 1000
+import (
+	"errors"
+	"fmt"
+	"regexp"
 )
+
+func parseLanguage(l string) (string, *string, error) {
+	var language, version string
+	if l == "" {
+		return "", nil, errors.New("language is required")
+	}
+
+	re := regexp.MustCompile(`\d[\d,]*[\.]?[\d{2}]*[\.]?[\d{2}]*`)
+	if !re.MatchString(l) {
+		language = l
+	} else {
+		loc := re.FindStringIndex(l)
+		language = l[:loc[0]]
+		version = l[loc[0]:]
+	}
+
+	switch language {
+	case "python":
+		return "python", &version, nil
+	case "r":
+		return "r", &version, nil
+	default:
+		return "", nil, fmt.Errorf("language %s is not supported", language)
+	}
+}
