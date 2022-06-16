@@ -15,7 +15,10 @@ package builder
 
 import (
 	"encoding/json"
+	"regexp"
+	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/containerd/containerd/platforms"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
@@ -57,4 +60,35 @@ func DefaultPathEnv(os string) string {
 		return DefaultPathEnvWindows
 	}
 	return DefaultPathEnvUnix
+}
+
+// parseOutput parses the output string and returns the output type and destination.
+func parseOutput(output string) (string, string, error) {
+	if output == "" {
+		return "", "", nil
+	}
+
+	// Example: type=tar,dest=path
+	matched, err := regexp.Match(`^type=[\s\S]+,dest=[\s\S]+$`, []byte(output))
+	if err != nil {
+		return "", "", errors.Errorf("failed to match output: %v", err)
+	}
+	if !matched {
+		return "", "", errors.Errorf("unsupported format: %s", output)
+	}
+
+	fields := strings.Split(output, ",")
+	outputMap := make(map[string]string, len(fields))
+	for _, field := range fields {
+		pair := strings.Split(field, "=")
+		outputMap[pair[0]] = pair[1]
+	}
+
+	outputType := outputMap["type"]
+	outputDest := outputMap["dest"]
+	if outputType != "tar" {
+		return "", "", errors.Errorf("unsupported output type: %s", outputType)
+	}
+
+	return outputType, outputDest, nil
 }

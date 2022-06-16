@@ -57,6 +57,12 @@ var CommandBuild = &cli.Command{
 			Aliases: []string{"pubk"},
 			Value:   sshconfig.GetPublicKey(),
 		},
+		&cli.PathFlag{
+			Name:    "output",
+			Usage:   "Output destination (format: type=tar,dest=path)",
+			Aliases: []string{"o"},
+			Value:   "",
+		},
 	},
 
 	Action: build,
@@ -94,7 +100,7 @@ func build(clicontext *cli.Context) error {
 	})
 	logger.Debug("starting build command")
 
-	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag)
+	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag, clicontext.Path("output"))
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}

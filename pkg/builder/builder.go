@@ -48,17 +48,25 @@ type generalBuilder struct {
 	progressMode     string
 	tag              string
 	buildContextDir  string
+	outputType       string
+	outputDest       string
 
 	logger *logrus.Entry
 	starlark.Interpreter
 	buildkitd.Client
 }
 
-func New(ctx context.Context,
-	configFilePath, manifestFilePath, buildContextDir, tag string) (Builder, error) {
+func New(ctx context.Context, configFilePath, manifestFilePath, buildContextDir, tag, output string) (Builder, error) {
+	outputType, outputDest, err := parseOutput(output)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse output")
+	}
+
 	b := &generalBuilder{
 		manifestFilePath: manifestFilePath,
 		configFilePath:   configFilePath,
+		outputType:       outputType,
+		outputDest:       outputDest,
 		buildContextDir:  buildContextDir,
 		// TODO(gaocegege): Support other mode?
 		progressMode: "auto",
@@ -154,6 +162,7 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 
 	// Create a pipe to load the image into the docker host.
 	pipeR, pipeW := io.Pipe()
+
 	eg.Go(func() error {
 		defer pipeW.Close()
 		_, err := b.Solve(ctx, def, client.SolveOpt{
@@ -195,22 +204,44 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 		return pw.Err()
 	})
 
-	// Load the image to docker host.
-	eg.Go(func() error {
-		defer pipeR.Close()
-		dockerClient, err := docker.NewClient(ctx)
-		if err != nil {
-			return errors.Wrap(err, "failed to new docker client")
-		}
-		b.logger.Debug("loading image to docker host")
-		if err := dockerClient.Load(ctx, pipeR, true); err != nil {
-			err = errors.Wrap(err, "failed to load docker image")
-			b.logger.Error(err)
-			return err
-		}
-		b.logger.Debug("loaded docker image successfully")
-		return nil
-	})
+	if b.outputDest != "" {
+		// Save the image to the output file.
+		eg.Go(func() error {
+			defer pipeR.Close()
+			f, err := os.Create(b.outputDest)
+			if err != nil {
+				return err
+			}
+
+			defer f.Close()
+			_, err = io.Copy(f, pipeR)
+			if err != nil {
+				return err
+			}
+
+			b.logger.Debug("export the image successfully")
+			return nil
+		})
+	}
+
+	if b.outputDest == "" {
+		// Load the image to docker host.
+		eg.Go(func() error {
+			defer pipeR.Close()
+			dockerClient, err := docker.NewClient(ctx)
+			if err != nil {
+				return errors.Wrap(err, "failed to new docker client")
+			}
+			b.logger.Debug("loading image to docker host")
+			if err := dockerClient.Load(ctx, pipeR, true); err != nil {
+				err = errors.Wrap(err, "failed to load docker image")
+				b.logger.Error(err)
+				return err
+			}
+			b.logger.Debug("loaded docker image successfully")
+			return nil
+		})
+	}
 
 	err = eg.Wait()
 	if err != nil {

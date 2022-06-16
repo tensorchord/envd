@@ -135,7 +135,7 @@ func up(clicontext *cli.Context) error {
 	})
 	logger.Debug("starting up command")
 
-	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag)
+	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag, "")
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
