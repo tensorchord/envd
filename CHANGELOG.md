@@ -1,5 +1,54 @@
 # Changelog
 
+## v0.1.0-alpha.9 (2022-06-16)
+
+ * [3b3945a](https://github.com/tensorchord/envd/commit/3b3945aea9297fc69a8f9c787ef27812f1d0efb9) fix: Add v before tags (#371)
+
+### Contributors
+
+ * Ce Gao
+
+## v0.1.0-alpha.8 (2022-06-16)
+
+
+### Contributors
+
+
+## v0.1.0-alpha.7 (2022-06-16)
+
+ * [f60a976](https://github.com/tensorchord/envd/commit/f60a9766b2744c93e026d9be1094847dd0e9949a) enhancement(CLI): Update the description of envd (#364)
+ * [9640bf1](https://github.com/tensorchord/envd/commit/9640bf1ce0a2cb8ed663aa1093a309bd60fac627) fix: config pip source speed up in china (#354)
+ * [1b56ce2](https://github.com/tensorchord/envd/commit/1b56ce2db0deede211b3db5f783df07f9e94530d) add cpu example (#338)
+ * [a410552](https://github.com/tensorchord/envd/commit/a41055285eaa08f96b97bd4d6c2f88ac74506c76) fix: remove py wrapper traceback information (#341)
+ * [ae629bb](https://github.com/tensorchord/envd/commit/ae629bbb868ca4c6bf129817a48a59191f0e9605) feat: Support specifying number of GPUs (#336)
+ * [7d577f7](https://github.com/tensorchord/envd/commit/7d577f72f6810c6c9a244c6af750ac783a0d0064) feat: Suport conda env (#335)
+ * [6fe2ae0](https://github.com/tensorchord/envd/commit/6fe2ae0d329abe4a34b0c232357b78df8a4bf6a9) manually use docker distribution 2.8.1 (#333)
+ * [2327ffd](https://github.com/tensorchord/envd/commit/2327ffd84048a7d8b6befc65ee2e72796a4603d0) fix: Disable unit test in macOS (#328)
+ * [c80082b](https://github.com/tensorchord/envd/commit/c80082b708c7666db27ee8d6abf98f82c1234e54) workflow: enable macOS in CI without conditions (#327)
+ * [35ef36d](https://github.com/tensorchord/envd/commit/35ef36dc24b4d83937120a7643eebd58f123fc47) fix: pypi sdist (#318)
+ * [2b81df6](https://github.com/tensorchord/envd/commit/2b81df67fbdd8b4eb799c890c68e2683c6edb6b7) fix: typo in readme (#325)
+ * [85123b6](https://github.com/tensorchord/envd/commit/85123b6d427363f595f22ae0410bec6de7a092ef) fix: fix typo (#324)
+ * [559e143](https://github.com/tensorchord/envd/commit/559e1435a9585fa32cee3eff73a11a577bcec111) chore(CI): Enable code coverage (#323)
+ * [a4cb9dc](https://github.com/tensorchord/envd/commit/a4cb9dc0bf93970d604ac94dd88074f641bcff9b) fix(release): Change docker user (#321)
+ * [a5c3427](https://github.com/tensorchord/envd/commit/a5c3427c3feb38dbe5f0d7fdd633a8c978129837) chore(deps): bump github.com/moby/buildkit from 0.10.1 to 0.10.3 (#313)
+ * [43ad124](https://github.com/tensorchord/envd/commit/43ad1249ff938277b65bb91d7d8cf6a128380ad3) chore(deps): bump github.com/pkg/sftp from 1.13.4 to 1.13.5 (#309)
+ * [5a9c947](https://github.com/tensorchord/envd/commit/5a9c947edf1763745f1523ba7e4f2acf5f476990) chore(deps): bump github.com/stretchr/testify from 1.7.0 to 1.7.2 (#310)
+ * [4fb34e2](https://github.com/tensorchord/envd/commit/4fb34e29471b0a5625d075af02854f784aceb8a7) chore(deps): bump github.com/urfave/cli/v2 from 2.4.0 to 2.8.1 (#312)
+ * [0c63064](https://github.com/tensorchord/envd/commit/0c6306476922f0abcf30771a7d724b150e2188b6) fix: add api/__init__.py (#317)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * Keming
+ * Ling Jin
+ * Xu Jin
+ * Yuan Tang
+ * Yuchen Cheng
+ * Zhizhen He
+ * dependabot[bot]
+ * kenwoodjw
+
 ## v0.1.0-alpha.6 (2022-06-13)
 
  * [12cf334](https://github.com/tensorchord/envd/commit/12cf3345b6c09106508271dd84bd41bc03ceedbc) fix: Fix twine (#301)
