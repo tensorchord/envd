@@ -100,7 +100,7 @@ jobs:
           working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
           flag-name: ${{ matrix.os }}
           parallel: true
-  build:
+  build-amd64:
     name: build
     strategy:
       matrix:
@@ -131,7 +131,41 @@ jobs:
             ${{ runner.OS }}-
       - name: Build
         run: make
-
+  build-arm64:
+    name: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      GOPATH: ${{ github.workspace }}/go
+    defaults:
+      run:
+        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Set up ARM64 simulator
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: all
+      - name: Cache Go modules
+        uses: actions/cache@preview
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+      - name: Build
+        run: make
   # notifies that all test jobs are finished.
   finish:
     needs: test
