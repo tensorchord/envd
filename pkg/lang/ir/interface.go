@@ -96,9 +96,6 @@ func PyPIIndex(mode, url, extraURL string) error {
 }
 
 func CRANMirror(url string) error {
-	if url == "" {
-		url = "https://cran.rstudio.com"
-	}
 	DefaultGraph.CRANMirrorURL = &url
 	return nil
 }
