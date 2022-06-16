@@ -56,7 +56,7 @@ var _ = Describe("Builder", func() {
 			buildkitdSocket = "wrong"
 			viper.Set(flag.FlagBuildkitdContainer, buildkitdSocket)
 			It("should return an error", func() {
-				_, err := New(context.TODO(), configFilePath, manifestFilePath, buildContext, tag)
+				_, err := New(context.TODO(), configFilePath, manifestFilePath, buildContext, tag, "")
 				Expect(err).To(HaveOccurred())
 			})
 		})
