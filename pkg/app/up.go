@@ -141,19 +141,19 @@ func up(clicontext *cli.Context) error {
 	}
 
 	if err := builder.Build(clicontext.Context, clicontext.Path("public-key")); err != nil {
-		return err
+		return errors.Wrap(err, "failed to build the image")
 	}
 	gpu := builder.GPUEnabled()
 
 	dockerClient, err := docker.NewClient(clicontext.Context)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create the docker client")
 	}
 
 	if gpu {
 		nvruntimeExists, err := dockerClient.GPUEnabled(clicontext.Context)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to check if nvidia-runtime is installed")
 		}
 		if !nvruntimeExists {
 			return errors.New("GPU is required but nvidia container runtime is not installed, please refer to https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker")
@@ -170,7 +170,7 @@ func up(clicontext *cli.Context) error {
 		tag, ctr, buildContext, gpu, numGPUs, sshPort, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to start the envd environment")
 	}
 	logrus.Debugf("container %s is running", containerID)
 
@@ -185,10 +185,10 @@ func up(clicontext *cli.Context) error {
 		sshClient, err := ssh.NewClient(
 			localhost, "envd", sshPort, true, clicontext.Path("private-key"), "")
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to create the ssh client")
 		}
 		if err := sshClient.Attach(); err != nil {
-			return err
+			return errors.Wrap(err, "failed to attach to the container")
 		}
 	}
 

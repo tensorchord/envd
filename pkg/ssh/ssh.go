@@ -68,7 +68,7 @@ func NewClient(server, user string,
 		// create signer
 		signer, err := signerFromPem(pemBytes, []byte(privateKeyPwd))
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "creating signer from private key failed")
 		}
 		config.Auth = []ssh.AuthMethod{
 			ssh.PublicKeys(signer),
@@ -222,7 +222,7 @@ func (c generalClient) Attach() error {
 	}
 
 	logrus.Debugf("command failed: %s", err)
-	return err
+	return errors.Wrap(err, "command failed")
 }
 
 func isTerminal(r io.Reader) (int, bool) {
