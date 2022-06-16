@@ -24,7 +24,7 @@ import (
 func (g Graph) installRPackages(root llb.State) llb.State {
 	// TODO(terrytangyuan): Support different CRAN mirrors
 	var sb strings.Builder
-	sb.WriteString(`R -e 'install.packages(c(`)
+	sb.WriteString(fmt.Sprintf(`R -e 'options(repos = c(CRAN = "%s")); install.packages(c(`, *g.CRANMirrorURL))
 	for i, pkg := range g.RPackages {
 		sb.WriteString(fmt.Sprintf(`"%s"`, pkg))
 		if i != len(g.RPackages)-1 {

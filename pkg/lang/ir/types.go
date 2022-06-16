@@ -34,6 +34,7 @@ type Graph struct {
 	NumGPUs int
 
 	UbuntuAPTSource   *string
+	CRANMirrorURL     *string
 	PyPIIndexURL      *string
 	PyPIExtraIndexURL *string
 

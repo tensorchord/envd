@@ -32,6 +32,8 @@ var Module = &starlarkstruct.Module{
 		"apt_source": starlark.NewBuiltin(ruleUbuntuAptSource, ruleFuncUbuntuAptSource),
 		"gpu":        starlark.NewBuiltin(ruleGPU, ruleFuncGPU),
 		"jupyter":    starlark.NewBuiltin(ruleJupyter, ruleFuncJupyter),
+		"cran_mirror": starlark.NewBuiltin(
+			ruleCRANMirror, ruleFuncCRANMirror),
 		"pip_index": starlark.NewBuiltin(
 			rulePyPIIndex, ruleFuncPyPIIndex),
 		"conda_channel": starlark.NewBuiltin(
@@ -114,6 +116,27 @@ func ruleFuncPyPIIndex(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
+	return starlark.None, nil
+}
+
+func ruleFuncCRANMirror(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var url starlark.String
+
+	if err := starlark.UnpackArgs(ruleCRANMirror, args, kwargs,
+		"url?", &url); err != nil {
+		return nil, err
+	}
+
+	urlStr := ""
+	if url != starlark.String("") {
+		urlStr = url.GoString()
+	}
+
+	logger.Debugf("rule `%s` is invoked, url=%s", ruleCRANMirror, urlStr)
+	if err := ir.CRANMirror(urlStr); err != nil {
+		return nil, err
+	}
 	return starlark.None, nil
 }
 
