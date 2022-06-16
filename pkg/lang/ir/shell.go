@@ -45,12 +45,12 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 	}
 	zshStage := root.
 		File(llb.Copy(llb.Local(flag.FlagCacheDir), "oh-my-zsh", ohMyZSHPath,
-			&llb.CopyInfo{CreateDestPath: true}, llb.WithUIDGID(defaultUID, defaultGID))).
+			&llb.CopyInfo{CreateDestPath: true}, llb.WithUIDGID(g.uid, g.gid))).
 		File(llb.Mkfile(installPath,
-			0644, []byte(m.InstallScript()), llb.WithUIDGID(defaultUID, defaultGID)))
+			0644, []byte(m.InstallScript()), llb.WithUIDGID(g.uid, g.gid)))
 	run := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)),
 		llb.WithCustomName("install oh-my-zsh")).
 		File(llb.Mkfile(zshrcPath,
-			0644, []byte(m.ZSHRC()), llb.WithUIDGID(defaultUID, defaultGID)))
+			0644, []byte(m.ZSHRC()), llb.WithUIDGID(g.uid, g.gid)))
 	return run, nil
 }

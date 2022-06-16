@@ -22,6 +22,9 @@ import (
 // A Graph contains the state,
 // such as its call stack and thread-local storage.
 type Graph struct {
+	uid int
+	gid int
+
 	OS string
 	Language
 

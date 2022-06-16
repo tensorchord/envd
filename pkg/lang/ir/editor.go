@@ -44,7 +44,7 @@ func (g Graph) compileVSCode() (*llb.State, error) {
 			"/home/envd/.vscode-server/extensions/"+p.String(),
 			&llb.CopyInfo{
 				CreateDestPath: true,
-			}, llb.WithUIDGID(defaultUID, defaultGID)),
+			}, llb.WithUIDGID(g.uid, g.gid)),
 			llb.WithCustomNamef("install vscode plugin %s", p.String()))
 		inputs = append(inputs, ext)
 	}
