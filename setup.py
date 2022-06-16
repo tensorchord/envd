@@ -54,6 +54,19 @@ def get_version():
     ver = version.rsplit(" ", 1)[-1][1:]
     return ver
 
+classifiers = [
+    'Development Status :: 3 - Alpha',
+    'Topic :: Software Development :: Build Tools',
+    'Intended Audience :: Science/Research',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: Apache Software License',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+]
+
 
 setup(
     name="envd",
@@ -74,6 +87,7 @@ setup(
             "envd=envd.cmd:envd",
         ],
     },
+    classifiers=classifiers,
     zip_safe=False,
     ext_modules=[
         EnvdExtension(name="envd", sources=["cmd/*"]),
