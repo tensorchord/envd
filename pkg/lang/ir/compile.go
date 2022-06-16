@@ -118,7 +118,9 @@ func (g Graph) Labels() (map[string]string, error) {
 
 func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	g.uid = uid
-	g.gid = gid
+
+	// TODO(gaocegege): Remove the hack for https://github.com/tensorchord/envd/issues/370
+	g.gid = 1001
 
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
