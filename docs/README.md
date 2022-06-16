@@ -1,3 +1,3 @@
 ## Documentation
 
-See [envd documentation](https://envd.tensorchord.ai/docs/intro).
+See [envd documentation](https://envd.tensorchord.ai/).
