@@ -37,7 +37,7 @@ func New() EnvdApp {
 	internalApp := cli.NewApp()
 	internalApp.EnableBashCompletion = true
 	internalApp.Name = "envd"
-	internalApp.Usage = "Build tools for data scientists"
+	internalApp.Usage = "Development environment for data science and AI/ML teams"
 	internalApp.Version = version.GetVersion().String()
 	internalApp.Flags = []cli.Flag{
 		&cli.BoolFlag{
