@@ -19,4 +19,5 @@ const (
 	FlagContextDir         = "context-dir"
 	FlagBuildkitdImage     = "buildkitd-image"
 	FlagBuildkitdContainer = "buildkitd-container-name"
+	FlagDebug              = "debug"
 )

@@ -19,30 +19,31 @@ import (
 	"os"
 
 	"github.com/cockroachdb/errors"
+	"github.com/spf13/viper"
 	cli "github.com/urfave/cli/v2"
 	"go.starlark.net/starlark"
 	"go.starlark.net/syntax"
 
 	"github.com/tensorchord/envd/pkg/app"
+	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
-func run(args []string) (bool, error) {
+func run(args []string) error {
 	cli.VersionPrinter = func(c *cli.Context) {
 		fmt.Println(c.App.Name, version.Package, c.App.Version, version.Revision)
 	}
 
 	app := app.New()
-	return app.Debug, app.Run(args)
+	return app.Run(args)
 }
 
-func handleErr(debug bool, err error) {
+func handleErr(err error) {
 	if err == nil {
 		return
 	}
 
-	if debug {
-		// TODO(gaocegege): Add debug info.
+	if viper.GetBool(flag.FlagDebug) {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 	}
 
@@ -59,6 +60,6 @@ func handleErr(debug bool, err error) {
 }
 
 func main() {
-	debug, err := run(os.Args)
-	handleErr(debug, err)
+	err := run(os.Args)
+	handleErr(err)
 }

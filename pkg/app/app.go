@@ -15,6 +15,8 @@
 package app
 
 import (
+	"os"
+
 	"github.com/cockroachdb/errors"
 	_ "github.com/moby/buildkit/client/connhelper/dockercontainer"
 	_ "github.com/moby/buildkit/client/connhelper/kubepod"
@@ -30,7 +32,11 @@ import (
 
 type EnvdApp struct {
 	cli.App
-	Debug bool
+}
+
+func Run() {
+	app := New()
+	app.Run(os.Args)
 }
 
 func New() EnvdApp {
@@ -85,11 +91,11 @@ func New() EnvdApp {
 		// TODO(gaocegege): Add a config struct to keep them.
 		viper.Set(flag.FlagBuildkitdContainer, context.String(flag.FlagBuildkitdContainer))
 		viper.Set(flag.FlagBuildkitdImage, context.String(flag.FlagBuildkitdImage))
+		viper.Set(flag.FlagDebug, debugEnabled)
 		return nil
 	}
 
 	return EnvdApp{
-		App:   *internalApp,
-		Debug: debugEnabled,
+		App: *internalApp,
 	}
 }
