@@ -170,7 +170,7 @@ func up(clicontext *cli.Context) error {
 		tag, ctr, buildContext, gpu, numGPUs, sshPort, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to start the envd environment")
 	}
 	logrus.Debugf("container %s is running", containerID)
 
