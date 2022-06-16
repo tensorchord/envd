@@ -96,12 +96,14 @@ func (g *Graph) compileBase() llb.State {
 	logger.Debug("compile base image")
 
 	var base llb.State
-	var groupID string = "1000"
 	if g.CUDA == nil && g.CUDNN == nil {
 		if g.Language.Name == "r" {
 			base = llb.Image("docker.io/r-base:4.2.0")
 			// r-base image already has GID 1000.
-			groupID = "1001"
+			// It is a trick, we actually use GID 1000
+			if g.gid == 1000 {
+				g.gid = 1001
+			}
 		} else {
 			base = llb.Image("docker.io/tensorchord/python:3.8-ubuntu20.04")
 		}
@@ -110,8 +112,10 @@ func (g *Graph) compileBase() llb.State {
 	}
 	// TODO(gaocegege): Refactor user to a seperate stage.
 	res := base.
-		Run(llb.Shlex(fmt.Sprintf("groupadd -g %s envd", groupID)), llb.WithCustomName("[internal] create user group envd")).
-		Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %s -g envd -s /bin/sh -m envd", groupID)), llb.WithCustomName("[internal] create user envd")).
+		Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", g.gid)),
+			llb.WithCustomName("[internal] create user group envd")).
+		Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %d -g envd -s /bin/sh -m envd", g.gid)),
+			llb.WithCustomName("[internal] create user envd")).
 		Run(llb.Shlex("adduser envd sudo"),
 			llb.WithCustomName("[internal] add user envd to sudoers")).
 		Run(llb.Shlex("chown -R envd:envd /usr/local/lib"),
@@ -131,6 +135,6 @@ func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 	}
 	run := root.
 		File(llb.Mkfile(config.ContainerauthorizedKeysPath,
-			0644, []byte(dat+" envd"), llb.WithUIDGID(defaultUID, defaultGID)), llb.WithCustomName("install ssh keys"))
+			0644, []byte(dat+" envd"), llb.WithUIDGID(g.uid, g.gid)), llb.WithCustomName("install ssh keys"))
 	return run, nil
 }

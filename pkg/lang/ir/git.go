@@ -38,6 +38,6 @@ func (g *Graph) compileGit(root llb.State) (llb.State, error) {
 	content := fmt.Sprintf(templateGitConfig, g.GitConfig.Email, g.GitConfig.Name, g.GitConfig.Editor)
 	installPath := "/home/envd/.gitconfig"
 	gitStage := root.File(llb.Mkfile(installPath,
-		0644, []byte(content), llb.WithUIDGID(defaultUID, defaultGID)))
+		0644, []byte(content), llb.WithUIDGID(g.uid, g.gid)))
 	return gitStage, nil
 }

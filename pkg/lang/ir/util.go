@@ -15,9 +15,12 @@
 package ir
 
 import (
-	"errors"
 	"fmt"
+	"os/user"
 	"regexp"
+	"strconv"
+
+	"github.com/cockroachdb/errors"
 )
 
 func parseLanguage(l string) (string, *string, error) {
@@ -42,5 +45,20 @@ func parseLanguage(l string) (string, *string, error) {
 		return "r", &version, nil
 	default:
 		return "", nil, fmt.Errorf("language %s is not supported", language)
+	}
+}
+
+func getUIDGID() (int, int, error) {
+	user, err := user.Current()
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "failed to get uid/gid")
+	}
+	// Do not support windows yet.
+	if uid, err := strconv.Atoi(user.Uid); err != nil {
+		return 0, 0, errors.Wrap(err, "failed to get uid")
+	} else if gid, err := strconv.Atoi(user.Gid); err != nil {
+		return 0, 0, errors.Wrap(err, "failed to get gid")
+	} else {
+		return uid, gid, nil
 	}
 }

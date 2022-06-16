@@ -27,7 +27,4 @@ const (
 index-url=%s
 %s
 `
-
-	defaultUID = 1000
-	defaultGID = 1000
 )

@@ -62,9 +62,14 @@ func Compile(ctx context.Context, cachePrefix string, pub string) (*llb.Definiti
 	DefaultGraph.Writer = w
 	DefaultGraph.CachePrefix = cachePrefix
 	DefaultGraph.PublicKeyPath = pub
-	state, err := DefaultGraph.Compile()
+
+	uid, gid, err := getUIDGID()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get uid/gid")
+	}
+	state, err := DefaultGraph.Compile(uid, gid)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to compile")
 	}
 	// TODO(gaocegege): Support multi platform.
 	def, err := state.Marshal(ctx, llb.LinuxAmd64)
@@ -111,7 +116,10 @@ func (g Graph) Labels() (map[string]string, error) {
 	return labels, nil
 }
 
-func (g Graph) Compile() (llb.State, error) {
+func (g Graph) Compile(uid, gid int) (llb.State, error) {
+	g.uid = uid
+	g.gid = gid
+
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
 	aptStage := g.compileUbuntuAPT(base)
