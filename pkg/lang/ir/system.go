@@ -119,9 +119,11 @@ func (g *Graph) compileBase() llb.State {
 		Run(llb.Shlex("adduser envd sudo"),
 			llb.WithCustomName("[internal] add user envd to sudoers")).
 		Run(llb.Shlex("chown -R envd:envd /usr/local/lib"),
-			llb.WithCustomName("[internal] configure user permissions")).
-		Run(llb.Shlex("chown -R envd:envd /opt/conda"),
 			llb.WithCustomName("[internal] configure user permissions"))
+	if g.Language.Name == "python" {
+		res = res.Run(llb.Shlex("chown -R envd:envd /opt/conda"),
+			llb.WithCustomName("[internal] configure user permissions"))
+	}
 	return llb.User("envd")(res.Root())
 }
 
