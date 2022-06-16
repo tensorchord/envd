@@ -14,13 +14,14 @@
 
 package netutil
 
-import "net"
+import (
+	"testing"
 
-func GetFreePort() (int, error) {
-	l, err := net.Listen("tcp", ":0")
-	if err != nil {
-		return 0, err
-	}
-	defer l.Close()
-	return l.Addr().(*net.TCPAddr).Port, nil
+	"github.com/stretchr/testify/assert"
+)
+
+func TestGetFreePort(t *testing.T) {
+	port, err := GetFreePort()
+	assert.NoError(t, err)
+	assert.NotEqual(t, port, 0)
 }

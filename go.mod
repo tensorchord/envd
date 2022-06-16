@@ -24,7 +24,6 @@ require (
 	github.com/onsi/gomega v1.19.0
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799
-	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5
 	github.com/pkg/sftp v1.13.5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.4.0
