@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.1.0-alpha.11 (2022-06-17)
+
+ * [d3fda6d](https://github.com/tensorchord/envd/commit/d3fda6db2783c93f4f5ea7954627500431059558) fix: Hack the gid (#399)
+ * [e478c1a](https://github.com/tensorchord/envd/commit/e478c1a51191ab74f5c733d79106520032240e7f) bug: Fix source is released twice for macos and linux (#394)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+
 ## v0.1.0-alpha.10 (2022-06-16)
 
  * [a55ad88](https://github.com/tensorchord/envd/commit/a55ad8808e5a23dba628f5a55c335603771083e9) feat(lang): Set default user to current (#390)
