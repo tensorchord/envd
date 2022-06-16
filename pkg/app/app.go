@@ -15,8 +15,6 @@
 package app
 
 import (
-	"os"
-
 	"github.com/cockroachdb/errors"
 	_ "github.com/moby/buildkit/client/connhelper/dockercontainer"
 	_ "github.com/moby/buildkit/client/connhelper/kubepod"
@@ -32,11 +30,6 @@ import (
 
 type EnvdApp struct {
 	cli.App
-}
-
-func Run() {
-	app := New()
-	app.Run(os.Args)
 }
 
 func New() EnvdApp {
