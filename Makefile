@@ -95,14 +95,17 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: lint test build container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build
+.PHONY: help lint test build container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build
 
-build: build-local
+help:  ## Display this help
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-debug: debug-local
+build: build-local  ## Build the release version of envd
+
+debug: debug-local  ## Build the debug version of envd
 
 # more info about `GOGC` env: https://github.com/golangci/golangci-lint#memory-usage-of-golangci-lint
-lint: $(GOLANGCI_LINT)
+lint: $(GOLANGCI_LINT)  ## Lint GO code
 	@$(GOLANGCI_LINT) run
 
 $(GOLANGCI_LINT):
@@ -124,7 +127,7 @@ build-local:
 pypi-build: clean
 	@python setup.py sdist bdist_wheel
 
-generate: mockgen-install
+generate: mockgen-install  ## Generate mocks
 	@mockgen -source pkg/buildkitd/buildkitd.go -destination pkg/buildkitd/mock/mock.go -package mock
 	@mockgen -source pkg/lang/frontend/starlark/interpreter.go -destination pkg/lang/frontend/starlark/mock/mock.go -package mock
 	@mockgen -source pkg/progress/compileui/display.go -destination pkg/progress/compileui/mock/mock.go -package mock
@@ -138,17 +141,17 @@ debug-local:
 	    $(CMD_DIR)/$${target};                                                         \
 	done
 
-addlicense: addlicense-install
+addlicense: addlicense-install  ## Add license to GO code files
 	addlicense -c "The envd Authors" $$(find . -type f -name '*.go')
 
 test-local:
 	@go test -v -race -coverprofile=coverage.out ./...
 
-test: generate 
+test: generate  ## Run the tests
 	@go test -race -coverpkg=./pkg/... -coverprofile=coverage.out ./...
 	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
-clean:
+clean:  ## Clean the outputs and artifacts
 	@-rm -vrf ${OUTPUT_DIR}
 	@-rm -vrf ${DEBUG_DIR}
 	@-rm -vrf build dist .eggs *.egg-info
