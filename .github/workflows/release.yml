@@ -52,7 +52,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-10.15, ubuntu-20.04]
-    # if: startsWith(github.ref, 'refs/tags/v') # only trigger when tag starts with v
+    if: startsWith(github.ref, 'refs/tags/v') # only trigger when tag starts with v
     steps:    
     - uses: actions/checkout@v3
     - name: Get gobin
@@ -76,7 +76,7 @@ jobs:
       uses: pypa/cibuildwheel@v2.6.1
       env:
         CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
-        CIBW_ARCHS_LINUX: "x86_64 aarch64 i686"
+        CIBW_ARCHS_LINUX: "x86_64"
     - name: Build source distribution    
       if: runner.os == 'Linux' # Only release source under linux to avoid conflict
       run: |
