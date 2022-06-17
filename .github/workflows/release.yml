@@ -72,10 +72,11 @@ jobs:
         mkdir -p bin
         mv dist/envd_darwin_amd64_v1/envd bin/envd
         chmod +x bin/envd
-    - name: Build wheels
+    - name: Build wheels on Linux
       uses: pypa/cibuildwheel@v2.6.1
       env:
-        CIBW_ARCHS: auto64
+        CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
+        CIBW_ARCHS_LINUX: "x86_64 aarch64 i686"
     - name: Build source distribution    
       if: runner.os == 'Linux' # Only release source under linux to avoid conflict
       run: |
