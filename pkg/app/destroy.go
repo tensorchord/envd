@@ -35,8 +35,7 @@ var CommandDestroy = &cli.Command{
 			Name:        "path",
 			Usage:       "Path to the directory containing the build.envd",
 			Aliases:     []string{"p"},
-			DefaultText: ".",
-			Value:       ".",
+			DefaultText: "current directory",
 		},
 		&cli.PathFlag{
 			Name:    "name",
@@ -55,7 +54,7 @@ func destroy(clicontext *cli.Context) error {
 		return errors.New("Cannot specify --path and --name at the same time.")
 	}
 	if path == "" && name == "" {
-		return errors.New("One of the following flags is required: --path and --name.")
+		path = "."
 	}
 	dockerClient, err := docker.NewClient(clicontext.Context)
 	if err != nil {
