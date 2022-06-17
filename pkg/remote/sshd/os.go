@@ -24,23 +24,15 @@ import (
 
 var (
 	errNoShell = fmt.Errorf("failed to find any shell in the PATH")
-
-	shells = []string{
-		"zsh",
-		"bash",
-		"sh",
-	}
 )
 
 // GetShell returns the shell in $PATH.
-func GetShell() (string, error) {
-	for _, shell := range shells {
-		if path, err := exec.LookPath(shell); err == nil {
-			logrus.Infof("%s exists at %s", shell, path)
-			return shell, nil
-		}
-		logrus.Debugf("%s does not exist", shell)
+func GetShell(shell string) error {
+	if path, err := exec.LookPath(shell); err == nil {
+		logrus.Infof("%s exists at %s", shell, path)
+		return nil
 	}
+	logrus.Debugf("%s does not exist", shell)
 
-	return "", errNoShell
+	return errNoShell
 }
