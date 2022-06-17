@@ -134,8 +134,8 @@ func up(clicontext *cli.Context) error {
 		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
 	})
 	logger.Debug("starting up command")
-
-	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag, "")
+	debug := clicontext.Bool("debug")
+	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag, "", debug)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
