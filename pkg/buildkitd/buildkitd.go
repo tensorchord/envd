@@ -112,6 +112,11 @@ func (c *generalClient) maybeStart(ctx context.Context,
 			return "", err
 		}
 	}
+	running, err := dockerClient.IsRunning(ctx, c.containerName)
+	if created && !running {
+		return "", errors.Errorf("container %s is stopped", c.containerName)
+	}
+
 	c.logger.Debugf("container is running, check if it's ready at %s...", c.BuildkitdAddr())
 
 	if err := c.waitUntilConnected(ctx, connectingTimeout); err != nil {
