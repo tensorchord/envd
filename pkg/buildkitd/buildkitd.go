@@ -114,6 +114,7 @@ func (c *generalClient) maybeStart(ctx context.Context,
 	}
 	running, _ := dockerClient.IsRunning(ctx, c.containerName)
 	if created && !running {
+		c.logger.Warnf("please remove or restart the container %s", c.containerName)
 		return "", errors.Errorf("container %s is stopped", c.containerName)
 	}
 
