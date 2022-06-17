@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.0-alpha.12 (2022-06-17)
+
+ * [8531491](https://github.com/tensorchord/envd/commit/853149189d88e6ecf6a5a924e3aa19d8f7993f7e) fix: Fix default ssh shell (#411)
+ * [5f3b16b](https://github.com/tensorchord/envd/commit/5f3b16bf579fe372ec2063bf3ce8904a4e5d2e2b) feat: Support configuring CRAN mirror for R environment (#405)
+ * [8e27e99](https://github.com/tensorchord/envd/commit/8e27e9962588bd1b14268eaed6f6e067a9c5d908) fix: Only configure conda for Python environment (#406)
+ * [6160899](https://github.com/tensorchord/envd/commit/6160899a10ec941f178dd821bee42eb615b932e3) feat(cli): support `envd build --output` (#402)
+
+### Contributors
+
+ * Ce Gao
+ * Yuan Tang
+ * Yuchen Cheng
+
 ## v0.1.0-alpha.11 (2022-06-17)
 
  * [d3fda6d](https://github.com/tensorchord/envd/commit/d3fda6db2783c93f4f5ea7954627500431059558) fix: Hack the gid (#399)
