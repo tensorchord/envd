@@ -35,6 +35,7 @@ const (
 	flagAuthKey = "authorized-keys"
 	flagNoAuth  = "no-auth"
 	flagPort    = "port"
+	flagShell   = "shell"
 )
 
 func main() {
@@ -66,6 +67,11 @@ func main() {
 			Name:  flagPort,
 			Usage: "port to listen on",
 		},
+		&cli.StringFlag{
+			Name:  flagShell,
+			Usage: "shell to use",
+			Value: "bash",
+		},
 	}
 
 	// Deal with debug flag.
@@ -86,10 +92,11 @@ func main() {
 }
 
 func sshServer(c *cli.Context) error {
-	shell, err := sshd.GetShell()
+	err := sshd.GetShell(c.String(flagShell))
 	if err != nil {
 		logrus.Fatal(err.Error())
 	}
+	shell := c.String(flagShell)
 
 	port := c.Int(flagPort)
 	if port == 0 {

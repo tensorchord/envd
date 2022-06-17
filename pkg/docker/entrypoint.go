@@ -25,7 +25,7 @@ import (
 
 const (
 	template = `set -e
-/var/envd/bin/envd-ssh --authorized-keys %s --port %d &
+/var/envd/bin/envd-ssh --authorized-keys %s --port %d --shell %s &
 %s
 wait -n`
 )
@@ -34,8 +34,9 @@ func entrypointSH(g ir.Graph, workingDir string, sshPort int) string {
 	if g.JupyterConfig != nil {
 		cmds := jupyter.GenerateCommand(g, workingDir)
 		return fmt.Sprintf(template,
-			config.ContainerauthorizedKeysPath, sshPort, strings.Join(cmds, " "))
+			config.ContainerauthorizedKeysPath, sshPort, g.Shell,
+			strings.Join(cmds, " "))
 	}
 	return fmt.Sprintf(template,
-		config.ContainerauthorizedKeysPath, sshPort, "")
+		config.ContainerauthorizedKeysPath, sshPort, g.Shell, "")
 }
