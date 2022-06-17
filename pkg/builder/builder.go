@@ -56,10 +56,14 @@ type generalBuilder struct {
 	buildkitd.Client
 }
 
-func New(ctx context.Context, configFilePath, manifestFilePath, buildContextDir, tag, output string) (Builder, error) {
+func New(ctx context.Context, configFilePath, manifestFilePath, buildContextDir, tag, output string, debug bool) (Builder, error) {
 	outputType, outputDest, err := parseOutput(output)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse output")
+	}
+	var mode string = "auto"
+	if debug {
+		mode = "plain"
 	}
 
 	b := &generalBuilder{
@@ -69,7 +73,7 @@ func New(ctx context.Context, configFilePath, manifestFilePath, buildContextDir,
 		outputDest:       outputDest,
 		buildContextDir:  buildContextDir,
 		// TODO(gaocegege): Support other mode?
-		progressMode: "auto",
+		progressMode: mode,
 		tag:          tag,
 		logger: logrus.WithFields(logrus.Fields{
 			"tag": tag,
