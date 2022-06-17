@@ -32,9 +32,11 @@ var CommandDestroy = &cli.Command{
 	Usage:   "destroys the envd environment",
 	Flags: []cli.Flag{
 		&cli.PathFlag{
-			Name:    "path",
-			Usage:   "Path to the directory containing the build.envd",
-			Aliases: []string{"p"},
+			Name:        "path",
+			Usage:       "Path to the directory containing the build.envd",
+			Aliases:     []string{"p"},
+			DefaultText: ".",
+			Value:       ".",
 		},
 		&cli.PathFlag{
 			Name:    "name",
