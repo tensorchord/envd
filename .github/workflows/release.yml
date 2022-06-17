@@ -72,7 +72,7 @@ jobs:
         mkdir -p bin
         mv dist/envd_darwin_amd64_v1/envd bin/envd
         chmod +x bin/envd
-    - name: Build wheels on Linux
+    - name: Build wheels
       uses: pypa/cibuildwheel@v2.6.1
       env:
         CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
