@@ -112,7 +112,7 @@ func (c *generalClient) maybeStart(ctx context.Context,
 			return "", err
 		}
 	}
-	running, err := dockerClient.IsRunning(ctx, c.containerName)
+	running, _ := dockerClient.IsRunning(ctx, c.containerName)
 	if created && !running {
 		return "", errors.Errorf("container %s is stopped", c.containerName)
 	}
