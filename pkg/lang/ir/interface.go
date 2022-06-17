@@ -95,6 +95,11 @@ func PyPIIndex(mode, url, extraURL string) error {
 	return nil
 }
 
+func CRANMirror(url string) error {
+	DefaultGraph.CRANMirrorURL = &url
+	return nil
+}
+
 func Shell(shell string) error {
 	DefaultGraph.Shell = shell
 	return nil
