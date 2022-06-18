@@ -31,4 +31,14 @@ docker buildx build \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -t ${DOCKER_HUB_ORG}/python:3.8-ubuntu20.04 \
     -f python3.8-ubuntu20.04.Dockerfile .
+
+docker buildx build \
+    --build-arg ENVD_VERSION=${ENVD_VERSION} \
+    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
+    --build-arg HTTP_PROXY=${HTTP_PROXY} \
+    --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
+    -t terrytangyuan/r4.2-envd:0.0.1  \
+    --pull --push --platform linux/x86_64,linux/arm64 \
+    -f r4.2.Dockerfile .
+
 cd - > /dev/null
