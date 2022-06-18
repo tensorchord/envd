@@ -36,7 +36,6 @@ debug-bin/
 .ipynb_checkpoints/
 cover.html
 
-dist/
 .demo/
 
 # Byte-compiled / optimized / DLL files
