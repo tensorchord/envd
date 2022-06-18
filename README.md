@@ -1,6 +1,6 @@
 <div align="center">
 <h1>envd</h1>
-<p>Development Environment for data science and AI/ML</p>
+<p>Development environment for data science and AI/ML</p>
 </div>
 
 <p align=center>
