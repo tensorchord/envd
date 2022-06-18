@@ -16,6 +16,7 @@ package docker
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -124,6 +125,15 @@ func (g generalClient) WaitUntilRunning(ctx context.Context,
 			}
 
 		case <-ctxTimeout.Done():
+			container, err := g.ContainerInspect(ctx, name)
+			if err != nil {
+				logger.Debugf("failed to inspect container %s", name)
+			}
+			state, err := json.Marshal(container.State)
+			if err != nil {
+				logger.Debug("failed to marshal container state")
+			}
+			logger.Debugf("container state: %s", state)
 			return errors.Errorf("timeout %s: container did not start", timeout)
 		}
 	}
