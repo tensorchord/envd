@@ -90,9 +90,9 @@ docker_manifests:
   - ghcr.io/tensorchord/envd-ssh-from-scratch:{{ .Version }}-amd64
   - ghcr.io/tensorchord/envd-ssh-from-scratch:{{ .Version }}-arm64v8
 brews:
-  - name: envd
+  - name: 'envd{{ if filter .Prerelease "alpha" }}@alpha{{ end }}'
     ids:
-    - envd
+      - envd
     tap:
       owner: tensorchord
       name: homebrew-tap
@@ -100,10 +100,16 @@ brews:
       name: TensorChord
       email: envd-maintainers@tensorchord.ai
     folder: Formula
-    caveats: |
-      Please run `envd bootstrap` first to bootstrap
     homepage: https://envd.tensorchord.ai/
     description: Development environment for data science and AI/ML teams
     license: Apache-2.0
+    skip_upload: '{{ if filter .Prerelease "rc" }}true{{ else }}false{{ end }}'
+    caveats: |
+      Please run `envd bootstrap` first to bootstrap
+    dependencies:
+      - name: go
+        type: build
+    conflicts:
+      - envd{{ with not .Prerelease }}@alpha{{ end }}
     test: |
       system "#{bin}/envd version"
