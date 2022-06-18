@@ -21,6 +21,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
+	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
@@ -121,6 +122,10 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 
 	// TODO(gaocegege): Remove the hack for https://github.com/tensorchord/envd/issues/370
 	g.gid = 1001
+	logrus.WithFields(logrus.Fields{
+		"uid": g.uid,
+		"gid": g.gid,
+	}).Debug("compile LLB")
 
 	// TODO(gaocegege): Support more OS and langs.
 	base := g.compileBase()
