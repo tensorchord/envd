@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.1.0-rc.1 (2022-06-18)
+
+ * [6a35a57](https://github.com/tensorchord/envd/commit/6a35a579847163fe255cf981c85636fb2e4f3e5d) chore(README): Add who should use section (#442)
+ * [6e1cf05](https://github.com/tensorchord/envd/commit/6e1cf0509844060040bbd85d4f19e29410fb7a6f) fix: replace useless .editorconfig (#440)
+ * [1c23cea](https://github.com/tensorchord/envd/commit/1c23cea84bfb37f2cd5ee0df63bf625448147994) release: Separate alpha and stable release in Homebrew (#439)
+ * [274e183](https://github.com/tensorchord/envd/commit/274e18317597bb7a7a6413f59a52e7d5274ac85c) Update PyTorch installation CMD in examples (#435)
+ * [cfda1be](https://github.com/tensorchord/envd/commit/cfda1bed6f9861f198d0a37ebc8f46ed4bbb51ab) chore(deps): bump pypa/cibuildwheel from 2.6.1 to 2.7.0 (#428)
+ * [d25157e](https://github.com/tensorchord/envd/commit/d25157ef8169f2aa7c7169dfa18b389041a036a0) chore(deps): bump github.com/spf13/viper from 1.4.0 to 1.12.0 (#430)
+ * [d394410](https://github.com/tensorchord/envd/commit/d394410331eb25d20a33b6adef68506cbc0b6602) chore(deps): bump goreleaser/goreleaser-action from 2 to 3 (#427)
+ * [7070506](https://github.com/tensorchord/envd/commit/7070506f6c2acb44692dd06090ec9d614927ef65) chore(deps): bump github.com/gliderlabs/ssh from 0.3.3 to 0.3.4 (#429)
+ * [2e287c9](https://github.com/tensorchord/envd/commit/2e287c9b1ea4d16c822532e56a39ae67bdf1982c) chore(destroy): add current path `.` as the default path (#422)
+ * [750db5a](https://github.com/tensorchord/envd/commit/750db5a20328f5cb10a118ae348b5545dfef5a1f) chore(Makefile): add `help` target (#421)
+ * [0c00005](https://github.com/tensorchord/envd/commit/0c0000571b7ffb1a4a9af418b1c91a1c28253ce8) Bootstrap gets error if the envd_buildkitd was stopped before (#417)
+ * [8a1bd1e](https://github.com/tensorchord/envd/commit/8a1bd1e3cd6d8372d5181fa2c873726583eb9029) feat #383 (#416)
+
+### Contributors
+
+ * Aaron Sun
+ * Ce Gao
+ * Kevin Su
+ * Yuchen Cheng
+ * Zhenzhen Zhao
+ * dependabot[bot]
+ * kenwoodjw
+
 ## v0.1.0-alpha.12 (2022-06-17)
 
  * [8531491](https://github.com/tensorchord/envd/commit/853149189d88e6ecf6a5a924e3aa19d8f7993f7e) fix: Fix default ssh shell (#411)
