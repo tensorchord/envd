@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.1.0-rc.2 (2022-06-18)
+
+ * [3abef45](https://github.com/tensorchord/envd/commit/3abef452fb45bdcdbe4291caeae1ebd1a12589e4) fix: Fix the bug about uid (#447)
+ * [eff6ffa](https://github.com/tensorchord/envd/commit/eff6ffac3dd6d7f0ffd0313dc4eec06eb753d4de) fix: Fix typo (#445)
+
+### Contributors
+
+ * Ce Gao
+
 ## v0.1.0-rc.1 (2022-06-18)
 
  * [6a35a57](https://github.com/tensorchord/envd/commit/6a35a579847163fe255cf981c85636fb2e4f3e5d) chore(README): Add who should use section (#442)
