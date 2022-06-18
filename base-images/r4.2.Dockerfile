@@ -21,11 +21,8 @@ RUN apt-get update && \
     apt-get install apt-utils && \
     apt-get install -y --no-install-recommends --no-install-suggests --fix-missing \
     bash-static libtinfo5 libncursesw5 \
-    # conda dependencies
-    bzip2 ca-certificates libglib2.0-0 libsm6 libxext6 libxrender1 mercurial \
-    procps subversion wget \
     # envd dependencies
-    python3 curl openssh-client git tini sudo python3-pip zsh vim \
+    python3 curl openssh-client git tini sudo zsh vim \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=envd /usr/bin/envd-ssh /var/envd/bin/envd-ssh
