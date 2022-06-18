@@ -87,19 +87,29 @@ You can reproduce the same dev environment, on your laptop, public cloud VMs, or
 
 `envd` provides first-class support for Jupyter and VSCode remote extension. You benefit without sacrificing any developer experience.
 
+## Who should use envd?
+
+We’re focused on helping data scientists and teams that develop AI/ML models. And they may suffer from:
+
+- building the development environments with Python, CUDA, Docker, SSH, and so on. Do you have a complicated Dockerfile or build script that sets up all your dev environments, but is always breaking?
+- Updating the environment. Do you always need to ask infrastructure engineers how to add a new python package in the Dockerfile?
+- Managing environments and machines. Do you always forget which machines are used for the specific project, because you handle multiple projects concurrently?
+
+Before envd             |  After envd
+:-------------------------:|:-------------------------:
+![](./docs/images/before.svg)  |  ![](./docs/images/after.svg)
+
 ## Documentation
 
 See [envd documentation](https://envd.tensorchord.ai/docs/get-started).
 
 ## Getting Started
 
-Get started by **creating a new envd environment**.
-
-### What you'll need
+### Requirements
 
 - Docker (20.10.0 or above)
 
-### Install `envd`
+### Install and bootstrap `envd`
 
 `envd` can be installed with `pip`. After the installation, please run `envd bootstrap` to bootstrap.
 
@@ -198,44 +208,6 @@ $ envd up --detach
 $ envd get env
 NAME                    JUPYTER                 SSH TARGET              CONTEXT                                 IMAGE                   GPU     CUDA    CUDNN   STATUS          CONTAINER ID 
 envd-quick-start        http://localhost:8888   envd-quick-start.envd   /home/gaocegege/code/envd-quick-start   envd-quick-start:dev    false   <none>  <none>  Up 54 seconds   bd3f6a729e94
-```
-
-## Features
-
-### Pause and resume
-
-```
-$ envd pause --env mnist
-mnist
-$ env get envs
-NAME         JUPYTER                 SSH TARGET   CONTEXT  IMAGE      GPU  CUDA  CUDNN  STATUS              CONTAINER ID 
-mnist        http://localhost:9999   mnist.envd   /mnist   mnist:dev  true 11.6  8      Up 23 hours(Paused) 74a9f1007004
-$ envd resume --env mnist
-$ ssh mnist.envd
-(envd 🐳) $ # The environment is resumed!
-```
-
-### Configure mirrors
-
-`envd` supports PyPI mirror and apt source configuration. You can configure them in `build.env` or `$HOME/.config/envd/config.envd` to set up in all environments.
-
-```text
-cat ~/.config/envd/config.envd
-config.apt_source(source="""
-deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
-deb https://mirror.sjtu.edu.cn/ubuntu focal-updates main restricted
-deb https://mirror.sjtu.edu.cn/ubuntu focal universe
-deb https://mirror.sjtu.edu.cn/ubuntu focal-updates universe
-deb https://mirror.sjtu.edu.cn/ubuntu focal multiverse
-deb https://mirror.sjtu.edu.cn/ubuntu focal-updates multiverse
-deb https://mirror.sjtu.edu.cn/ubuntu focal-backports main restricted universe multiverse
-deb http://archive.canonical.com/ubuntu focal partner
-deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe multiverse
-""")
-config.pip_index(url = "https://mirror.sjtu.edu.cn/pypi/web/simple")
-install.vscode_extensions([
-    "ms-python.python"
-])
 ```
 
 ## Contribute
