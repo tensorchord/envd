@@ -97,6 +97,8 @@ export GOFLAGS ?= -count=1
 # All targets.
 .PHONY: help lint test build container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build
 
+.DEFAULT_GOAL:=build
+
 build: build-local  ## Build the release version of envd
 
 help:  ## Display this help
