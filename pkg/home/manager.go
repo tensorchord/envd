@@ -31,6 +31,7 @@ type Manager interface {
 	CacheDir() string
 	MarkCache(string, bool) error
 	Cached(string) bool
+	CleanCache() error
 	ConfigFile() string
 }
 
@@ -68,6 +69,17 @@ func GetManager() Manager {
 
 func (m generalManager) CacheDir() string {
 	return m.cacheDir
+}
+
+func (m generalManager) CleanCache() error {
+	if m.cacheDir == "" {
+		return nil
+	}
+	logrus.Debug("cleaning up host cache directory")
+	if err := os.RemoveAll(m.cacheDir); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (m generalManager) ConfigFile() string {

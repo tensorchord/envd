@@ -7,6 +7,7 @@ package mock
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 	client "github.com/moby/buildkit/client"
@@ -62,6 +63,20 @@ func (m *MockClient) Close() error {
 func (mr *MockClientMockRecorder) Close() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockClient)(nil).Close))
+}
+
+// Prune mocks base method.
+func (m *MockClient) Prune(ctx context.Context, keepDuration time.Duration, keepStorage float64, filter []string, verbose, all bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Prune", ctx, keepDuration, keepStorage, filter, verbose, all)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Prune indicates an expected call of Prune.
+func (mr *MockClientMockRecorder) Prune(ctx, keepDuration, keepStorage, filter, verbose, all interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Prune", reflect.TypeOf((*MockClient)(nil).Prune), ctx, keepDuration, keepStorage, filter, verbose, all)
 }
 
 // Solve mocks base method.

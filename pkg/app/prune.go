@@ -1,0 +1,74 @@
+// Copyright 2022 The envd Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package app
+
+import (
+	"github.com/cockroachdb/errors"
+	"github.com/tensorchord/envd/pkg/buildkitd"
+	"github.com/tensorchord/envd/pkg/home"
+	"github.com/urfave/cli/v2"
+)
+
+var CommandPrune = &cli.Command{
+	Name:  "prune",
+	Usage: "clean up build cache",
+	Flags: []cli.Flag{
+		&cli.DurationFlag{
+			Name:  "keep-duration",
+			Usage: "Keep data newer than this limit",
+		},
+		&cli.Float64Flag{
+			Name:  "keep-storage",
+			Usage: "Keep data below this limit (in MB)",
+		},
+		&cli.StringSliceFlag{
+			Name:  "filter, f",
+			Usage: "Filter records",
+		},
+		&cli.BoolFlag{
+			Name:  "all",
+			Usage: "Include internal caches",
+		},
+		&cli.BoolFlag{
+			Name:  "verbose, v",
+			Usage: "Verbose output",
+		},
+	},
+
+	Action: prune,
+}
+
+func prune(clicontext *cli.Context) error {
+	cleanAll := clicontext.Bool("all")
+	if cleanAll {
+		if err := home.GetManager().CleanCache(); err != nil {
+			return errors.Wrap(err, "failed to clean internal cache")
+		}
+	}
+
+	keepDuration := clicontext.Duration("keep-duration")
+	keepStorage := clicontext.Float64("keep-storage")
+	filter := clicontext.StringSlice("filter")
+	verbose := clicontext.Bool("verbose")
+	bkClient, err := buildkitd.NewClient(clicontext.Context, "")
+	if err != nil {
+		return errors.Wrap(err, "failed to create buildkit client")
+	}
+	if err := bkClient.Prune(clicontext.Context,
+		keepDuration, keepStorage, filter, verbose, cleanAll); err != nil {
+		return errors.Wrap(err, "failed to prune buildkit cache")
+	}
+	return nil
+}
