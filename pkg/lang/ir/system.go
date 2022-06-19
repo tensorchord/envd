@@ -110,7 +110,7 @@ func (g *Graph) compileBase() llb.State {
 	} else {
 		base = g.compileCUDAPackages()
 	}
-	// TODO(gaocegege): Refactor user to a seperate stage.
+	// TODO(gaocegege): Refactor user to a separate stage.
 	res := base.
 		Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", g.gid)),
 			llb.WithCustomName("[internal] create user group envd")).
