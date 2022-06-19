@@ -17,6 +17,8 @@ package buildkitd
 import (
 	"context"
 	"fmt"
+	"os"
+	"text/tabwriter"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -24,6 +26,7 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/tonistiigi/units"
 
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/flag"
@@ -40,7 +43,10 @@ var (
 type Client interface {
 	BuildkitdAddr() string
 	// Solve calls Solve on the controller.
-	Solve(ctx context.Context, def *llb.Definition, opt client.SolveOpt, statusChan chan *client.SolveStatus) (*client.SolveResponse, error)
+	Solve(ctx context.Context, def *llb.Definition,
+		opt client.SolveOpt, statusChan chan *client.SolveStatus) (*client.SolveResponse, error)
+	Prune(ctx context.Context, keepDuration time.Duration,
+		keepStorage float64, filter []string, verbose, all bool) error
 	Close() error
 }
 
@@ -161,6 +167,53 @@ func (c generalClient) connected(ctx context.Context) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func (c generalClient) Prune(ctx context.Context, keepDuration time.Duration,
+	keepStorage float64, filter []string, verbose, all bool) error {
+	opts := []client.PruneOption{
+		client.WithFilter(filter),
+		client.WithKeepOpt(keepDuration, int64(keepStorage*1e6)),
+	}
+	if all {
+		opts = append(opts, client.PruneAll)
+	}
+
+	ch := make(chan client.UsageInfo)
+	printed := make(chan struct{})
+
+	tw := tabwriter.NewWriter(os.Stdout, 1, 8, 1, '\t', 0)
+	first := true
+	total := int64(0)
+
+	go func() {
+		defer close(printed)
+		for du := range ch {
+			total += du.Size
+			if verbose {
+				printVerbose(tw, []*client.UsageInfo{&du})
+			} else {
+				if first {
+					printTableHeader(tw)
+					first = false
+				}
+				printTableRow(tw, &du)
+				tw.Flush()
+			}
+		}
+	}()
+
+	err := c.Client.Prune(ctx, ch, opts...)
+	close(ch)
+	<-printed
+	if err != nil {
+		return err
+	}
+
+	tw = tabwriter.NewWriter(os.Stdout, 1, 8, 1, '\t', 0)
+	fmt.Fprintf(tw, "Total:\t%.2f\n", units.Bytes(total))
+	tw.Flush()
+	return nil
 }
 
 func (c generalClient) BuildkitdAddr() string {
