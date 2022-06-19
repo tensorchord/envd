@@ -23,7 +23,7 @@ import (
 
 var CommandPrune = &cli.Command{
 	Name:  "prune",
-	Usage: "clean up build cache",
+	Usage: "Clean up build cache",
 	Flags: []cli.Flag{
 		&cli.DurationFlag{
 			Name:  "keep-duration",
@@ -34,12 +34,13 @@ var CommandPrune = &cli.Command{
 			Usage: "Keep data below this limit (in MB)",
 		},
 		&cli.StringSliceFlag{
-			Name:  "filter, f",
-			Usage: "Filter records",
+			Name:   "filter, f",
+			Usage:  "Filter records",
+			Hidden: true,
 		},
 		&cli.BoolFlag{
 			Name:  "all",
-			Usage: "Include internal caches",
+			Usage: "Include internal caches (oh-my-zsh, vscode extensions and other envd caches)",
 		},
 		&cli.BoolFlag{
 			Name:  "verbose, v",
