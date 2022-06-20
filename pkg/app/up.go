@@ -95,7 +95,7 @@ var CommandUp = &cli.Command{
 		},
 		&cli.BoolFlag{
 			Name:  "no-gpu",
-			Usage: "launch same cpu container without gpu",
+			Usage: "launch the CPU container",
 			Value: false,
 		},
 	},
