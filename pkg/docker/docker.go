@@ -417,7 +417,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 
 	container, err := c.ContainerInspect(ctx, resp.ID)
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to inpsect the container")
+		return "", "", errors.Wrap(err, "failed to inspect the container")
 	}
 
 	if err := c.WaitUntilRunning(
