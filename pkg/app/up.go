@@ -94,11 +94,10 @@ var CommandUp = &cli.Command{
 			Value: false,
 		},
 		&cli.BoolFlag{
-			Name: "no-gpu",
+			Name:  "no-gpu",
 			Usage: "launch same cpu container without gpu",
 			Value: false,
 		},
-
 	},
 
 	Action: up,
@@ -153,7 +152,7 @@ func up(clicontext *cli.Context) error {
 	var gpu bool
 	if gpu_enable {
 		gpu = false
-	}else {
+	} else {
 		gpu = builder.GPUEnabled()
 	}
 
