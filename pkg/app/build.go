@@ -36,8 +36,9 @@ var CommandBuild = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "tag",
-			Usage:   "Name and optionally a tag in the 'name:tag' format (default: PROJECT:dev)",
+			Usage:   "Name and optionally a tag in the 'name:tag' format",
 			Aliases: []string{"t"},
+			DefaultText: "PROJECT:dev",
 		},
 		&cli.PathFlag{
 			Name:    "file",
