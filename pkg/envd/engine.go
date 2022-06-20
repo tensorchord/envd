@@ -30,6 +30,7 @@ type Engine interface {
 	ResumeEnvironment(ctx context.Context, env string) (string, error)
 	ListEnvironment(ctx context.Context) ([]types.EnvdEnvironment, error)
 	ListEnvDependency(ctx context.Context, env string) (*types.Dependency, error)
+	GetInfo(ctx context.Context) (*types.EnvdInfo, error)
 }
 
 type generalEngine struct {
@@ -138,4 +139,15 @@ func (e generalEngine) ListEnvDependency(
 		return nil, errors.Wrap(err, "failed to create dependency from the container")
 	}
 	return dep, nil
+}
+
+func (e generalEngine) GetInfo(ctx context.Context) (*types.EnvdInfo, error) {
+	info, err := e.dockerCli.GetInfo(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get docker client info")
+	}
+	return &types.EnvdInfo{
+		Info: info,
+	}, nil
+
 }

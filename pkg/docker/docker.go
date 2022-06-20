@@ -71,6 +71,8 @@ type Client interface {
 	ListImage(ctx context.Context) ([]types.ImageSummary, error)
 	GetImage(ctx context.Context, image string) (types.ImageSummary, error)
 
+	GetInfo(ctx context.Context) (types.Info, error)
+
 	// GPUEnabled returns true if nvidia container runtime exists in docker daemon.
 	GPUEnabled(ctx context.Context) (bool, error)
 }
@@ -213,6 +215,10 @@ func (c generalClient) ResumeContainer(ctx context.Context, name string) (string
 
 func (c generalClient) GetContainer(ctx context.Context, cname string) (types.ContainerJSON, error) {
 	return c.ContainerInspect(ctx, cname)
+}
+
+func (c generalClient) GetInfo(ctx context.Context) (types.Info, error) {
+	return c.Info(ctx)
 }
 
 func (c generalClient) Destroy(ctx context.Context, name string) (string, error) {
