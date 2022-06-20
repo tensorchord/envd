@@ -93,6 +93,12 @@ var CommandUp = &cli.Command{
 			Usage: "detach from the container",
 			Value: false,
 		},
+		&cli.BoolFlag{
+			Name: "no-gpu",
+			Usage: "launch same cpu container without gpu",
+			Value: false,
+		},
+
 	},
 
 	Action: up,
@@ -143,7 +149,13 @@ func up(clicontext *cli.Context) error {
 	if err := builder.Build(clicontext.Context, clicontext.Path("public-key")); err != nil {
 		return errors.Wrap(err, "failed to build the image")
 	}
-	gpu := builder.GPUEnabled()
+	gpu_enable := clicontext.Bool("no-gpu")
+	var gpu bool
+	if gpu_enable {
+		gpu = false
+	}else {
+		gpu = builder.GPUEnabled()
+	}
 
 	dockerClient, err := docker.NewClient(clicontext.Context)
 	if err != nil {
