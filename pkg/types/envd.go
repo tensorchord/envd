@@ -42,6 +42,10 @@ type EnvdManifest struct {
 	Dependency   `json:",inline,omitempty"`
 }
 
+type EnvdInfo struct {
+	types.Info
+}
+
 type Dependency struct {
 	APTPackages  []string `json:"apt_packages,omitempty"`
 	PyPIPackages []string `json:"pypi_packages,omitempty"`

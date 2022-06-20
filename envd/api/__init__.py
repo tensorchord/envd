@@ -27,7 +27,7 @@ def base(os: str, language: str):
 
 
 def shell(name: str):
-    """Interactive shell 
+    """Interactive shell
     Args:
         name (str): shell name(i.e. `zsh`)
     """
