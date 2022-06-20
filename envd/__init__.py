@@ -12,3 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Our documentation generation framework doesn't properly handle __file__,
+# so we call it __file__ and edit it later.
+file__: str = ""
