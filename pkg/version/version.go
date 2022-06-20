@@ -25,8 +25,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pkg/errors"
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/cockroachdb/errors"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/urfave/cli/v2"
@@ -67,10 +66,6 @@ type DetailedVersion struct {
 	DockerVersion     string
 	ContainerRuntimes string
 	DefaultRuntime    string
-}
-
-type generalEngine struct {
-	dockerCli docker.Client
 }
 
 func (v Version) String() string {

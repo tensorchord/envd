@@ -24,7 +24,6 @@ require (
 	github.com/onsi/gomega v1.19.0
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799
-	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.12.0
@@ -83,6 +82,7 @@ require (
 	github.com/moby/sys/signal v0.6.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
