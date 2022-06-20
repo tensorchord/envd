@@ -35,9 +35,9 @@ var CommandBuild = &cli.Command{
 	Usage:   "build envd environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    "tag",
-			Usage:   "Name and optionally a tag in the 'name:tag' format",
-			Aliases: []string{"t"},
+			Name:        "tag",
+			Usage:       "Name and optionally a tag in the 'name:tag' format",
+			Aliases:     []string{"t"},
 			DefaultText: "PROJECT:dev",
 		},
 		&cli.PathFlag{
