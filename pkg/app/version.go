@@ -33,12 +33,20 @@ var CommandVersion = &cli.Command{
 			Value:   false,
 			Aliases: []string{"s"},
 		},
+		&cli.BoolFlag{
+			Name:    "detail",
+			Usage:   "Print details about the envd environment",
+			Value:   false,
+			Aliases: []string{"d"},
+		},
 	},
 }
 
 func printVersion(ctx *cli.Context) error {
 	short := ctx.Bool("short")
+	detail := ctx.Bool("detail")
 	ver := version.GetVersion()
+	detailVer, err := version.GetDetailedVersion(ctx)
 	fmt.Printf("envd: %s\n", ver)
 	if short {
 		return nil
@@ -52,5 +60,19 @@ func printVersion(ctx *cli.Context) error {
 	fmt.Printf("  GoVersion: %s\n", ver.GoVersion)
 	fmt.Printf("  Compiler: %s\n", ver.Compiler)
 	fmt.Printf("  Platform: %s\n", ver.Platform)
+	if detail {
+		if err != nil {
+			fmt.Printf("Error in getting details from Docker Server: %s\n", err)
+		} else {
+			fmt.Printf("  OSType: %s\n", detailVer.OSType)
+			if detailVer.OSVersion != "" {
+				fmt.Printf("  OSVersion: %s\n", detailVer.OSVersion)
+			}
+			fmt.Printf("  KernelVersion: %s\n", detailVer.KernelVersion)
+			fmt.Printf("  DockerHostVersion: %s\n", detailVer.DockerVersion)
+			fmt.Printf("  ContainerRuntimes: %s\n", detailVer.ContainerRuntimes)
+			fmt.Printf("  DefaultRuntime: %s\n", detailVer.DefaultRuntime)
+		}
+	}
 	return nil
 }

@@ -24,6 +24,12 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+
+	"github.com/pkg/errors"
+	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/envd"
+	"github.com/tensorchord/envd/pkg/types"
+	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -53,12 +59,26 @@ type Version struct {
 	Platform     string
 }
 
+type DetailedVersion struct {
+	OSVersion         string
+	OSType            string
+	KernelVersion     string
+	Architecture      string
+	DockerVersion     string
+	ContainerRuntimes string
+	DefaultRuntime    string
+}
+
+type generalEngine struct {
+	dockerCli docker.Client
+}
+
 func (v Version) String() string {
 	return v.Version
 }
 
-// GetVersion returns the version information
-func GetVersion() Version {
+// Get Envd version information
+func GetEnvdVersion() string {
 	var versionStr string
 
 	if gitCommit != "" && gitTag != "" && gitTreeState == "clean" {
@@ -82,8 +102,22 @@ func GetVersion() Version {
 			versionStr += "+unknown"
 		}
 	}
+	return versionStr
+}
+
+func GetRuntimes(info *types.EnvdInfo) string {
+	runtimesMap := info.Runtimes
+	keys := make([]string, 0, len(runtimesMap))
+	for k := range runtimesMap {
+		keys = append(keys, k)
+	}
+	return "[" + strings.Join(keys, ",") + "]"
+}
+
+// GetVersion returns the version information
+func GetVersion() Version {
 	return Version{
-		Version:      versionStr,
+		Version:      GetEnvdVersion(),
 		BuildDate:    buildDate,
 		GitCommit:    gitCommit,
 		GitTag:       gitTag,
@@ -92,6 +126,32 @@ func GetVersion() Version {
 		Compiler:     runtime.Compiler,
 		Platform:     fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH),
 	}
+}
+
+func GetDetailedVersion(clicontext *cli.Context) (DetailedVersion, error) {
+	engine, err := envd.New(clicontext.Context)
+	if err != nil {
+		return DetailedVersion{}, errors.Wrap(
+			err, "failed to create engine for docker server",
+		)
+	}
+
+	info, err := engine.GetInfo(clicontext.Context)
+	if err != nil {
+		return DetailedVersion{}, errors.Wrap(
+			err, "failed to get detailed version info from docker server",
+		)
+	}
+
+	return DetailedVersion{
+		OSVersion:         info.OSVersion,
+		OSType:            info.OSType,
+		KernelVersion:     info.KernelVersion,
+		DockerVersion:     info.ServerVersion,
+		Architecture:      info.Architecture,
+		DefaultRuntime:    info.DefaultRuntime,
+		ContainerRuntimes: GetRuntimes(info),
+	}, nil
 }
 
 var (
