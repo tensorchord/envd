@@ -99,7 +99,7 @@ Before envd             |  After envd
 :-------------------------:|:-------------------------:
 ![](./docs/images/before.svg)  |  ![](./docs/images/after.svg)
 
-## Documentation
+## Documentation 📝
 
 See [envd documentation](https://envd.tensorchord.ai/docs/get-started).
 
@@ -210,7 +210,11 @@ NAME                    JUPYTER                 SSH TARGET              CONTEXT 
 envd-quick-start        http://localhost:8888   envd-quick-start.envd   /home/gaocegege/code/envd-quick-start   envd-quick-start:dev    false   <none>  <none>  Up 54 seconds   bd3f6a729e94
 ```
 
-## Contribute
+## Roadmap 🗂️
+
+Please checkout [ROADMAP](https://envd.tensorchord.ai/docs/community/roadmap).
+
+## Contribute 🚀
 
 We welcome all kinds of contributions from the open-source community, individuals, and partners.
 
@@ -265,7 +269,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
-# License 
+## License 📋
 
 [Apache 2.0](./LICENSE)
 
