@@ -50,7 +50,7 @@ var (
 type Client interface {
 	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
-	// Start creates the container for the given tag and container name.
+	// StartEnvd creates the container for the given tag and container name.
 	StartEnvd(ctx context.Context, tag, name, buildContext string,
 		gpuEnabled bool, numGPUs int, sshPort int, g ir.Graph, timeout time.Duration,
 		mountOptionsStr []string) (string, string, error)
@@ -90,19 +90,17 @@ func NewClient(ctx context.Context) (Client, error) {
 	return generalClient{cli}, nil
 }
 
-func (g generalClient) GPUEnabled(ctx context.Context) (bool, error) {
-	info, err := g.Info(ctx)
+func (c generalClient) GPUEnabled(ctx context.Context) (bool, error) {
+	info, err := c.Info(ctx)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get docker info")
 	}
 	logrus.WithField("info", info).Debug("docker info")
-	if nv, ok := info.Runtimes["nvidia"]; ok {
-		return nv.Path != "", nil
-	}
-	return false, nil
+	nv := info.Runtimes["nvidia"]
+	return nv.Path != "", nil
 }
 
-func (g generalClient) WaitUntilRunning(ctx context.Context,
+func (c generalClient) WaitUntilRunning(ctx context.Context,
 	name string, timeout time.Duration) error {
 	logger := logrus.WithField("container", name)
 	logger.Debug("waiting to start")
@@ -113,13 +111,10 @@ func (g generalClient) WaitUntilRunning(ctx context.Context,
 	for {
 		select {
 		case <-time.After(interval):
-			isRunning, err := g.IsRunning(ctxTimeout, name)
+			isRunning, err := c.IsRunning(ctxTimeout, name)
 			if err != nil {
 				// Has not yet started. Keep waiting.
 				return errors.Wrap(err, "failed to check if container is running")
-			}
-			if !isRunning {
-				continue
 			}
 			if isRunning {
 				logger.Debug("the container is running")
@@ -127,7 +122,7 @@ func (g generalClient) WaitUntilRunning(ctx context.Context,
 			}
 
 		case <-ctxTimeout.Done():
-			container, err := g.ContainerInspect(ctx, name)
+			container, err := c.ContainerInspect(ctx, name)
 			if err != nil {
 				logger.Debugf("failed to inspect container %s", name)
 			}
@@ -145,14 +140,10 @@ func (c generalClient) ListImage(ctx context.Context) ([]types.ImageSummary, err
 	images, err := c.ImageList(ctx, types.ImageListOptions{
 		Filters: dockerfilters(false),
 	})
-	if err != nil {
-		return nil, err
-	}
-	return images, nil
+	return images, err
 }
 
-func (c generalClient) GetImage(
-	ctx context.Context, image string) (types.ImageSummary, error) {
+func (c generalClient) GetImage(ctx context.Context, image string) (types.ImageSummary, error) {
 	images, err := c.ImageList(ctx, types.ImageListOptions{
 		Filters: dockerfiltersWithName(image),
 	})
@@ -169,10 +160,7 @@ func (c generalClient) ListContainer(ctx context.Context) ([]types.Container, er
 	ctrs, err := c.ContainerList(ctx, types.ContainerListOptions{
 		Filters: dockerfilters(false),
 	})
-	if err != nil {
-		return nil, err
-	}
-	return ctrs, nil
+	return ctrs, err
 }
 
 func (c generalClient) PauseContainer(ctx context.Context, name string) (string, error) {
@@ -245,30 +233,29 @@ func (c generalClient) Destroy(ctx context.Context, name string) (string, error)
 	return name, nil
 }
 
-func (g generalClient) StartBuildkitd(ctx context.Context,
-	tag, name, mirror string) (string, error) {
+func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
 		"mirror":    mirror,
 	})
 	logger.Debug("starting buildkitd")
-	if _, _, err := g.ImageInspectWithRaw(ctx, tag); err != nil {
-		if client.IsErrNotFound(err) {
-			// Pull the image.
-			logger.Debug("pulling image")
-			body, err := g.ImagePull(ctx, tag, types.ImagePullOptions{})
-			if err != nil {
-				return "", errors.Wrap(err, "failed to pull image")
-			}
-			defer body.Close()
-			termFd, isTerm := term.GetFdInfo(os.Stdout)
-			err = jsonmessage.DisplayJSONMessagesStream(body, os.Stdout, termFd, isTerm, nil)
-			if err != nil {
-				logger.WithError(err).Warningln("failed to display image pull output")
-			}
-		} else {
+	if _, _, err := c.ImageInspectWithRaw(ctx, tag); err != nil {
+		if !client.IsErrNotFound(err) {
 			return "", errors.Wrap(err, "failed to inspect image")
+		}
+
+		// Pull the image.
+		logger.Debug("pulling image")
+		body, err := c.ImagePull(ctx, tag, types.ImagePullOptions{})
+		if err != nil {
+			return "", errors.Wrap(err, "failed to pull image")
+		}
+		defer body.Close()
+		termFd, isTerm := term.GetFdInfo(os.Stdout)
+		err = jsonmessage.DisplayJSONMessagesStream(body, os.Stdout, termFd, isTerm, nil)
+		if err != nil {
+			logger.WithError(err).Warningln("failed to display image pull output")
 		}
 	}
 	config := &container.Config{
@@ -279,14 +266,16 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 [registry."docker.io"]
 	mirrors = ["%s"]`, mirror)
 		config.Entrypoint = []string{
-			"/bin/sh", "-c", fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg),
+			"/bin/sh",
+			"-c",
+			fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg),
 		}
 		logger.Debugf("setting buildkit config: %s", cfg)
 	}
 	hostConfig := &container.HostConfig{
 		Privileged: true,
 	}
-	resp, err := g.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
+	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create container")
 	}
@@ -295,11 +284,11 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 		logger.Warnf("run with warnings: %s", w)
 	}
 
-	if err := g.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+	if err := c.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		return "", errors.Wrap(err, "failed to start container")
 	}
 
-	container, err := g.ContainerInspect(ctx, resp.ID)
+	container, err := c.ContainerInspect(ctx, resp.ID)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to inspect container")
 	}
@@ -307,9 +296,10 @@ func (g generalClient) StartBuildkitd(ctx context.Context,
 	return container.Name, nil
 }
 
-// Start creates the container for the given tag and container name.
+// StartEnvd creates the container for the given tag and container name.
 func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext string,
-	gpuEnabled bool, numGPUs int, sshPort int, g ir.Graph, timeout time.Duration, mountOptionsStr []string) (string, string, error) {
+	gpuEnabled bool, numGPUs int, sshPort int, g ir.Graph, timeout time.Duration,
+	mountOptionsStr []string) (string, string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":           tag,
 		"container":     name,
@@ -434,8 +424,8 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 	return container.Name, container.NetworkSettings.IPAddress, nil
 }
 
-func (g generalClient) IsCreated(ctx context.Context, cname string) (bool, error) {
-	_, err := g.ContainerInspect(ctx, cname)
+func (c generalClient) IsCreated(ctx context.Context, cname string) (bool, error) {
+	_, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
 			return false, nil
@@ -445,8 +435,8 @@ func (g generalClient) IsCreated(ctx context.Context, cname string) (bool, error
 	return true, nil
 }
 
-func (g generalClient) IsRunning(ctx context.Context, cname string) (bool, error) {
-	container, err := g.ContainerInspect(ctx, cname)
+func (c generalClient) IsRunning(ctx context.Context, cname string) (bool, error) {
+	container, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
 			return false, nil
@@ -458,8 +448,8 @@ func (g generalClient) IsRunning(ctx context.Context, cname string) (bool, error
 
 // Load loads the docker image from the reader into the docker host.
 // It's up to the caller to close the io.ReadCloser.
-func (g generalClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) error {
-	resp, err := g.ImageLoad(ctx, r, quiet)
+func (c generalClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) error {
+	resp, err := c.ImageLoad(ctx, r, quiet)
 	if err != nil {
 		return err
 	}
@@ -468,23 +458,19 @@ func (g generalClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) er
 	return nil
 }
 
-func (g generalClient) Exec(ctx context.Context, cname string, cmd []string) error {
+func (c generalClient) Exec(ctx context.Context, cname string, cmd []string) error {
 	execConfig := types.ExecConfig{
 		Cmd:    cmd,
 		Detach: true,
 	}
-	resp, err := g.ContainerExecCreate(ctx, cname, execConfig)
+	resp, err := c.ContainerExecCreate(ctx, cname, execConfig)
 	if err != nil {
 		return err
 	}
 	execID := resp.ID
-	err = g.ContainerExecStart(ctx, execID, types.ExecStartCheck{
+	return c.ContainerExecStart(ctx, execID, types.ExecStartCheck{
 		Detach: true,
 	})
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func deviceRequests(count int) []container.DeviceRequest {
