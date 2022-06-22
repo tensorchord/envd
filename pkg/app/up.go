@@ -66,22 +66,19 @@ var CommandUp = &cli.Command{
 			Aliases: []string{"f"},
 			Value:   "build.envd",
 		},
-		// &cli.BoolFlag{
-		// 	Name:  "auth",
-		// 	Usage: "Enable authentication for ssh",
-		// 	Value: false,
-		// },
 		&cli.PathFlag{
 			Name:    "private-key",
 			Usage:   "Path to the private key",
 			Aliases: []string{"k"},
 			Value:   sshconfig.GetPrivateKey(),
+			Hidden:  true,
 		},
 		&cli.PathFlag{
 			Name:    "public-key",
 			Usage:   "Path to the public key",
 			Aliases: []string{"pubk"},
 			Value:   sshconfig.GetPublicKey(),
+			Hidden:  true,
 		},
 		&cli.DurationFlag{
 			Name:  "timeout",

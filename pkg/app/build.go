@@ -57,6 +57,7 @@ var CommandBuild = &cli.Command{
 			Usage:   "Path to the public key",
 			Aliases: []string{"pubk"},
 			Value:   sshconfig.GetPublicKey(),
+			Hidden:  true,
 		},
 		&cli.PathFlag{
 			Name:    "output",
