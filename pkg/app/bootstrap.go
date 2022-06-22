@@ -52,8 +52,9 @@ var CommandBootstrap = &cli.Command{
 		},
 		&cli.StringSliceFlag{
 			Name:    "ssh-keypair",
-			Usage:   "Manually specify ssh key pair(format: `public_key_path,private_key_path`).",
+			Usage:   "Manually specify ssh key pair as `publicKey,privateKey`",
 			Aliases: []string{"k"},
+			Value:   cli.NewStringSlice(sshconfig.GetPublicKey(), sshconfig.GetPrivateKey()),
 		},
 	},
 
@@ -153,8 +154,4 @@ func bootstrap(clicontext *cli.Context) error {
 		logrus.Infof("The buildkit is running at %s", bkClient.BuildkitdAddr())
 	}
 	return nil
-}
-
-func FileExists() {
-	panic("unimplemented")
 }
