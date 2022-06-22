@@ -18,6 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/builtin"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
@@ -31,6 +32,10 @@ func RegisterenvdRules() {
 	starlark.Universe[ruleShell] = starlark.NewBuiltin(ruleShell, ruleFuncShell)
 	starlark.Universe[ruleRun] = starlark.NewBuiltin(ruleRun, ruleFuncRun)
 	starlark.Universe[ruleGitConfig] = starlark.NewBuiltin(ruleGitConfig, ruleFuncGitConfig)
+}
+
+func RegisterBuildContext(buildContextDir string) {
+	starlark.Universe[builtin.BuildContextDir] = starlark.String(buildContextDir)
 }
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,

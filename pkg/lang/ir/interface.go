@@ -18,6 +18,7 @@ import (
 	"errors"
 
 	"github.com/tensorchord/envd/pkg/editor/vscode"
+	"github.com/tensorchord/envd/pkg/lang/ir/parser"
 )
 
 func Base(os, language string) error {
@@ -33,8 +34,17 @@ func Base(os, language string) error {
 	return nil
 }
 
-func PyPIPackage(deps []string) {
+func PyPIPackage(deps []string, requirementsFile *string) error {
 	DefaultGraph.PyPIPackages = append(DefaultGraph.PyPIPackages, deps...)
+
+	if requirementsFile != nil {
+		parsed, err := parser.ParsePythonRequirements(*requirementsFile)
+		if err != nil {
+			return err
+		}
+		DefaultGraph.PyPIPackages = append(DefaultGraph.PyPIPackages, parsed...)
+	}
+	return nil
 }
 
 func RPackage(deps []string) {

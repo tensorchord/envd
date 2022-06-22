@@ -34,18 +34,22 @@ type Interpreter interface {
 // Please refer to https://github.com/google/starlark-go
 type generalInterpreter struct {
 	*starlark.Thread
-	predeclared starlark.StringDict
+	predeclared     starlark.StringDict
+	buildContextDir string
 }
 
-func NewInterpreter() Interpreter {
-	// Register envd rules to Starlark.
+func NewInterpreter(buildContextDir string) Interpreter {
+	// Register envd rules and built-in variables to Starlark.
 	universe.RegisterenvdRules()
+	universe.RegisterBuildContext(buildContextDir)
+
 	return &generalInterpreter{
 		Thread: &starlark.Thread{Load: repl.MakeLoad()},
 		predeclared: starlark.StringDict{
 			"install": install.Module,
 			"config":  config.Module,
 		},
+		buildContextDir: buildContextDir,
 	}
 }
 
