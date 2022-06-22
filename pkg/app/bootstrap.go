@@ -14,14 +14,18 @@
 package app
 
 import (
+	"fmt"
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/cockroachdb/errors"
+	"github.com/docker/docker/pkg/namesgenerator"
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
 	ac "github.com/tensorchord/envd/pkg/autocomplete"
 	"github.com/tensorchord/envd/pkg/buildkitd"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
@@ -48,7 +52,7 @@ var CommandBootstrap = &cli.Command{
 		},
 		&cli.StringSliceFlag{
 			Name:    "ssh-keypair",
-			Usage:   "Manually specify ssh key pair(format: `public_key_path,private_key_path`). Envd will generate it if key doesn't exist at envd home directory.",
+			Usage:   "Manually specify ssh key pair(format: `public_key_path,private_key_path`).",
 			Aliases: []string{"k"},
 		},
 	},
@@ -81,10 +85,21 @@ func bootstrap(clicontext *cli.Context) error {
 			return errors.Wrap(err, "Cannot get default key status")
 		}
 		if keyExists {
-			return errors.Errorf("Key already exists at %s and %s. "+
-				"Overwriting those keys will break access to existing environments. "+
-				"Please backup those keys and manually delete them if you "+
-				"want to use your own key for future projects.", sshconfig.GetPublicKey(), sshconfig.GetPrivateKey())
+			var exists bool
+			var newPrivateKeyName string
+			for ok := true; ok; ok = exists {
+				newPrivateKeyName = filepath.Join(filepath.Dir(sshconfig.GetPrivateKey()), fmt.Sprintf("%s.pk", namesgenerator.GetRandomName(0)))
+				exists, err = fileutil.FileExists(newPrivateKeyName)
+
+				if err != nil {
+					return err
+				}
+			}
+			logrus.Debugf("New key name: %s", newPrivateKeyName)
+			err := sshconfig.ReplaceKeyManagedByEnvd(sshconfig.GetPrivateKey(), newPrivateKeyName)
+			if err != nil {
+				return err
+			}
 		}
 		pub, pri := sshKeyPair[0], sshKeyPair[1]
 		pubKey, err := ioutil.ReadFile(pub)
@@ -138,4 +153,8 @@ func bootstrap(clicontext *cli.Context) error {
 		logrus.Infof("The buildkit is running at %s", bkClient.BuildkitdAddr())
 	}
 	return nil
+}
+
+func FileExists() {
+	panic("unimplemented")
 }

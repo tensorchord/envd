@@ -305,6 +305,33 @@ func AddEntry(name, iface string, port int, privateKeyPath string) error {
 	return add(getSSHConfigPath(), buildHostname(name), iface, port, privateKeyPath)
 }
 
+func ReplaceKeyManagedByEnvd(oldKey string, newKey string) error {
+	cfg, err := getConfig(getSSHConfigPath())
+	if err != nil {
+		return err
+	}
+	logrus.Infof("Rewrite ssh keys old: %s, new: %s", oldKey, newKey)
+	for ih, h := range cfg.hosts {
+		for _, hn := range h.hostnames {
+			logrus.Info(h.hostnames)
+			if strings.HasSuffix(hn, ".envd") {
+				for ip, p := range h.params {
+					if p.keyword == identityFile && strings.Trim(p.args[0], "\"") == oldKey {
+						logrus.Debug("Change key")
+						cfg.hosts[ih].params[ip].args[0] = newKey
+					}
+				}
+			}
+		}
+	}
+
+	err = os.Rename(GetPrivateKey(), newKey)
+	if err != nil {
+		return err
+	}
+	return save(cfg, getSSHConfigPath())
+}
+
 func add(path, name, iface string, port int, privateKeyPath string) error {
 	cfg, err := getConfig(path)
 	if err != nil {
