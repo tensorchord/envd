@@ -52,9 +52,8 @@ var CommandBootstrap = &cli.Command{
 		},
 		&cli.StringSliceFlag{
 			Name:    "ssh-keypair",
-			Usage:   "Manually specify ssh key pair as `publicKey,privateKey`",
+			Usage:   fmt.Sprintf("Manually specify ssh key pair as `publicKey,privateKey`. Envd will generate a keypair at %s and %s if not specified", sshconfig.GetPublicKey(), sshconfig.GetPrivateKey()),
 			Aliases: []string{"k"},
-			Value:   cli.NewStringSlice(sshconfig.GetPublicKey(), sshconfig.GetPrivateKey()),
 		},
 	},
 
