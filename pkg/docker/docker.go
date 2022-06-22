@@ -202,11 +202,11 @@ func (c generalClient) ResumeContainer(ctx context.Context, name string) (string
 }
 
 func (c generalClient) GetContainer(ctx context.Context, cname string) (types.ContainerJSON, error) {
-	return c.ContainerInspect(ctx, cname)
+	return c.GetContainer(ctx, cname)
 }
 
 func (c generalClient) GetInfo(ctx context.Context) (types.Info, error) {
-	return c.Info(ctx)
+	return c.GetInfo(ctx)
 }
 
 func (c generalClient) Destroy(ctx context.Context, name string) (string, error) {
