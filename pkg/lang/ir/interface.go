@@ -51,6 +51,10 @@ func RPackage(deps []string) {
 	DefaultGraph.RPackages = append(DefaultGraph.RPackages, deps...)
 }
 
+func JuliaPackage(deps []string) {
+	DefaultGraph.JuliaPackages = append(DefaultGraph.JuliaPackages, deps...)
+}
+
 func SystemPackage(deps []string) {
 	DefaultGraph.SystemPackages = append(DefaultGraph.SystemPackages, deps...)
 }
@@ -107,6 +111,11 @@ func PyPIIndex(mode, url, extraURL string) error {
 
 func CRANMirror(url string) error {
 	DefaultGraph.CRANMirrorURL = &url
+	return nil
+}
+
+func JuliaPkgServer(url string) error {
+	DefaultGraph.JuliaPkgServer = &url
 	return nil
 }
 

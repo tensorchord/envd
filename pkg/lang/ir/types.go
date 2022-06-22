@@ -35,6 +35,7 @@ type Graph struct {
 
 	UbuntuAPTSource   *string
 	CRANMirrorURL     *string
+	JuliaPkgServer    *string
 	PyPIIndexURL      *string
 	PyPIExtraIndexURL *string
 
@@ -42,6 +43,7 @@ type Graph struct {
 
 	PyPIPackages   []string
 	RPackages      []string
+	JuliaPackages  []string
 	SystemPackages []string
 
 	VSCodePlugins []vscode.Plugin

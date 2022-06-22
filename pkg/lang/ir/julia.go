@@ -19,31 +19,36 @@ import (
 	"strings"
 
 	"github.com/moby/buildkit/client/llb"
+	"github.com/sirupsen/logrus"
 )
 
-func (g Graph) installRPackages(root llb.State) llb.State {
-	if len(g.RPackages) == 0 {
+func (g Graph) installJuliaPackages(root llb.State) llb.State {
+	if len(g.JuliaPackages) == 0 {
 		return root
 	}
-	// TODO(terrytangyuan): Support different CRAN mirrors
+
 	var sb strings.Builder
-	mirrorURL := "https://cran.rstudio.com"
-	if g.CRANMirrorURL != nil {
-		mirrorURL = *g.CRANMirrorURL
-	}
-	sb.WriteString(fmt.Sprintf(`R -e 'options(repos = c(CRAN = "%s")); install.packages(c(`, mirrorURL))
-	for i, pkg := range g.RPackages {
+
+	sb.WriteString(`/usr/local/julia/bin/julia -e 'using Pkg; Pkg.add(`)
+	for i, pkg := range g.JuliaPackages {
 		sb.WriteString(fmt.Sprintf(`"%s"`, pkg))
-		if i != len(g.RPackages)-1 {
+		if i != len(g.JuliaPackages)-1 {
 			sb.WriteString(", ")
 		}
 	}
-	sb.WriteString(`))'`)
 
-	// TODO(terrytangyuan): Support cache.
+	sb.WriteString(`)'`)
+
+	// TODO(gaocegege): Support cache.
 	cmd := sb.String()
+	logrus.Debug("install julia packages: ", cmd)
 	root = llb.User("envd")(root)
+	if g.JuliaPkgServer != nil {
+		root = root.AddEnv("JULIA_PKG_SERVER", *g.JuliaPkgServer)
+	}
+	root = root.AddEnv("PATH", "/usr/local/julia/bin")
 	run := root.
-		Run(llb.Shlex(cmd), llb.WithCustomNamef("install R packages"))
+		Run(llb.Shlex(cmd), llb.WithCustomNamef("install julia packages"))
+
 	return run.Root()
 }

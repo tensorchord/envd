@@ -39,10 +39,8 @@ func parseLanguage(l string) (string, *string, error) {
 	}
 
 	switch language {
-	case "python":
-		return "python", &version, nil
-	case "r":
-		return "r", &version, nil
+	case "python", "r", "julia":
+		return language, &version, nil
 	default:
 		return "", nil, fmt.Errorf("language %s is not supported", language)
 	}

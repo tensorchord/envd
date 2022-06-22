@@ -21,4 +21,5 @@ const (
 	ruleJupyter         = "config.jupyter"
 	ruleCondaChannel    = "config.conda_channel"
 	ruleGPU             = "config.gpu"
+	ruleJuliaPkgServer  = "config.julia_pkg_server"
 )
