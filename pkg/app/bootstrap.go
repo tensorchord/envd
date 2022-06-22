@@ -14,12 +14,16 @@
 package app
 
 import (
+	"io/ioutil"
+
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 
 	ac "github.com/tensorchord/envd/pkg/autocomplete"
 	"github.com/tensorchord/envd/pkg/buildkitd"
+
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
 
 var CommandBootstrap = &cli.Command{
@@ -42,13 +46,70 @@ var CommandBootstrap = &cli.Command{
 			Usage:   "Dockerhub mirror to use",
 			Aliases: []string{"m"},
 		},
+		&cli.StringSliceFlag{
+			Name:    "ssh-keypair",
+			Usage:   "Manually specify ssh key pair(format: `public_key_path,private_key_path`). Envd will generate it if key doesn't exist at envd home directory.",
+			Aliases: []string{"k"},
+		},
 	},
 
 	Action: bootstrap,
 }
 
 func bootstrap(clicontext *cli.Context) error {
+	// If not specified, generate only if key doesn't exist
+	sshKeyPair := clicontext.StringSlice("ssh-keypair")
+	if len(sshKeyPair) != 0 && len(sshKeyPair) != 2 {
+		return errors.Errorf("Invliad ssh-keypair flag")
+	} else if len(sshKeyPair) == 0 {
+
+		keyExists, err := sshconfig.DefaultKeyExists()
+		if err != nil {
+			return errors.Wrap(err, "Cannot get default key status")
+		}
+		if !keyExists {
+			// Generate SSH keys only if key doesn't exist
+			if err := sshconfig.GenerateKeys(); err != nil {
+				return errors.Wrap(err, "failed to generate ssh key")
+			}
+		}
+	} else if len(sshKeyPair) == 2 {
+		// Specified new pairs. Only change to specified pairs when default key doesn't exist
+		// Raise error if already exists
+		keyExists, err := sshconfig.DefaultKeyExists()
+		if err != nil {
+			return errors.Wrap(err, "Cannot get default key status")
+		}
+		if keyExists {
+			return errors.Errorf("Key already exists at %s and %s. "+
+				"Overwriting those keys will break access to existing environments. "+
+				"Please backup those keys and manually delete them if you "+
+				"want to use your own key for future projects.", sshconfig.GetPublicKey(), sshconfig.GetPrivateKey())
+		}
+		pub, pri := sshKeyPair[0], sshKeyPair[1]
+		pubKey, err := ioutil.ReadFile(pub)
+		if err != nil {
+			return errors.Wrap(err, "Cannot open public key")
+		}
+		err = ioutil.WriteFile(sshconfig.GetPublicKey(), pubKey, 0644)
+		if err != nil {
+			return errors.Wrap(err, "Cannot write public key")
+		}
+
+		priKey, err := ioutil.ReadFile(pri)
+		if err != nil {
+			return errors.Wrap(err, "Cannot open private key")
+		}
+		err = ioutil.WriteFile(sshconfig.GetPrivateKey(), priKey, 0600)
+
+		if err != nil {
+			return errors.Wrap(err, "Cannot write private key")
+		}
+
+	}
+
 	autocomplete := clicontext.Bool("with-autocomplete")
+
 	if autocomplete {
 		// Because this requires sudo, it should warn and not fail the rest of it.
 		err := ac.InsertBashCompleteEntry()

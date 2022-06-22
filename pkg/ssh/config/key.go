@@ -56,7 +56,7 @@ func KeyExists(public, private string) bool {
 
 // GenerateKeys generates a SSH key pair on path
 func GenerateKeys() error {
-	publicKeyPath, privateKeyPath, err := getKeyPaths()
+	publicKeyPath, privateKeyPath, err := getDefaultKeyPaths()
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func generatePublicKey(privatekey *rsa.PublicKey) ([]byte, error) {
 	return pubKeyBytes, nil
 }
 
-func getKeyPaths() (string, string, error) {
+func getDefaultKeyPaths() (string, string, error) {
 	public, err := xdg.ConfigFile("envd/" + config.PublicKeyFile)
 	if err != nil {
 		return "", "", errors.Wrap(err, "Cannot get public key path")
@@ -146,9 +146,17 @@ func getKeyPaths() (string, string, error) {
 	return public, private, nil
 }
 
+func DefaultKeyExists() (bool, error) {
+	pub, pri, err := getDefaultKeyPaths()
+	if err != nil {
+		return false, err
+	}
+	return KeyExists(pub, pri), nil
+}
+
 // GetPublicKey returns the path to the public key
 func GetPublicKey() string {
-	pub, _, err := getKeyPaths()
+	pub, _, err := getDefaultKeyPaths()
 	if err != nil {
 		logrus.Fatal("Cannot get public key path")
 	}
@@ -157,7 +165,7 @@ func GetPublicKey() string {
 
 // GetPrivateKey returns the path to the private key
 func GetPrivateKey() string {
-	_, pri, err := getKeyPaths()
+	_, pri, err := getDefaultKeyPaths()
 	if err != nil {
 		logrus.Fatal("Cannot get private key path")
 	}
