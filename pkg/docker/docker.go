@@ -91,7 +91,7 @@ func NewClient(ctx context.Context) (Client, error) {
 }
 
 func (c generalClient) GPUEnabled(ctx context.Context) (bool, error) {
-	info, err := c.Info(ctx)
+	info, err := c.GetInfo(ctx)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get docker info")
 	}
@@ -122,7 +122,7 @@ func (c generalClient) WaitUntilRunning(ctx context.Context,
 			}
 
 		case <-ctxTimeout.Done():
-			container, err := c.ContainerInspect(ctx, name)
+			container, err := c.GetContainer(ctx, name)
 			if err != nil {
 				logger.Debugf("failed to inspect container %s", name)
 			}
@@ -288,7 +288,7 @@ func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror str
 		return "", errors.Wrap(err, "failed to start container")
 	}
 
-	container, err := c.ContainerInspect(ctx, resp.ID)
+	container, err := c.GetContainer(ctx, resp.ID)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to inspect container")
 	}
@@ -411,7 +411,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		return "", "", errors.Wrap(err, "failed to run the container")
 	}
 
-	container, err := c.ContainerInspect(ctx, resp.ID)
+	container, err := c.GetContainer(ctx, resp.ID)
 	if err != nil {
 		return "", "", errors.Wrap(err, "failed to inspect the container")
 	}
@@ -425,7 +425,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 }
 
 func (c generalClient) IsCreated(ctx context.Context, cname string) (bool, error) {
-	_, err := c.ContainerInspect(ctx, cname)
+	_, err := c.GetContainer(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
 			return false, nil
@@ -436,7 +436,7 @@ func (c generalClient) IsCreated(ctx context.Context, cname string) (bool, error
 }
 
 func (c generalClient) IsRunning(ctx context.Context, cname string) (bool, error) {
-	container, err := c.ContainerInspect(ctx, cname)
+	container, err := c.GetContainer(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
 			return false, nil
