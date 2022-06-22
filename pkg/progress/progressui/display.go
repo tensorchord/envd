@@ -552,6 +552,7 @@ func (t *trace) update(s *client.SolveStatus, termWidth int) {
 				v.term.Resize(termHeight, termWidth-termPad)
 			}
 			v.termBytes += len(l.Data)
+			// nolint
 			v.term.Write(l.Data) // error unhandled on purpose. don't trust vt100
 		}
 		i := 0
@@ -587,6 +588,7 @@ func (t *trace) printErrorLogs(f io.Writer) {
 			fmt.Fprintf(f, " > %s:\n", v.Name)
 			// tty keeps original logs
 			for _, l := range v.logs {
+				// nolint
 				f.Write(l)
 				fmt.Fprintln(f)
 			}
