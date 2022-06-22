@@ -201,11 +201,11 @@ func (c generalClient) ResumeContainer(ctx context.Context, name string) (string
 	return name, nil
 }
 
-func (c generalClient) GetContainer(ctx context.Context, cname string) (types.ContainerJSON, error) {
+func (c generalClient) ContainerInspect(ctx context.Context, cname string) (types.ContainerJSON, error) {
 	return c.ContainerInspect(ctx, cname)
 }
 
-func (c generalClient) GetInfo(ctx context.Context) (types.Info, error) {
+func (c generalClient) Info(ctx context.Context) (types.Info, error) {
 	return c.Info(ctx)
 }
 
