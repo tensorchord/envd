@@ -86,7 +86,7 @@ func New(ctx context.Context, configFilePath, manifestFilePath, buildContextDir,
 	}
 	b.Client = cli
 
-	b.Interpreter = starlark.NewInterpreter()
+	b.Interpreter = starlark.NewInterpreter(buildContextDir)
 	return b, nil
 }
 

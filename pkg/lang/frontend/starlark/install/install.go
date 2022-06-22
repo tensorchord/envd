@@ -15,7 +15,10 @@
 package install
 
 import (
+	"path/filepath"
+
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/builtin"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -44,9 +47,10 @@ var Module = &starlarkstruct.Module{
 func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var name *starlark.List
+	var requirementsFile starlark.String
 
-	if err := starlark.UnpackArgs(rulePyPIPackage,
-		args, kwargs, "name", &name); err != nil {
+	if err := starlark.UnpackArgs(rulePyPIPackage, args, kwargs,
+		"name?", &name, "requirements?", &requirementsFile); err != nil {
 		return nil, err
 	}
 
@@ -57,8 +61,21 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		}
 	}
 
-	logger.Debugf("rule `%s` is invoked, name=%v", rulePyPIPackage, nameList)
-	ir.PyPIPackage(nameList)
+	requirementsFileStr := ""
+	var path *string = nil
+	if requirementsFile != starlark.String("") {
+		requirementsFileStr = requirementsFile.GoString()
+		buildContextDir := starlark.Universe[builtin.BuildContextDir]
+		buildContextDirStr := buildContextDir.(starlark.String).GoString()
+		buf := filepath.Join(buildContextDirStr, requirementsFileStr)
+		path = &buf
+	}
+
+	logger.Debugf("rule `%s` is invoked, name=%v, requirements=%s",
+		rulePyPIPackage, nameList, requirementsFileStr)
+	if err := ir.PyPIPackage(nameList, path); err != nil {
+		return starlark.None, err
+	}
 
 	return starlark.None, nil
 }
