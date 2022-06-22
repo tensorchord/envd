@@ -41,6 +41,6 @@ func (g Graph) installRPackages(root llb.State) llb.State {
 	cmd := sb.String()
 	root = llb.User("envd")(root)
 	run := root.
-		Run(llb.Shlex(cmd), llb.WithCustomNamef("R package install"))
+		Run(llb.Shlex(cmd), llb.WithCustomNamef("install R packages"))
 	return run.Root()
 }

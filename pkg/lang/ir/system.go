@@ -98,11 +98,14 @@ func (g *Graph) compileBase() llb.State {
 	var base llb.State
 	if g.CUDA == nil && g.CUDNN == nil {
 		if g.Language.Name == "r" {
-			base = llb.Image("docker.io/terrytangyuan/r4.2-envd:0.0.1")
+			base = llb.Image("docker.io/tensorchord/r-base:4.2")
 			// r-base image already has GID 1000.
 			// It is a trick, we actually use GID 1000
 			if g.gid == 1000 {
 				g.gid = 1001
+			}
+			if g.uid == 1000 {
+				g.uid = 1001
 			}
 		} else {
 			base = llb.Image("docker.io/tensorchord/python:3.8-ubuntu20.04")

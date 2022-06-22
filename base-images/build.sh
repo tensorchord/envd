@@ -37,7 +37,7 @@ docker buildx build \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
-    -t terrytangyuan/r4.2-envd:0.0.1  \
+    -t ${DOCKER_HUB_ORG}/r-base:4.2  \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -f r4.2.Dockerfile .
 
