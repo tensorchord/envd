@@ -33,11 +33,11 @@ type Graph struct {
 	CUDNN   *string
 	NumGPUs int
 
-	UbuntuAPTSource   *string
-	CRANMirrorURL     *string
-	JuliaPkgServer    *string
-	PyPIIndexURL      *string
-	PyPIExtraIndexURL *string
+	UbuntuAPTSource    *string
+	CRANMirrorURL      *string
+	JuliaPackageServer *string
+	PyPIIndexURL       *string
+	PyPIExtraIndexURL  *string
 
 	PublicKeyPath string
 

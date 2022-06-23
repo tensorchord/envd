@@ -114,8 +114,8 @@ func CRANMirror(url string) error {
 	return nil
 }
 
-func JuliaPkgServer(url string) error {
-	DefaultGraph.JuliaPkgServer = &url
+func JuliaPackageServer(url string) error {
+	DefaultGraph.JuliaPackageServer = &url
 	return nil
 }
 

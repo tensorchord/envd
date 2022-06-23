@@ -43,8 +43,8 @@ func (g Graph) installJuliaPackages(root llb.State) llb.State {
 	cmd := sb.String()
 	logrus.Debug("install julia packages: ", cmd)
 	root = llb.User("envd")(root)
-	if g.JuliaPkgServer != nil {
-		root = root.AddEnv("JULIA_PKG_SERVER", *g.JuliaPkgServer)
+	if g.JuliaPackageServer != nil {
+		root = root.AddEnv("JULIA_PKG_SERVER", *g.JuliaPackageServer)
 	}
 	root = root.AddEnv("PATH", "/usr/local/julia/bin")
 	run := root.

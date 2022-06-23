@@ -39,7 +39,7 @@ var Module = &starlarkstruct.Module{
 		"conda_channel": starlark.NewBuiltin(
 			ruleCondaChannel, ruleFuncCondaChannel),
 		"julia_pkg_server": starlark.NewBuiltin(
-			ruleJuliaPkgServer, ruleFuncJuliaPkgServer),
+			ruleJuliaPackageServer, ruleFuncJuliaPackageServer),
 	},
 }
 
@@ -142,11 +142,11 @@ func ruleFuncCRANMirror(thread *starlark.Thread, _ *starlark.Builtin,
 	return starlark.None, nil
 }
 
-func ruleFuncJuliaPkgServer(thread *starlark.Thread, _ *starlark.Builtin,
+func ruleFuncJuliaPackageServer(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var url starlark.String
 
-	if err := starlark.UnpackArgs(ruleJuliaPkgServer, args, kwargs,
+	if err := starlark.UnpackArgs(ruleJuliaPackageServer, args, kwargs,
 		"url?", &url); err != nil {
 		return nil, err
 	}
@@ -156,8 +156,8 @@ func ruleFuncJuliaPkgServer(thread *starlark.Thread, _ *starlark.Builtin,
 		urlStr = url.GoString()
 	}
 
-	logger.Debugf("rule `%s` is invoked, url=%s", ruleJuliaPkgServer, urlStr)
-	if err := ir.JuliaPkgServer(urlStr); err != nil {
+	logger.Debugf("rule `%s` is invoked, url=%s", ruleJuliaPackageServer, urlStr)
+	if err := ir.JuliaPackageServer(urlStr); err != nil {
 		return nil, err
 	}
 	return starlark.None, nil

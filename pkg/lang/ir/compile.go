@@ -180,7 +180,6 @@ func (g Graph) compileJulia(aptStage llb.State) (llb.State, error) {
 	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
 		llb.WithCustomName("install system packages"))
 
-	// TODO(terrytangyuan): Support RStudio local server
 	juliaStage := llb.Diff(builtinSystemStage,
 		g.installJuliaPackages(builtinSystemStage), llb.WithCustomName("install julia packages"))
 

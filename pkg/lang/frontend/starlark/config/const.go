@@ -15,11 +15,11 @@
 package config
 
 const (
-	ruleUbuntuAptSource = "config.apt_source"
-	rulePyPIIndex       = "config.pip_index"
-	ruleCRANMirror      = "config.cran_mirror"
-	ruleJupyter         = "config.jupyter"
-	ruleCondaChannel    = "config.conda_channel"
-	ruleGPU             = "config.gpu"
-	ruleJuliaPkgServer  = "config.julia_pkg_server"
+	ruleUbuntuAptSource    = "config.apt_source"
+	rulePyPIIndex          = "config.pip_index"
+	ruleCRANMirror         = "config.cran_mirror"
+	ruleJupyter            = "config.jupyter"
+	ruleCondaChannel       = "config.conda_channel"
+	ruleGPU                = "config.gpu"
+	ruleJuliaPackageServer = "config.julia_pkg_server"
 )
