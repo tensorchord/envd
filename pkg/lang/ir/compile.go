@@ -39,6 +39,7 @@ func NewGraph() *Graph {
 
 		PyPIPackages:   []string{},
 		RPackages:      []string{},
+		JuliaPackages:  []string{},
 		SystemPackages: []string{},
 		Exec:           []string{},
 		Shell:          shellBASH,
@@ -132,15 +133,21 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	aptStage := g.compileUbuntuAPT(base)
 	var merged llb.State
 	var err error
-	if g.Language.Name == "r" {
+	switch g.Language.Name {
+	case "r":
 		merged, err = g.compileRLang(aptStage)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile r language")
 		}
-	} else {
+	case "python":
 		merged, err = g.compilePython(aptStage)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile python")
+		}
+	case "julia":
+		merged, err = g.compileJulia(aptStage)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to compile julia")
 		}
 	}
 
@@ -152,6 +159,48 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	}
 	g.Writer.Finish()
 	return finalStage, nil
+}
+
+func (g Graph) compileJulia(aptStage llb.State) (llb.State, error) {
+	g.compileJupyter()
+	builtinSystemStage := aptStage
+
+	sshStage, err := g.copySSHKey(builtinSystemStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
+	}
+	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
+
+	shellStage, err := g.compileShell(builtinSystemStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile shell")
+	}
+	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
+
+	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
+		llb.WithCustomName("install system packages"))
+
+	juliaStage := llb.Diff(builtinSystemStage,
+		g.installJuliaPackages(builtinSystemStage), llb.WithCustomName("install julia packages"))
+
+	vscodeStage, err := g.compileVSCode()
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
+	}
+
+	var merged llb.State
+	if vscodeStage != nil {
+		merged = llb.Merge([]llb.State{
+			builtinSystemStage, systemStage, diffShellStage,
+			diffSSHStage, juliaStage, *vscodeStage,
+		}, llb.WithCustomName("merging all components into one"))
+	} else {
+		merged = llb.Merge([]llb.State{
+			builtinSystemStage, systemStage, diffShellStage,
+			diffSSHStage, juliaStage,
+		}, llb.WithCustomName("merging all components into one"))
+	}
+	return merged, nil
 }
 
 func (g Graph) compileRLang(aptStage llb.State) (llb.State, error) {

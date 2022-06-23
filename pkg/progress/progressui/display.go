@@ -31,7 +31,6 @@ import (
 	"github.com/moby/buildkit/client"
 	"github.com/morikuni/aec"
 	digest "github.com/opencontainers/go-digest"
-	"github.com/sirupsen/logrus"
 	"github.com/tonistiigi/units"
 	"github.com/tonistiigi/vt100"
 	"golang.org/x/time/rate"
@@ -87,16 +86,9 @@ func DisplaySolveStatus(ctx context.Context, phase string, c console.Console, w 
 			width, height = disp.getSize()
 			if done {
 				disp.print(t.displayInfo(), width, height, true)
-				if err := t.printErrorLogs(c); err != nil {
-					return nil, err
-				}
+				t.printErrorLogs(c)
 				return t.warnings(), nil
 			} else if displayLimiter.Allow() {
-				logger := logrus.WithFields(logrus.Fields{
-					"console-height": height,
-					"console-width":  width,
-				})
-				logger.Debug("stop ticker and print build progress")
 				ticker.Stop()
 				ticker = time.NewTicker(tickerTimeout)
 				disp.print(t.displayInfo(), width, height, false)
@@ -105,9 +97,7 @@ func DisplaySolveStatus(ctx context.Context, phase string, c console.Console, w 
 			if done || displayLimiter.Allow() {
 				printer.print(t)
 				if done {
-					if err := t.printErrorLogs(c); err != nil {
-						return nil, err
-					}
+					t.printErrorLogs(w)
 					return t.warnings(), nil
 				}
 				ticker.Stop()
@@ -562,7 +552,7 @@ func (t *trace) update(s *client.SolveStatus, termWidth int) {
 				v.term.Resize(termHeight, termWidth-termPad)
 			}
 			v.termBytes += len(l.Data)
-			//nolint
+			// nolint
 			v.term.Write(l.Data) // error unhandled on purpose. don't trust vt100
 		}
 		i := 0
@@ -591,17 +581,15 @@ func (t *trace) update(s *client.SolveStatus, termWidth int) {
 	}
 }
 
-func (t *trace) printErrorLogs(f io.Writer) error {
+func (t *trace) printErrorLogs(f io.Writer) {
 	for _, v := range t.vertexes {
 		if v.Error != "" && !strings.HasSuffix(v.Error, context.Canceled.Error()) {
 			fmt.Fprintln(f, "------")
 			fmt.Fprintf(f, " > %s:\n", v.Name)
 			// tty keeps original logs
 			for _, l := range v.logs {
-				_, err := f.Write(l)
-				if err != nil {
-					return err
-				}
+				// nolint
+				f.Write(l)
 				fmt.Fprintln(f)
 			}
 			// printer keeps last logs buffer
@@ -616,7 +604,6 @@ func (t *trace) printErrorLogs(f io.Writer) error {
 			fmt.Fprintln(f, "------")
 		}
 	}
-	return nil
 }
 
 func (t *trace) displayInfo() (d displayInfo) {
@@ -657,18 +644,17 @@ func (t *trace) displayInfo() (d displayInfo) {
 			}
 		}
 		j.intervals = mergeIntervals(j.intervals)
-
 		if v.Error != "" {
 			if strings.HasSuffix(v.Error, context.Canceled.Error()) {
 				j.isCanceled = true
-				j.name = "⏭️ (canceled) " + j.name
+				j.name = "CANCELED " + j.name
 			} else {
 				j.hasError = true
-				j.name = "🔥 (error) " + j.name
+				j.name = "ERROR " + j.name
 			}
 		}
 		if v.Cached {
-			j.name = "💽 (cached) " + j.name
+			j.name = "CACHED " + j.name
 		}
 		j.name = v.indent + j.name
 		jobs = append(jobs, j)
@@ -796,7 +782,9 @@ func (disp *display) print(d displayInfo, width, height int, all bool) {
 	// this output is inspired by Buck
 	d.jobs = setupTerminals(d.jobs, height, all)
 	b := aec.EmptyBuilder
-	b = b.Up(uint(disp.lineCount) + 1)
+	for i := 0; i <= disp.lineCount; i++ {
+		b = b.Up(1)
+	}
 	if !disp.repeated {
 		b = b.Down(1)
 	}
@@ -805,14 +793,14 @@ func (disp *display) print(d displayInfo, width, height int, all bool) {
 
 	statusStr := ""
 	if d.countCompleted > 0 && d.countCompleted == d.countTotal && all {
-		statusStr = "✅ (finished)"
+		statusStr = "FINISHED"
 	}
 
 	fmt.Fprint(disp.c, aec.Hide)
 	defer fmt.Fprint(disp.c, aec.Show)
 
-	out := fmt.Sprintf("[+] 🐋 %s %.1fs (%d/%d) %s", disp.phase, time.Since(d.startTime).Seconds(), d.countCompleted, d.countTotal, statusStr)
-	// out = align(out, "", width)
+	out := fmt.Sprintf("[+] %s %.1fs (%d/%d) %s", disp.phase, time.Since(d.startTime).Seconds(), d.countCompleted, d.countTotal, statusStr)
+	out = align(out, "", width)
 	fmt.Fprintln(disp.c, out)
 	lineCount := 0
 	for _, j := range d.jobs {

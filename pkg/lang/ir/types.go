@@ -33,15 +33,17 @@ type Graph struct {
 	CUDNN   *string
 	NumGPUs int
 
-	UbuntuAPTSource   *string
-	CRANMirrorURL     *string
-	PyPIIndexURL      *string
-	PyPIExtraIndexURL *string
+	UbuntuAPTSource    *string
+	CRANMirrorURL      *string
+	JuliaPackageServer *string
+	PyPIIndexURL       *string
+	PyPIExtraIndexURL  *string
 
 	PublicKeyPath string
 
 	PyPIPackages   []string
 	RPackages      []string
+	JuliaPackages  []string
 	SystemPackages []string
 
 	VSCodePlugins []vscode.Plugin

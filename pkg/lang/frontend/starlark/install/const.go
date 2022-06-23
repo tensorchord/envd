@@ -21,4 +21,5 @@ const (
 	ruleCUDA          = "install.cuda"
 	ruleVSCode        = "install.vscode_extensions"
 	ruleConda         = "install.conda_packages"
+	ruleJulia         = "install.julia_packages"
 )
