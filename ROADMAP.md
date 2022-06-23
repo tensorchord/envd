@@ -18,7 +18,7 @@ We are working on building the MVP!
     - [Customize the base images](https://github.com/tensorchord/envd/issues/261)
 - **Runtime**
     - [Add agent to collect metrics in the container (or in the host)](https://github.com/tensorchord/envd/issues/218). We need to collect and show the metrics of GPUs/CPUs to users, maybe via a web-based UI.
-    - [Support buildkitd moby worker in dockerd 22.06-beta](https://github.com/tensorchord/envd/issues/51). It is a huge enhancement which accelarates the build process. We use moby worker in docker 22.06, and fallback to docker worker in docker 20.10.
+    - [Support buildkitd moby worker in dockerd 22.06-beta](https://github.com/tensorchord/envd/issues/51). It is a huge enhancement which accelerates the build process. We use moby worker in docker 22.06, and fallback to docker worker in docker 20.10.
 - **Ecosystem**
     - [Contribute the vscode-envd extension](https://github.com/tensorchord/vscode-envd)
     - Provide web-based UI
@@ -34,7 +34,7 @@ We are working on building the MVP!
 
 ## Longer term items - working on this soon! ⏩
 
-These items are not essiential for an MVP, but are a part of our longer term plans. Feel free to jump in on these if you're interested!
+These items are not essential for an MVP, but are parts of our longer term plans. Feel free to jump in on these if you're interested!
 
 - **Runtime**
     - Continuous profiler that continuously collects line-level profiling performance data from envd environments, helps engineers find bottlenecks in the training code.
