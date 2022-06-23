@@ -23,6 +23,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
+
 	"github.com/tensorchord/envd/pkg/config"
 )
 
@@ -43,7 +44,8 @@ func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
 func (g Graph) compileRun(root llb.State) llb.State {
 	if len(g.Exec) == 0 {
 		return root
-	} else if len(g.Exec) == 1 {
+	}
+	if len(g.Exec) == 1 {
 		return root.Run(llb.Shlex(g.Exec[0])).Root()
 	}
 
@@ -142,7 +144,7 @@ func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 		return llb.State{}, errors.Wrap(err, "Cannot read public SSH key")
 	}
 	run := root.
-		File(llb.Mkfile(config.ContainerauthorizedKeysPath,
+		File(llb.Mkfile(config.ContainerAuthorizedKeysPath,
 			0644, []byte(dat+" envd"), llb.WithUIDGID(g.uid, g.gid)), llb.WithCustomName("install ssh keys"))
 	return run, nil
 }

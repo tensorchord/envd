@@ -43,7 +43,6 @@ func (g Graph) installRPackages(root llb.State) llb.State {
 	// TODO(terrytangyuan): Support cache.
 	cmd := sb.String()
 	root = llb.User("envd")(root)
-	run := root.
-		Run(llb.Shlex(cmd), llb.WithCustomNamef("install R packages"))
+	run := root.Run(llb.Shlex(cmd), llb.WithCustomNamef("install R packages"))
 	return run.Root()
 }

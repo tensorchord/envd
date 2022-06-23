@@ -26,9 +26,10 @@ import (
 	"sync"
 
 	"github.com/cockroachdb/errors"
+	"github.com/urfave/cli/v2"
+
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/types"
-	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -72,7 +73,7 @@ func (v Version) String() string {
 	return v.Version
 }
 
-// Get Envd version information
+// GetEnvdVersion gets Envd version information
 func GetEnvdVersion() string {
 	var versionStr string
 

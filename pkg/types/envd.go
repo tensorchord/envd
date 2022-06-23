@@ -140,16 +140,12 @@ func newDependencyFromLabels(label map[string]string) (*Dependency, error) {
 
 func parseAPTPackages(lst string) ([]string, error) {
 	var pkgs []string
-	if err := json.Unmarshal([]byte(lst), &pkgs); err != nil {
-		return nil, err
-	}
-	return pkgs, nil
+	err := json.Unmarshal([]byte(lst), &pkgs)
+	return pkgs, err
 }
 
 func parsePyPIPackages(lst string) ([]string, error) {
 	var pkgs []string
-	if err := json.Unmarshal([]byte(lst), &pkgs); err != nil {
-		return nil, err
-	}
-	return pkgs, nil
+	err := json.Unmarshal([]byte(lst), &pkgs)
+	return pkgs, err
 }

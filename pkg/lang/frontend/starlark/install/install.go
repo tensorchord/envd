@@ -18,10 +18,11 @@ import (
 	"path/filepath"
 
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/builtin"
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/builtin"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 var (
@@ -31,12 +32,9 @@ var (
 var Module = &starlarkstruct.Module{
 	Name: "install",
 	Members: starlark.StringDict{
-		"python_packages": starlark.NewBuiltin(
-			rulePyPIPackage, ruleFuncPyPIPackage),
-		"r_packages": starlark.NewBuiltin(
-			ruleRPackage, ruleFuncRPackage),
-		"system_packages": starlark.NewBuiltin(
-			ruleSystemPackage, ruleFuncSystemPackage),
+		"python_packages":   starlark.NewBuiltin(rulePyPIPackage, ruleFuncPyPIPackage),
+		"r_packages":        starlark.NewBuiltin(ruleRPackage, ruleFuncRPackage),
+		"system_packages":   starlark.NewBuiltin(ruleSystemPackage, ruleFuncSystemPackage),
 		"cuda":              starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
 		"vscode_extensions": starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
 		"conda_packages":    starlark.NewBuiltin(ruleConda, ruleFuncConda),
@@ -73,11 +71,9 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked, name=%v, requirements=%s",
 		rulePyPIPackage, nameList, requirementsFileStr)
-	if err := ir.PyPIPackage(nameList, path); err != nil {
-		return starlark.None, err
-	}
 
-	return starlark.None, nil
+	err := ir.PyPIPackage(nameList, path)
+	return starlark.None, err
 }
 
 func ruleFuncRPackage(thread *starlark.Thread, _ *starlark.Builtin,
@@ -156,16 +152,16 @@ func ruleFuncCUDA(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	versionStr := ""
-	if version != starlark.String("") {
+	if version != "" {
 		versionStr = version.GoString()
 	}
 	cudnnStr := ""
-	if cudnn != starlark.String("") {
+	if cudnn != "" {
 		cudnnStr = cudnn.GoString()
 	}
 
-	logger.Debugf("rule `%s` is invoked, version=%s, cudnn=%s", ruleCUDA,
-		versionStr, cudnnStr)
+	logger.Debugf("rule `%s` is invoked, version=%s, cudnn=%s",
+		ruleCUDA, versionStr, cudnnStr)
 	ir.CUDA(versionStr, cudnnStr)
 
 	return starlark.None, nil

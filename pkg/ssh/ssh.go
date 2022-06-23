@@ -16,6 +16,7 @@
 
 // https://gist.github.com/stefanprodan/2d20d0c6fdab6f14ce8219464e8b4b9a
 // Refer to okteto/pkg/ssh/exec.go
+
 package ssh
 
 import (
@@ -31,10 +32,11 @@ import (
 	"github.com/alessio/shellescape"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"golang.org/x/term"
+
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 type Client interface {
@@ -243,10 +245,10 @@ func signerFromPem(pemBytes []byte, password []byte) (ssh.Signer, error) {
 	}
 
 	// handle encrypted key
-	//nolint
+	// nolint
 	if x509.IsEncryptedPEMBlock(pemBlock) {
 		// decrypt PEM
-		//nolint
+		// nolint
 		pemBlock.Bytes, err = x509.DecryptPEMBlock(pemBlock, []byte(password))
 		if err != nil {
 			return nil, fmt.Errorf("decrypting PEM block failed %v", err)

@@ -17,8 +17,9 @@ package app
 import (
 	"fmt"
 
-	"github.com/tensorchord/envd/pkg/version"
 	"github.com/urfave/cli/v2"
+
+	"github.com/tensorchord/envd/pkg/version"
 )
 
 var CommandVersion = &cli.Command{

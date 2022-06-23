@@ -74,11 +74,7 @@ func Compile(ctx context.Context, cachePrefix string, pub string) (*llb.Definiti
 		return nil, errors.Wrap(err, "failed to compile")
 	}
 	// TODO(gaocegege): Support multi platform.
-	def, err := state.Marshal(ctx, llb.LinuxAmd64)
-	if err != nil {
-		return nil, err
-	}
-	return def, nil
+	return state.Marshal(ctx, llb.LinuxAmd64)
 }
 
 func Labels() (map[string]string, error) {

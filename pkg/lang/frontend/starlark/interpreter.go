@@ -81,9 +81,5 @@ func (s generalInterpreter) ExecFile(filename string, funcname string) (interfac
 }
 
 func (s generalInterpreter) Eval(script string) (interface{}, error) {
-	globals, err := starlark.ExecFile(s.Thread, "", script, s.predeclared)
-	if err != nil {
-		return globals, err
-	}
-	return globals, nil
+	return starlark.ExecFile(s.Thread, "", script, s.predeclared)
 }

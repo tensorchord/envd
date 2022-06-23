@@ -24,9 +24,10 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/ssh"
+
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
-	"golang.org/x/crypto/ssh"
 )
 
 const (

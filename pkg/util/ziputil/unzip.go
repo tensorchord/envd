@@ -46,7 +46,7 @@ func ChownR(path string, uid, gid int) error {
 	})
 }
 
-//MakeZip ...
+// MakeZip ...
 func MakeZip(inputPath, outputFile string) (bool, error) {
 
 	if _, err := os.Stat(inputPath); os.IsNotExist(err) {
@@ -64,7 +64,6 @@ func MakeZip(inputPath, outputFile string) (bool, error) {
 }
 
 func fileList(fileDirectory string) ([]string, error) {
-
 	var files []string
 	err := filepath.Walk(fileDirectory, func(path string, info os.FileInfo, err error) error {
 
@@ -74,10 +73,7 @@ func fileList(fileDirectory string) ([]string, error) {
 		return nil
 	})
 
-	if err != nil {
-		return files, err
-	}
-	return files, nil
+	return files, err
 }
 
 // Unzip will decompress a zip archive, moving all files and folders
@@ -201,8 +197,8 @@ func addFileToZip(zipWriter *zip.Writer, filename string) error {
 	if err != nil {
 		return err
 	}
-	//header.Name = filepath.Base(filename)
-	//header.Name = filepath.FromSlash("test")
+	// header.Name = filepath.Base(filename)
+	// header.Name = filepath.FromSlash("test")
 	header.Name = filename
 
 	// Change to deflate to gain better compression

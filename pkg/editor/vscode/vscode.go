@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	cachekeyPrefix = "vscode-plugins"
+	cacheKeyPrefix = "vscode-plugins"
 )
 
 type Client interface {
@@ -78,7 +78,7 @@ func unzipPath(p Plugin) string {
 // DownloadOrCache downloads or cache the plugin.
 // If the plugin is already downloaded, it returns true.
 func (c generalClient) DownloadOrCache(p Plugin) (bool, error) {
-	cacheKey := fmt.Sprintf("%s-%s", cachekeyPrefix, p)
+	cacheKey := fmt.Sprintf("%s-%s", cacheKeyPrefix, p)
 	if home.GetManager().Cached(cacheKey) {
 		logrus.WithFields(logrus.Fields{
 			"cache": cacheKey,

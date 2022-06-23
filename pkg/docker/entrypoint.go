@@ -34,9 +34,9 @@ func entrypointSH(g ir.Graph, workingDir string, sshPort int) string {
 	if g.JupyterConfig != nil {
 		cmds := jupyter.GenerateCommand(g, workingDir)
 		return fmt.Sprintf(template,
-			config.ContainerauthorizedKeysPath, sshPort, g.Shell,
+			config.ContainerAuthorizedKeysPath, sshPort, g.Shell,
 			strings.Join(cmds, " "))
 	}
 	return fmt.Sprintf(template,
-		config.ContainerauthorizedKeysPath, sshPort, g.Shell, "")
+		config.ContainerAuthorizedKeysPath, sshPort, g.Shell, "")
 }

@@ -20,7 +20,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/spf13/viper"
-	cli "github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 	"go.starlark.net/starlark"
 	"go.starlark.net/syntax"
 

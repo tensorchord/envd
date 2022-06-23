@@ -18,8 +18,9 @@ import (
 	"os"
 
 	"github.com/cockroachdb/errors"
+	"github.com/urfave/cli/v2"
+
 	"github.com/tensorchord/envd/pkg/envd"
-	cli "github.com/urfave/cli/v2"
 )
 
 var CommandGetImageDependency = &cli.Command{
