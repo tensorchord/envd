@@ -93,7 +93,7 @@ func ruleFuncShell(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var shell starlark.String
 
-	if err := starlark.UnpackArgs(ruleShell, args, kwargs, "name", &shell); err != nil {
+	if err := starlark.UnpackPositionalArgs(ruleShell, args, kwargs, 1, &shell); err != nil {
 		return nil, err
 	}
 
