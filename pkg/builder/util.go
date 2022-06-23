@@ -23,6 +23,11 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
+const (
+	defaultFile = "build.envd"
+	defaultFunc = "build"
+)
+
 func ImageConfigStr(labels map[string]string) (string, error) {
 	pl := platforms.Normalize(platforms.DefaultSpec())
 	img := v1.Image{
@@ -91,4 +96,23 @@ func parseOutput(output string) (string, string, error) {
 	}
 
 	return outputType, outputDest, nil
+}
+
+func ParseFromStr(fromStr string) (string, string, error) {
+	filename := defaultFile
+	funcname := defaultFunc
+	if strings.Contains(fromStr, ":") {
+		fromArr := strings.Split(fromStr, ":")
+
+		if len(fromArr) != 2 {
+			return "", "", errors.New("invalid from format, expected `file:func`")
+		}
+		if fromArr[0] != "" {
+			filename = fromArr[0]
+		}
+		if fromArr[1] != "" {
+			funcname = fromArr[1]
+		}
+	}
+	return filename, funcname, nil
 }

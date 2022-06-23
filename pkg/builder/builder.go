@@ -50,13 +50,14 @@ type generalBuilder struct {
 	buildContextDir  string
 	outputType       string
 	outputDest       string
+	funcname         string
 
 	logger *logrus.Entry
 	starlark.Interpreter
 	buildkitd.Client
 }
 
-func New(ctx context.Context, configFilePath, manifestFilePath, buildContextDir, tag, output string, debug bool) (Builder, error) {
+func New(ctx context.Context, configFilePath, manifestFilePath, funcname, buildContextDir, tag, output string, debug bool) (Builder, error) {
 	outputType, outputDest, err := parseOutput(output)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse output")
@@ -68,6 +69,7 @@ func New(ctx context.Context, configFilePath, manifestFilePath, buildContextDir,
 
 	b := &generalBuilder{
 		manifestFilePath: manifestFilePath,
+		funcname:         funcname,
 		configFilePath:   configFilePath,
 		outputType:       outputType,
 		outputDest:       outputDest,
@@ -123,7 +125,7 @@ func (b generalBuilder) interpret() error {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 
-	if _, err := b.ExecFile(b.manifestFilePath, "build"); err != nil {
+	if _, err := b.ExecFile(b.manifestFilePath, b.funcname); err != nil {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 	return nil
