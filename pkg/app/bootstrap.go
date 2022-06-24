@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package app
 
 import (
@@ -21,13 +22,12 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/pkg/namesgenerator"
 	"github.com/sirupsen/logrus"
-	cli "github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	ac "github.com/tensorchord/envd/pkg/autocomplete"
 	"github.com/tensorchord/envd/pkg/buildkitd"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
-
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandBootstrap = &cli.Command{
@@ -65,8 +65,8 @@ func bootstrap(clicontext *cli.Context) error {
 	sshKeyPair := clicontext.StringSlice("ssh-keypair")
 	if len(sshKeyPair) != 0 && len(sshKeyPair) != 2 {
 		return errors.Errorf("Invliad ssh-keypair flag")
-	} else if len(sshKeyPair) == 0 {
-
+	}
+	if len(sshKeyPair) == 0 {
 		keyExists, err := sshconfig.DefaultKeyExists()
 		if err != nil {
 			return errors.Wrap(err, "Cannot get default key status")
@@ -90,7 +90,6 @@ func bootstrap(clicontext *cli.Context) error {
 			for ok := true; ok; ok = exists {
 				newPrivateKeyName = filepath.Join(filepath.Dir(sshconfig.GetPrivateKey()), fmt.Sprintf("%s.pk", namesgenerator.GetRandomName(0)))
 				exists, err = fileutil.FileExists(newPrivateKeyName)
-
 				if err != nil {
 					return err
 				}
@@ -124,7 +123,6 @@ func bootstrap(clicontext *cli.Context) error {
 	}
 
 	autocomplete := clicontext.Bool("with-autocomplete")
-
 	if autocomplete {
 		// Because this requires sudo, it should warn and not fail the rest of it.
 		err := ac.InsertBashCompleteEntry()

@@ -20,10 +20,11 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/olekukonko/tablewriter"
+	"github.com/urfave/cli/v2"
+
 	"github.com/tensorchord/envd/pkg/envd"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
-	cli "github.com/urfave/cli/v2"
 )
 
 var CommandGetEnvironmentDependency = &cli.Command{

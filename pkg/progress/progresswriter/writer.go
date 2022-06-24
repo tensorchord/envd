@@ -20,7 +20,7 @@ import (
 
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/identity"
-	digest "github.com/opencontainers/go-digest"
+	"github.com/opencontainers/go-digest"
 )
 
 type Writer interface {

@@ -17,9 +17,10 @@ package config
 import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 var (
@@ -81,8 +82,8 @@ func ruleFuncJupyter(thread *starlark.Thread, _ *starlark.Builtin,
 	if !ok {
 		return nil, errors.New("port must be an integer")
 	}
-	logger.Debugf("rule `%s` is invoked, password=%s, port=%d", ruleJupyter,
-		pwdStr, portInt)
+	logger.Debugf("rule `%s` is invoked, password=%s, port=%d",
+		ruleJupyter, pwdStr, portInt)
 	if err := ir.Jupyter(pwdStr, portInt); err != nil {
 		return nil, err
 	}
@@ -100,20 +101,20 @@ func ruleFuncPyPIIndex(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	modeStr := ""
-	if mode != starlark.String("") {
+	if mode != "" {
 		modeStr = mode.GoString()
 	}
 	indexStr := ""
-	if url != starlark.String("") {
+	if url != "" {
 		indexStr = url.GoString()
 	}
 	extraIndexStr := ""
-	if extraURL != starlark.String("") {
+	if extraURL != "" {
 		extraIndexStr = extraURL.GoString()
 	}
 
-	logger.Debugf("rule `%s` is invoked, mode=%s, index=%s, extraIndex=%s", rulePyPIIndex,
-		modeStr, indexStr, extraIndexStr)
+	logger.Debugf("rule `%s` is invoked, mode=%s, index=%s, extraIndex=%s",
+		rulePyPIIndex, modeStr, indexStr, extraIndexStr)
 	if err := ir.PyPIIndex(modeStr, indexStr, extraIndexStr); err != nil {
 		return nil, err
 	}
@@ -173,16 +174,16 @@ func ruleFuncUbuntuAptSource(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	modeStr := ""
-	if mode != starlark.String("") {
+	if mode != "" {
 		modeStr = mode.GoString()
 	}
 	sourceStr := ""
-	if source != starlark.String("") {
+	if source != "" {
 		sourceStr = source.GoString()
 	}
 
-	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s", ruleUbuntuAptSource,
-		modeStr, sourceStr)
+	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s",
+		ruleUbuntuAptSource, modeStr, sourceStr)
 	if err := ir.UbuntuAPT(modeStr, sourceStr); err != nil {
 		return nil, err
 	}
@@ -200,12 +201,12 @@ func ruleFuncCondaChannel(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	channelStr := ""
-	if channel != starlark.String("") {
+	if channel != "" {
 		channelStr = channel.GoString()
 	}
 
-	logger.Debugf("rule `%s` is invoked, channel=%s", ruleCondaChannel,
-		channelStr)
+	logger.Debugf("rule `%s` is invoked, channel=%s",
+		ruleCondaChannel, channelStr)
 	if err := ir.CondaChannel(channelStr); err != nil {
 		return nil, err
 	}

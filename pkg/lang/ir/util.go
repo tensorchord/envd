@@ -52,11 +52,13 @@ func getUIDGID() (int, int, error) {
 		return 0, 0, errors.Wrap(err, "failed to get uid/gid")
 	}
 	// Do not support windows yet.
-	if uid, err := strconv.Atoi(user.Uid); err != nil {
+	uid, err := strconv.Atoi(user.Uid)
+	if err != nil {
 		return 0, 0, errors.Wrap(err, "failed to get uid")
-	} else if gid, err := strconv.Atoi(user.Gid); err != nil {
-		return 0, 0, errors.Wrap(err, "failed to get gid")
-	} else {
-		return uid, gid, nil
 	}
+	gid, err := strconv.Atoi(user.Gid)
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "failed to get gid")
+	}
+	return uid, gid, nil
 }

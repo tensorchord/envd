@@ -23,6 +23,7 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -57,10 +58,7 @@ func Initialize() error {
 			cacheMap: make(map[string]bool),
 		}
 	})
-	if err := defaultManager.init(); err != nil {
-		return err
-	}
-	return nil
+	return defaultManager.init()
 }
 
 func GetManager() Manager {
@@ -76,10 +74,7 @@ func (m generalManager) CleanCache() error {
 		return nil
 	}
 	logrus.Debug("cleaning up host cache directory")
-	if err := os.RemoveAll(m.cacheDir); err != nil {
-		return err
-	}
-	return nil
+	return os.RemoveAll(m.cacheDir)
 }
 
 func (m generalManager) ConfigFile() string {

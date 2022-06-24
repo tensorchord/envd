@@ -10,7 +10,6 @@ By default, `envd up` will use the `build.envd`
 
 Then you can open jupyter notebook at [`http://localhost:8888`](http://localhost:8888), or open vscode remote to attach to the container.
 
-
 ## Quick start (GPU)
 
 ```bash

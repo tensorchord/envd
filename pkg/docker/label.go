@@ -34,7 +34,7 @@ func labels(name string, jupyterConfig *ir.JupyterConfig, sshPort int) map[strin
 	return res
 }
 
-func dockerfilters(gpu bool) filters.Args {
+func dockerFilters(gpu bool) filters.Args {
 	f := filters.NewArgs()
 	f.Add("label", fmt.Sprintf("%s=%s", types.ImageLabelVendor, types.ImageVendorEnvd))
 	if gpu {
@@ -43,7 +43,7 @@ func dockerfilters(gpu bool) filters.Args {
 	return f
 }
 
-func dockerfiltersWithName(name string) filters.Args {
+func dockerFiltersWithName(name string) filters.Args {
 	f := filters.NewArgs()
 	f.Add("reference", name)
 	return f

@@ -47,7 +47,7 @@ type (
 	}
 )
 
-//will use auth fields in the future
+// will use auth fields in the future
 const (
 	forwardAgentKeyword           = "ForwardAgent"
 	pubkeyAcceptedKeyTypesKeyword = "PubkeyAcceptedKeyTypes"

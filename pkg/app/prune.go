@@ -16,9 +16,10 @@ package app
 
 import (
 	"github.com/cockroachdb/errors"
+	"github.com/urfave/cli/v2"
+
 	"github.com/tensorchord/envd/pkg/buildkitd"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/urfave/cli/v2"
 )
 
 var CommandPrune = &cli.Command{

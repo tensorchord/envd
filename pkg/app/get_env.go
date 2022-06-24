@@ -22,7 +22,7 @@ import (
 
 	"github.com/docker/docker/pkg/stringid"
 	"github.com/olekukonko/tablewriter"
-	cli "github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/types"

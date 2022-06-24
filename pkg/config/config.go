@@ -24,7 +24,7 @@ type UpState string
 const (
 	PrivateKeyFile              = "id_rsa_envd"
 	PublicKeyFile               = "id_rsa_envd.pub"
-	ContainerauthorizedKeysPath = "/var/envd/authorized_keys"
+	ContainerAuthorizedKeysPath = "/var/envd/authorized_keys"
 	envdFolderName              = ".envd"
 )
 

@@ -138,14 +138,14 @@ func (c generalClient) WaitUntilRunning(ctx context.Context,
 
 func (c generalClient) ListImage(ctx context.Context) ([]types.ImageSummary, error) {
 	images, err := c.ImageList(ctx, types.ImageListOptions{
-		Filters: dockerfilters(false),
+		Filters: dockerFilters(false),
 	})
 	return images, err
 }
 
 func (c generalClient) GetImage(ctx context.Context, image string) (types.ImageSummary, error) {
 	images, err := c.ImageList(ctx, types.ImageListOptions{
-		Filters: dockerfiltersWithName(image),
+		Filters: dockerFiltersWithName(image),
 	})
 	if err != nil {
 		return types.ImageSummary{}, err
@@ -157,10 +157,9 @@ func (c generalClient) GetImage(ctx context.Context, image string) (types.ImageS
 }
 
 func (c generalClient) ListContainer(ctx context.Context) ([]types.Container, error) {
-	ctrs, err := c.ContainerList(ctx, types.ContainerListOptions{
-		Filters: dockerfilters(false),
+	return c.ContainerList(ctx, types.ContainerListOptions{
+		Filters: dockerFilters(false),
 	})
-	return ctrs, err
 }
 
 func (c generalClient) PauseContainer(ctx context.Context, name string) (string, error) {

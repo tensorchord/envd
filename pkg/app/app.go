@@ -21,7 +21,7 @@ import (
 	_ "github.com/moby/buildkit/client/connhelper/podmancontainer"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	cli "github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"

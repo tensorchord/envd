@@ -17,8 +17,9 @@ package app
 import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/urfave/cli/v2"
+
+	"github.com/tensorchord/envd/pkg/envd"
 )
 
 var CommandResume = &cli.Command{
@@ -45,9 +46,11 @@ func resume(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create envd engine")
 	}
-	if name, err := envdEngine.ResumeEnvironment(clicontext.Context, env); err != nil {
+	name, err := envdEngine.ResumeEnvironment(clicontext.Context, env)
+	if err != nil {
 		return errors.Wrap(err, "failed to pause the environment")
-	} else if name != "" {
+	}
+	if name != "" {
 		logrus.Infof("%s is resumed", name)
 	}
 	return nil

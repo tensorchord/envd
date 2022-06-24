@@ -23,7 +23,7 @@ import (
 	"github.com/cockroachdb/errors"
 	rawssh "github.com/gliderlabs/ssh"
 	"github.com/sirupsen/logrus"
-	cli "github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/remote/sshd"
@@ -54,8 +54,8 @@ func main() {
 		},
 		&cli.StringFlag{
 			Name:    flagAuthKey,
-			Usage:   "path to authorized keys file, defaults to " + config.ContainerauthorizedKeysPath,
-			Value:   config.ContainerauthorizedKeysPath,
+			Usage:   "path to authorized keys file, defaults to " + config.ContainerAuthorizedKeysPath,
+			Value:   config.ContainerAuthorizedKeysPath,
 			Aliases: []string{"a"},
 		},
 		&cli.BoolFlag{

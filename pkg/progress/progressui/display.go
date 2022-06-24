@@ -30,7 +30,7 @@ import (
 	"github.com/containerd/console"
 	"github.com/moby/buildkit/client"
 	"github.com/morikuni/aec"
-	digest "github.com/opencontainers/go-digest"
+	"github.com/opencontainers/go-digest"
 	"github.com/tonistiigi/units"
 	"github.com/tonistiigi/vt100"
 	"golang.org/x/time/rate"
@@ -88,7 +88,8 @@ func DisplaySolveStatus(ctx context.Context, phase string, c console.Console, w 
 				disp.print(t.displayInfo(), width, height, true)
 				t.printErrorLogs(c)
 				return t.warnings(), nil
-			} else if displayLimiter.Allow() {
+			}
+			if displayLimiter.Allow() {
 				ticker.Stop()
 				ticker = time.NewTicker(tickerTimeout)
 				disp.print(t.displayInfo(), width, height, false)

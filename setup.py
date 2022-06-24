@@ -54,6 +54,7 @@ def get_version():
     ver = version.rsplit(" ", 1)[-1][1:]
     return ver
 
+
 classifiers = [
     'Development Status :: 3 - Alpha',
     'Topic :: Software Development :: Build Tools',

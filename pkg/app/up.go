@@ -22,7 +22,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	cli "github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/docker"
@@ -145,9 +145,9 @@ func up(clicontext *cli.Context) error {
 	if err := builder.Build(clicontext.Context, clicontext.Path("public-key")); err != nil {
 		return errors.Wrap(err, "failed to build the image")
 	}
-	gpu_enable := clicontext.Bool("no-gpu")
+	gpuEnable := clicontext.Bool("no-gpu")
 	var gpu bool
-	if gpu_enable {
+	if gpuEnable {
 		gpu = false
 	} else {
 		gpu = builder.GPUEnabled()

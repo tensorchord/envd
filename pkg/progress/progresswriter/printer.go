@@ -102,7 +102,7 @@ func NewPrinter(ctx context.Context, out console.File, mode string) (Writer, err
 	}
 
 	go func() {
-		// not using shared context to not disrupt display but let is finish reporting errors
+		// not using shared context to not disrupt display but let it finish reporting errors
 		_, pw.err = progressui.DisplaySolveStatus(ctx, "build envd environment", c, out, statusCh)
 		close(doneCh)
 	}()
