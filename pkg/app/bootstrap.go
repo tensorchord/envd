@@ -32,7 +32,7 @@ import (
 
 var CommandBootstrap = &cli.Command{
 	Name:  "bootstrap",
-	Usage: "Bootstraps envd installation including shell autocompletion and buildkit image download",
+	Usage: "Bootstrap the envd installation including shell autocompletion and buildkit image download",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "buildkit",

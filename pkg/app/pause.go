@@ -25,11 +25,11 @@ import (
 var CommandPause = &cli.Command{
 	Name:    "pause",
 	Aliases: []string{"p"},
-	Usage:   "pause the envd environment",
+	Usage:   "Pause the envd environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "env",
-			Usage:   "environment name",
+			Usage:   "Environment name",
 			Aliases: []string{"e"},
 		},
 	},

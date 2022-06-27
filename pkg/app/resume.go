@@ -25,11 +25,11 @@ import (
 var CommandResume = &cli.Command{
 	Name:    "resume",
 	Aliases: []string{"r"},
-	Usage:   "resume the envd environment",
+	Usage:   "Resume the envd environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "env",
-			Usage:   "environment name",
+			Usage:   "Environment name",
 			Aliases: []string{"e"},
 		},
 	},
