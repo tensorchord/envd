@@ -42,7 +42,7 @@ const (
 var CommandUp = &cli.Command{
 	Name:    "up",
 	Aliases: []string{"u"},
-	Usage:   "build and run the envd environment",
+	Usage:   "Build and run the envd environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "tag",
@@ -87,12 +87,12 @@ var CommandUp = &cli.Command{
 		},
 		&cli.BoolFlag{
 			Name:  "detach",
-			Usage: "detach from the container",
+			Usage: "Detach from the container",
 			Value: false,
 		},
 		&cli.BoolFlag{
 			Name:  "no-gpu",
-			Usage: "launch the CPU container",
+			Usage: "Launch the CPU container",
 			Value: false,
 		},
 	},

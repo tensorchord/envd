@@ -32,7 +32,7 @@ import (
 var CommandBuild = &cli.Command{
 	Name:    "build",
 	Aliases: []string{"b"},
-	Usage:   "build envd environment",
+	Usage:   "Build the envd environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:        "tag",
