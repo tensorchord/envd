@@ -43,7 +43,7 @@ var _ = Describe("Builder", func() {
 			manifestFilePath = "build.envd"
 			buildContext = "testdata"
 			tag = "envd-dev:test"
-			os.Setenv("DOCKER_API_VERSION", "1.41")
+			Expect(home.Initialize()).NotTo(HaveOccurred())
 		})
 		When("getting the wrong builtkitd address", func() {
 			It("should return an error", func() {

@@ -117,9 +117,10 @@ func (m generalManager) ContextRemove(name string) error {
 	for i, c := range m.context.Contexts {
 		if c.Name == name {
 			if m.context.Current == name {
-				return errors.New("cannot remove current context")
+				return errors.Newf("cannot remove current context \"%s\"", name)
 			}
-			m.context.Contexts = append(m.context.Contexts[:i], m.context.Contexts[i+1:]...)
+			m.context.Contexts = append(
+				m.context.Contexts[:i], m.context.Contexts[i+1:]...)
 			return m.dumpContext()
 		}
 	}

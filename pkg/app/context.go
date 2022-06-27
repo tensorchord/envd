@@ -24,6 +24,7 @@ var CommandContext = &cli.Command{
 	Subcommands: []*cli.Command{
 		CommandContextCreate,
 		CommandContextList,
+		CommandContextRemove,
 		CommandContextUse,
 	},
 }
