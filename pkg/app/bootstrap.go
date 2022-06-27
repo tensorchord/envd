@@ -26,6 +26,7 @@ import (
 
 	ac "github.com/tensorchord/envd/pkg/autocomplete"
 	"github.com/tensorchord/envd/pkg/buildkitd"
+	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -142,8 +143,13 @@ func bootstrap(clicontext *cli.Context) error {
 	buildkit := clicontext.Bool("buildkit")
 
 	if buildkit {
+		currentDriver, currentSocket, err := home.GetManager().ContextGetCurrent()
+		if err != nil {
+			return errors.Wrap(err, "failed to get the current context")
+		}
 		logrus.Debug("bootstrap the buildkitd container")
-		bkClient, err := buildkitd.NewClient(clicontext.Context, clicontext.String("dockerhub-mirror"))
+		bkClient, err := buildkitd.NewClient(clicontext.Context,
+			currentDriver, currentSocket, clicontext.String("dockerhub-mirror"))
 		if err != nil {
 			return errors.Wrap(err, "failed to create buildkit client")
 		}

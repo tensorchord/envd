@@ -80,7 +80,11 @@ func New(ctx context.Context, configFilePath, manifestFilePath, buildContextDir,
 		}),
 	}
 
-	cli, err := buildkitd.NewClient(ctx, "")
+	currentDriver, currentSocket, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get the current context")
+	}
+	cli, err := buildkitd.NewClient(ctx, currentDriver, currentSocket, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create buildkit client")
 	}

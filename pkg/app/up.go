@@ -126,14 +126,13 @@ func up(clicontext *cli.Context) error {
 	detach := clicontext.Bool("detach")
 
 	logger := logrus.WithFields(logrus.Fields{
-		"build-context":             buildContext,
-		"build-file":                manifest,
-		"config":                    config,
-		"tag":                       tag,
-		"container-name":            ctr,
-		"detach":                    detach,
-		flag.FlagBuildkitdImage:     viper.GetString(flag.FlagBuildkitdImage),
-		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
+		"build-context":         buildContext,
+		"build-file":            manifest,
+		"config":                config,
+		"tag":                   tag,
+		"container-name":        ctr,
+		"detach":                detach,
+		flag.FlagBuildkitdImage: viper.GetString(flag.FlagBuildkitdImage),
 	})
 	logger.Debug("starting up command")
 	debug := clicontext.Bool("debug")

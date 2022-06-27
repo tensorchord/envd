@@ -93,12 +93,11 @@ func build(clicontext *cli.Context) error {
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
-		"build-context":             buildContext,
-		"build-file":                manifest,
-		"config":                    config,
-		"tag":                       tag,
-		flag.FlagBuildkitdImage:     viper.GetString(flag.FlagBuildkitdImage),
-		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
+		"build-context":         buildContext,
+		"build-file":            manifest,
+		"config":                config,
+		"tag":                   tag,
+		flag.FlagBuildkitdImage: viper.GetString(flag.FlagBuildkitdImage),
 	})
 	logger.Debug("starting build command")
 	debug := clicontext.Bool("debug")
