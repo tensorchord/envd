@@ -60,12 +60,12 @@ func New() EnvdApp {
 		CommandBuild,
 		CommandDestroy,
 		CommandGet,
+		CommandInit,
 		CommandPause,
 		CommandPrune,
 		CommandResume,
 		CommandUp,
 		CommandVersion,
-		CommandInit,
 	}
 
 	// Deal with debug flag.

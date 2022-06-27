@@ -46,7 +46,8 @@ func isValidLang(lang string) bool {
 	switch lang {
 	case
 		"python",
-		"r":
+		"r",
+		"julia":
 		return true
 	}
 	return false
