@@ -65,6 +65,7 @@ func New() EnvdApp {
 		CommandResume,
 		CommandUp,
 		CommandVersion,
+		CommandInit,
 	}
 
 	// Deal with debug flag.
