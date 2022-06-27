@@ -47,14 +47,8 @@ func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	osStr := ""
-	if os != "" {
-		osStr = os.GoString()
-	}
-	langStr := ""
-	if language != "" {
-		langStr = language.GoString()
-	}
+	osStr := os.GoString()
+	langStr := language.GoString()
 
 	logger.Debugf("rule `%s` is invoked, os=%s, language=%s",
 		ruleBase, osStr, langStr)
@@ -95,10 +89,7 @@ func ruleFuncShell(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	shellStr := ""
-	if shell != "" {
-		shellStr = shell.GoString()
-	}
+	shellStr := shell.GoString()
 
 	logger.Debugf("rule `%s` is invoked, shell=%s", ruleShell, shellStr)
 
@@ -115,20 +106,9 @@ func ruleFuncGitConfig(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameStr := ""
-	if name != "" {
-		nameStr = name.GoString()
-	}
-
-	emailStr := ""
-	if email != "" {
-		nameStr = email.GoString()
-	}
-
-	editorStr := ""
-	if editor != "" {
-		editorStr = editor.GoString()
-	}
+	nameStr := name.GoString()
+	emailStr := email.GoString()
+	editorStr := editor.GoString()
 
 	logger.Debugf("rule `%s` is invoked, name=%s, email=%s, editor=%s",
 		ruleGitConfig, nameStr, emailStr, editorStr)
