@@ -60,6 +60,7 @@ func New() EnvdApp {
 		CommandBuild,
 		CommandDestroy,
 		CommandGet,
+		CommandInit,
 		CommandPause,
 		CommandPrune,
 		CommandResume,

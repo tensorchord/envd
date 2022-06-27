@@ -1,0 +1,13 @@
+def build():
+    # Use ubuntu20.04 as base image and install julia
+    base(os="ubuntu20.04", language="julia")    
+    # Uncomment line below to enable Pypi mirror 
+    # config.julia_pkg_server(url="https://mirrors.tuna.tsinghua.edu.cn/julia")
+
+    # Add the packages you are using here
+    install.julia_packages([
+        "Example"
+    ])
+
+    # Select the shell environment you like
+    shell("zsh")
