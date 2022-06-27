@@ -73,10 +73,7 @@ func ruleFuncJupyter(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	pwdStr := ""
-	if password != starlark.String("") {
-		pwdStr = password.GoString()
-	}
+	pwdStr := password.GoString()
 
 	portInt, ok := port.Int64()
 	if !ok {
@@ -100,18 +97,9 @@ func ruleFuncPyPIIndex(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	modeStr := ""
-	if mode != "" {
-		modeStr = mode.GoString()
-	}
-	indexStr := ""
-	if url != "" {
-		indexStr = url.GoString()
-	}
-	extraIndexStr := ""
-	if extraURL != "" {
-		extraIndexStr = extraURL.GoString()
-	}
+	modeStr := mode.GoString()
+	indexStr := url.GoString()
+	extraIndexStr := extraURL.GoString()
 
 	logger.Debugf("rule `%s` is invoked, mode=%s, index=%s, extraIndex=%s",
 		rulePyPIIndex, modeStr, indexStr, extraIndexStr)
@@ -131,10 +119,7 @@ func ruleFuncCRANMirror(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	urlStr := ""
-	if url != starlark.String("") {
-		urlStr = url.GoString()
-	}
+	urlStr := url.GoString()
 
 	logger.Debugf("rule `%s` is invoked, url=%s", ruleCRANMirror, urlStr)
 	if err := ir.CRANMirror(urlStr); err != nil {
@@ -152,10 +137,7 @@ func ruleFuncJuliaPackageServer(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	urlStr := ""
-	if url != starlark.String("") {
-		urlStr = url.GoString()
-	}
+	urlStr := url.GoString()
 
 	logger.Debugf("rule `%s` is invoked, url=%s", ruleJuliaPackageServer, urlStr)
 	if err := ir.JuliaPackageServer(urlStr); err != nil {
@@ -173,14 +155,8 @@ func ruleFuncUbuntuAptSource(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	modeStr := ""
-	if mode != "" {
-		modeStr = mode.GoString()
-	}
-	sourceStr := ""
-	if source != "" {
-		sourceStr = source.GoString()
-	}
+	modeStr := mode.GoString()
+	sourceStr := source.GoString()
 
 	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s",
 		ruleUbuntuAptSource, modeStr, sourceStr)
@@ -200,10 +176,7 @@ func ruleFuncCondaChannel(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	channelStr := ""
-	if channel != "" {
-		channelStr = channel.GoString()
-	}
+	channelStr := channel.GoString()
 
 	logger.Debugf("rule `%s` is invoked, channel=%s",
 		ruleCondaChannel, channelStr)

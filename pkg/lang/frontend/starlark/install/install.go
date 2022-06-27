@@ -59,10 +59,9 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		}
 	}
 
-	requirementsFileStr := ""
 	var path *string = nil
-	if requirementsFile != starlark.String("") {
-		requirementsFileStr = requirementsFile.GoString()
+	requirementsFileStr := requirementsFile.GoString()
+	if requirementsFileStr != "" {
 		buildContextDir := starlark.Universe[builtin.BuildContextDir]
 		buildContextDirStr := buildContextDir.(starlark.String).GoString()
 		buf := filepath.Join(buildContextDirStr, requirementsFileStr)
@@ -151,14 +150,8 @@ func ruleFuncCUDA(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	versionStr := ""
-	if version != "" {
-		versionStr = version.GoString()
-	}
-	cudnnStr := ""
-	if cudnn != "" {
-		cudnnStr = cudnn.GoString()
-	}
+	versionStr := version.GoString()
+	cudnnStr := cudnn.GoString()
 
 	logger.Debugf("rule `%s` is invoked, version=%s, cudnn=%s",
 		ruleCUDA, versionStr, cudnnStr)
