@@ -12,11 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package flag
+package app
 
-const (
-	FlagCacheDir       = "cache-dir"
-	FlagContextDir     = "context-dir"
-	FlagBuildkitdImage = "buildkitd-image"
-	FlagDebug          = "debug"
+import (
+	"github.com/urfave/cli/v2"
 )
+
+var CommandContext = &cli.Command{
+	Name:  "context",
+	Usage: "Manage envd contexts",
+	Subcommands: []*cli.Command{
+		CommandContextCreate,
+		CommandContextList,
+		CommandContextRemove,
+		CommandContextUse,
+	},
+}

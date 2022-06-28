@@ -30,6 +30,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 var (
@@ -55,19 +56,27 @@ type generalClient struct {
 	image         string
 	mirror        string
 
+	driver types.BuilderType
+	socket string
+
 	*client.Client
 	logger *logrus.Entry
 }
 
-func NewClient(ctx context.Context, mirror string) (Client, error) {
+func NewClient(ctx context.Context, driver types.BuilderType,
+	socket, mirror string) (Client, error) {
 	c := &generalClient{
-		containerName: viper.GetString(flag.FlagBuildkitdContainer),
+		containerName: socket,
 		image:         viper.GetString(flag.FlagBuildkitdImage),
 		mirror:        mirror,
 	}
+	c.socket = socket
+	c.driver = driver
 	c.logger = logrus.WithFields(logrus.Fields{
 		"container": c.containerName,
 		"image":     c.image,
+		"socket":    c.socket,
+		"driver":    c.driver,
 	})
 
 	cli, err := client.New(ctx, c.BuildkitdAddr(), client.WithFailFast())
@@ -99,32 +108,36 @@ func (c generalClient) Close() error {
 // that can be used to connect to it.
 func (c *generalClient) maybeStart(ctx context.Context,
 	runningTimeout, connectingTimeout time.Duration) (string, error) {
-	dockerClient, err := docker.NewClient(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	created, err := dockerClient.IsCreated(ctx, c.containerName)
-	if err != nil {
-		return "", err
-	}
-
-	if !created {
-		c.logger.Debug("container not created, creating...")
-		if _, err := dockerClient.StartBuildkitd(ctx, c.image, c.containerName, c.mirror); err != nil {
+	if c.driver == types.BuilderTypeDocker {
+		dockerClient, err := docker.NewClient(ctx)
+		if err != nil {
 			return "", err
 		}
-		if err := dockerClient.WaitUntilRunning(ctx, c.containerName, runningTimeout); err != nil {
+
+		created, err := dockerClient.IsCreated(ctx, c.containerName)
+		if err != nil {
 			return "", err
 		}
-	}
-	running, _ := dockerClient.IsRunning(ctx, c.containerName)
-	if created && !running {
-		c.logger.Warnf("please remove or restart the container %s", c.containerName)
-		return "", errors.Errorf("container %s is stopped", c.containerName)
-	}
 
-	c.logger.Debugf("container is running, check if it's ready at %s...", c.BuildkitdAddr())
+		if !created {
+			c.logger.Debug("container not created, creating...")
+			if _, err := dockerClient.StartBuildkitd(
+				ctx, c.image, c.containerName, c.mirror); err != nil {
+				return "", err
+			}
+			if err := dockerClient.WaitUntilRunning(
+				ctx, c.containerName, runningTimeout); err != nil {
+				return "", err
+			}
+		}
+		running, _ := dockerClient.IsRunning(ctx, c.containerName)
+		if created && !running {
+			c.logger.Warnf("please remove or restart the container %s", c.containerName)
+			return "", errors.Errorf("container %s is stopped", c.containerName)
+		}
+
+		c.logger.Debugf("container is running, check if it's ready at %s...", c.BuildkitdAddr())
+	}
 
 	if err := c.waitUntilConnected(ctx, connectingTimeout); err != nil {
 		return "", errors.Wrap(err, "failed to connect to buildkitd")
@@ -217,5 +230,5 @@ func (c generalClient) Prune(ctx context.Context, keepDuration time.Duration,
 }
 
 func (c generalClient) BuildkitdAddr() string {
-	return fmt.Sprintf("docker-container://%s", c.containerName)
+	return fmt.Sprintf("%s://%s", c.driver, c.socket)
 }

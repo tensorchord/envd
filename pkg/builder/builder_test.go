@@ -24,10 +24,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	mockbuildkitd "github.com/tensorchord/envd/pkg/buildkitd/mock"
-	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	mockstarlark "github.com/tensorchord/envd/pkg/lang/frontend/starlark/mock"
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -39,22 +37,15 @@ import (
 
 var _ = Describe("Builder", func() {
 	Describe("building image", Label("buildkitd"), func() {
-		var buildkitdSocket, configFilePath, manifestFilePath, buildContext, tag string
+		var configFilePath, manifestFilePath, buildContext, tag string
 		BeforeEach(func() {
-			buildkitdSocket = "docker-container://envd_buildkitd"
 			configFilePath = "config.envd"
 			manifestFilePath = "build.envd"
 			buildContext = "testdata"
 			tag = "envd-dev:test"
-			viper.Set(flag.FlagBuildkitdContainer, "envd_buildkitd")
-			os.Setenv("DOCKER_API_VERSION", "1.41")
-			DeferCleanup(func() {
-				viper.Set(flag.FlagBuildkitdContainer, "")
-			})
+			Expect(home.Initialize()).NotTo(HaveOccurred())
 		})
 		When("getting the wrong builtkitd address", func() {
-			buildkitdSocket = "wrong"
-			viper.Set(flag.FlagBuildkitdContainer, buildkitdSocket)
 			It("should return an error", func() {
 				_, err := New(context.TODO(), configFilePath, manifestFilePath, buildContext, tag, "", false)
 				Expect(err).To(HaveOccurred())

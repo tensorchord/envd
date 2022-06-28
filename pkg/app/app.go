@@ -48,16 +48,12 @@ func New() EnvdApp {
 			Usage: "docker image to use for buildkitd",
 			Value: "docker.io/moby/buildkit:v0.10.3",
 		},
-		&cli.StringFlag{
-			Name:  flag.FlagBuildkitdContainer,
-			Usage: "buildkitd container to use for buildkitd",
-			Value: "envd_buildkitd",
-		},
 	}
 
 	internalApp.Commands = []*cli.Command{
 		CommandBootstrap,
 		CommandBuild,
+		CommandContext,
 		CommandDestroy,
 		CommandGet,
 		CommandInit,
@@ -84,7 +80,6 @@ func New() EnvdApp {
 		}
 
 		// TODO(gaocegege): Add a config struct to keep them.
-		viper.Set(flag.FlagBuildkitdContainer, context.String(flag.FlagBuildkitdContainer))
 		viper.Set(flag.FlagBuildkitdImage, context.String(flag.FlagBuildkitdImage))
 		viper.Set(flag.FlagDebug, debugEnabled)
 		return nil

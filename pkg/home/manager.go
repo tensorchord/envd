@@ -15,34 +15,30 @@
 package home
 
 import (
-	"encoding/gob"
-	"os"
-	"path/filepath"
 	"sync"
 
-	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 type Manager interface {
-	CacheDir() string
-	MarkCache(string, bool) error
-	Cached(string) bool
-	CleanCache() error
-	ConfigFile() string
+	configManager
+	contextManager
+	cacheManager
 }
 
 type generalManager struct {
 	cacheDir        string
 	cacheStatusFile string
 	configFile      string
+	contextFile     string
 
 	// TODO(gaocegege): Abstract CacheManager.
 	cacheMap map[string]bool
+	context  types.EnvdContext
 
 	logger *logrus.Entry
 }
@@ -56,6 +52,16 @@ func Initialize() error {
 	once.Do(func() {
 		defaultManager = &generalManager{
 			cacheMap: make(map[string]bool),
+			context: types.EnvdContext{
+				Current: "default",
+				Contexts: []types.Context{
+					{
+						Name:          "default",
+						Builder:       types.BuilderTypeDocker,
+						BuilderSocket: "envd_buildkitd",
+					},
+				},
+			},
 		}
 	})
 	return defaultManager.init()
@@ -65,104 +71,30 @@ func GetManager() Manager {
 	return defaultManager
 }
 
-func (m generalManager) CacheDir() string {
-	return m.cacheDir
-}
-
-func (m generalManager) CleanCache() error {
-	if m.cacheDir == "" {
-		return nil
-	}
-	logrus.Debug("cleaning up host cache directory")
-	return os.RemoveAll(m.cacheDir)
-}
-
-func (m generalManager) ConfigFile() string {
-	return m.configFile
-}
-
-func (m generalManager) MarkCache(key string, cached bool) error {
-	m.cacheMap[key] = cached
-	return m.dumpCacheStatus()
-}
-
-func (m generalManager) Cached(key string) bool {
-	return m.cacheMap[key]
-}
-
-func (m *generalManager) dumpCacheStatus() error {
-	file, err := os.Create(m.cacheStatusFile)
-	if err != nil {
-		return errors.Wrap(err, "failed to create cache status file")
-	}
-	defer file.Close()
-
-	e := gob.NewEncoder(file)
-	if err := e.Encode(m.cacheMap); err != nil {
-		return errors.Wrap(err, "failed to encode cache map")
-	}
-	return nil
-}
-
 func (m *generalManager) init() error {
-	// Create $XDG_CONFIG_HOME/envd/config.envd
-	config, err := xdg.ConfigFile("envd/config.envd")
-	if err != nil {
-		return errors.Wrap(err, "failed to get config file")
+	if err := m.initConfig(); err != nil {
+		return errors.Wrap(err, "failed to initialize config")
 	}
 
-	if err := fileutil.CreateIfNotExist(config); err != nil {
-		return errors.Wrap(err, "failed to create config file")
-	}
-	m.configFile = config
-
-	// Create $XDG_CACHE_HOME/envd
-	_, err = xdg.CacheFile("envd/cache")
-	if err != nil {
-		return errors.Wrap(err, "failed to get cache")
-	}
-	m.cacheDir = filepath.Join(xdg.CacheHome, "envd")
-
-	m.cacheStatusFile = filepath.Join(m.cacheDir, "cache.status")
-	_, err = os.Stat(m.cacheStatusFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			logrus.WithField("filename", m.cacheStatusFile).Debug("Creating file")
-			file, err := os.Create(m.cacheStatusFile)
-			if err != nil {
-				return errors.Wrap(err, "failed to create file")
-			}
-			err = file.Close()
-			if err != nil {
-				return errors.Wrap(err, "failed to close file")
-			}
-			if err := m.dumpCacheStatus(); err != nil {
-				return errors.Wrap(err, "failed to dump cache status")
-			}
-		} else {
-			return errors.Wrap(err, "failed to stat file")
-		}
+	if err := m.initContext(); err != nil {
+		return errors.Wrap(err, "failed to initialize context")
 	}
 
-	file, err := os.Open(m.cacheStatusFile)
-	if err != nil {
-		return errors.Wrap(err, "failed to open cache status file")
-	}
-	defer file.Close()
-	e := gob.NewDecoder(file)
-	if err := e.Decode(&m.cacheMap); err != nil {
-		return errors.Wrap(err, "failed to decode cache map")
+	if err := m.initCache(); err != nil {
+		return errors.Wrap(err, "failed to initialize cache")
 	}
 
-	// Generate SSH keys when init
 	if err := sshconfig.GenerateKeys(); err != nil {
 		return errors.Wrap(err, "failed to generate ssh key")
 	}
 
 	m.logger = logrus.WithFields(logrus.Fields{
 		"cache-dir":    m.cacheDir,
-		"config":       m.configFile,
+		"config-file":  m.configFile,
 		"cache-status": m.cacheStatusFile,
+		"context-file": m.contextFile,
+		"cache-map":    m.cacheMap,
+		"context":      m.context,
 	})
 
 	m.logger.Debug("home manager initialized")
