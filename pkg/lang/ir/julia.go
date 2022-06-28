@@ -29,7 +29,7 @@ func (g Graph) installJuliaPackages(root llb.State) llb.State {
 
 	var sb strings.Builder
 
-	sb.WriteString(`/usr/local/julia/bin/julia -e 'using Pkg; Pkg.add(`)
+	sb.WriteString(`/usr/local/julia/bin/julia -e 'using Pkg; Pkg.add([`)
 	for i, pkg := range g.JuliaPackages {
 		sb.WriteString(fmt.Sprintf(`"%s"`, pkg))
 		if i != len(g.JuliaPackages)-1 {
@@ -37,7 +37,7 @@ func (g Graph) installJuliaPackages(root llb.State) llb.State {
 		}
 	}
 
-	sb.WriteString(`)'`)
+	sb.WriteString(`])'`)
 
 	// TODO(gaocegege): Support cache.
 	cmd := sb.String()
