@@ -118,19 +118,40 @@ func (g *Graph) compileBase() llb.State {
 	} else {
 		base = g.compileCUDAPackages()
 	}
+	var res llb.ExecState
 	// TODO(gaocegege): Refactor user to a separate stage.
-	res := base.
-		Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", g.gid)),
-			llb.WithCustomName("[internal] create user group envd")).
-		Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %d -g envd -s /bin/sh -m envd", g.uid)),
-			llb.WithCustomName("[internal] create user envd")).
-		Run(llb.Shlex("adduser envd sudo"),
-			llb.WithCustomName("[internal] add user envd to sudoers")).
-		Run(llb.Shlex("chown -R envd:envd /usr/local/lib"),
-			llb.WithCustomName("[internal] configure user permissions"))
-	if g.Language.Name == "python" {
-		res = res.Run(llb.Shlex("chown -R envd:envd /opt/conda"),
-			llb.WithCustomName("[internal] configure user permissions"))
+	if g.uid == 0 {
+		res = base.
+			Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", 1001)),
+				llb.WithCustomName("[internal] still create group envd for root context")).
+			Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %d -g envd -s /bin/sh -m envd", 1001)),
+				llb.WithCustomName("[internal] still create user envd for root context")).
+			Run(llb.Shlex("usermod -s /bin/sh root"),
+				llb.WithCustomName("[internal] set root default shell to /bin/sh")).
+			Run(llb.Shlex("sed -i \"s/envd:x:1001:1001/envd:x:0:0/g\" /etc/passwd"),
+				llb.WithCustomName("[internal] set envd uid to 0 as root")).
+			Run(llb.Shlex("sed -i \"s./root./home/envd.g\" /etc/passwd"),
+				llb.WithCustomName("[internal] set root home dir to /home/envd")).
+			Run(llb.Shlex("sed -i \"s/envd:x:1001/envd:x:0/g\" /etc/group"),
+				llb.WithCustomName("[internal] set envd group to 0 as root group"))
+		if g.Language.Name == "python" {
+			res = res.Run(llb.Shlex("chown -R root:root /opt/conda"),
+				llb.WithCustomName("[internal] configure user permissions"))
+		}
+	} else {
+		res = base.
+			Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", g.gid)),
+				llb.WithCustomName("[internal] create user group envd")).
+			Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %d -g envd -s /bin/sh -m envd", g.uid)),
+				llb.WithCustomName("[internal] create user envd")).
+			Run(llb.Shlex("adduser envd sudo"),
+				llb.WithCustomName("[internal] add user envd to sudoers")).
+			Run(llb.Shlex("chown -R envd:envd /usr/local/lib"),
+				llb.WithCustomName("[internal] configure user permissions"))
+		if g.Language.Name == "python" {
+			res = res.Run(llb.Shlex("chown -R envd:envd /opt/conda"),
+				llb.WithCustomName("[internal] configure user permissions"))
+		}
 	}
 	return llb.User("envd")(res.Root())
 }
