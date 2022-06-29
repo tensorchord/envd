@@ -95,6 +95,14 @@ We’re focused on helping data scientists and teams that develop AI/ML models. 
 - Updating the environment. Do you always need to ask infrastructure engineers how to add a new python package in the Dockerfile?
 - Managing environments and machines. Do you always forget which machines are used for the specific project, because you handle multiple projects concurrently?
 
+---
+**Talk with us**
+
+💬 Interested in talking with us about your experience building or managing AI/ML applications? 
+
+[**Set up a time to chat!**](https://forms.gle/9HDBHX5Y3fzuDCDAA)
+---
+
 Before envd             |  After envd
 :-------------------------:|:-------------------------:
 ![](./docs/images/before.svg)  |  ![](./docs/images/after.svg)
