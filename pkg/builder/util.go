@@ -68,7 +68,7 @@ func DefaultPathEnv(os string) string {
 	return DefaultPathEnvUnix
 }
 
-// ParseOutput parses --output
+// parseOutput parses --output
 // Refer to https://github.com/moby/buildkit/blob/master/cmd/buildctl/build/output.go#L56
 func parseOutput(exports string) ([]client.ExportEntry, error) {
 	var entries []client.ExportEntry
