@@ -13,7 +13,11 @@
 // limitations under the License.
 package builder
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/sirupsen/logrus"
+)
 
 func Test_parseOutput(t *testing.T) {
 	type args struct {
@@ -21,18 +25,18 @@ func Test_parseOutput(t *testing.T) {
 	}
 
 	tests := []struct {
-		name       string
-		args       args
-		outputType string
-		outputDest string
-		wantErr    bool
+		name            string
+		args            args
+		outputType      string
+		expectedEntries int
+		wantErr         bool
 	}{{
 		"parsing output successfully",
 		args{
 			output: "type=tar,dest=test.tar",
 		},
 		"tar",
-		"test.tar",
+		1,
 		false,
 	}, {
 		"output without type",
@@ -40,38 +44,43 @@ func Test_parseOutput(t *testing.T) {
 			output: "type=,dest=test.tar",
 		},
 		"",
-		"",
+		0,
 		true,
 	}, {
 		"output without dest",
 		args{
 			output: "type=tar,dest=",
 		},
-		"",
-		"",
-		true,
+		"tar",
+		1,
+		false,
 	}, {
 		"no output",
 		args{
 			output: "",
 		},
 		"",
-		"",
+		0,
 		false,
 	}}
 
+	logrus.SetLevel(logrus.DebugLevel)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := parseOutput(tt.args.output)
+			entries, err := parseOutput(tt.args.output)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseOutput() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.outputType {
-				t.Errorf("parseOutput() outputType = %v, want %v", got, tt.outputType)
+			if len(entries) != tt.expectedEntries {
+				t.Errorf("parseOutput() expectedEntries = %v, got %v", tt.expectedEntries, len(entries))
+				return
 			}
-			if got1 != tt.outputDest {
-				t.Errorf("parseOutput() outputDest = %v, want %v", got1, tt.outputDest)
+			if len(entries) == 0 {
+				return
+			}
+			if entries[0].Type != tt.outputType {
+				t.Errorf("parseOutput() outputType = %s, want %s", entries[0].Type, tt.outputType)
 			}
 		})
 	}

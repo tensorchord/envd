@@ -33,6 +33,12 @@ var CommandBuild = &cli.Command{
 	Name:    "build",
 	Aliases: []string{"b"},
 	Usage:   "Build the envd environment",
+	Description: `
+To build an image using build.envd:
+	$ envd build
+To build and push the image to a registry:
+	$ envd build --output type=image,name=docker.io/username/image,push=true
+`,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:        "tag",
@@ -59,11 +65,10 @@ var CommandBuild = &cli.Command{
 			Value:   sshconfig.GetPublicKey(),
 			Hidden:  true,
 		},
-		&cli.PathFlag{
+		&cli.StringFlag{
 			Name:    "output",
-			Usage:   "Output destination (format: type=tar,dest=path)",
+			Usage:   "Output destination (e.g. type=tar,dest=path,push=true)",
 			Aliases: []string{"o"},
-			Value:   "",
 		},
 	},
 
@@ -84,7 +89,7 @@ func build(clicontext *cli.Context) error {
 		return errors.New("file does not exist")
 	}
 
-	config := home.GetManager().ConfigFile()
+	cfg := home.GetManager().ConfigFile()
 
 	tag := clicontext.String("tag")
 	if tag == "" {
@@ -95,13 +100,17 @@ func build(clicontext *cli.Context) error {
 	logger := logrus.WithFields(logrus.Fields{
 		"build-context":         buildContext,
 		"build-file":            manifest,
-		"config":                config,
+		"config":                cfg,
 		"tag":                   tag,
 		flag.FlagBuildkitdImage: viper.GetString(flag.FlagBuildkitdImage),
 	})
-	logger.Debug("starting build command")
 	debug := clicontext.Bool("debug")
-	builder, err := builder.New(clicontext.Context, config, manifest, buildContext, tag, clicontext.Path("output"), debug)
+	output := clicontext.String("output")
+	logger.WithFields(logrus.Fields{
+		"output": output,
+	}).Debug("starting build command")
+	builder, err := builder.New(clicontext.Context, cfg,
+		manifest, buildContext, tag, output, debug)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
