@@ -82,11 +82,19 @@ type generalClient struct {
 }
 
 func NewClient(ctx context.Context) (Client, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}
-	cli.NegotiateAPIVersion(ctx)
+	_, err = cli.Ping(ctx)
+	if err != nil {
+		// Special note needed to give users
+		if strings.Contains(err.Error(), "permission denied") {
+			err = errors.New(`It seems that current user have no access to docker daemon, 
+please visit https://docs.docker.com/engine/install/linux-postinstall/ for more info.`)
+		}
+		return nil, err
+	}
 	return generalClient{cli}, nil
 }
 
