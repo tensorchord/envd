@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.2.0-alpha.3 (2022-07-01)
+
+ * [dbac24d](https://github.com/tensorchord/envd/commit/dbac24d7931832d0fed12e931e544d31a557626d) feat(docker): Add entrypoint and ports in image config (#533)
+ * [60f85f5](https://github.com/tensorchord/envd/commit/60f85f53c62597bc47f9d4328bb071b9795e0474) fix(README): Update coverage (#536)
+ * [8276d7d](https://github.com/tensorchord/envd/commit/8276d7da92658a2d885a00c5039a87fb78cb2376) feat(CLI): Add push (#531)
+ * [956fd73](https://github.com/tensorchord/envd/commit/956fd730aa04f1dd3cf78f699a0068436ae1d2c2) feat: Add notice for users without permission to docker daemon (#535)
+
+### Contributors
+
+ * Ce Gao
+ * nullday
+
+## v0.2.0-alpha.2 (2022-06-30)
+
+ * [b987fc6](https://github.com/tensorchord/envd/commit/b987fc6841f62e4f9a29633682c6481aea6de227) fix: uid corrupted when run envd by root user (#522)
+ * [310b42d](https://github.com/tensorchord/envd/commit/310b42dd450c582fb421ac183cccd7f82446156b) fix: Add talk with us in README (#526)
+ * [04e8444](https://github.com/tensorchord/envd/commit/04e84440e2a7239edd4ff7d4f7e374edcb0d950e) Fix Julia multiple pkg installation bug (#521)
+ * [523fb40](https://github.com/tensorchord/envd/commit/523fb400742ed5b539f44232d9eedad8eaefd13c) feat(CLI): Support context (#512)
+ * [fde448a](https://github.com/tensorchord/envd/commit/fde448aff613306cb5ff3d763c06f05de12ec338) feat: add envd init (#514)
+ * [8722564](https://github.com/tensorchord/envd/commit/8722564b12f0c96c58fca5d912c7c9c2e57c77a6) enhancement(CLI): Use upper case in CLI description (#515)
+
+### Contributors
+
+ * Aaron Sun
+ * Ce Gao
+ * Jinjing Zhou
+ * Yunchuan Zheng
+ * nullday
+
 ## v0.2.0-alpha.1 (2022-06-25)
 
  * [0ae8df9](https://github.com/tensorchord/envd/commit/0ae8df9e9eb4ec0c755920a7a3697cbab12b22e3) chore(deps): bump github.com/stretchr/testify from 1.7.2 to 1.7.5 (#505)
