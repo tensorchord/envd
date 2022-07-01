@@ -17,14 +17,18 @@ package ir
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 
+	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 func NewGraph() *Graph {
@@ -81,6 +85,14 @@ func Labels() (map[string]string, error) {
 	return DefaultGraph.Labels()
 }
 
+func ExposedPorts() (map[string]struct{}, error) {
+	return DefaultGraph.ExposedPorts()
+}
+
+func Entrypoint(buildContextDir string) ([]string, error) {
+	return DefaultGraph.Entrypoint(buildContextDir)
+}
+
 func (g Graph) GPUEnabled() bool {
 	return g.CUDA != nil
 }
@@ -112,6 +124,43 @@ func (g Graph) Labels() (map[string]string, error) {
 	labels[types.ImageLabelVendor] = types.ImageVendorEnvd
 
 	return labels, nil
+}
+
+func (g Graph) ExposedPorts() (map[string]struct{}, error) {
+	ports := make(map[string]struct{})
+	ports[fmt.Sprintf("%d/tcp", config.SSHPortInContainer)] = struct{}{}
+	if g.JupyterConfig != nil {
+		ports[fmt.Sprintf("%d/tcp", config.JupyterPortInContainer)] = struct{}{}
+	}
+	return ports, nil
+}
+
+func (g Graph) Entrypoint(buildContextDir string) ([]string, error) {
+	ep := []string{
+		"tini",
+		"--",
+		"bash",
+		"-c",
+	}
+
+	template := `set -e
+	/var/envd/bin/envd-ssh --authorized-keys %s --port %d --shell %s &
+	%s
+	wait -n`
+
+	if g.JupyterConfig != nil {
+		workingDir := fmt.Sprintf("/home/envd/%s", fileutil.Base(buildContextDir))
+		jupyterCmd := g.generateJupyterCommand(workingDir)
+		cmd := fmt.Sprintf(template,
+			config.ContainerAuthorizedKeysPath, config.SSHPortInContainer, g.Shell,
+			strings.Join(jupyterCmd, " "))
+		ep = append(ep, cmd)
+		return ep, nil
+	}
+	cmd := fmt.Sprintf(template,
+		config.ContainerAuthorizedKeysPath, config.SSHPortInContainer, g.Shell, "")
+	ep = append(ep, cmd)
+	return ep, nil
 }
 
 func (g Graph) Compile(uid, gid int) (llb.State, error) {
@@ -155,141 +204,4 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	}
 	g.Writer.Finish()
 	return finalStage, nil
-}
-
-func (g Graph) compileJulia(aptStage llb.State) (llb.State, error) {
-	g.compileJupyter()
-	builtinSystemStage := aptStage
-
-	sshStage, err := g.copySSHKey(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
-	}
-	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
-
-	shellStage, err := g.compileShell(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile shell")
-	}
-	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
-
-	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
-		llb.WithCustomName("install system packages"))
-
-	juliaStage := llb.Diff(builtinSystemStage,
-		g.installJuliaPackages(builtinSystemStage), llb.WithCustomName("install julia packages"))
-
-	vscodeStage, err := g.compileVSCode()
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
-	}
-
-	var merged llb.State
-	if vscodeStage != nil {
-		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, diffShellStage,
-			diffSSHStage, juliaStage, *vscodeStage,
-		}, llb.WithCustomName("merging all components into one"))
-	} else {
-		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, diffShellStage,
-			diffSSHStage, juliaStage,
-		}, llb.WithCustomName("merging all components into one"))
-	}
-	return merged, nil
-}
-
-func (g Graph) compileRLang(aptStage llb.State) (llb.State, error) {
-	g.compileJupyter()
-	builtinSystemStage := aptStage
-
-	sshStage, err := g.copySSHKey(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
-	}
-	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
-
-	// Conda affects shell and python, thus we cannot do it in parallel.
-	shellStage, err := g.compileShell(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile shell")
-	}
-	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
-
-	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
-		llb.WithCustomName("install system packages"))
-
-	// TODO(terrytangyuan): Support RStudio local server
-	rPackageInstallStage := llb.Diff(builtinSystemStage,
-		g.installRPackages(builtinSystemStage), llb.WithCustomName("install R packages"))
-
-	vscodeStage, err := g.compileVSCode()
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
-	}
-
-	var merged llb.State
-	if vscodeStage != nil {
-		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, diffShellStage,
-			diffSSHStage, rPackageInstallStage, *vscodeStage,
-		}, llb.WithCustomName("merging all components into one"))
-	} else {
-		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, diffShellStage,
-			diffSSHStage, rPackageInstallStage,
-		}, llb.WithCustomName("merging all components into one"))
-	}
-	return merged, nil
-}
-
-func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
-	condaChanelStage := g.compileCondaChannel(aptStage)
-	pypiMirrorStage := g.compilePyPIIndex(condaChanelStage)
-
-	g.compileJupyter()
-	builtinSystemStage := pypiMirrorStage
-
-	sshStage, err := g.copySSHKey(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
-	}
-	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
-
-	// Conda affects shell and python, thus we cannot do it in parallel.
-	shellStage, err := g.compileShell(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile shell")
-	}
-
-	condaEnvStage := g.setCondaENV(shellStage)
-
-	condaStage := llb.Diff(builtinSystemStage,
-		g.compileCondaPackages(condaEnvStage),
-		llb.WithCustomName("install conda packages"))
-
-	pypiStage := llb.Diff(condaEnvStage,
-		g.compilePyPIPackages(condaEnvStage),
-		llb.WithCustomName("install PyPI packages"))
-	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
-		llb.WithCustomName("install system packages"))
-
-	vscodeStage, err := g.compileVSCode()
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
-	}
-
-	var merged llb.State
-	if vscodeStage != nil {
-		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, condaStage,
-			diffSSHStage, pypiStage, *vscodeStage,
-		}, llb.WithCustomName("merging all components into one"))
-	} else {
-		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, condaStage,
-			diffSSHStage, pypiStage,
-		}, llb.WithCustomName("merging all components into one"))
-	}
-	return merged, nil
 }

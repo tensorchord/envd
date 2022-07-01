@@ -159,13 +159,22 @@ func (b generalBuilder) compile(ctx context.Context, pub string) (*llb.Definitio
 	return def, nil
 }
 
-func (b generalBuilder) labels(ctx context.Context) (string, error) {
+func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	labels, err := ir.Labels()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get labels")
 	}
+	ports, err := ir.ExposedPorts()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get expose ports")
+	}
 	labels[types.ImageLabelContext] = b.buildContextDir
-	data, err := ImageConfigStr(labels)
+
+	ep, err := ir.Entrypoint(b.buildContextDir)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get entrypoint")
+	}
+	data, err := ImageConfigStr(labels, ports, ep)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get image config")
 	}
@@ -173,7 +182,7 @@ func (b generalBuilder) labels(ctx context.Context) (string, error) {
 }
 
 func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progresswriter.Writer) error {
-	labels, err := b.labels(ctx)
+	imageConfig, err := b.imageConfig(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to get labels")
 	}
@@ -198,7 +207,7 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 						Attrs: map[string]string{
 							"name": b.tag,
 							// Ref https://github.com/r2d4/mockerfile/blob/140c6a912bbfdae220febe59ab535ef0acba0e1f/pkg/build/build.go#L65
-							"containerimage.config": labels,
+							"containerimage.config": imageConfig,
 						},
 						Output: func(map[string]string) (io.WriteCloser, error) {
 							return pipeW, nil

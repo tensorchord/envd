@@ -24,12 +24,14 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func labels(name string, jupyterConfig *ir.JupyterConfig, sshPort int) map[string]string {
+func labels(name string, jupyterConfig *ir.JupyterConfig,
+	sshPortInHost, jupyterPortInHost int) map[string]string {
 	res := make(map[string]string)
 	res[types.ContainerLabelName] = name
-	res[types.ContainerLabelSSHPort] = strconv.Itoa(sshPort)
+	res[types.ContainerLabelSSHPort] = strconv.Itoa(sshPortInHost)
 	if jupyterConfig != nil {
-		res[types.ContainerLabelJupyterAddr] = fmt.Sprintf("http://localhost:%d", jupyterConfig.Port)
+		res[types.ContainerLabelJupyterAddr] =
+			fmt.Sprintf("http://localhost:%d", jupyterPortInHost)
 	}
 	return res
 }

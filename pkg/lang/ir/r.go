@@ -18,8 +18,53 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 )
+
+func (g Graph) compileRLang(aptStage llb.State) (llb.State, error) {
+	g.compileJupyter()
+	builtinSystemStage := aptStage
+
+	sshStage, err := g.copySSHKey(builtinSystemStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
+	}
+	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
+
+	// Conda affects shell and python, thus we cannot do it in parallel.
+	shellStage, err := g.compileShell(builtinSystemStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile shell")
+	}
+	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
+
+	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
+		llb.WithCustomName("install system packages"))
+
+	// TODO(terrytangyuan): Support RStudio local server
+	rPackageInstallStage := llb.Diff(builtinSystemStage,
+		g.installRPackages(builtinSystemStage), llb.WithCustomName("install R packages"))
+
+	vscodeStage, err := g.compileVSCode()
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
+	}
+
+	var merged llb.State
+	if vscodeStage != nil {
+		merged = llb.Merge([]llb.State{
+			builtinSystemStage, systemStage, diffShellStage,
+			diffSSHStage, rPackageInstallStage, *vscodeStage,
+		}, llb.WithCustomName("merging all components into one"))
+	} else {
+		merged = llb.Merge([]llb.State{
+			builtinSystemStage, systemStage, diffShellStage,
+			diffSSHStage, rPackageInstallStage,
+		}, llb.WithCustomName("merging all components into one"))
+	}
+	return merged, nil
+}
 
 func (g Graph) installRPackages(root llb.State) llb.State {
 	if len(g.RPackages) == 0 {

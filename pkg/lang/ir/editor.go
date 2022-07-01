@@ -15,6 +15,8 @@
 package ir
 
 import (
+	"strconv"
+
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 
@@ -56,4 +58,36 @@ func (g *Graph) compileJupyter() {
 	if g.JupyterConfig != nil {
 		g.PyPIPackages = append(g.PyPIPackages, "jupyter")
 	}
+}
+
+func (g Graph) generateJupyterCommand(notebookDir string) []string {
+	if g.JupyterConfig == nil {
+		return nil
+	}
+
+	var cmd []string
+	// Use python in conda env.
+	if g.CondaEnabled() {
+		cmd = append(cmd, "/opt/conda/bin/python3")
+	} else {
+		cmd = append(cmd, "python3")
+	}
+
+	cmd = append(cmd, []string{
+		"-m", "notebook",
+		"--ip", "0.0.0.0", "--notebook-dir", notebookDir,
+	}...)
+
+	if g.JupyterConfig.Password != "" {
+		cmd = append(cmd, "--NotebookApp.password", g.JupyterConfig.Password,
+			"--NotebookApp.token", "''")
+	} else {
+		cmd = append(cmd, "--NotebookApp.password", "''",
+			"--NotebookApp.token", "''")
+	}
+	if g.JupyterConfig.Port != 0 {
+		p := strconv.Itoa(int(g.JupyterConfig.Port))
+		cmd = append(cmd, "--port", p)
+	}
+	return cmd
 }

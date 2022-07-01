@@ -146,6 +146,7 @@ func up(clicontext *cli.Context) error {
 	if err := builder.Build(clicontext.Context, clicontext.Path("public-key")); err != nil {
 		return errors.Wrap(err, "failed to build the image")
 	}
+	// Do not attach GPU if the flag is set.
 	gpuEnable := clicontext.Bool("no-gpu")
 	var gpu bool
 	if gpuEnable {
@@ -169,14 +170,14 @@ func up(clicontext *cli.Context) error {
 		}
 	}
 
-	sshPort, err := netutil.GetFreePort()
+	sshPortInHost, err := netutil.GetFreePort()
 	if err != nil {
 		return errors.Wrap(err, "failed to get a free port")
 	}
 	numGPUs := builder.NumGPUs()
 
 	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
-		tag, ctr, buildContext, gpu, numGPUs, sshPort, *ir.DefaultGraph, clicontext.Duration("timeout"),
+		tag, ctr, buildContext, gpu, numGPUs, sshPortInHost, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))
 	if err != nil {
 		return errors.Wrap(err, "failed to start the envd environment")
@@ -185,14 +186,14 @@ func up(clicontext *cli.Context) error {
 
 	logrus.Debugf("Add entry %s to SSH config. at %s", buildContext, containerIP)
 	if err = sshconfig.AddEntry(
-		ctr, localhost, sshPort, clicontext.Path("private-key")); err != nil {
+		ctr, localhost, sshPortInHost, clicontext.Path("private-key")); err != nil {
 		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 
 	if !detach {
 		sshClient, err := ssh.NewClient(
-			localhost, "envd", sshPort, true, clicontext.Path("private-key"), "")
+			localhost, "envd", sshPortInHost, true, clicontext.Path("private-key"), "")
 		if err != nil {
 			return errors.Wrap(err, "failed to create the ssh client")
 		}

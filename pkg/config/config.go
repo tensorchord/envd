@@ -19,4 +19,6 @@ const (
 	PrivateKeyFile              = "id_rsa_envd"
 	PublicKeyFile               = "id_rsa_envd.pub"
 	ContainerAuthorizedKeysPath = "/var/envd/authorized_keys"
+	SSHPortInContainer          = 2222
+	JupyterPortInContainer      = 8888
 )

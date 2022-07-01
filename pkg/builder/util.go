@@ -29,13 +29,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func ImageConfigStr(labels map[string]string) (string, error) {
+func ImageConfigStr(labels map[string]string,
+	ports map[string]struct{}, entrypoint []string) (string, error) {
 	pl := platforms.Normalize(platforms.DefaultSpec())
 	img := v1.Image{
 		Config: v1.ImageConfig{
-			Labels:     labels,
-			WorkingDir: "/",
-			Env:        []string{"PATH=" + DefaultPathEnv(pl.OS)},
+			Labels:       labels,
+			WorkingDir:   "/",
+			Env:          []string{"PATH=" + DefaultPathEnv(pl.OS)},
+			ExposedPorts: ports,
+			Entrypoint:   entrypoint,
 		},
 		Architecture: pl.Architecture,
 		// Refer to https://github.com/tensorchord/envd/issues/269#issuecomment-1152944914
