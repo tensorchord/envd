@@ -15,6 +15,7 @@
 package app
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
@@ -94,7 +95,7 @@ func build(clicontext *cli.Context) error {
 	tag := clicontext.String("tag")
 	if tag == "" {
 		logrus.Debug("tag not specified, using default")
-		tag = fileutil.Base(buildContext)
+		tag = fmt.Sprintf("%s:%s", fileutil.Base(buildContext), "dev")
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
