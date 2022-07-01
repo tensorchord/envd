@@ -45,12 +45,6 @@ var _ = Describe("Builder", func() {
 			tag = "envd-dev:test"
 			Expect(home.Initialize()).NotTo(HaveOccurred())
 		})
-		When("getting the wrong builtkitd address", func() {
-			It("should return an error", func() {
-				_, err := New(context.TODO(), configFilePath, manifestFilePath, buildContext, tag, "", false)
-				Expect(err).To(HaveOccurred())
-			})
-		})
 		When("building the manifest", func() {
 			var b *generalBuilder
 			var w compileui.Writer
