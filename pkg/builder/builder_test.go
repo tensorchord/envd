@@ -37,11 +37,10 @@ import (
 
 var _ = Describe("Builder", func() {
 	Describe("building image", Label("buildkitd"), func() {
-		var configFilePath, manifestFilePath, buildContext, tag string
+		var configFilePath, manifestFilePath, tag string
 		BeforeEach(func() {
 			configFilePath = "config.envd"
 			manifestFilePath = "build.envd"
-			buildContext = "testdata"
 			tag = "envd-dev:test"
 			Expect(home.Initialize()).NotTo(HaveOccurred())
 		})
