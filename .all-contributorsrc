@@ -120,7 +120,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/7611700?v=4",
       "profile": "https://t.me/littlepoint",
       "contributions": [
-        "code"
+        "code",
+        "doc"
       ]
     },
     {
@@ -245,6 +246,43 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/78520005?v=4",
       "profile": "https://github.com/Gui-Yue",
       "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "shaonianche",
+      "name": " Friends A.",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16186646?v=4",
+      "profile": "http://blog.duanfei.org",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "yczheng0",
+      "name": "Yunchuan Zheng",
+      "avatar_url": "https://avatars.githubusercontent.com/u/21327543?v=4",
+      "profile": "https://github.com/yczheng0",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "lizhemingi",
+      "name": "Zheming Li",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9639449?v=4",
+      "profile": "http://lizheming.top",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "aseaday",
+      "name": "nullday",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3927355?v=4",
+      "profile": "https://github.com/aseaday",
+      "contributions": [
+        "ideas",
         "code"
       ]
     }

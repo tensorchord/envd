@@ -17,9 +17,10 @@ package config
 import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 var (
@@ -38,6 +39,8 @@ var Module = &starlarkstruct.Module{
 			rulePyPIIndex, ruleFuncPyPIIndex),
 		"conda_channel": starlark.NewBuiltin(
 			ruleCondaChannel, ruleFuncCondaChannel),
+		"julia_pkg_server": starlark.NewBuiltin(
+			ruleJuliaPackageServer, ruleFuncJuliaPackageServer),
 	},
 }
 
@@ -70,17 +73,14 @@ func ruleFuncJupyter(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	pwdStr := ""
-	if password != starlark.String("") {
-		pwdStr = password.GoString()
-	}
+	pwdStr := password.GoString()
 
 	portInt, ok := port.Int64()
 	if !ok {
 		return nil, errors.New("port must be an integer")
 	}
-	logger.Debugf("rule `%s` is invoked, password=%s, port=%d", ruleJupyter,
-		pwdStr, portInt)
+	logger.Debugf("rule `%s` is invoked, password=%s, port=%d",
+		ruleJupyter, pwdStr, portInt)
 	if err := ir.Jupyter(pwdStr, portInt); err != nil {
 		return nil, err
 	}
@@ -97,21 +97,12 @@ func ruleFuncPyPIIndex(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	modeStr := ""
-	if mode != starlark.String("") {
-		modeStr = mode.GoString()
-	}
-	indexStr := ""
-	if url != starlark.String("") {
-		indexStr = url.GoString()
-	}
-	extraIndexStr := ""
-	if extraURL != starlark.String("") {
-		extraIndexStr = extraURL.GoString()
-	}
+	modeStr := mode.GoString()
+	indexStr := url.GoString()
+	extraIndexStr := extraURL.GoString()
 
-	logger.Debugf("rule `%s` is invoked, mode=%s, index=%s, extraIndex=%s", rulePyPIIndex,
-		modeStr, indexStr, extraIndexStr)
+	logger.Debugf("rule `%s` is invoked, mode=%s, index=%s, extraIndex=%s",
+		rulePyPIIndex, modeStr, indexStr, extraIndexStr)
 	if err := ir.PyPIIndex(modeStr, indexStr, extraIndexStr); err != nil {
 		return nil, err
 	}
@@ -128,13 +119,28 @@ func ruleFuncCRANMirror(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	urlStr := ""
-	if url != starlark.String("") {
-		urlStr = url.GoString()
-	}
+	urlStr := url.GoString()
 
 	logger.Debugf("rule `%s` is invoked, url=%s", ruleCRANMirror, urlStr)
 	if err := ir.CRANMirror(urlStr); err != nil {
+		return nil, err
+	}
+	return starlark.None, nil
+}
+
+func ruleFuncJuliaPackageServer(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var url starlark.String
+
+	if err := starlark.UnpackArgs(ruleJuliaPackageServer, args, kwargs,
+		"url?", &url); err != nil {
+		return nil, err
+	}
+
+	urlStr := url.GoString()
+
+	logger.Debugf("rule `%s` is invoked, url=%s", ruleJuliaPackageServer, urlStr)
+	if err := ir.JuliaPackageServer(urlStr); err != nil {
 		return nil, err
 	}
 	return starlark.None, nil
@@ -149,17 +155,11 @@ func ruleFuncUbuntuAptSource(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	modeStr := ""
-	if mode != starlark.String("") {
-		modeStr = mode.GoString()
-	}
-	sourceStr := ""
-	if source != starlark.String("") {
-		sourceStr = source.GoString()
-	}
+	modeStr := mode.GoString()
+	sourceStr := source.GoString()
 
-	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s", ruleUbuntuAptSource,
-		modeStr, sourceStr)
+	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s",
+		ruleUbuntuAptSource, modeStr, sourceStr)
 	if err := ir.UbuntuAPT(modeStr, sourceStr); err != nil {
 		return nil, err
 	}
@@ -176,13 +176,10 @@ func ruleFuncCondaChannel(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	channelStr := ""
-	if channel != starlark.String("") {
-		channelStr = channel.GoString()
-	}
+	channelStr := channel.GoString()
 
-	logger.Debugf("rule `%s` is invoked, channel=%s", ruleCondaChannel,
-		channelStr)
+	logger.Debugf("rule `%s` is invoked, channel=%s",
+		ruleCondaChannel, channelStr)
 	if err := ir.CondaChannel(channelStr); err != nil {
 		return nil, err
 	}

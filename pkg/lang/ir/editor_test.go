@@ -12,23 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package jupyter
+package ir
 
 import (
 	"testing"
-
-	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 func TestGenerateCommand(t *testing.T) {
 	testcases := []struct {
-		graph    ir.Graph
+		graph    Graph
 		dir      string
 		expected []string
 	}{
 		{
-			graph: ir.Graph{
-				JupyterConfig: &ir.JupyterConfig{
+			graph: Graph{
+				JupyterConfig: &JupyterConfig{
 					Password: "",
 					Port:     8888,
 				},
@@ -41,8 +39,8 @@ func TestGenerateCommand(t *testing.T) {
 			},
 		},
 		{
-			graph: ir.Graph{
-				JupyterConfig: &ir.JupyterConfig{
+			graph: Graph{
+				JupyterConfig: &JupyterConfig{
 					Password: "test",
 					Port:     8888,
 				},
@@ -55,13 +53,13 @@ func TestGenerateCommand(t *testing.T) {
 			},
 		},
 		{
-			graph:    ir.Graph{},
+			graph:    Graph{},
 			dir:      "test",
 			expected: []string{},
 		},
 	}
 	for _, tc := range testcases {
-		actual := GenerateCommand(tc.graph, tc.dir)
+		actual := tc.graph.generateJupyterCommand(tc.dir)
 		if !equal(actual, tc.expected) {
 			t.Errorf("failed to generate the command: expected %v, got %v", tc.expected, actual)
 		}

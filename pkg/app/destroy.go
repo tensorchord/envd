@@ -19,7 +19,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	cli "github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/docker"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
@@ -29,7 +29,7 @@ import (
 var CommandDestroy = &cli.Command{
 	Name:    "destroy",
 	Aliases: []string{"d"},
-	Usage:   "destroys the envd environment",
+	Usage:   "Destroy the envd environment",
 	Flags: []cli.Flag{
 		&cli.PathFlag{
 			Name:        "path",

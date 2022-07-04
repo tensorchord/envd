@@ -1,5 +1,68 @@
 # Changelog
 
+## v0.2.0-alpha.3 (2022-07-01)
+
+ * [dbac24d](https://github.com/tensorchord/envd/commit/dbac24d7931832d0fed12e931e544d31a557626d) feat(docker): Add entrypoint and ports in image config (#533)
+ * [60f85f5](https://github.com/tensorchord/envd/commit/60f85f53c62597bc47f9d4328bb071b9795e0474) fix(README): Update coverage (#536)
+ * [8276d7d](https://github.com/tensorchord/envd/commit/8276d7da92658a2d885a00c5039a87fb78cb2376) feat(CLI): Add push (#531)
+ * [956fd73](https://github.com/tensorchord/envd/commit/956fd730aa04f1dd3cf78f699a0068436ae1d2c2) feat: Add notice for users without permission to docker daemon (#535)
+
+### Contributors
+
+ * Ce Gao
+ * nullday
+
+## v0.2.0-alpha.2 (2022-06-30)
+
+ * [b987fc6](https://github.com/tensorchord/envd/commit/b987fc6841f62e4f9a29633682c6481aea6de227) fix: uid corrupted when run envd by root user (#522)
+ * [310b42d](https://github.com/tensorchord/envd/commit/310b42dd450c582fb421ac183cccd7f82446156b) fix: Add talk with us in README (#526)
+ * [04e8444](https://github.com/tensorchord/envd/commit/04e84440e2a7239edd4ff7d4f7e374edcb0d950e) Fix Julia multiple pkg installation bug (#521)
+ * [523fb40](https://github.com/tensorchord/envd/commit/523fb400742ed5b539f44232d9eedad8eaefd13c) feat(CLI): Support context (#512)
+ * [fde448a](https://github.com/tensorchord/envd/commit/fde448aff613306cb5ff3d763c06f05de12ec338) feat: add envd init (#514)
+ * [8722564](https://github.com/tensorchord/envd/commit/8722564b12f0c96c58fca5d912c7c9c2e57c77a6) enhancement(CLI): Use upper case in CLI description (#515)
+
+### Contributors
+
+ * Aaron Sun
+ * Ce Gao
+ * Jinjing Zhou
+ * Yunchuan Zheng
+ * nullday
+
+## v0.2.0-alpha.1 (2022-06-25)
+
+ * [0ae8df9](https://github.com/tensorchord/envd/commit/0ae8df9e9eb4ec0c755920a7a3697cbab12b22e3) chore(deps): bump github.com/stretchr/testify from 1.7.2 to 1.7.5 (#505)
+ * [1cd5a27](https://github.com/tensorchord/envd/commit/1cd5a27027dd696276fa75e1d52a02858b7e7de8) chore(deps): bump github.com/urfave/cli/v2 from 2.8.1 to 2.10.3 (#504)
+ * [ca6435d](https://github.com/tensorchord/envd/commit/ca6435ddfd29f5be2e85a1039da50c4db2fea03f) feat(lang): Support julia (#495)
+ * [220d874](https://github.com/tensorchord/envd/commit/220d874712d7f7120f16337324d23b440163e3f7) feat(ssh): Config ssh key permanently and globally (#487)
+ * [7127365](https://github.com/tensorchord/envd/commit/7127365e47c6a2923ce93ecf0164df49810b13fc) feat(lang): Support R language (#491)
+ * [3f86086](https://github.com/tensorchord/envd/commit/3f860868426e8a96c3daf25962f79d964f57a8b1) feat(lang): Support python requirements.txt in python_packages (#484)
+ * [b31f4cd](https://github.com/tensorchord/envd/commit/b31f4cd5e98d1982eb92d71759a9ecd7df36c72d) fix: correct comments and unify receiver names and simplify some code (#477)
+ * [35c6b76](https://github.com/tensorchord/envd/commit/35c6b7606803485eeaae4f771b4a3a60060f853c) feat #246: envd up a GPU image without GPUs  (#474)
+ * [ff43aa3](https://github.com/tensorchord/envd/commit/ff43aa35236171d3a497f6556bcd3e7ab30c6164) Update build.go (#472)
+ * [229821a](https://github.com/tensorchord/envd/commit/229821a0634c20c1b05d4f8c81e4dbf7b81d1e35) feat(CLI): Add '--detail' for detail version information (#283) (#471)
+ * [6bd547e](https://github.com/tensorchord/envd/commit/6bd547ea3f3132d1b82634560de265644e931637) feat(CLI): Add go API to support LSP (#302)
+ * [45fcbe3](https://github.com/tensorchord/envd/commit/45fcbe39171085414c1f08b579d238760b869a2a) fix typos (#468)
+ * [f2ff5b7](https://github.com/tensorchord/envd/commit/f2ff5b749af6c25e695676e40cd16e6accb21325) feat(CLI): Prune cache (#464)
+ * [5d21bd3](https://github.com/tensorchord/envd/commit/5d21bd383ead10d410daa7e67e9b23b30c830cce) chore(Makefile): add default goal as `build` (#465)
+ * [df4a395](https://github.com/tensorchord/envd/commit/df4a395ad48d3f45c77c2ec7de419d74561d7c7e) feat: Print out container info when wait timeout (#460)
+ * [657c2cb](https://github.com/tensorchord/envd/commit/657c2cb1226020eb754510ffa9876d353d4baefe) feat: Add base image for R language (#457)
+ * [3c0afb3](https://github.com/tensorchord/envd/commit/3c0afb3b9bbf35a5ce211f3b19d5bf226f1028ae) fix: enable release with Homebrew only on stable versions (#455)
+
+### Contributors
+
+ * Aka.Fido
+ * Ce Gao
+ * Gui-Yue
+ * Haiker Sun
+ * Jinjing Zhou
+ * Yuan Tang
+ * Yuchen Cheng
+ * Zhenzhen Zhao
+ * Zhizhen He
+ * dependabot[bot]
+ * kenwoodjw
+
 ## v0.1.0-rc.2 (2022-06-18)
 
  * [3abef45](https://github.com/tensorchord/envd/commit/3abef452fb45bdcdbe4291caeae1ebd1a12589e4) fix: Fix the bug about uid (#447)

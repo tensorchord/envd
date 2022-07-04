@@ -19,9 +19,61 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 )
+
+func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
+	condaChanelStage := g.compileCondaChannel(aptStage)
+	pypiMirrorStage := g.compilePyPIIndex(condaChanelStage)
+
+	g.compileJupyter()
+	builtinSystemStage := pypiMirrorStage
+
+	sshStage, err := g.copySSHKey(builtinSystemStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
+	}
+	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
+
+	// Conda affects shell and python, thus we cannot do it in parallel.
+	shellStage, err := g.compileShell(builtinSystemStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile shell")
+	}
+
+	condaEnvStage := g.setCondaENV(shellStage)
+
+	condaStage := llb.Diff(builtinSystemStage,
+		g.compileCondaPackages(condaEnvStage),
+		llb.WithCustomName("install conda packages"))
+
+	pypiStage := llb.Diff(condaEnvStage,
+		g.compilePyPIPackages(condaEnvStage),
+		llb.WithCustomName("install PyPI packages"))
+	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
+		llb.WithCustomName("install system packages"))
+
+	vscodeStage, err := g.compileVSCode()
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
+	}
+
+	var merged llb.State
+	if vscodeStage != nil {
+		merged = llb.Merge([]llb.State{
+			builtinSystemStage, systemStage, condaStage,
+			diffSSHStage, pypiStage, *vscodeStage,
+		}, llb.WithCustomName("merging all components into one"))
+	} else {
+		merged = llb.Merge([]llb.State{
+			builtinSystemStage, systemStage, condaStage,
+			diffSSHStage, pypiStage,
+		}, llb.WithCustomName("merging all components into one"))
+	}
+	return merged, nil
+}
 
 func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	if len(g.PyPIPackages) == 0 {

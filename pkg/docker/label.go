@@ -24,17 +24,19 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func labels(name string, jupyterConfig *ir.JupyterConfig, sshPort int) map[string]string {
+func labels(name string, jupyterConfig *ir.JupyterConfig,
+	sshPortInHost, jupyterPortInHost int) map[string]string {
 	res := make(map[string]string)
 	res[types.ContainerLabelName] = name
-	res[types.ContainerLabelSSHPort] = strconv.Itoa(sshPort)
+	res[types.ContainerLabelSSHPort] = strconv.Itoa(sshPortInHost)
 	if jupyterConfig != nil {
-		res[types.ContainerLabelJupyterAddr] = fmt.Sprintf("http://localhost:%d", jupyterConfig.Port)
+		res[types.ContainerLabelJupyterAddr] =
+			fmt.Sprintf("http://localhost:%d", jupyterPortInHost)
 	}
 	return res
 }
 
-func dockerfilters(gpu bool) filters.Args {
+func dockerFilters(gpu bool) filters.Args {
 	f := filters.NewArgs()
 	f.Add("label", fmt.Sprintf("%s=%s", types.ImageLabelVendor, types.ImageVendorEnvd))
 	if gpu {
@@ -43,7 +45,7 @@ func dockerfilters(gpu bool) filters.Args {
 	return f
 }
 
-func dockerfiltersWithName(name string) filters.Args {
+func dockerFiltersWithName(name string) filters.Args {
 	f := filters.NewArgs()
 	f.Add("reference", name)
 	return f

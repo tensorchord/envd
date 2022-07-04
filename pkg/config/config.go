@@ -13,21 +13,12 @@
 
 package config
 
-import (
-	"path/filepath"
-
-	"github.com/adrg/xdg"
-)
-
 type UpState string
 
 const (
 	PrivateKeyFile              = "id_rsa_envd"
 	PublicKeyFile               = "id_rsa_envd.pub"
-	ContainerauthorizedKeysPath = "/var/envd/authorized_keys"
-	envdFolderName              = ".envd"
+	ContainerAuthorizedKeysPath = "/var/envd/authorized_keys"
+	SSHPortInContainer          = 2222
+	JupyterPortInContainer      = 8888
 )
-
-func GetEnvdHome() string {
-	return filepath.Join(xdg.ConfigHome, envdFolderName)
-}

@@ -1,0 +1,12 @@
+def build():
+    # Use ubuntu20.04 as base image and install r
+    base(os="ubuntu20.04", language="r")
+
+    # Add the packages you are using here
+    install.r_packages([
+            "remotes",
+            "rlang",
+        ])
+
+    # Select the shell environment you like
+    shell("zsh")

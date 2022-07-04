@@ -26,7 +26,7 @@ var (
 	logger = logrus.WithField("frontend", "starlark")
 )
 
-// registerenvdRules registers built-in envd rules into the global namespace.
+// RegisterenvdRules registers built-in envd rules into the global namespace.
 func RegisterenvdRules() {
 	starlark.Universe[ruleBase] = starlark.NewBuiltin(ruleBase, ruleFuncBase)
 	starlark.Universe[ruleShell] = starlark.NewBuiltin(ruleShell, ruleFuncShell)
@@ -42,27 +42,19 @@ func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var os, language starlark.String
 
-	if err := starlark.UnpackArgs(ruleBase, args, kwargs, "os?", &os, "language?", &language); err != nil {
+	if err := starlark.UnpackArgs(ruleBase, args, kwargs,
+		"os?", &os, "language?", &language); err != nil {
 		return nil, err
 	}
 
-	osStr := ""
-	if os != starlark.String("") {
-		osStr = os.GoString()
-	}
-	langStr := ""
-	if language != starlark.String("") {
-		langStr = language.GoString()
-	}
+	osStr := os.GoString()
+	langStr := language.GoString()
 
-	logger.Debugf("rule `%s` is invoked, os=%s, language=%s", ruleBase,
-		osStr, langStr)
+	logger.Debugf("rule `%s` is invoked, os=%s, language=%s",
+		ruleBase, osStr, langStr)
+
 	err := ir.Base(osStr, langStr)
-	if err != nil {
-		return starlark.None, err
-	}
-
-	return starlark.None, nil
+	return starlark.None, err
 }
 
 func ruleFuncRun(thread *starlark.Thread, _ *starlark.Builtin,
@@ -97,18 +89,12 @@ func ruleFuncShell(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	shellStr := ""
-	if shell != starlark.String("") {
-		shellStr = shell.GoString()
-	}
+	shellStr := shell.GoString()
 
-	logger.Debugf("rule `%s` is invoked, shell=%s", ruleShell,
-		shellStr)
-	if err := ir.Shell(shellStr); err != nil {
-		return nil, err
-	}
+	logger.Debugf("rule `%s` is invoked, shell=%s", ruleShell, shellStr)
 
-	return starlark.None, nil
+	err := ir.Shell(shellStr)
+	return starlark.None, err
 }
 
 func ruleFuncGitConfig(thread *starlark.Thread, _ *starlark.Builtin,
@@ -120,26 +106,13 @@ func ruleFuncGitConfig(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameStr := ""
-	if name != starlark.String("") {
-		nameStr = name.GoString()
-	}
-
-	emailStr := ""
-	if email != starlark.String("") {
-		nameStr = email.GoString()
-	}
-
-	editorStr := ""
-	if editor != starlark.String("") {
-		editorStr = editor.GoString()
-	}
+	nameStr := name.GoString()
+	emailStr := email.GoString()
+	editorStr := editor.GoString()
 
 	logger.Debugf("rule `%s` is invoked, name=%s, email=%s, editor=%s",
 		ruleGitConfig, nameStr, emailStr, editorStr)
-	if err := ir.Git(nameStr, emailStr, editorStr); err != nil {
-		return nil, err
-	}
 
-	return starlark.None, nil
+	err := ir.Git(nameStr, emailStr, editorStr)
+	return starlark.None, err
 }

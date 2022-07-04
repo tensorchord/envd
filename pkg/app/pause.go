@@ -17,18 +17,19 @@ package app
 import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/urfave/cli/v2"
+
+	"github.com/tensorchord/envd/pkg/envd"
 )
 
 var CommandPause = &cli.Command{
 	Name:    "pause",
 	Aliases: []string{"p"},
-	Usage:   "pause the envd environment",
+	Usage:   "Pause the envd environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "env",
-			Usage:   "environment name",
+			Usage:   "Environment name",
 			Aliases: []string{"e"},
 		},
 	},
@@ -45,9 +46,11 @@ func pause(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create envd engine")
 	}
-	if name, err := envdEngine.PauseEnvironment(clicontext.Context, env); err != nil {
+	name, err := envdEngine.PauseEnvironment(clicontext.Context, env)
+	if err != nil {
 		return errors.Wrap(err, "failed to pause the environment")
-	} else if name != "" {
+	}
+	if name != "" {
 		logrus.Infof("%s is paused", name)
 	}
 	return nil

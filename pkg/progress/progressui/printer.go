@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	digest "github.com/opencontainers/go-digest"
+	"github.com/opencontainers/go-digest"
 	"github.com/tonistiigi/units"
 )
 

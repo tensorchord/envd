@@ -22,6 +22,8 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
+	"github.com/moby/buildkit/session"
+	"github.com/moby/buildkit/session/auth/authprovider"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
@@ -48,20 +50,34 @@ type generalBuilder struct {
 	progressMode     string
 	tag              string
 	buildContextDir  string
-	outputType       string
-	outputDest       string
 	funcname         string
+
+	entries []client.ExportEntry
 
 	logger *logrus.Entry
 	starlark.Interpreter
 	buildkitd.Client
 }
 
-func New(ctx context.Context, configFilePath, manifestFilePath, funcname, buildContextDir, tag, output string, debug bool) (Builder, error) {
-	outputType, outputDest, err := parseOutput(output)
+func New(ctx context.Context, configFilePath, manifestFilePath, funcname,
+	buildContextDir, tag string, output string, debug bool) (Builder, error) {
+	entries, err := parseOutput(output)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse output")
 	}
+
+	logrus.WithField("entry", entries).Debug("getting exporter entry")
+	// Build docker image by default
+	if len(entries) == 0 {
+		entries = []client.ExportEntry{
+			{
+				Type: client.ExporterDocker,
+			},
+		}
+	} else if len(entries) > 1 {
+		return nil, errors.New("only one output type is supported")
+	}
+
 	var mode string = "auto"
 	if debug {
 		mode = "plain"
@@ -71,18 +87,20 @@ func New(ctx context.Context, configFilePath, manifestFilePath, funcname, buildC
 		manifestFilePath: manifestFilePath,
 		funcname:         funcname,
 		configFilePath:   configFilePath,
-		outputType:       outputType,
-		outputDest:       outputDest,
 		buildContextDir:  buildContextDir,
-		// TODO(gaocegege): Support other mode?
-		progressMode: mode,
-		tag:          tag,
+		entries:          entries,
+		progressMode:     mode,
+		tag:              tag,
 		logger: logrus.WithFields(logrus.Fields{
 			"tag": tag,
 		}),
 	}
 
-	cli, err := buildkitd.NewClient(ctx, "")
+	currentDriver, currentSocket, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get the current context")
+	}
+	cli, err := buildkitd.NewClient(ctx, currentDriver, currentSocket, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create buildkit client")
 	}
@@ -143,13 +161,22 @@ func (b generalBuilder) compile(ctx context.Context, pub string) (*llb.Definitio
 	return def, nil
 }
 
-func (b generalBuilder) labels(ctx context.Context) (string, error) {
+func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	labels, err := ir.Labels()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get labels")
 	}
+	ports, err := ir.ExposedPorts()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get expose ports")
+	}
 	labels[types.ImageLabelContext] = b.buildContextDir
-	data, err := ImageConfigStr(labels)
+
+	ep, err := ir.Entrypoint(b.buildContextDir)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get entrypoint")
+	}
+	data, err := ImageConfigStr(labels, ports, ep)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get image config")
 	}
@@ -157,7 +184,7 @@ func (b generalBuilder) labels(ctx context.Context) (string, error) {
 }
 
 func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progresswriter.Writer) error {
-	labels, err := b.labels(ctx)
+	imageConfig, err := b.imageConfig(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to get labels")
 	}
@@ -169,39 +196,89 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 	// Create a pipe to load the image into the docker host.
 	pipeR, pipeW := io.Pipe()
 
-	eg.Go(func() error {
-		defer pipeW.Close()
-		_, err := b.Solve(ctx, def, client.SolveOpt{
-			Exports: []client.ExportEntry{
-				{
-					Type: client.ExporterDocker,
-					Attrs: map[string]string{
-						"name": b.tag,
-						// Ref https://github.com/r2d4/mockerfile/blob/140c6a912bbfdae220febe59ab535ef0acba0e1f/pkg/build/build.go#L65
-						"containerimage.config": labels,
+	for _, entry := range b.entries {
+		// Set up docker config auth.
+		attachable := []session.Attachable{authprovider.NewDockerAuthProvider(os.Stderr)}
+		switch entry.Type {
+		// Create default build.
+		case client.ExporterDocker:
+			eg.Go(func() error {
+				if entry.Attrs == nil {
+					entry = client.ExportEntry{
+						Type: client.ExporterDocker,
+						Attrs: map[string]string{
+							"name": b.tag,
+							// Ref https://github.com/r2d4/mockerfile/blob/140c6a912bbfdae220febe59ab535ef0acba0e1f/pkg/build/build.go#L65
+							"containerimage.config": imageConfig,
+						},
+						Output: func(map[string]string) (io.WriteCloser, error) {
+							return pipeW, nil
+						},
+					}
+				}
+				defer pipeW.Close()
+				_, err := b.Solve(ctx, def, client.SolveOpt{
+					Exports: []client.ExportEntry{entry},
+					LocalDirs: map[string]string{
+						flag.FlagContextDir: b.buildContextDir,
+						flag.FlagCacheDir:   home.GetManager().CacheDir(),
 					},
-					Output: func(map[string]string) (io.WriteCloser, error) {
-						return pipeW, nil
+					Session: attachable,
+					// TODO(gaocegege): Use llb.WithProxy to implement it.
+					FrontendAttrs: map[string]string{
+						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
 					},
-				},
-			},
-			LocalDirs: map[string]string{
-				flag.FlagContextDir: b.buildContextDir,
-				flag.FlagCacheDir:   home.GetManager().CacheDir(),
-			},
-			// TODO(gaocegege): Use llb.WithProxy to implement it.
-			FrontendAttrs: map[string]string{
-				"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
-			},
-		}, pw.Status())
-		if err != nil {
-			err = errors.Wrap(err, "failed to solve LLB")
-			b.logger.Error(err)
-			return err
+				}, pw.Status())
+
+				if err != nil {
+					err = errors.Wrap(err, "failed to solve LLB")
+					b.logger.Error(err)
+					return err
+				}
+				b.logger.Debug("llb def is solved successfully")
+				return nil
+			})
+			// Load the image to docker host.
+			eg.Go(func() error {
+				defer pipeR.Close()
+				dockerClient, err := docker.NewClient(ctx)
+				if err != nil {
+					return errors.Wrap(err, "failed to new docker client")
+				}
+				b.logger.Debug("loading image to docker host")
+				if err := dockerClient.Load(ctx, pipeR, true); err != nil {
+					err = errors.Wrap(err, "failed to load docker image")
+					b.logger.Error(err)
+					return err
+				}
+				b.logger.Debug("loaded docker image successfully")
+				return nil
+			})
+		default:
+			eg.Go(func() error {
+				_, err := b.Solve(ctx, def, client.SolveOpt{
+					Exports: []client.ExportEntry{entry},
+					LocalDirs: map[string]string{
+						flag.FlagContextDir: b.buildContextDir,
+						flag.FlagCacheDir:   home.GetManager().CacheDir(),
+					},
+					Session: attachable,
+					// TODO(gaocegege): Use llb.WithProxy to implement it.
+					FrontendAttrs: map[string]string{
+						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
+					},
+				}, pw.Status())
+
+				if err != nil {
+					err = errors.Wrap(err, "failed to solve LLB")
+					b.logger.Error(err)
+					return err
+				}
+				b.logger.Debug("llb def is solved successfully")
+				return nil
+			})
 		}
-		b.logger.Debug("llb def is solved successfully")
-		return nil
-	})
+	}
 
 	// Watch the progress.
 	eg.Go(func() error {
@@ -209,45 +286,6 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 		<-pw.Done()
 		return pw.Err()
 	})
-
-	if b.outputDest != "" {
-		// Save the image to the output file.
-		eg.Go(func() error {
-			defer pipeR.Close()
-			f, err := os.Create(b.outputDest)
-			if err != nil {
-				return err
-			}
-
-			defer f.Close()
-			_, err = io.Copy(f, pipeR)
-			if err != nil {
-				return err
-			}
-
-			b.logger.Debug("export the image successfully")
-			return nil
-		})
-	}
-
-	if b.outputDest == "" {
-		// Load the image to docker host.
-		eg.Go(func() error {
-			defer pipeR.Close()
-			dockerClient, err := docker.NewClient(ctx)
-			if err != nil {
-				return errors.Wrap(err, "failed to new docker client")
-			}
-			b.logger.Debug("loading image to docker host")
-			if err := dockerClient.Load(ctx, pipeR, true); err != nil {
-				err = errors.Wrap(err, "failed to load docker image")
-				b.logger.Error(err)
-				return err
-			}
-			b.logger.Debug("loaded docker image successfully")
-			return nil
-		})
-	}
 
 	err = eg.Wait()
 	if err != nil {

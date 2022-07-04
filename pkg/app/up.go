@@ -22,7 +22,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	cli "github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/docker"
@@ -44,7 +44,7 @@ const (
 var CommandUp = &cli.Command{
 	Name:    "up",
 	Aliases: []string{"u"},
-	Usage:   "build and run the envd environment",
+	Usage:   "Build and run the envd environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "tag",
@@ -89,12 +89,12 @@ var CommandUp = &cli.Command{
 		},
 		&cli.BoolFlag{
 			Name:  "detach",
-			Usage: "detach from the container",
+			Usage: "Detach from the container",
 			Value: false,
 		},
 		&cli.BoolFlag{
 			Name:  "no-gpu",
-			Usage: "launch the CPU container",
+			Usage: "Launch the CPU container",
 			Value: false,
 		},
 	},
@@ -132,18 +132,19 @@ func up(clicontext *cli.Context) error {
 	detach := clicontext.Bool("detach")
 
 	logger := logrus.WithFields(logrus.Fields{
-		"build-context":             buildContext,
-		"build-file":                manifest,
-		"config":                    config,
-		"tag":                       tag,
-		"container-name":            ctr,
-		"detach":                    detach,
-		flag.FlagBuildkitdImage:     viper.GetString(flag.FlagBuildkitdImage),
-		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
+		"build-context":         buildContext,
+		"build-file":            manifest,
+		"config":                config,
+		"tag":                   tag,
+		"container-name":        ctr,
+		"detach":                detach,
+		flag.FlagBuildkitdImage: viper.GetString(flag.FlagBuildkitdImage),
 	})
 	logger.Debug("starting up command")
 	debug := clicontext.Bool("debug")
-	builder, err := builder.New(clicontext.Context, config, manifest, funcname, buildContext, tag, "", debug)
+	output := ""
+	builder, err := builder.New(clicontext.Context, config, manifest, funcname,
+		buildContext, tag, output, debug)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
@@ -151,9 +152,10 @@ func up(clicontext *cli.Context) error {
 	if err := builder.Build(clicontext.Context, clicontext.Path("public-key")); err != nil {
 		return errors.Wrap(err, "failed to build the image")
 	}
-	gpu_enable := clicontext.Bool("no-gpu")
+	// Do not attach GPU if the flag is set.
+	gpuEnable := clicontext.Bool("no-gpu")
 	var gpu bool
-	if gpu_enable {
+	if gpuEnable {
 		gpu = false
 	} else {
 		gpu = builder.GPUEnabled()
@@ -174,14 +176,14 @@ func up(clicontext *cli.Context) error {
 		}
 	}
 
-	sshPort, err := netutil.GetFreePort()
+	sshPortInHost, err := netutil.GetFreePort()
 	if err != nil {
 		return errors.Wrap(err, "failed to get a free port")
 	}
 	numGPUs := builder.NumGPUs()
 
 	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
-		tag, ctr, buildContext, gpu, numGPUs, sshPort, *ir.DefaultGraph, clicontext.Duration("timeout"),
+		tag, ctr, buildContext, gpu, numGPUs, sshPortInHost, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))
 	if err != nil {
 		return errors.Wrap(err, "failed to start the envd environment")
@@ -190,14 +192,14 @@ func up(clicontext *cli.Context) error {
 
 	logrus.Debugf("Add entry %s to SSH config. at %s", buildContext, containerIP)
 	if err = sshconfig.AddEntry(
-		ctr, localhost, sshPort, clicontext.Path("private-key")); err != nil {
+		ctr, localhost, sshPortInHost, clicontext.Path("private-key")); err != nil {
 		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 
 	if !detach {
 		sshClient, err := ssh.NewClient(
-			localhost, "envd", sshPort, true, clicontext.Path("private-key"), "")
+			localhost, "envd", sshPortInHost, true, clicontext.Path("private-key"), "")
 		if err != nil {
 			return errors.Wrap(err, "failed to create the ssh client")
 		}

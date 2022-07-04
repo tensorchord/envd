@@ -46,6 +46,24 @@ type EnvdInfo struct {
 	types.Info
 }
 
+type EnvdContext struct {
+	Current  string    `json:"current,omitempty"`
+	Contexts []Context `json:"contexts,omitempty"`
+}
+
+type Context struct {
+	Name          string      `json:"name,omitempty"`
+	Builder       BuilderType `json:"builder,omitempty"`
+	BuilderSocket string      `json:"builder_socket,omitempty"`
+}
+
+type BuilderType string
+
+const (
+	BuilderTypeDocker     BuilderType = "docker-container"
+	BuilderTypeKubernetes BuilderType = "kube-pod"
+)
+
 type Dependency struct {
 	APTPackages  []string `json:"apt_packages,omitempty"`
 	PyPIPackages []string `json:"pypi_packages,omitempty"`
@@ -140,16 +158,12 @@ func newDependencyFromLabels(label map[string]string) (*Dependency, error) {
 
 func parseAPTPackages(lst string) ([]string, error) {
 	var pkgs []string
-	if err := json.Unmarshal([]byte(lst), &pkgs); err != nil {
-		return nil, err
-	}
-	return pkgs, nil
+	err := json.Unmarshal([]byte(lst), &pkgs)
+	return pkgs, err
 }
 
 func parsePyPIPackages(lst string) ([]string, error) {
 	var pkgs []string
-	if err := json.Unmarshal([]byte(lst), &pkgs); err != nil {
-		return nil, err
-	}
-	return pkgs, nil
+	err := json.Unmarshal([]byte(lst), &pkgs)
+	return pkgs, err
 }

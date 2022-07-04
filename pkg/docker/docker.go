@@ -35,8 +35,10 @@ import (
 	"github.com/moby/term"
 	"github.com/sirupsen/logrus"
 
+	envdconfig "github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
 const (
@@ -82,11 +84,19 @@ type generalClient struct {
 }
 
 func NewClient(ctx context.Context) (Client, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}
-	cli.NegotiateAPIVersion(ctx)
+	_, err = cli.Ping(ctx)
+	if err != nil {
+		// Special note needed to give users
+		if strings.Contains(err.Error(), "permission denied") {
+			err = errors.New(`It seems that current user have no access to docker daemon, 
+please visit https://docs.docker.com/engine/install/linux-postinstall/ for more info.`)
+		}
+		return nil, err
+	}
 	return generalClient{cli}, nil
 }
 
@@ -138,14 +148,14 @@ func (c generalClient) WaitUntilRunning(ctx context.Context,
 
 func (c generalClient) ListImage(ctx context.Context) ([]types.ImageSummary, error) {
 	images, err := c.ImageList(ctx, types.ImageListOptions{
-		Filters: dockerfilters(false),
+		Filters: dockerFilters(false),
 	})
 	return images, err
 }
 
 func (c generalClient) GetImage(ctx context.Context, image string) (types.ImageSummary, error) {
 	images, err := c.ImageList(ctx, types.ImageListOptions{
-		Filters: dockerfiltersWithName(image),
+		Filters: dockerFiltersWithName(image),
 	})
 	if err != nil {
 		return types.ImageSummary{}, err
@@ -157,10 +167,9 @@ func (c generalClient) GetImage(ctx context.Context, image string) (types.ImageS
 }
 
 func (c generalClient) ListContainer(ctx context.Context) ([]types.Container, error) {
-	ctrs, err := c.ContainerList(ctx, types.ContainerListOptions{
-		Filters: dockerfilters(false),
+	return c.ContainerList(ctx, types.ContainerListOptions{
+		Filters: dockerFilters(false),
 	})
-	return ctrs, err
 }
 
 func (c generalClient) PauseContainer(ctx context.Context, name string) (string, error) {
@@ -298,7 +307,7 @@ func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror str
 
 // StartEnvd creates the container for the given tag and container name.
 func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext string,
-	gpuEnabled bool, numGPUs int, sshPort int, g ir.Graph, timeout time.Duration,
+	gpuEnabled bool, numGPUs int, sshPortInHost int, g ir.Graph, timeout time.Duration,
 	mountOptionsStr []string) (string, string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":           tag,
@@ -308,21 +317,13 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		"build-context": buildContext,
 	})
 	config := &container.Config{
-		Image: tag,
-		User:  "envd",
-		Entrypoint: []string{
-			"tini",
-			"--",
-			"bash",
-			"-c",
-		},
+		Image:        tag,
+		User:         "envd",
 		ExposedPorts: nat.PortSet{},
 	}
 	base := fileutil.Base(buildContext)
 	base = filepath.Join("/home/envd", base)
 	config.WorkingDir = base
-	config.Entrypoint = append(config.Entrypoint,
-		entrypointSH(g, config.WorkingDir, sshPort))
 
 	mountOption := make([]mount.Mount, len(mountOptionsStr)+1)
 	for i, option := range mountOptionsStr {
@@ -358,22 +359,27 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 	}
 
 	// Configure ssh port.
-	natPort := nat.Port(fmt.Sprintf("%d/tcp", sshPort))
+	natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.SSHPortInContainer))
 	hostConfig.PortBindings[natPort] = []nat.PortBinding{
 		{
 			HostIP:   localhost,
-			HostPort: strconv.Itoa(sshPort),
+			HostPort: strconv.Itoa(sshPortInHost),
 		},
 	}
-	config.ExposedPorts[natPort] = struct{}{}
 
+	var jupyterPortInHost int
 	// TODO(gaocegege): Avoid specific logic to set the port.
 	if g.JupyterConfig != nil {
-		natPort := nat.Port(fmt.Sprintf("%d/tcp", g.JupyterConfig.Port))
+		var err error
+		jupyterPortInHost, err = netutil.GetFreePort()
+		if err != nil {
+			return "", "", errors.Wrap(err, "failed to get a free port")
+		}
+		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.JupyterPortInContainer))
 		hostConfig.PortBindings[natPort] = []nat.PortBinding{
 			{
 				HostIP:   localhost,
-				HostPort: strconv.Itoa(int(g.JupyterConfig.Port)),
+				HostPort: strconv.Itoa(jupyterPortInHost),
 			},
 		}
 		config.ExposedPorts[natPort] = struct{}{}
@@ -384,7 +390,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		hostConfig.DeviceRequests = deviceRequests(numGPUs)
 	}
 
-	config.Labels = labels(name, g.JupyterConfig, sshPort)
+	config.Labels = labels(name, g.JupyterConfig, sshPortInHost, jupyterPortInHost)
 
 	logger = logger.WithFields(logrus.Fields{
 		"entrypoint":  config.Entrypoint,
@@ -401,7 +407,8 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		logger.Warnf("run with warnings: %s", w)
 	}
 
-	if err := c.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+	if err := c.ContainerStart(
+		ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		errCause := errors.UnwrapAll(err)
 		// Hack to check if the port is already allocated.
 		if strings.Contains(errCause.Error(), "port is already allocated") {

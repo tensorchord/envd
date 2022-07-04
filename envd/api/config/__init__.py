@@ -46,7 +46,7 @@ def jupyter(password: str, port: int):
     Configure jupyter notebook configuration
 
     Args:
-        password (str): Password for access authenticatioin
+        password (str): Password for access authentication
         port (int): Port to serve jupyter notebook
     """
     pass

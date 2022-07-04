@@ -15,12 +15,13 @@
 package app
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	cli "github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/flag"
@@ -32,7 +33,13 @@ import (
 var CommandBuild = &cli.Command{
 	Name:    "build",
 	Aliases: []string{"b"},
-	Usage:   "build envd environment",
+	Usage:   "Build the envd environment",
+	Description: `
+To build an image using build.envd:
+	$ envd build
+To build and push the image to a registry:
+	$ envd build --output type=image,name=docker.io/username/image,push=true
+`,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:        "tag",
@@ -59,11 +66,10 @@ var CommandBuild = &cli.Command{
 			Value:   sshconfig.GetPublicKey(),
 			Hidden:  true,
 		},
-		&cli.PathFlag{
+		&cli.StringFlag{
 			Name:    "output",
-			Usage:   "Output destination (format: type=tar,dest=path)",
+			Usage:   "Output destination (e.g. type=tar,dest=path,push=true)",
 			Aliases: []string{"o"},
-			Value:   "",
 		},
 	},
 
@@ -88,25 +94,28 @@ func build(clicontext *cli.Context) error {
 		return errors.New("file does not exist")
 	}
 
-	config := home.GetManager().ConfigFile()
+	cfg := home.GetManager().ConfigFile()
 
 	tag := clicontext.String("tag")
 	if tag == "" {
 		logrus.Debug("tag not specified, using default")
-		tag = fileutil.Base(buildContext)
+		tag = fmt.Sprintf("%s:%s", fileutil.Base(buildContext), "dev")
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
-		"build-context":             buildContext,
-		"build-file":                manifest,
-		"config":                    config,
-		"tag":                       tag,
-		flag.FlagBuildkitdImage:     viper.GetString(flag.FlagBuildkitdImage),
-		flag.FlagBuildkitdContainer: viper.GetString(flag.FlagBuildkitdContainer),
+		"build-context":         buildContext,
+		"build-file":            manifest,
+		"config":                cfg,
+		"tag":                   tag,
+		flag.FlagBuildkitdImage: viper.GetString(flag.FlagBuildkitdImage),
 	})
-	logger.Debug("starting build command")
 	debug := clicontext.Bool("debug")
-	builder, err := builder.New(clicontext.Context, config, manifest, funcname, buildContext, tag, clicontext.Path("output"), debug)
+	output := clicontext.String("output")
+	logger.WithFields(logrus.Fields{
+		"output": output,
+	}).Debug("starting build command")
+	builder, err := builder.New(clicontext.Context, cfg,
+		manifest, funcname, buildContext, tag, output, debug)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}

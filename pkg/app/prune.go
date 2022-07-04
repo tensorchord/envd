@@ -16,14 +16,15 @@ package app
 
 import (
 	"github.com/cockroachdb/errors"
+	"github.com/urfave/cli/v2"
+
 	"github.com/tensorchord/envd/pkg/buildkitd"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/urfave/cli/v2"
 )
 
 var CommandPrune = &cli.Command{
 	Name:  "prune",
-	Usage: "Clean up build cache",
+	Usage: "Clean up the build cache",
 	Flags: []cli.Flag{
 		&cli.DurationFlag{
 			Name:  "keep-duration",
@@ -63,7 +64,13 @@ func prune(clicontext *cli.Context) error {
 	keepStorage := clicontext.Float64("keep-storage")
 	filter := clicontext.StringSlice("filter")
 	verbose := clicontext.Bool("verbose")
-	bkClient, err := buildkitd.NewClient(clicontext.Context, "")
+
+	currentDriver, currentSocket, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+	bkClient, err := buildkitd.NewClient(clicontext.Context,
+		currentDriver, currentSocket, "")
 	if err != nil {
 		return errors.Wrap(err, "failed to create buildkit client")
 	}

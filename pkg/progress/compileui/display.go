@@ -24,6 +24,7 @@ import (
 	"github.com/containerd/console"
 	"github.com/morikuni/aec"
 	"github.com/sirupsen/logrus"
+
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 )
 
@@ -80,7 +81,7 @@ func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 		// TODO(gaocegege): Print in text.
 		if modeConsole {
 			// TODO(gaocegege): Have a result chan
-			//nolint
+			// nolint
 			w.run(ctx)
 		} else {
 			<-ctx.Done()

@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package envd
 
 import (
@@ -18,6 +19,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/types"
 )
@@ -105,9 +107,8 @@ func (e generalEngine) ResumeEnvironment(ctx context.Context, env string) (strin
 	return name, nil
 }
 
-// ListEnvDependency gets the dependencies of the given environment.
-func (e generalEngine) ListImageDependency(
-	ctx context.Context, image string) (*types.Dependency, error) {
+// ListImageDependency gets the dependencies of the given environment.
+func (e generalEngine) ListImageDependency(ctx context.Context, image string) (*types.Dependency, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"image": image,
 	})

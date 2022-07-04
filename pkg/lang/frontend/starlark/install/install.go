@@ -18,10 +18,11 @@ import (
 	"path/filepath"
 
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/builtin"
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/builtin"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 var (
@@ -31,16 +32,13 @@ var (
 var Module = &starlarkstruct.Module{
 	Name: "install",
 	Members: starlark.StringDict{
-		"python_packages": starlark.NewBuiltin(
-			rulePyPIPackage, ruleFuncPyPIPackage),
-		"r_packages": starlark.NewBuiltin(
-			ruleRPackage, ruleFuncRPackage),
-		"system_packages": starlark.NewBuiltin(
-			ruleSystemPackage, ruleFuncSystemPackage),
+		"python_packages":   starlark.NewBuiltin(rulePyPIPackage, ruleFuncPyPIPackage),
+		"r_packages":        starlark.NewBuiltin(ruleRPackage, ruleFuncRPackage),
+		"system_packages":   starlark.NewBuiltin(ruleSystemPackage, ruleFuncSystemPackage),
 		"cuda":              starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
 		"vscode_extensions": starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
-		"shell":             starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
 		"conda_packages":    starlark.NewBuiltin(ruleConda, ruleFuncConda),
+		"julia_packages":    starlark.NewBuiltin(ruleJulia, ruleFuncJulia),
 	},
 }
 
@@ -61,10 +59,9 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		}
 	}
 
-	requirementsFileStr := ""
 	var path *string = nil
-	if requirementsFile != starlark.String("") {
-		requirementsFileStr = requirementsFile.GoString()
+	requirementsFileStr := requirementsFile.GoString()
+	if requirementsFileStr != "" {
 		buildContextDir := starlark.Universe[builtin.BuildContextDir]
 		buildContextDirStr := buildContextDir.(starlark.String).GoString()
 		buf := filepath.Join(buildContextDirStr, requirementsFileStr)
@@ -73,11 +70,9 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked, name=%v, requirements=%s",
 		rulePyPIPackage, nameList, requirementsFileStr)
-	if err := ir.PyPIPackage(nameList, path); err != nil {
-		return starlark.None, err
-	}
 
-	return starlark.None, nil
+	err := ir.PyPIPackage(nameList, path)
+	return starlark.None, err
 }
 
 func ruleFuncRPackage(thread *starlark.Thread, _ *starlark.Builtin,
@@ -98,6 +93,28 @@ func ruleFuncRPackage(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked, name=%v", ruleRPackage, nameList)
 	ir.RPackage(nameList)
+
+	return starlark.None, nil
+}
+
+func ruleFuncJulia(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var name *starlark.List
+
+	if err := starlark.UnpackArgs(ruleJulia,
+		args, kwargs, "name", &name); err != nil {
+		return nil, err
+	}
+
+	nameList := []string{}
+	if name != nil {
+		for i := 0; i < name.Len(); i++ {
+			nameList = append(nameList, name.Index(i).(starlark.String).GoString())
+		}
+	}
+
+	logger.Debugf("rule `%s` is invoked, name=%v", ruleJulia, nameList)
+	ir.JuliaPackage(nameList)
 
 	return starlark.None, nil
 }
@@ -133,17 +150,11 @@ func ruleFuncCUDA(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	versionStr := ""
-	if version != starlark.String("") {
-		versionStr = version.GoString()
-	}
-	cudnnStr := ""
-	if cudnn != starlark.String("") {
-		cudnnStr = cudnn.GoString()
-	}
+	versionStr := version.GoString()
+	cudnnStr := cudnn.GoString()
 
-	logger.Debugf("rule `%s` is invoked, version=%s, cudnn=%s", ruleCUDA,
-		versionStr, cudnnStr)
+	logger.Debugf("rule `%s` is invoked, version=%s, cudnn=%s",
+		ruleCUDA, versionStr, cudnnStr)
 	ir.CUDA(versionStr, cudnnStr)
 
 	return starlark.None, nil
