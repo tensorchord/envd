@@ -12,6 +12,7 @@ on:
 
 jobs:
   goreleaser:
+    if: github.repository == 'tensorchord/envd'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -47,6 +48,7 @@ jobs:
           if-no-files-found: error
   pypi_publish:
     needs: goreleaser
+    if: github.repository == 'tensorchord/envd'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
@@ -91,6 +93,7 @@ jobs:
         python -m twine upload wheelhouse/*
   image_publish:
     name: Build & push images
+    if: github.repository == 'tensorchord/envd'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
