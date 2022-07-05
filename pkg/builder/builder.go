@@ -50,7 +50,7 @@ type generalBuilder struct {
 	progressMode     string
 	tag              string
 	buildContextDir  string
-	funcname         string
+	buildfuncname    string
 
 	entries []client.ExportEntry
 
@@ -85,7 +85,7 @@ func New(ctx context.Context, configFilePath, manifestFilePath, funcname,
 
 	b := &generalBuilder{
 		manifestFilePath: manifestFilePath,
-		funcname:         funcname,
+		buildfuncname:    funcname,
 		configFilePath:   configFilePath,
 		buildContextDir:  buildContextDir,
 		entries:          entries,
@@ -143,7 +143,7 @@ func (b generalBuilder) interpret() error {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 
-	if _, err := b.ExecFile(b.manifestFilePath, b.funcname); err != nil {
+	if _, err := b.ExecFile(b.manifestFilePath, b.buildfuncname); err != nil {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 	return nil
