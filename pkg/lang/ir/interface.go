@@ -132,6 +132,11 @@ func Jupyter(pwd string, port int64) error {
 	return nil
 }
 
+func RStudioServer() error {
+	DefaultGraph.RStudioServerConfig = &RStudioServerConfig{}
+	return nil
+}
+
 func Run(commands []string) error {
 	// TODO(gaocegege): Support order-based exec.
 	DefaultGraph.Exec = commands

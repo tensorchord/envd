@@ -15,9 +15,10 @@
 package types
 
 const (
-	ContainerLabelName        = "ai.tensorchord.envd.name"
-	ContainerLabelJupyterAddr = "ai.tensorchord.envd.jupyter.address"
-	ContainerLabelSSHPort     = "ai.tensorchord.envd.ssh.port"
+	ContainerLabelName              = "ai.tensorchord.envd.name"
+	ContainerLabelJupyterAddr       = "ai.tensorchord.envd.jupyter.address"
+	ContainerLabelRStudioServerAddr = "ai.tensorchord.envd.rstudio.server.address"
+	ContainerLabelSSHPort           = "ai.tensorchord.envd.ssh.port"
 
 	ImageLabelVendor  = "ai.tensorchord.envd.vendor"
 	ImageLabelGPU     = "ai.tensorchord.envd.gpu"

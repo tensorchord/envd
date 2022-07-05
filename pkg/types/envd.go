@@ -29,9 +29,10 @@ type EnvdImage struct {
 type EnvdEnvironment struct {
 	types.Container
 
-	Name         string `json:"name,omitempty"`
-	JupyterAddr  string `json:"jupyter_addr,omitempty"`
-	EnvdManifest `json:",inline,omitempty"`
+	Name              string  `json:"name,omitempty"`
+	JupyterAddr       *string `json:"jupyter_addr,omitempty"`
+	RStudioServerAddr *string `json:"rstudio_server_addr,omitempty"`
+	EnvdManifest      `json:",inline,omitempty"`
 }
 
 type EnvdManifest struct {
@@ -89,7 +90,10 @@ func NewEnvironment(ctr types.Container) (*EnvdEnvironment, error) {
 		env.Name = name
 	}
 	if jupyterAddr, ok := ctr.Labels[ContainerLabelJupyterAddr]; ok {
-		env.JupyterAddr = jupyterAddr
+		env.JupyterAddr = &jupyterAddr
+	}
+	if rstudioServerAddr, ok := ctr.Labels[ContainerLabelRStudioServerAddr]; ok {
+		env.RStudioServerAddr = &rstudioServerAddr
 	}
 
 	m, err := newManifest(ctr.Labels)

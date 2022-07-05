@@ -132,6 +132,10 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 	if g.JupyterConfig != nil {
 		ports[fmt.Sprintf("%d/tcp", config.JupyterPortInContainer)] = struct{}{}
 	}
+	if g.RStudioServerConfig != nil {
+		ports[fmt.Sprintf("%d/tcp", config.RStudioServerPortInContainer)] = struct{}{}
+	}
+
 	return ports, nil
 }
 
@@ -144,21 +148,28 @@ func (g Graph) Entrypoint(buildContextDir string) ([]string, error) {
 	}
 
 	template := `set -e
-	/var/envd/bin/envd-ssh --authorized-keys %s --port %d --shell %s &
-	%s
-	wait -n`
+/var/envd/bin/envd-ssh --authorized-keys %s --port %d --shell %s &
+%s
+wait -n`
 
+	// Generate jupyter and rstudio server commands.
+	var customCmd strings.Builder
 	if g.JupyterConfig != nil {
 		workingDir := fmt.Sprintf("/home/envd/%s", fileutil.Base(buildContextDir))
 		jupyterCmd := g.generateJupyterCommand(workingDir)
-		cmd := fmt.Sprintf(template,
-			config.ContainerAuthorizedKeysPath, config.SSHPortInContainer, g.Shell,
-			strings.Join(jupyterCmd, " "))
-		ep = append(ep, cmd)
-		return ep, nil
+		customCmd.WriteString(strings.Join(jupyterCmd, " "))
+		customCmd.WriteString("\n")
 	}
+	if g.RStudioServerConfig != nil {
+		workingDir := fmt.Sprintf("/home/envd/%s", fileutil.Base(buildContextDir))
+		rstudioCmd := g.generateRStudioCommand(workingDir)
+		customCmd.WriteString(strings.Join(rstudioCmd, " "))
+		customCmd.WriteString("\n")
+	}
+
 	cmd := fmt.Sprintf(template,
-		config.ContainerAuthorizedKeysPath, config.SSHPortInContainer, g.Shell, "")
+		config.ContainerAuthorizedKeysPath,
+		config.SSHPortInContainer, g.Shell, customCmd.String())
 	ep = append(ep, cmd)
 	return ep, nil
 }

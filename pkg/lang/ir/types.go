@@ -52,9 +52,13 @@ type Graph struct {
 	*JupyterConfig
 	*GitConfig
 	*CondaConfig
+	*RStudioServerConfig
 
 	Writer      compileui.Writer
 	CachePrefix string
+}
+
+type RStudioServerConfig struct {
 }
 
 type Language struct {

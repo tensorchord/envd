@@ -41,6 +41,7 @@ var Module = &starlarkstruct.Module{
 			ruleCondaChannel, ruleFuncCondaChannel),
 		"julia_pkg_server": starlark.NewBuiltin(
 			ruleJuliaPackageServer, ruleFuncJuliaPackageServer),
+		"rstudio_server": starlark.NewBuiltin(ruleRStudioServer, ruleFuncRStudioServer),
 	},
 }
 
@@ -161,6 +162,15 @@ func ruleFuncUbuntuAptSource(thread *starlark.Thread, _ *starlark.Builtin,
 	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s",
 		ruleUbuntuAptSource, modeStr, sourceStr)
 	if err := ir.UbuntuAPT(modeStr, sourceStr); err != nil {
+		return nil, err
+	}
+
+	return starlark.None, nil
+}
+
+func ruleFuncRStudioServer(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	if err := ir.RStudioServer(); err != nil {
 		return nil, err
 	}
 

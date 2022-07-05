@@ -54,13 +54,20 @@ func (g Graph) compileVSCode() (*llb.State, error) {
 	return &layer, nil
 }
 
-func (g *Graph) compileJupyter() {
+func (g *Graph) compileJupyter() error {
 	if g.JupyterConfig != nil {
 		g.PyPIPackages = append(g.PyPIPackages, "jupyter")
+		switch g.Language.Name {
+		case "python":
+			return nil
+		default:
+			return errors.Newf("Jupyter is not supported in %s yet", g.Language.Name)
+		}
 	}
+	return nil
 }
 
-func (g Graph) generateJupyterCommand(notebookDir string) []string {
+func (g Graph) generateJupyterCommand(workingDir string) []string {
 	if g.JupyterConfig == nil {
 		return nil
 	}
@@ -75,7 +82,7 @@ func (g Graph) generateJupyterCommand(notebookDir string) []string {
 
 	cmd = append(cmd, []string{
 		"-m", "notebook",
-		"--ip", "0.0.0.0", "--notebook-dir", notebookDir,
+		"--ip", "0.0.0.0", "--notebook-dir", workingDir,
 	}...)
 
 	if g.JupyterConfig.Password != "" {
@@ -90,4 +97,17 @@ func (g Graph) generateJupyterCommand(notebookDir string) []string {
 		cmd = append(cmd, "--port", p)
 	}
 	return cmd
+}
+
+func (g Graph) generateRStudioCommand(workingDir string) []string {
+	if g.RStudioServerConfig == nil {
+		return nil
+	}
+
+	return []string{
+		// TODO(gaocegege): Remove root permission here.
+		"sudo",
+		"/usr/lib/rstudio-server/bin/rserver",
+		// TODO(gaocegege): Support working dir.
+	}
 }

@@ -92,7 +92,7 @@ func NewClient(ctx context.Context) (Client, error) {
 	if err != nil {
 		// Special note needed to give users
 		if strings.Contains(err.Error(), "permission denied") {
-			err = errors.New(`It seems that current user have no access to docker daemon, 
+			err = errors.New(`It seems that current user have no access to docker daemon,
 please visit https://docs.docker.com/engine/install/linux-postinstall/ for more info.`)
 		}
 		return nil, err
@@ -384,13 +384,30 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		}
 		config.ExposedPorts[natPort] = struct{}{}
 	}
+	var rStudioPortInHost int
+	if g.RStudioServerConfig != nil {
+		var err error
+		rStudioPortInHost, err = netutil.GetFreePort()
+		if err != nil {
+			return "", "", errors.Wrap(err, "failed to get a free port")
+		}
+		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.RStudioServerPortInContainer))
+		hostConfig.PortBindings[natPort] = []nat.PortBinding{
+			{
+				HostIP:   localhost,
+				HostPort: strconv.Itoa(rStudioPortInHost),
+			},
+		}
+		config.ExposedPorts[natPort] = struct{}{}
+	}
 
 	if gpuEnabled {
 		logger.Debug("GPU is enabled.")
 		hostConfig.DeviceRequests = deviceRequests(numGPUs)
 	}
 
-	config.Labels = labels(name, g.JupyterConfig, sshPortInHost, jupyterPortInHost)
+	config.Labels = labels(name, g,
+		sshPortInHost, jupyterPortInHost, rStudioPortInHost)
 
 	logger = logger.WithFields(logrus.Fields{
 		"entrypoint":  config.Entrypoint,
