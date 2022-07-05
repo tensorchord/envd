@@ -13,7 +13,7 @@ Then you can open jupyter notebook at [`http://localhost:8888`](http://localhost
 ## Quick start (GPU)
 
 ```bash
-$ envd up -f build_gpu.envd
+$ envd up -f :build_gpu # Call build_gpu function in build.envd
 ```
 
 Also you can use `-f` option to specify the file to build

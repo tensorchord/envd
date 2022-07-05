@@ -61,10 +61,10 @@ var CommandUp = &cli.Command{
 			Aliases: []string{"v"},
 		},
 		&cli.PathFlag{
-			Name:    "file",
-			Usage:   "Name of the build.envd",
+			Name:    "from",
+			Usage:   "Function to execute, format `file:func`",
 			Aliases: []string{"f"},
-			Value:   "build.envd",
+			Value:   "build.envd:build",
 		},
 		&cli.PathFlag{
 			Name:    "private-key",
@@ -105,8 +105,12 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get absolute path of the build context")
 	}
+	filename, funcname, err := builder.ParseFromStr(clicontext.String("from"))
+	if err != nil {
+		return err
+	}
 
-	manifest, err := filepath.Abs(filepath.Join(buildContext, clicontext.Path("file")))
+	manifest, err := filepath.Abs(filepath.Join(buildContext, filename))
 	if err != nil {
 		return errors.Wrap(err, "failed to get absolute path of the build file")
 	}
@@ -137,7 +141,7 @@ func up(clicontext *cli.Context) error {
 	logger.Debug("starting up command")
 	debug := clicontext.Bool("debug")
 	output := ""
-	builder, err := builder.New(clicontext.Context, config, manifest,
+	builder, err := builder.New(clicontext.Context, config, manifest, funcname,
 		buildContext, tag, output, debug)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")

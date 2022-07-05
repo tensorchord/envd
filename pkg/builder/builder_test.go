@@ -55,6 +55,7 @@ var _ = Describe("Builder", func() {
 					configFilePath:   configFilePath,
 					progressMode:     "auto",
 					tag:              tag,
+					buildfuncname:    "build",
 					logger: logrus.WithFields(logrus.Fields{
 						"tag": tag,
 					}),

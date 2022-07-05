@@ -48,10 +48,10 @@ To build and push the image to a registry:
 			DefaultText: "PROJECT:dev",
 		},
 		&cli.PathFlag{
-			Name:    "file",
-			Usage:   "Name of the build.envd",
+			Name:    "from",
+			Usage:   "Function to execute, format `file:func`",
 			Aliases: []string{"f"},
-			Value:   "build.envd",
+			Value:   "build.envd:build",
 		},
 		&cli.PathFlag{
 			Name:    "path",
@@ -82,7 +82,11 @@ func build(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get absolute path of the build context")
 	}
 
-	manifest, err := filepath.Abs(filepath.Join(buildContext, clicontext.Path("file")))
+	filename, funcname, err := builder.ParseFromStr(clicontext.String("from"))
+	if err != nil {
+		return err
+	}
+	manifest, err := filepath.Abs(filepath.Join(buildContext, filename))
 	if err != nil {
 		return errors.Wrap(err, "failed to get absolute path of the build file")
 	}
@@ -111,7 +115,7 @@ func build(clicontext *cli.Context) error {
 		"output": output,
 	}).Debug("starting build command")
 	builder, err := builder.New(clicontext.Context, cfg,
-		manifest, buildContext, tag, output, debug)
+		manifest, funcname, buildContext, tag, output, debug)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
