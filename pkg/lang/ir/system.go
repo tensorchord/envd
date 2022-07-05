@@ -101,7 +101,7 @@ func (g *Graph) compileBase() llb.State {
 	if g.CUDA == nil && g.CUDNN == nil {
 		switch g.Language.Name {
 		case "r":
-			base = llb.Image("docker.io/gaocegege/r-base:4.2")
+			base = llb.Image("docker.io/tensorchord/r-base:4.2")
 			// r-base image already has GID 1000.
 			// It is a trick, we actually use GID 1000
 			if g.gid == 1000 {
