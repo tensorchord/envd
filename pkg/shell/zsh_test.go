@@ -25,7 +25,7 @@ import (
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
-var _ = Describe("zsh manager", func() {
+var _ = Describe("zsh manager", Serial, func() {
 	zshManager := NewManager()
 	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
