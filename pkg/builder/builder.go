@@ -50,6 +50,7 @@ type generalBuilder struct {
 	progressMode     string
 	tag              string
 	buildContextDir  string
+	buildfuncname    string
 
 	entries []client.ExportEntry
 
@@ -58,7 +59,7 @@ type generalBuilder struct {
 	buildkitd.Client
 }
 
-func New(ctx context.Context, configFilePath, manifestFilePath,
+func New(ctx context.Context, configFilePath, manifestFilePath, funcname,
 	buildContextDir, tag string, output string, debug bool) (Builder, error) {
 	entries, err := parseOutput(output)
 	if err != nil {
@@ -84,6 +85,7 @@ func New(ctx context.Context, configFilePath, manifestFilePath,
 
 	b := &generalBuilder{
 		manifestFilePath: manifestFilePath,
+		buildfuncname:    funcname,
 		configFilePath:   configFilePath,
 		buildContextDir:  buildContextDir,
 		entries:          entries,
@@ -141,7 +143,7 @@ func (b generalBuilder) interpret() error {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 
-	if _, err := b.ExecFile(b.manifestFilePath, "build"); err != nil {
+	if _, err := b.ExecFile(b.manifestFilePath, b.buildfuncname); err != nil {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 	return nil

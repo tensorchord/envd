@@ -22,4 +22,5 @@ const (
 	ruleCondaChannel       = "config.conda_channel"
 	ruleGPU                = "config.gpu"
 	ruleJuliaPackageServer = "config.julia_pkg_server"
+	ruleRStudioServer      = "config.rstudio_server"
 )
