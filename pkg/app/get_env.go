@@ -19,6 +19,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/docker/docker/pkg/stringid"
 	"github.com/olekukonko/tablewriter"
@@ -55,7 +56,7 @@ func getEnvironment(clicontext *cli.Context) error {
 func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
 	table := tablewriter.NewWriter(w)
 	table.SetHeader([]string{
-		"Name", "jupyter", "SSH Target", "Context", "Image",
+		"Name", "Endpoint", "SSH Target", "Image",
 		"GPU", "CUDA", "CUDNN", "Status", "Container ID",
 	})
 
@@ -72,18 +73,28 @@ func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
 	table.SetNoWhiteSpace(true)
 
 	for _, env := range envs {
-		envRow := make([]string, 10)
+		envRow := make([]string, 9)
 		envRow[0] = env.Name
-		envRow[1] = env.JupyterAddr
+		envRow[1] = endpointOrNone(env)
 		envRow[2] = fmt.Sprintf("%s.envd", env.Name)
-		envRow[3] = stringOrNone(env.BuildContext)
-		envRow[4] = env.Container.Image
-		envRow[5] = strconv.FormatBool(env.GPU)
-		envRow[6] = stringOrNone(env.CUDA)
-		envRow[7] = stringOrNone(env.CUDNN)
-		envRow[8] = env.Status
-		envRow[9] = stringid.TruncateID(env.Container.ID)
+		envRow[3] = env.Container.Image
+		envRow[4] = strconv.FormatBool(env.GPU)
+		envRow[5] = stringOrNone(env.CUDA)
+		envRow[6] = stringOrNone(env.CUDNN)
+		envRow[7] = env.Status
+		envRow[8] = stringid.TruncateID(env.Container.ID)
 		table.Append(envRow)
 	}
 	table.Render()
+}
+
+func endpointOrNone(env types.EnvdEnvironment) string {
+	var res strings.Builder
+	if env.JupyterAddr != nil {
+		res.WriteString(fmt.Sprintf("jupyter: %s", *env.JupyterAddr))
+	}
+	if env.RStudioServerAddr != nil {
+		res.WriteString(fmt.Sprintf("rstudio: %s", *env.RStudioServerAddr))
+	}
+	return res.String()
 }

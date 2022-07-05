@@ -23,7 +23,9 @@ import (
 )
 
 func (g Graph) compileRLang(aptStage llb.State) (llb.State, error) {
-	g.compileJupyter()
+	if err := g.compileJupyter(); err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
+	}
 	builtinSystemStage := aptStage
 
 	sshStage, err := g.copySSHKey(builtinSystemStage)

@@ -4,4 +4,5 @@ def build():
             "remotes",
             "rlang",
         ])
+    config.rstudio_server()
     shell("zsh")

@@ -28,7 +28,9 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 	condaChanelStage := g.compileCondaChannel(aptStage)
 	pypiMirrorStage := g.compilePyPIIndex(condaChanelStage)
 
-	g.compileJupyter()
+	if err := g.compileJupyter(); err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
+	}
 	builtinSystemStage := pypiMirrorStage
 
 	sshStage, err := g.copySSHKey(builtinSystemStage)
