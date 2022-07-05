@@ -36,9 +36,7 @@ import (
 )
 
 const (
-	localhost   = "127.0.0.1"
-	defaultFile = "build.envd"
-	defaultFunc = "build"
+	localhost = "127.0.0.1"
 )
 
 var CommandUp = &cli.Command{
