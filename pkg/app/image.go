@@ -32,7 +32,7 @@ import (
 var CommandImage = &cli.Command{
 	Name:    "images",
 	Aliases: []string{"image", "i"},
-	Usage:   "List envd images",
+	Usage:   "Manage envd images",
 
 	Subcommands: []*cli.Command{
 		CommandDescribeImage,

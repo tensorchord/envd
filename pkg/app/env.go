@@ -32,7 +32,7 @@ import (
 var CommandEnvironment = &cli.Command{
 	Name:    "envs",
 	Aliases: []string{"env", "e"},
-	Usage:   "envd environments",
+	Usage:   "Manage envd environments",
 
 	Subcommands: []*cli.Command{
 		CommandDescribeEnvironment,
