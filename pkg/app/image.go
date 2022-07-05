@@ -29,13 +29,13 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-var CommandGetImage = &cli.Command{
+var CommandImage = &cli.Command{
 	Name:    "images",
 	Aliases: []string{"image", "i"},
 	Usage:   "List envd images",
 
 	Subcommands: []*cli.Command{
-		CommandGetImageDependency,
+		CommandDescribeImage,
 		CommandListImage,
 	},
 }

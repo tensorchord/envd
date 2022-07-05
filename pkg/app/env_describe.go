@@ -15,56 +15,59 @@
 package app
 
 import (
-	"fmt"
 	"io"
 	"os"
-	"strconv"
 
-	"github.com/docker/docker/pkg/stringid"
+	"github.com/cockroachdb/errors"
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/envd"
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-var CommandGetEnvironment = &cli.Command{
-	Name:    "envs",
-	Aliases: []string{"env", "e"},
-	Usage:   "envd environments",
-
-	Subcommands: []*cli.Command{
-		CommandGetEnvironmentDependency,
-		CommandListEnv,
+var CommandDescribeEnvironment = &cli.Command{
+	Name:    "describe",
+	Aliases: []string{"d"},
+	Usage:   "Show details about environments, including dependencies",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "env",
+			Usage:   "Specify the envd environment to use",
+			Aliases: []string{"e"},
+		},
+		&cli.PathFlag{
+			Name:    "private-key",
+			Usage:   "Path to the private key",
+			Aliases: []string{"k"},
+			Value:   sshconfig.GetPrivateKey(),
+		},
 	},
+	Action: getEnvironmentDependency,
 }
 
-var CommandListEnv = &cli.Command{
-	Name:    "list",
-	Aliases: []string{"ls", "l"},
-	Usage:   "List envd environments",
-	Action:  getEnvironment,
-}
-
-func getEnvironment(clicontext *cli.Context) error {
+func getEnvironmentDependency(clicontext *cli.Context) error {
+	envName := clicontext.String("env")
+	if envName == "" {
+		return errors.New("env is required")
+	}
 	envdEngine, err := envd.New(clicontext.Context)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create envd engine")
 	}
-	envs, err := envdEngine.ListEnvironment(clicontext.Context)
+
+	dep, err := envdEngine.ListEnvDependency(clicontext.Context, envName)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to list dependencies")
 	}
-	renderEnvironments(envs, os.Stdout)
+	renderDependencies(dep, os.Stdout)
 	return nil
 }
 
-func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
+func renderDependencies(dep *types.Dependency, w io.Writer) {
 	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{
-		"Name", "jupyter", "SSH Target", "Context", "Image",
-		"GPU", "CUDA", "CUDNN", "Status", "Container ID",
-	})
+	table.SetHeader([]string{"Dependency", "Type"})
 
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
@@ -78,18 +81,19 @@ func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
 	table.SetTablePadding("\t") // pad with tabs
 	table.SetNoWhiteSpace(true)
 
-	for _, env := range envs {
-		envRow := make([]string, 10)
-		envRow[0] = env.Name
-		envRow[1] = env.JupyterAddr
-		envRow[2] = fmt.Sprintf("%s.envd", env.Name)
-		envRow[3] = stringOrNone(env.BuildContext)
-		envRow[4] = env.Container.Image
-		envRow[5] = strconv.FormatBool(env.GPU)
-		envRow[6] = stringOrNone(env.CUDA)
-		envRow[7] = stringOrNone(env.CUDNN)
-		envRow[8] = env.Status
-		envRow[9] = stringid.TruncateID(env.Container.ID)
+	if dep == nil {
+		return
+	}
+	for _, p := range dep.PyPIPackages {
+		envRow := make([]string, 2)
+		envRow[0] = p
+		envRow[1] = "Python"
+		table.Append(envRow)
+	}
+	for _, p := range dep.APTPackages {
+		envRow := make([]string, 2)
+		envRow[0] = p
+		envRow[1] = "APT"
 		table.Append(envRow)
 	}
 	table.Render()
