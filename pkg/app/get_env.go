@@ -31,12 +31,19 @@ import (
 var CommandGetEnvironment = &cli.Command{
 	Name:    "envs",
 	Aliases: []string{"env", "e"},
-	Usage:   "List envd environments",
+	Usage:   "envd environments",
 
 	Subcommands: []*cli.Command{
 		CommandGetEnvironmentDependency,
+		CommandListEnv,
 	},
-	Action: getEnvironment,
+}
+
+var CommandListEnv = &cli.Command{
+	Name:    "list",
+	Aliases: []string{"ls", "l"},
+	Usage:   "List envd environments",
+	Action:  getEnvironment,
 }
 
 func getEnvironment(clicontext *cli.Context) error {

@@ -36,9 +36,15 @@ var CommandGetImage = &cli.Command{
 
 	Subcommands: []*cli.Command{
 		CommandGetImageDependency,
+		CommandListImage,
 	},
+}
 
-	Action: getImage,
+var CommandListImage = &cli.Command{
+	Name:    "list",
+	Aliases: []string{"ls", "l"},
+	Usage:   "List envd images",
+	Action:  getImage,
 }
 
 func getImage(clicontext *cli.Context) error {
