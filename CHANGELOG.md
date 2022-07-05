@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.2.0-alpha.4 (2022-07-05)
+
+ * [6e9e44d](https://github.com/tensorchord/envd/commit/6e9e44dfadf13c3899707beda09d92b4f907e24d) feat: Support specify build target (#497)
+ * [e443784](https://github.com/tensorchord/envd/commit/e44378470ddd029e3f2c94c93e00b0399e89b772) feat(lang): Support RStudio server (#503)
+ * [89eb6e8](https://github.com/tensorchord/envd/commit/89eb6e8b5bdf795f2f1b145b75b6d87745284d71) chore(deps): bump github.com/stretchr/testify from 1.7.5 to 1.8.0 (#540)
+ * [74b27e9](https://github.com/tensorchord/envd/commit/74b27e9d0039c2558b3ebd152260f0c163fc7d37) chore(deps): bump dependabot/fetch-metadata from 1.3.1 to 1.3.3 (#539)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * dependabot[bot]
+
 ## v0.2.0-alpha.3 (2022-07-01)
 
  * [dbac24d](https://github.com/tensorchord/envd/commit/dbac24d7931832d0fed12e931e544d31a557626d) feat(docker): Add entrypoint and ports in image config (#533)
