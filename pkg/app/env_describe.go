@@ -27,10 +27,10 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-var CommandGetEnvironmentDependency = &cli.Command{
-	Name:    "deps",
-	Aliases: []string{"dep", "d"},
-	Usage:   "List all dependencies",
+var CommandDescribeEnvironment = &cli.Command{
+	Name:    "describe",
+	Aliases: []string{"d"},
+	Usage:   "Show details about environments, including dependencies",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "env",

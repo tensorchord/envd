@@ -50,7 +50,7 @@ var _ = Describe("up command", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			depsArgs := append(baseArgs, []string{
-				"get", "envs", "deps", "--env", env,
+				"envs", "describe", "--env", env,
 			}...)
 
 			err = app.Run(depsArgs)

@@ -23,7 +23,7 @@ import (
 
 var _ = Describe("get env command", func() {
 	args := []string{
-		"envd.test", "--debug", "get", "envs",
+		"envd.test", "--debug", "envs", "list",
 	}
 	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())

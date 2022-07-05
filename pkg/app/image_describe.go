@@ -23,10 +23,10 @@ import (
 	"github.com/tensorchord/envd/pkg/envd"
 )
 
-var CommandGetImageDependency = &cli.Command{
-	Name:    "deps",
-	Aliases: []string{"dep", "d"},
-	Usage:   "List all dependencies in the image",
+var CommandDescribeImage = &cli.Command{
+	Name:    "describe",
+	Aliases: []string{"d"},
+	Usage:   "Show details about image, including dependencies",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "image",

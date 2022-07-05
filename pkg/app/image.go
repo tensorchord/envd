@@ -15,13 +15,13 @@
 package app
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"strconv"
-	"strings"
+	"time"
 
 	"github.com/docker/docker/pkg/stringid"
+	"github.com/docker/go-units"
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
 
@@ -29,36 +29,40 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-var CommandGetEnvironment = &cli.Command{
-	Name:    "envs",
-	Aliases: []string{"env", "e"},
-	Usage:   "List envd environments",
+var CommandImage = &cli.Command{
+	Name:    "images",
+	Aliases: []string{"image", "i"},
+	Usage:   "Manage envd images",
 
 	Subcommands: []*cli.Command{
-		CommandGetEnvironmentDependency,
+		CommandDescribeImage,
+		CommandListImage,
 	},
-	Action: getEnvironment,
 }
 
-func getEnvironment(clicontext *cli.Context) error {
+var CommandListImage = &cli.Command{
+	Name:    "list",
+	Aliases: []string{"ls", "l"},
+	Usage:   "List envd images",
+	Action:  getImage,
+}
+
+func getImage(clicontext *cli.Context) error {
 	envdEngine, err := envd.New(clicontext.Context)
 	if err != nil {
 		return err
 	}
-	envs, err := envdEngine.ListEnvironment(clicontext.Context)
+	envs, err := envdEngine.ListImage(clicontext.Context)
 	if err != nil {
 		return err
 	}
-	renderEnvironments(envs, os.Stdout)
+	renderImages(envs, os.Stdout)
 	return nil
 }
 
-func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
+func renderImages(imgs []types.EnvdImage, w io.Writer) {
 	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{
-		"Name", "Endpoint", "SSH Target", "Image",
-		"GPU", "CUDA", "CUDNN", "Status", "Container ID",
-	})
+	table.SetHeader([]string{"Name", "Context", "GPU", "CUDA", "CUDNN", "Image ID", "Created", "Size"})
 
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
@@ -72,29 +76,34 @@ func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
 	table.SetTablePadding("\t") // pad with tabs
 	table.SetNoWhiteSpace(true)
 
-	for _, env := range envs {
-		envRow := make([]string, 9)
-		envRow[0] = env.Name
-		envRow[1] = endpointOrNone(env)
-		envRow[2] = fmt.Sprintf("%s.envd", env.Name)
-		envRow[3] = env.Container.Image
-		envRow[4] = strconv.FormatBool(env.GPU)
-		envRow[5] = stringOrNone(env.CUDA)
-		envRow[6] = stringOrNone(env.CUDNN)
-		envRow[7] = env.Status
-		envRow[8] = stringid.TruncateID(env.Container.ID)
+	for _, img := range imgs {
+		envRow := make([]string, 8)
+		envRow[0] = types.GetImageName(img)
+		envRow[1] = stringOrNone(img.BuildContext)
+		envRow[2] = strconv.FormatBool(img.GPU)
+		envRow[3] = stringOrNone(img.CUDA)
+		envRow[4] = stringOrNone(img.CUDNN)
+		envRow[5] = stringid.TruncateID(img.ImageSummary.ID)
+		envRow[6] = createdSinceString(img.ImageSummary.Created)
+		envRow[7] = units.HumanSizeWithPrecision(float64(img.ImageSummary.Size), 3)
 		table.Append(envRow)
 	}
 	table.Render()
 }
 
-func endpointOrNone(env types.EnvdEnvironment) string {
-	var res strings.Builder
-	if env.JupyterAddr != nil {
-		res.WriteString(fmt.Sprintf("jupyter: %s", *env.JupyterAddr))
+func stringOrNone(cuda string) string {
+	if cuda == "" {
+		return "<none>"
 	}
-	if env.RStudioServerAddr != nil {
-		res.WriteString(fmt.Sprintf("rstudio: %s", *env.RStudioServerAddr))
+	return cuda
+}
+
+func createdSinceString(created int64) string {
+	createdAt := time.Unix(created, 0)
+
+	if createdAt.IsZero() {
+		return ""
 	}
-	return res.String()
+
+	return units.HumanDuration(time.Now().UTC().Sub(createdAt)) + " ago"
 }
