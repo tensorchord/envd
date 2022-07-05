@@ -6,11 +6,7 @@ def build():
     #config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
     install.python_packages([
         "tensorflow",
-        # "numpy",
+        "numpy",
     ])
     shell("zsh")
     config.jupyter(password="", port=8888)
-
-def build_gpu():
-    build()    
-    install.cuda(version="11.6", cudnn="8")
