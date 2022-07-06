@@ -284,6 +284,14 @@ func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror str
 	hostConfig := &container.HostConfig{
 		Privileged: true,
 	}
+	created, _ := c.Exists(ctx, name)
+	if created {
+		err := c.ContainerStart(ctx, name, types.ContainerStartOptions{})
+		if err != nil {
+			return name, err
+		}
+		return name, nil
+	}
 	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create container")

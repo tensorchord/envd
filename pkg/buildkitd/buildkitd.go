@@ -132,8 +132,12 @@ func (c *generalClient) maybeStart(ctx context.Context,
 		}
 		running, _ := dockerClient.IsRunning(ctx, c.containerName)
 		if created && !running {
-			c.logger.Warnf("please remove or restart the container %s", c.containerName)
-			return "", errors.Errorf("container %s is stopped", c.containerName)
+			c.logger.Warnf("start the created contrainer %s", c.containerName)
+			_, err := dockerClient.StartBuildkitd(ctx, c.image, c.containerName, c.mirror)
+			if err != nil {
+				c.logger.Warnf("please remove or restart the container %s", c.containerName)
+				return "", errors.Errorf("container %s is stopped", c.containerName)
+			}
 		}
 
 		c.logger.Debugf("container is running, check if it's ready at %s...", c.BuildkitdAddr())
