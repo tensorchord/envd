@@ -263,6 +263,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://kenwoodjw.github.io"><img src="https://avatars.githubusercontent.com/u/10386710?v=4?s=70" width="70px;" alt=""/><br /><sub><b>kenwoodjw</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=kenwoodjw" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/aseaday"><img src="https://avatars.githubusercontent.com/u/3927355?v=4?s=70" width="70px;" alt=""/><br /><sub><b>nullday</b></sub></a><br /><a href="#ideas-aseaday" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/tensorchord/envd/commits?author=aseaday" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/xing0821"><img src="https://avatars.githubusercontent.com/u/54933318?v=4?s=70" width="70px;" alt=""/><br /><sub><b>xing0821</b></sub></a><br /><a href="#ideas-xing0821" title="Ideas, Planning, & Feedback">🤔</a> <a href="#userTesting-xing0821" title="User Testing">📓</a></td>
+    <td align="center"><a href="https://github.com/zhyon404"><img src="https://avatars.githubusercontent.com/u/32242529?v=4?s=70" width="70px;" alt=""/><br /><sub><b>zhyon404</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=zhyon404" title="Code">💻</a></td>
   </tr>
 </table>
 
