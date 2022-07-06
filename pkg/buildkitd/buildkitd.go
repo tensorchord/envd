@@ -114,7 +114,7 @@ func (c *generalClient) maybeStart(ctx context.Context,
 			return "", err
 		}
 
-		created, err := dockerClient.IsCreated(ctx, c.containerName)
+		created, err := dockerClient.Exists(ctx, c.containerName)
 		if err != nil {
 			return "", err
 		}

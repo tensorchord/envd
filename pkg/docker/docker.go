@@ -59,7 +59,7 @@ type Client interface {
 	StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error)
 
 	IsRunning(ctx context.Context, name string) (bool, error)
-	IsCreated(ctx context.Context, name string) (bool, error)
+	Exists(ctx context.Context, name string) (bool, error)
 	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
 
 	Exec(ctx context.Context, cname string, cmd []string) error
@@ -448,7 +448,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 	return container.Name, container.NetworkSettings.IPAddress, nil
 }
 
-func (c generalClient) IsCreated(ctx context.Context, cname string) (bool, error) {
+func (c generalClient) Exists(ctx context.Context, cname string) (bool, error) {
 	_, err := c.GetContainer(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
