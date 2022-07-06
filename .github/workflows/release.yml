@@ -12,6 +12,7 @@ on:
 
 jobs:
   goreleaser:
+    if: github.repository == 'tensorchord/envd'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -47,6 +48,7 @@ jobs:
           if-no-files-found: error
   pypi_publish:
     needs: goreleaser
+    if: github.repository == 'tensorchord/envd'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
@@ -89,3 +91,26 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install twine
         python -m twine upload wheelhouse/*
+  image_publish:
+    name: Build & push images
+    if: github.repository == 'tensorchord/envd'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      id: cache
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+    - name: Docker Buildx
+      env:
+        DOCKERIO_USERNAME: ${{ secrets.DOCKERIO_USERNAME }}
+        DOCKERIO_PASSWORD: ${{ secrets.DOCKERIO_PASSWORD }}
+      run: |
+          docker login --username "${DOCKERIO_USERNAME}" --password "${DOCKERIO_PASSWORD}"
+          ./base-images/build.sh
