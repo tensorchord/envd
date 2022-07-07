@@ -17,7 +17,7 @@ Besides this, it also requires customization if envd integrates with [Flyte](htt
 
 ## Glossary of Terms
 
-### 
+N/A
 
 ## Goals
 
@@ -46,6 +46,10 @@ Enterprise users may want to use envd in their own infra. Thus they need to cust
 
 Some other projects like [Flyte](https://flyte.org/) may use envd to build the docker images. Thus they need to customize the base image.
 
+#### Build images for large scale training or deployment
+
+Besides development, envd may be used in large scale training or deployment. Thus it needs to customize the base image, so that the image size can be reduced. For example, there is no need to install jupyter notebook for serving purpose.
+
 ### Language
 
 ```python
@@ -58,4 +62,65 @@ New argument `image` is introduced in `base` to support customization. There are
 - Should be Ubuntu-based image
 - Should have `pip` installed
 
-### 
+Besides this, we need to introduce a new func `config.ssh`. If users specify the base image, and there is no func calls like `config.jupyter` or `config.ssh`, we consider it as an image not for development. Thus there are some different situations:
+
+#### Custom image for serving or other purposes
+
+```python
+def build():
+    base(image="docker.io/tensorchord/custom-image")
+    # We consider it as an image not for development.
+    install.python_packages(packages=["tensorflow"])
+```
+
+#### Custom image for development
+
+```python
+def build():
+    base(image="docker.io/tensorchord/custom-image")
+    # We consider it as an image for development. 
+    # Thus we should install sshd and jupyter. for it.
+    config.jupyter()
+    config.ssh()
+```
+
+#### Default image for development
+
+```python
+def build():
+    # We consider it as an image for development if there is
+    # no image specified in `base` func. But we do not need 
+    # to install sshd and jupyter since the default base image
+    # contains them.
+    base(os="ubuntu", version="20.04")
+```
+
+#### Default image for serving or other purposes
+
+```python
+def build():
+    # We consider it as an image not for development if there is
+    # no image specified in `base` func.
+    base(os="ubuntu", version="20.04")
+    config.ssh(mode="disable")
+    install.python_packages(packages=["tensorflow"])
+```
+
+## Development Process
+
+Already supported by envd:
+
+- Default image for development
+
+### Stage 1
+
+Support:
+
+- Custom image for serving or other purposes
+
+### Stage 2
+
+Support:
+
+- Default image for serving or other purposes
+- Custom image for development (Huge engineering work)
