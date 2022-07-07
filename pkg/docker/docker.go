@@ -361,9 +361,13 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		"working-dir": base,
 	}).Debug("setting up container working directory")
 
+	rp := container.RestartPolicy{
+		Name: "always",
+	}
 	hostConfig := &container.HostConfig{
-		PortBindings: nat.PortMap{},
-		Mounts:       mountOption,
+		PortBindings:  nat.PortMap{},
+		Mounts:        mountOption,
+		RestartPolicy: rp,
 	}
 
 	// Configure ssh port.
