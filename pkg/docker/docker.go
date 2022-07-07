@@ -284,6 +284,14 @@ func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror str
 	hostConfig := &container.HostConfig{
 		Privileged: true,
 	}
+	created, _ := c.Exists(ctx, name)
+	if created {
+		err := c.ContainerStart(ctx, name, types.ContainerStartOptions{})
+		if err != nil {
+			return name, err
+		}
+		return name, nil
+	}
 	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create container")
@@ -353,9 +361,13 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		"working-dir": base,
 	}).Debug("setting up container working directory")
 
+	rp := container.RestartPolicy{
+		Name: "always",
+	}
 	hostConfig := &container.HostConfig{
-		PortBindings: nat.PortMap{},
-		Mounts:       mountOption,
+		PortBindings:  nat.PortMap{},
+		Mounts:        mountOption,
+		RestartPolicy: rp,
 	}
 
 	// Configure ssh port.
