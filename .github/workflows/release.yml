@@ -48,13 +48,13 @@ jobs:
           if-no-files-found: error
   pypi_publish:
     needs: goreleaser
-    if: github.repository == 'tensorchord/envd'
+    # only trigger on main repo when tag starts with v
+    if: github.repository == 'tensorchord/envd' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
       matrix:
         os: [macos-10.15, ubuntu-20.04]
-    if: startsWith(github.ref, 'refs/tags/v') # only trigger when tag starts with v
     steps:    
     - uses: actions/checkout@v3
     - name: Get gobin
