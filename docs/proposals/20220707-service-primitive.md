@@ -41,7 +41,7 @@ def build():
     # if you do not need to set up password.
     config.jupyter(password="password")
 
-def server():
+def serve():
     pass
 ```
 
@@ -54,7 +54,7 @@ def build():
     # if you do not need to set up password.
     config.jupyter(password="password")
 def serve():
-    host.bind(env_port=presets.juypter.port,host_port=1234)
+    host.bind(env_port=presets.juypter.port,host_port=1234) # The bind should judge the wsl automatically
 ```
 
 for the cloud user scenario:
@@ -68,6 +68,20 @@ def build():
     config.jupyter(password="password")
 def serve():
     cloud.k8s.bind(env_port=presets.juypter.port,host_port=1234) # It would use port forward
-    cloud.k8s.bind(env_port=presets.juypter.port, type=cloud.k8s.clusterIP, service_port=1234)
+    cloud.k8s.expose(env_port=presets.juypter.port, type=cloud.k8s.clusterIP, service_port=1234) # It would expose service with type clusterIP, we could support clusterIP, NodePort and LoadBalancer. And for those k8s cluster auto config ingress with clusterIP and HTTP, It will be very useful.
 ```
- It would expose service with type clusterIP, we could support clusterIP, NodePort and LoadBalancer. And for those k8s cluster auto config ingress with clusterIP and HTTP, It will be very useful.
+ We also could use a load syntax in the future for seperate the service and build function:
+
+ ```python
+load("./service.envd")
+def build():
+    base(os="ubuntu20.04", language="python")
+    # Use `config.jupyter(password="")` 
+    # if you do not need to set up password.
+    config.jupyter(password="password") 
+ ```
+
+### Development Plan
+
+1. support `serve` and `host`
+2. support `cloud`
