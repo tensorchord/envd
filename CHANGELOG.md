@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.2.0-alpha.5 (2022-07-08)
+
+ * [6cfc0f1](https://github.com/tensorchord/envd/commit/6cfc0f16224095605dd85fb38b9cf406fbb65118) feat: Support for build image update when exec build or up again (#570)
+ * [8f89e4b](https://github.com/tensorchord/envd/commit/8f89e4be3d154728824c67f13086eb727f545400) Fix: image tag normalized to docker spec (#573)
+ * [3fe3757](https://github.com/tensorchord/envd/commit/3fe375769487a4eaf224a6db1437c840002c7a15) fix: add -c for every single conda channel (#569)
+ * [49fa961](https://github.com/tensorchord/envd/commit/49fa961111492d9a0599e9697bf2361321e9417d) fix: add auto start buildkit container (#563)
+ * [4fa5ec7](https://github.com/tensorchord/envd/commit/4fa5ec7b520964a74009b397ae9755ae96193305) bug: Fix github action (#566)
+ * [93027bd](https://github.com/tensorchord/envd/commit/93027bd669ddfe052c9abcd2c2679f547389b1ff) fix: py cmd exit code (#564)
+ * [707d5e8](https://github.com/tensorchord/envd/commit/707d5e8ca880a7968ef0304fab5dd28fb05a1610) feat: replace IsCreated with Exists for Client interface from package docker (#558)
+ * [f71cd7f](https://github.com/tensorchord/envd/commit/f71cd7f4891fab5e1be588e9b991ab4942e02d57) feat(CLI): Unify CLI style about env and image (#550)
+
+### Contributors
+
+ * Jinjing Zhou
+ * Keming
+ * nullday
+ * xing0821
+ * zhyon404
+
 ## v0.2.0-alpha.4 (2022-07-05)
 
  * [6e9e44d](https://github.com/tensorchord/envd/commit/6e9e44dfadf13c3899707beda09d92b4f907e24d) feat: Support specify build target (#497)
