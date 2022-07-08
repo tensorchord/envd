@@ -54,9 +54,9 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 		sb.WriteString("/opt/conda/bin/conda install -n envd")
 
 	} else {
-		sb.WriteString("/opt/conda/bin/conda install -n envd -c")
+		sb.WriteString("/opt/conda/bin/conda install -n envd")
 		for _, channel := range g.CondaConfig.AdditionalChannels {
-			sb.WriteString(fmt.Sprintf(" %s", channel))
+			sb.WriteString(fmt.Sprintf(" -c %s", channel))
 		}
 	}
 
