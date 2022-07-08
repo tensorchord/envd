@@ -256,8 +256,8 @@ func (c generalClient) Destroy(ctx context.Context, name string) (string, error)
 			// If the container is not running, there is no need to kill it.
 			logger.Debug("container is not running, there is no need to kill it")
 		case strings.Contains(errCause, "No such container"):
-			// If the container is not found, it is already destroyed.
-			logger.Debug("container is not found, there is no need to destroy it")
+			// If the container is not found, it is already destroyed or the name is wrong.
+			logger.Infof("cannot find container %s, maybe it's already destroyed or the name is wrong", name)
 			return "", nil
 		default:
 			return "", errors.Wrap(err, "failed to kill the container")

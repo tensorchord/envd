@@ -39,7 +39,7 @@ var CommandDestroy = &cli.Command{
 		},
 		&cli.PathFlag{
 			Name:    "name",
-			Usage:   "Name of the environment",
+			Usage:   "Name of the environment or container ID",
 			Aliases: []string{"n"},
 		},
 	},
