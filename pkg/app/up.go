@@ -95,6 +95,11 @@ var CommandUp = &cli.Command{
 			Usage: "Launch the CPU container",
 			Value: false,
 		},
+		&cli.BoolFlag{
+			Name:  "force",
+			Usage: "Force rebuild and run the container although the previous container is running",
+			Value: false,
+		},
 	},
 
 	Action: up,
@@ -185,6 +190,10 @@ func up(clicontext *cli.Context) error {
 	}
 	numGPUs := builder.NumGPUs()
 
+	err = dockerClient.CleanEnvdIfExists(clicontext.Context, ctr, clicontext.Bool("force"))
+	if err != nil {
+		return errors.Wrap(err, "failed to start the envd environment")
+	}
 	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
 		tag, ctr, buildContext, gpu, numGPUs, sshPortInHost, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))

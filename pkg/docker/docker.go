@@ -59,6 +59,7 @@ type Client interface {
 		gpuEnabled bool, numGPUs int, sshPort int, g ir.Graph, timeout time.Duration,
 		mountOptionsStr []string) (string, string, error)
 	StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error)
+	CleanEnvdIfExists(ctx context.Context, name string, force bool) error
 
 	IsRunning(ctx context.Context, name string) (bool, error)
 	Exists(ctx context.Context, name string) (bool, error)
@@ -338,6 +339,33 @@ func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror str
 	}
 
 	return container.Name, nil
+}
+
+func (c generalClient) CleanEnvdIfExists(ctx context.Context, name string, force bool) error {
+	created, err := c.Exists(ctx, name)
+	if err != nil {
+		return err
+	}
+	if !created {
+		return nil
+	}
+
+	// force delete the container no matter it is running or not.
+	if force {
+		return c.ContainerRemove(ctx, name, types.ContainerRemoveOptions{
+			Force: true,
+		})
+	}
+
+	running, _ := c.IsRunning(ctx, name)
+	if err != nil {
+		return err
+	}
+	if running {
+		logrus.Errorf("container %s is running, cannot clean envd, please save your data and stop the running container if you need to envd up again.", name)
+		return errors.New("Still running envd container")
+	}
+	return c.ContainerRemove(ctx, name, types.ContainerRemoveOptions{})
 }
 
 // StartEnvd creates the container for the given tag and container name.
