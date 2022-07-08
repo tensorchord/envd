@@ -24,6 +24,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
+	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
@@ -100,6 +101,10 @@ func build(clicontext *cli.Context) error {
 	if tag == "" {
 		logrus.Debug("tag not specified, using default")
 		tag = fmt.Sprintf("%s:%s", fileutil.Base(buildContext), "dev")
+	}
+	tag, err = docker.NormalizeNamed(tag)
+	if err != nil {
+		return err
 	}
 
 	logger := logrus.WithFields(logrus.Fields{

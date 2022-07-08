@@ -21,6 +21,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -46,7 +47,8 @@ const (
 )
 
 var (
-	interval = 1 * time.Second
+	interval                 = 1 * time.Second
+	anchoredIdentifierRegexp = regexp.MustCompile(`^([a-f0-9]{64})$`)
 )
 
 type Client interface {
@@ -98,6 +100,31 @@ please visit https://docs.docker.com/engine/install/linux-postinstall/ for more 
 		return nil, err
 	}
 	return generalClient{cli}, nil
+}
+
+// Normalize the name accord the spec of docker, It may support normalize imagea and container in the future.
+func NormalizeNamed(s string) (string, error) {
+	if ok := anchoredIdentifierRegexp.MatchString(s); ok {
+		return "", fmt.Errorf("invalid repository name (%s), cannot specify 64-byte hexadecimal strings, please rename it", s)
+	}
+	var remoteName string
+	var tagSep int
+	if tagSep = strings.IndexRune(s, ':'); tagSep > -1 {
+		remoteName = s[:tagSep]
+	} else {
+		remoteName = s
+	}
+	if strings.ToLower(remoteName) != remoteName {
+		remoteName = strings.ToLower(remoteName)
+		if tagSep > -1 {
+			s = remoteName + s[tagSep:]
+		} else {
+			s = remoteName
+		}
+		logrus.Warnf("The working direcotry's name is not lowercased: %s, the image built will be lowercased to %s", remoteName, s)
+	}
+	return s, nil
+
 }
 
 func (c generalClient) GPUEnabled(ctx context.Context) (bool, error) {
