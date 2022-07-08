@@ -125,6 +125,11 @@ func up(clicontext *cli.Context) error {
 		logrus.Debug("tag not specified, using default")
 		tag = fmt.Sprintf("%s:%s", fileutil.Base(buildContext), "dev")
 	}
+	// The current container engine is only Docker. It should be expaned to support other container engines.
+	tag, err = docker.NormalizeNamed(tag)
+	if err != nil {
+		return err
+	}
 	ctr := fileutil.Base(buildContext)
 
 	detach := clicontext.Bool("detach")
