@@ -1,0 +1,40 @@
+name: Pre-commit Checks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+      - '**.go'
+      - 'Makefile'
+      - 'go.**'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - '**.go'
+      - 'Makefile'
+      - 'go.**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.0-beta.3'
+        env:
+          AGENT_TOOLSDIRECTORY: /opt/hostedtoolcache
+          RUNNER_TOOL_CACHE: /opt/hostedtoolcache
+      - id: file_changes
+        uses: trilom/file-changes-action@v1.2.4
+        with:
+          output: ' '
+      - uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: --files ${{ steps.file_changes.outputs.files}}
