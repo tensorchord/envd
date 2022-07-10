@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - pre-commit-hooks
     paths:
       - '.github/workflows/**'
       - '**.go'
