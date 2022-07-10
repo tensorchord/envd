@@ -178,18 +178,18 @@ func (c generalClient) Attach() error {
 	}()
 
 	if err := session.RequestPty("xterm-256color", height, width, modes); err != nil {
-		return fmt.Errorf("request for pseudo terminal failed: %s", err)
+		return fmt.Errorf("request for pseudo terminal failed: %w", err)
 	}
 
 	stdin, err := session.StdinPipe()
 	if err != nil {
-		return fmt.Errorf("unable to setup stdin for session: %v", err)
+		return fmt.Errorf("unable to setup stdin for session: %w", err)
 	}
 	Copy(os.Stdin, stdin)
 
 	stdout, err := session.StdoutPipe()
 	if err != nil {
-		return fmt.Errorf("unable to setup stdout for session: %v", err)
+		return fmt.Errorf("unable to setup stdout for session: %w", err)
 	}
 
 	go func() {
