@@ -58,7 +58,7 @@ jobs:
           output: ' '
       - uses: pre-commit/action@v3.0.0
         with:
-          extra_args: --files ${{ steps.file_changes.outputs.files}}
+          extra_args: -a
   test:
     name: test
     strategy:
