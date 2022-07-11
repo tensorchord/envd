@@ -295,6 +295,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "cswpy",
+      "name": "Pengyu Wang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/34707116?v=4",
+      "profile": "http://phillipw.info",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
