@@ -266,8 +266,8 @@ func getExitStatusFromError(err error) int {
 		return 0
 	}
 
-	exitErr, ok := err.(*exec.ExitError)
-	if !ok {
+	var exitErr exec.ExitError
+	if ok := errors.As(err, &exitErr); !ok {
 		return 1
 	}
 
@@ -366,7 +366,7 @@ func sftpHandler(sess ssh.Session) {
 		logrus.Infof("sftp server init error: %s\n", err)
 		return
 	}
-	if err := server.Serve(); err == io.EOF {
+	if err := server.Serve(); errors.Is(err, io.EOF) {
 		server.Close()
 		logrus.Infoln("sftp client exited session.")
 	} else if err != nil {
