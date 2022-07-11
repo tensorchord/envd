@@ -304,6 +304,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "gyli",
+      "name": "Guangyang Li",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2060045?v=4",
+      "profile": "https://GuangyangLi.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
