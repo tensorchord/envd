@@ -48,8 +48,8 @@ func handleErr(err error) {
 	}
 
 	rootCause := errors.Cause(err)
-	var evalErr starlark.EvalError
-	var syntaxErr syntax.Error
+	var evalErr *starlark.EvalError
+	var syntaxErr *syntax.Error
 	if ok := errors.As(err, &evalErr); ok {
 		fmt.Fprintln(os.Stderr, evalErr.Backtrace())
 	} else if ok := errors.As(err, &syntaxErr); ok {
