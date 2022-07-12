@@ -40,20 +40,21 @@ func RegisterBuildContext(buildContextDir string) {
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var os, language starlark.String
+	var os, language, image starlark.String
 
 	if err := starlark.UnpackArgs(ruleBase, args, kwargs,
-		"os?", &os, "language?", &language); err != nil {
+		"os?", &os, "language?", &language, "image?", &image); err != nil {
 		return nil, err
 	}
 
 	osStr := os.GoString()
 	langStr := language.GoString()
+	imageStr := image.GoString()
 
-	logger.Debugf("rule `%s` is invoked, os=%s, language=%s",
-		ruleBase, osStr, langStr)
+	logger.Debugf("rule `%s` is invoked, os=%s, language=%s, image=%s",
+		ruleBase, osStr, langStr, imageStr)
 
-	err := ir.Base(osStr, langStr)
+	err := ir.Base(osStr, langStr, imageStr)
 	return starlark.None, err
 }
 
