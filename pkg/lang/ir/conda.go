@@ -47,6 +47,8 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 	}
 
 	cacheDir := "/opt/conda/pkgs"
+	// Create the cache directory to the container. see issue #582
+	root = g.CompileCacheDir(root, cacheDir)
 
 	// Compose the package install command.
 	var sb strings.Builder

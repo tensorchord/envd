@@ -77,18 +77,14 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 	return merged, nil
 }
 
-func (g Graph) compileCacheDir(root llb.State, cacheDir string) llb.State {
-	root = llb.User("envd")(root)
-	run := root.Run(llb.Shlexf("mkdir %s", cacheDir), llb.WithCustomName("[internal] create cache dir"))
-	return run.Root()
-}
-
 func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	if len(g.PyPIPackages) == 0 {
 		return root
 	}
 
 	cacheDir := "/home/envd/.cache"
+	// Create the cache directory to the container. see issue #582
+	root = g.CompileCacheDir(root, cacheDir)
 
 	// Compose the package install command.
 	var sb strings.Builder
@@ -101,7 +97,6 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}
 
-	root = g.compileCacheDir(root, cacheDir)
 	cmd := sb.String()
 	root = llb.User("envd")(root)
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
