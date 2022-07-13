@@ -38,8 +38,8 @@ var CommandContextCreate = &cli.Command{
 			Value: string(types.BuilderTypeDocker),
 		},
 		&cli.StringFlag{
-			Name:  "builder-name",
-			Usage: "Builder name",
+			Name:  "builder-socket",
+			Usage: "Builder socket",
 			Value: "envd_buildkitd",
 		},
 		&cli.BoolFlag{
@@ -53,11 +53,11 @@ var CommandContextCreate = &cli.Command{
 func contextCreate(clicontext *cli.Context) error {
 	name := clicontext.String("name")
 	builder := clicontext.String("builder")
-	builderName := clicontext.String("builder-name")
+	builderSocket := clicontext.String("builder-socket")
 	use := clicontext.Bool("use")
 
 	err := home.GetManager().ContextCreate(name,
-		types.BuilderType(builder), builderName, use)
+		types.BuilderType(builder), builderSocket, use)
 	if err != nil {
 		return errors.Wrap(err, "failed to create context")
 	}
