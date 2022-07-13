@@ -17,9 +17,10 @@ package app
 import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
+
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
-	"github.com/urfave/cli/v2"
 )
 
 var CommandContextCreate = &cli.Command{

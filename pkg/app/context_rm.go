@@ -17,8 +17,9 @@ package app
 import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/envd/pkg/home"
 	"github.com/urfave/cli/v2"
+
+	"github.com/tensorchord/envd/pkg/home"
 )
 
 var CommandContextRemove = &cli.Command{
