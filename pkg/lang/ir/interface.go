@@ -21,7 +21,7 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/ir/parser"
 )
 
-func Base(os, language string) error {
+func Base(os, language, image string) error {
 	l, version, err := parseLanguage(language)
 	if err != nil {
 		return err
@@ -31,6 +31,9 @@ func Base(os, language string) error {
 		Version: version,
 	}
 	DefaultGraph.OS = os
+	if image != "" {
+		DefaultGraph.Image = &image
+	}
 	return nil
 }
 
