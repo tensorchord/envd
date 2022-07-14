@@ -97,7 +97,7 @@ func (m generalManager) ContextCreate(
 	name string, builder types.BuilderType, socket string, use bool) error {
 	for _, c := range m.context.Contexts {
 		if c.Name == name {
-			return errors.New("context already exists")
+			return errors.Newf("context \"%s\" already exists", name)
 		}
 	}
 	switch builder {
@@ -124,7 +124,7 @@ func (m generalManager) ContextRemove(name string) error {
 			return m.dumpContext()
 		}
 	}
-	return nil
+	return errors.Newf("cannot find context \"%s\"", name)
 }
 
 func (m generalManager) ContextList() (types.EnvdContext, error) {
@@ -138,7 +138,7 @@ func (m generalManager) ContextUse(name string) error {
 			return m.dumpContext()
 		}
 	}
-	return errors.New("context does not exist")
+	return errors.Newf("context \"%s\" does not exist", name)
 }
 
 func (m *generalManager) dumpContext() error {
