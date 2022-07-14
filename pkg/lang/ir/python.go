@@ -24,6 +24,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func (g Graph) GetAppropriatePythonVersion() (string, error) {
+	version := *g.Language.Version
+	if version == "3" || version == "" {
+		return defaultVersion, nil
+	}
+	if strings.HasPrefix(version, "3.") {
+		return version, nil
+	}
+	return "", errors.Errorf("python version %s is not supported", version)
+}
+
 func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 	condaChanelStage := g.compileCondaChannel(aptStage)
 	pypiMirrorStage := g.compilePyPIIndex(condaChanelStage)
@@ -74,7 +85,20 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 			diffSSHStage, pypiStage,
 		}, llb.WithCustomName("merging all components into one"))
 	}
+	merged = g.compileAlternative(merged)
 	return merged, nil
+}
+
+// Set the system default python to envd's python.
+func (g Graph) compileAlternative(root llb.State) llb.State {
+	root = llb.User("root")(root)
+	envdPrefix := "/opt/conda/envs/envd/bin"
+	run := root.
+		Run(llb.Shlexf("update-alternatives --install /usr/bin/python python %s/python 1", envdPrefix), llb.WithCustomName("update alternative python to envd")).
+		Run(llb.Shlexf("update-alternatives --install /usr/bin/python3 python3 %s/python3 1", envdPrefix), llb.WithCustomName("update alternative python to envd")).
+		Run(llb.Shlexf("update-alternatives --install /usr/bin/pip pip %s/pip 1", envdPrefix), llb.WithCustomName("update alternative python to envd")).
+		Run(llb.Shlexf("update-alternatives --install /usr/bin/pip3 pip3 %s/pip3 1", envdPrefix), llb.WithCustomName("update alternative python to envd"))
+	return run.Root()
 }
 
 func (g Graph) compilePyPIPackages(root llb.State) llb.State {
@@ -88,11 +112,8 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 
 	// Compose the package install command.
 	var sb strings.Builder
-	if g.CondaEnabled() {
-		sb.WriteString("/opt/conda/bin/conda run -n envd pip install")
-	} else {
-		sb.WriteString("pip install --no-warn-script-location")
-	}
+	// Always use the conda's pip.
+	sb.WriteString("/opt/conda/bin/conda run -n envd pip install")
 	for _, pkg := range g.PyPIPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}

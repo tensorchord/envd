@@ -23,7 +23,8 @@ import (
 )
 
 const (
-	condarc = "/home/envd/.condarc"
+	condarc        = "/home/envd/.condarc"
+	defaultVersion = "3.9"
 )
 
 func (g Graph) CondaEnabled() bool {
@@ -81,17 +82,13 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 }
 
 func (g Graph) setCondaENV(root llb.State) llb.State {
-	if !g.CondaEnabled() {
-		return root
-	}
-
 	root = llb.User("envd")(root)
 	// Always init bash since we will use it to create jupyter notebook service.
 	run := root.Run(llb.Shlex("bash -c \"/opt/conda/bin/conda init bash\""), llb.WithCustomName("[internal] initialize conda bash environment"))
 
-	pythonVersion := "3.9"
-	if g.Language.Version != nil {
-		pythonVersion = *g.Language.Version
+	pythonVersion, err := g.GetAppropriatePythonVersion()
+	if err != nil {
+		pythonVersion = defaultVersion
 	}
 	cmd := fmt.Sprintf(
 		"bash -c \"/opt/conda/bin/conda create -n envd python=%s\"", pythonVersion)
