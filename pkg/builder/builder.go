@@ -299,7 +299,6 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 
 				if err != nil {
 					err = errors.Wrap(err, "failed to solve LLB")
-					b.logger.Error(err)
 					return err
 				}
 				b.logger.Debug("llb def is solved successfully")
