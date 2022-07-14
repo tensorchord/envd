@@ -50,7 +50,6 @@ func GetWslHostSshConfig() (string, error) {
 
 	cmd := exec.Command("wslpath", string(userOutput))
 	output, err := cmd.Output()
-	logrus.Debugf("wsl path output: %s", output)
 	if err != nil {
 		return "", err
 	}
