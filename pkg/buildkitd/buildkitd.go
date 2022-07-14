@@ -24,6 +24,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
+	gateway "github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/tonistiigi/units"
@@ -46,6 +47,9 @@ type Client interface {
 	// Solve calls Solve on the controller.
 	Solve(ctx context.Context, def *llb.Definition,
 		opt client.SolveOpt, statusChan chan *client.SolveStatus) (*client.SolveResponse, error)
+	Build(ctx context.Context, opt client.SolveOpt, product string,
+		buildFunc gateway.BuildFunc, statusChan chan *client.SolveStatus,
+	) (*client.SolveResponse, error)
 	Prune(ctx context.Context, keepDuration time.Duration,
 		keepStorage float64, filter []string, verbose, all bool) error
 	Close() error

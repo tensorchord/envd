@@ -16,7 +16,6 @@ package flag
 
 const (
 	FlagCacheDir       = "cache-dir"
-	FlagContextDir     = "context-dir"
 	FlagBuildkitdImage = "buildkitd-image"
 	FlagDebug          = "debug"
 )
