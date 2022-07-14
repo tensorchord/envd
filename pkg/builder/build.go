@@ -28,7 +28,7 @@ const (
 func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (*client.Result, error) {
 	return func(ctx context.Context, c client.Client) (*client.Result, error) {
 		opts := c.BuildOpts().Opts
-		filename := opts[keyFilename]
+		var filename = opts[keyFilename]
 		if filename == "" {
 			filename = "build.envd"
 		}
