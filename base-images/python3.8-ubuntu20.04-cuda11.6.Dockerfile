@@ -76,7 +76,7 @@ RUN apt-get update && \
     bzip2 ca-certificates libglib2.0-0 libsm6 libxext6 libxrender1 mercurial \
     procps subversion wget \
     # envd dependencies
-    curl openssh-client git tini sudo python3-pip zsh vim \
+    curl openssh-client git tini sudo zsh vim \
     && rm -rf /var/lib/apt/lists/*
 
 # Keep apt from auto upgrading the cublas and nccl packages. See https://gitlab.com/nvidia/container-images/cuda/-/issues/88
