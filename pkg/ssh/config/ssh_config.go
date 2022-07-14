@@ -235,7 +235,7 @@ func (config *sshConfig) writeToFilepath(p string) error {
 	var mode os.FileMode
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return fmt.Errorf("failed to get info on %s: %s", p, err)
+			return fmt.Errorf("failed to get info on %s: %w", p, err)
 		}
 
 		// default for sshconfig
@@ -247,7 +247,7 @@ func (config *sshConfig) writeToFilepath(p string) error {
 	dir := filepath.Dir(p)
 	temp, err := os.CreateTemp(dir, "")
 	if err != nil {
-		return fmt.Errorf("failed to create temporary config file: %s", err)
+		return fmt.Errorf("failed to create temporary config file: %w", err)
 	}
 
 	defer os.Remove(temp.Name())
@@ -261,15 +261,15 @@ func (config *sshConfig) writeToFilepath(p string) error {
 	}
 
 	if err := os.Chmod(temp.Name(), mode); err != nil {
-		return fmt.Errorf("failed to set permissions to %s: %s", temp.Name(), err)
+		return fmt.Errorf("failed to set permissions to %s: %w", temp.Name(), err)
 	}
 
 	if _, err := getConfig(temp.Name()); err != nil {
-		return fmt.Errorf("new config is not valid: %s", err)
+		return fmt.Errorf("new config is not valid: %w", err)
 	}
 
 	if err := os.Rename(temp.Name(), p); err != nil {
-		return fmt.Errorf("failed to move %s to %s: %s", temp.Name(), p, err)
+		return fmt.Errorf("failed to move %s to %s: %w", temp.Name(), p, err)
 	}
 
 	return nil
@@ -517,14 +517,14 @@ func getConfig(path string) (*sshConfig, error) {
 			}, nil
 		}
 
-		return nil, fmt.Errorf("can't open %s: %s", path, err)
+		return nil, fmt.Errorf("can't open %s: %w", path, err)
 	}
 
 	defer f.Close()
 
 	cfg, err := parse(f)
 	if err != nil {
-		return nil, fmt.Errorf("fail to decode %s: %s", path, err)
+		return nil, fmt.Errorf("fail to decode %s: %w", path, err)
 	}
 
 	return cfg, nil

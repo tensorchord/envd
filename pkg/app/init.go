@@ -20,8 +20,9 @@ import (
 	"strings"
 
 	"github.com/cockroachdb/errors"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 	cli "github.com/urfave/cli/v2"
+
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 //go:embed template

@@ -98,7 +98,9 @@ func (g *Graph) compileBase() llb.State {
 	logger.Debug("compile base image")
 
 	var base llb.State
-	if g.CUDA == nil && g.CUDNN == nil {
+	if g.Image != nil {
+		base = llb.Image(*g.Image)
+	} else if g.CUDA == nil && g.CUDNN == nil {
 		switch g.Language.Name {
 		case "r":
 			base = llb.Image("docker.io/tensorchord/r-base:4.2")
@@ -134,7 +136,7 @@ func (g *Graph) compileBase() llb.State {
 				llb.WithCustomName("[internal] set root home dir to /home/envd")).
 			Run(llb.Shlex("sed -i \"s/envd:x:1001/envd:x:0/g\" /etc/group"),
 				llb.WithCustomName("[internal] set envd group to 0 as root group"))
-		if g.Language.Name == "python" {
+		if g.Image == nil && g.Language.Name == "python" {
 			res = res.Run(llb.Shlex("chown -R root:root /opt/conda"),
 				llb.WithCustomName("[internal] configure user permissions"))
 		}
@@ -148,7 +150,7 @@ func (g *Graph) compileBase() llb.State {
 				llb.WithCustomName("[internal] add user envd to sudoers")).
 			Run(llb.Shlex("chown -R envd:envd /usr/local/lib"),
 				llb.WithCustomName("[internal] configure user permissions"))
-		if g.Language.Name == "python" {
+		if g.Image == nil && g.Language.Name == "python" {
 			res = res.Run(llb.Shlex("chown -R envd:envd /opt/conda"),
 				llb.WithCustomName("[internal] configure user permissions"))
 		}
@@ -157,7 +159,6 @@ func (g *Graph) compileBase() llb.State {
 }
 
 func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
-	// TODO(gaocegege): Remove global var ssh image.
 	public := DefaultGraph.PublicKeyPath
 	bdat, err := os.ReadFile(public)
 	dat := strings.TrimSuffix(string(bdat), "\n")
@@ -165,7 +166,10 @@ func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 		return llb.State{}, errors.Wrap(err, "Cannot read public SSH key")
 	}
 	run := root.
+		File(llb.Mkdir("/var/envd", 0755, llb.WithParents(true),
+			llb.WithUIDGID(g.uid, g.gid))).
 		File(llb.Mkfile(config.ContainerAuthorizedKeysPath,
-			0644, []byte(dat+" envd"), llb.WithUIDGID(g.uid, g.gid)), llb.WithCustomName("install ssh keys"))
+			0644, []byte(dat+" envd"), llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomName("install ssh keys"))
 	return run, nil
 }

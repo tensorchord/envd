@@ -140,6 +140,11 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 }
 
 func (g Graph) Entrypoint(buildContextDir string) ([]string, error) {
+	// Do not set entrypoint if the image is customized.
+	if g.Image != nil {
+		return []string{}, nil
+	}
+
 	ep := []string{
 		"tini",
 		"--",

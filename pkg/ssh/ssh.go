@@ -200,7 +200,7 @@ func (c generalClient) Attach() error {
 
 	stderr, err := session.StderrPipe()
 	if err != nil {
-		return fmt.Errorf("unable to setup stderr for session: %v", err)
+		return fmt.Errorf("unable to setup stderr for session: %w", err)
 	}
 
 	go func() {
@@ -251,7 +251,7 @@ func signerFromPem(pemBytes []byte, password []byte) (ssh.Signer, error) {
 		// nolint
 		pemBlock.Bytes, err = x509.DecryptPEMBlock(pemBlock, []byte(password))
 		if err != nil {
-			return nil, fmt.Errorf("decrypting PEM block failed %v", err)
+			return nil, fmt.Errorf("decrypting PEM block failed %w", err)
 		}
 
 		// get RSA, EC or DSA key
@@ -263,7 +263,7 @@ func signerFromPem(pemBytes []byte, password []byte) (ssh.Signer, error) {
 		// generate signer instance from key
 		signer, err := ssh.NewSignerFromKey(key)
 		if err != nil {
-			return nil, fmt.Errorf("creating signer from encrypted key failed %v", err)
+			return nil, fmt.Errorf("creating signer from encrypted key failed %w", err)
 		}
 
 		return signer, nil
@@ -271,7 +271,7 @@ func signerFromPem(pemBytes []byte, password []byte) (ssh.Signer, error) {
 		// generate signer instance from plain key
 		signer, err := ssh.ParsePrivateKey(pemBytes)
 		if err != nil {
-			return nil, fmt.Errorf("parsing plain private key failed %v", err)
+			return nil, fmt.Errorf("parsing plain private key failed %w", err)
 		}
 
 		return signer, nil
@@ -283,21 +283,21 @@ func parsePemBlock(block *pem.Block) (interface{}, error) {
 	case "RSA PRIVATE KEY":
 		key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 		if err != nil {
-			return nil, fmt.Errorf("Parsing PKCS private key failed %v", err)
+			return nil, fmt.Errorf("Parsing PKCS private key failed %w", err)
 		} else {
 			return key, nil
 		}
 	case "EC PRIVATE KEY":
 		key, err := x509.ParseECPrivateKey(block.Bytes)
 		if err != nil {
-			return nil, fmt.Errorf("Parsing EC private key failed %v", err)
+			return nil, fmt.Errorf("Parsing EC private key failed %w", err)
 		} else {
 			return key, nil
 		}
 	case "DSA PRIVATE KEY":
 		key, err := ssh.ParseDSAPrivateKey(block.Bytes)
 		if err != nil {
-			return nil, fmt.Errorf("Parsing DSA private key failed %v", err)
+			return nil, fmt.Errorf("Parsing DSA private key failed %w", err)
 		} else {
 			return key, nil
 		}

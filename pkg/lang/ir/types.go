@@ -27,6 +27,7 @@ type Graph struct {
 
 	OS string
 	Language
+	Image *string
 
 	Shell   string
 	CUDA    *string
