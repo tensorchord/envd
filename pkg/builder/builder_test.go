@@ -50,12 +50,14 @@ var _ = Describe("Builder", func() {
 			BeforeEach(func() {
 				ctrl := gomock.NewController(GinkgoT())
 				ctrlStarlark := gomock.NewController(GinkgoT())
+				pub := sshconfig.GetPublicKey()
 				b = &generalBuilder{
 					manifestFilePath: manifestFilePath,
 					configFilePath:   configFilePath,
 					progressMode:     "auto",
 					tag:              tag,
 					buildfuncname:    "build",
+					pubKeyPath:       pub,
 					logger: logrus.WithFields(logrus.Fields{
 						"tag": tag,
 					}),
@@ -74,8 +76,7 @@ var _ = Describe("Builder", func() {
 					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 						gomock.Eq(configFilePath), "",
 					).Return(nil, expected)
-					pub := sshconfig.GetPublicKey()
-					err := b.Build(context.TODO(), pub)
+					err := b.Build(context.TODO())
 					Expect(err).To(HaveOccurred())
 				})
 			})
@@ -83,14 +84,13 @@ var _ = Describe("Builder", func() {
 			When("failed to interpret manifest", func() {
 				It("should get an error", func() {
 					expected := errors.New("failed to interpret manifest")
-					pub := sshconfig.GetPublicKey()
 					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 						gomock.Eq(configFilePath), gomock.Eq(""),
 					).Return(nil, nil)
 					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
 						gomock.Eq(b.manifestFilePath), gomock.Eq("build"),
 					).Return(nil, expected)
-					err := b.Build(context.TODO(), pub)
+					err := b.Build(context.TODO())
 					Expect(err).To(HaveOccurred())
 				})
 			})

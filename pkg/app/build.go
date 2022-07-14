@@ -120,9 +120,9 @@ func build(clicontext *cli.Context) error {
 		"output": output,
 	}).Debug("starting build command")
 	builder, err := builder.New(clicontext.Context, cfg,
-		manifest, funcname, buildContext, tag, output, debug)
+		manifest, funcname, buildContext, tag, output, debug, clicontext.Path("public-key"))
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
-	return builder.Build(clicontext.Context, clicontext.Path("public-key"))
+	return builder.Build(clicontext.Context)
 }

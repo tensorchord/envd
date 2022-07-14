@@ -153,12 +153,12 @@ func up(clicontext *cli.Context) error {
 	debug := clicontext.Bool("debug")
 	output := ""
 	builder, err := builder.New(clicontext.Context, config, manifest, funcname,
-		buildContext, tag, output, debug)
+		buildContext, tag, output, debug, clicontext.Path("public-key"))
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
 
-	if err := builder.Build(clicontext.Context, clicontext.Path("public-key")); err != nil {
+	if err := builder.Build(clicontext.Context); err != nil {
 		return errors.Wrap(err, "failed to build the image")
 	}
 	// Do not attach GPU if the flag is set.

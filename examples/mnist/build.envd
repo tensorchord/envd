@@ -5,8 +5,8 @@ def build():
     ])
     #config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
     install.python_packages([
-        "tensorflow",
-        "numpy",
+        # "tensorflow",
+        "?",
     ])
     shell("zsh")
     config.jupyter(password="", port=8888)
