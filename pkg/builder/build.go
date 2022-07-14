@@ -21,18 +21,8 @@ import (
 	"github.com/moby/buildkit/frontend/gateway/client"
 )
 
-const (
-	keyFilename = "filename"
-)
-
 func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (*client.Result, error) {
 	return func(ctx context.Context, c client.Client) (*client.Result, error) {
-		opts := c.BuildOpts().Opts
-		var filename = opts[keyFilename]
-		if filename == "" {
-			filename = "build.envd"
-		}
-
 		depsFiles := []string{
 			b.pubKeyPath,
 			b.configFilePath,
