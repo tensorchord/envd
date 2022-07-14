@@ -28,13 +28,14 @@ var CommandContextCreate = &cli.Command{
 	Usage: "Create envd context",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:  "name",
-			Usage: "Name of the context",
-			Value: "",
+			Name:     "name",
+			Usage:    "Name of the context",
+			Value:    "",
+			Required: true,
 		},
 		&cli.StringFlag{
 			Name:  "builder",
-			Usage: "Builder to use (docker-container, kube-pod)",
+			Usage: "Builder to use (docker-container, kube-pod, tcp)",
 			Value: string(types.BuilderTypeDocker),
 		},
 		&cli.StringFlag{

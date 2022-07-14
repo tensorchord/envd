@@ -101,7 +101,7 @@ func (m generalManager) ContextCreate(
 		}
 	}
 	switch builder {
-	case types.BuilderTypeDocker, types.BuilderTypeKubernetes:
+	case types.BuilderTypeDocker, types.BuilderTypeKubernetes, types.BuilderTypeTCP:
 		m.context.Contexts = append(m.context.Contexts, types.Context{
 			Name:          name,
 			Builder:       builder,
