@@ -3,4 +3,4 @@ repos:
     rev: v0.5.0
     hooks:
       - id: golangci-lint
-        args: [--config=.golangci.yml]
+        args: [--config=.golangci.yml, --timeout=3m]
