@@ -148,7 +148,8 @@ func (c *generalClient) maybeStart(ctx context.Context,
 	}
 
 	if err := c.waitUntilConnected(ctx, connectingTimeout); err != nil {
-		return "", errors.Wrap(err, "failed to connect to buildkitd")
+		return "", errors.Wrapf(err,
+			"failed to connect to buildkitd %s", c.BuildkitdAddr())
 	}
 
 	return c.BuildkitdAddr(), nil
