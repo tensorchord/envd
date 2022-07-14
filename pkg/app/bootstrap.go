@@ -89,7 +89,7 @@ func bootstrap(clicontext *cli.Context) error {
 			var exists bool
 			var newPrivateKeyName string
 			for ok := true; ok; ok = exists {
-				newPrivateKeyName = filepath.Join(filepath.Dir(sshconfig.GetPrivateKey()), fmt.Sprintf("%s.pk", namesgenerator.GetRandomName(0)))
+				newPrivateKeyName = filepath.Join(filepath.Dir(sshconfig.GetPrivateKey()), fmt.Sprintf("envd_%s.pk", namesgenerator.GetRandomName(0)))
 				exists, err = fileutil.FileExists(newPrivateKeyName)
 				if err != nil {
 					return err
