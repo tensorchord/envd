@@ -72,7 +72,7 @@ var _ = Describe("home context", func() {
 				err := GetManager().ContextRemove(contextName)
 				Expect(err).NotTo(HaveOccurred())
 			})
-			
+
 			It("should have only one context", func() {
 				contexts, err := GetManager().ContextList()
 				Expect(err).NotTo(HaveOccurred())
