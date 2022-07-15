@@ -23,5 +23,5 @@ import (
 
 func TestManager(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Home Manager Suite")
+	RunSpecs(t, "Home Suite")
 }
