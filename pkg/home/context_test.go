@@ -60,6 +60,9 @@ var _ = Describe("home context", func() {
 			It("switch to default context to delete test context", func() {
 				err := GetManager().ContextUse(defaultContext)
 				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should be the default context", func() {
 				contexts, err := GetManager().ContextList()
 				Expect(err).NotTo(HaveOccurred())
 				Expect(contexts.Current).To(Equal(defaultContext))
@@ -68,6 +71,9 @@ var _ = Describe("home context", func() {
 			It("can delete another context", func() {
 				err := GetManager().ContextRemove(contextName)
 				Expect(err).NotTo(HaveOccurred())
+			})
+			
+			It("should have only one context", func() {
 				contexts, err := GetManager().ContextList()
 				Expect(err).NotTo(HaveOccurred())
 				Expect(len(contexts.Contexts)).To(Equal(1))
