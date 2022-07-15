@@ -20,7 +20,7 @@ import (
 	"os"
 
 	"github.com/golang/mock/gomock"
-	"github.com/moby/buildkit/client/llb"
+	"github.com/moby/buildkit/client"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
@@ -50,12 +50,14 @@ var _ = Describe("Builder", func() {
 			BeforeEach(func() {
 				ctrl := gomock.NewController(GinkgoT())
 				ctrlStarlark := gomock.NewController(GinkgoT())
+				pub := sshconfig.GetPublicKey()
 				b = &generalBuilder{
 					manifestFilePath: manifestFilePath,
 					configFilePath:   configFilePath,
-					progressMode:     "auto",
+					progressMode:     "plain",
 					tag:              tag,
 					buildfuncname:    "build",
+					pubKeyPath:       pub,
 					logger: logrus.WithFields(logrus.Fields{
 						"tag": tag,
 					}),
@@ -68,50 +70,46 @@ var _ = Describe("Builder", func() {
 				ir.DefaultGraph.Writer = w
 			})
 
-			When("failed to interpret config", func() {
+			When("build error", func() {
 				It("should get an error", func() {
-					expected := errors.New("failed to interpret config")
-					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
-						gomock.Eq(configFilePath), "",
-					).Return(nil, expected)
-					pub := sshconfig.GetPublicKey()
-					err := b.Build(context.TODO(), pub)
+					b.entries = []client.ExportEntry{
+						{
+							Type: client.ExporterDocker,
+						},
+					}
+
+					b.Client.(*mockbuildkitd.MockClient).EXPECT().Build(gomock.Any(),
+						gomock.Any(), gomock.Eq("envd"), gomock.Any(), gomock.Any()).
+						Return(nil, errors.New("build error"))
+
+					pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.progressMode)
+					Expect(err).NotTo(HaveOccurred())
+
+					close(pw.Status())
+					err = b.build(context.TODO(), pw)
 					Expect(err).To(HaveOccurred())
 				})
 			})
 
-			When("failed to interpret manifest", func() {
-				It("should get an error", func() {
-					expected := errors.New("failed to interpret manifest")
-					pub := sshconfig.GetPublicKey()
-					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
-						gomock.Eq(configFilePath), gomock.Eq(""),
-					).Return(nil, nil)
-					b.Interpreter.(*mockstarlark.MockInterpreter).EXPECT().ExecFile(
-						gomock.Eq(b.manifestFilePath), gomock.Eq("build"),
-					).Return(nil, expected)
-					err := b.Build(context.TODO(), pub)
-					Expect(err).To(HaveOccurred())
-				})
-			})
 			It("should build successfully", func() {
 				err := home.Initialize()
 				Expect(err).ToNot(HaveOccurred())
 
-				b.Client.(*mockbuildkitd.MockClient).EXPECT().Solve(
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-				).Return(nil, nil).AnyTimes()
-
-				var def *llb.Definition
-				pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.progressMode)
-				if err != nil {
-					Fail(err.Error())
+				b.entries = []client.ExportEntry{
+					{
+						Type: client.ExporterDocker,
+					},
 				}
+
+				b.Client.(*mockbuildkitd.MockClient).EXPECT().Build(gomock.Any(),
+					gomock.Any(), gomock.Eq("envd"), gomock.Any(), gomock.Any()).
+					Return(nil, nil)
+
+				pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.progressMode)
+				Expect(err).NotTo(HaveOccurred())
+
 				close(pw.Status())
-				err = b.build(context.TODO(), def, pw)
+				err = b.build(context.TODO(), pw)
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})

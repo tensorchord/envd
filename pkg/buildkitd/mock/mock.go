@@ -12,6 +12,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	client "github.com/moby/buildkit/client"
 	llb "github.com/moby/buildkit/client/llb"
+	client0 "github.com/moby/buildkit/frontend/gateway/client"
 )
 
 // MockClient is a mock of Client interface.
@@ -35,6 +36,21 @@ func NewMockClient(ctrl *gomock.Controller) *MockClient {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
+}
+
+// Build mocks base method.
+func (m *MockClient) Build(ctx context.Context, opt client.SolveOpt, product string, buildFunc client0.BuildFunc, statusChan chan *client.SolveStatus) (*client.SolveResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Build", ctx, opt, product, buildFunc, statusChan)
+	ret0, _ := ret[0].(*client.SolveResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Build indicates an expected call of Build.
+func (mr *MockClientMockRecorder) Build(ctx, opt, product, buildFunc, statusChan interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Build", reflect.TypeOf((*MockClient)(nil).Build), ctx, opt, product, buildFunc, statusChan)
 }
 
 // BuildkitdAddr mocks base method.

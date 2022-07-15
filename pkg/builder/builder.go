@@ -39,7 +39,7 @@ import (
 )
 
 type Builder interface {
-	Build(ctx context.Context, pub string) error
+	Build(ctx context.Context) error
 	GPUEnabled() bool
 	NumGPUs() int
 }
@@ -51,6 +51,7 @@ type generalBuilder struct {
 	tag              string
 	buildContextDir  string
 	buildfuncname    string
+	pubKeyPath       string
 
 	entries []client.ExportEntry
 
@@ -60,7 +61,8 @@ type generalBuilder struct {
 }
 
 func New(ctx context.Context, configFilePath, manifestFilePath, funcname,
-	buildContextDir, tag string, output string, debug bool) (Builder, error) {
+	buildContextDir, tag string, output string, debug bool,
+	pubKeyPath string) (Builder, error) {
 	entries, err := parseOutput(output)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse output")
@@ -89,6 +91,7 @@ func New(ctx context.Context, configFilePath, manifestFilePath, funcname,
 		configFilePath:   configFilePath,
 		buildContextDir:  buildContextDir,
 		entries:          entries,
+		pubKeyPath:       pubKeyPath,
 		progressMode:     mode,
 		tag:              tag,
 		logger: logrus.WithFields(logrus.Fields{
@@ -150,31 +153,13 @@ func (b generalBuilder) CheckDepsFileUpdate(ctx context.Context, tag string, dep
 	return false, nil
 }
 
-func (b generalBuilder) Build(ctx context.Context, pub string) error {
-	depsFiles := []string{
-		pub,
-		b.configFilePath,
-		b.manifestFilePath,
-	}
-	isUpdated, err := b.CheckDepsFileUpdate(ctx, b.tag, depsFiles)
-	if err != nil {
-		b.logger.Debugf("failed to check manifest update: %s", err)
-	}
-	if !isUpdated {
-		b.logger.Infof("manifest is not updated, skip building")
-		return nil
-	}
-	def, err := b.compile(ctx, pub)
-	if err != nil {
-		return errors.Wrap(err, "failed to compile")
-	}
-
+func (b generalBuilder) Build(ctx context.Context) error {
 	pw, err := progresswriter.NewPrinter(ctx, os.Stdout, b.progressMode)
 	if err != nil {
 		return errors.Wrap(err, "failed to create progress writer")
 	}
 
-	if err = b.build(ctx, def, pw); err != nil {
+	if err = b.build(ctx, pw); err != nil {
 		return errors.Wrap(err, "failed to build")
 	}
 	return nil
@@ -192,11 +177,11 @@ func (b generalBuilder) interpret() error {
 	return nil
 }
 
-func (b generalBuilder) compile(ctx context.Context, pub string) (*llb.Definition, error) {
+func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
 	if err := b.interpret(); err != nil {
 		return nil, errors.Wrap(err, "failed to interpret")
 	}
-	def, err := ir.Compile(ctx, fileutil.Base(b.buildContextDir), pub)
+	def, err := ir.Compile(ctx, fileutil.Base(b.buildContextDir), b.pubKeyPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}
@@ -226,7 +211,7 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	return data, nil
 }
 
-func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progresswriter.Writer) error {
+func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) error {
 	imageConfig, err := b.imageConfig(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to get labels")
@@ -260,22 +245,22 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 					}
 				}
 				defer pipeW.Close()
-				_, err := b.Solve(ctx, def, client.SolveOpt{
+				_, err := b.Client.Build(ctx, client.SolveOpt{
 					Exports: []client.ExportEntry{entry},
 					LocalDirs: map[string]string{
-						flag.FlagContextDir: b.buildContextDir,
-						flag.FlagCacheDir:   home.GetManager().CacheDir(),
+						// TODO(gaocegege): Move it to BuildFunc with the help
+						// of llb.Local
+						flag.FlagCacheDir: home.GetManager().CacheDir(),
 					},
 					Session: attachable,
 					// TODO(gaocegege): Use llb.WithProxy to implement it.
 					FrontendAttrs: map[string]string{
 						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
 					},
-				}, pw.Status())
+				}, "envd", b.BuildFunc(), pw.Status())
 
 				if err != nil {
 					err = errors.Wrap(err, "failed to solve LLB")
-					b.logger.Error(err)
 					return err
 				}
 				b.logger.Debug("llb def is solved successfully")
@@ -299,22 +284,20 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 			})
 		default:
 			eg.Go(func() error {
-				_, err := b.Solve(ctx, def, client.SolveOpt{
+				_, err := b.Client.Build(ctx, client.SolveOpt{
 					Exports: []client.ExportEntry{entry},
 					LocalDirs: map[string]string{
-						flag.FlagContextDir: b.buildContextDir,
-						flag.FlagCacheDir:   home.GetManager().CacheDir(),
+						flag.FlagCacheDir: home.GetManager().CacheDir(),
 					},
 					Session: attachable,
 					// TODO(gaocegege): Use llb.WithProxy to implement it.
 					FrontendAttrs: map[string]string{
 						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
 					},
-				}, pw.Status())
+				}, "envd", b.BuildFunc(), pw.Status())
 
 				if err != nil {
 					err = errors.Wrap(err, "failed to solve LLB")
-					b.logger.Error(err)
 					return err
 				}
 				b.logger.Debug("llb def is solved successfully")
