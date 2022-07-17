@@ -83,11 +83,11 @@ func build(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get absolute path of the build context")
 	}
 
-	filename, funcname, err := builder.ParseFromStr(clicontext.String("from"))
+	fileName, funcName, err := builder.ParseFromStr(clicontext.String("from"))
 	if err != nil {
 		return err
 	}
-	manifest, err := filepath.Abs(filepath.Join(buildContext, filename))
+	manifest, err := filepath.Abs(filepath.Join(buildContext, fileName))
 	if err != nil {
 		return errors.Wrap(err, "failed to get absolute path of the build file")
 	}
@@ -116,11 +116,26 @@ func build(clicontext *cli.Context) error {
 	})
 	debug := clicontext.Bool("debug")
 	output := clicontext.String("output")
+
+	opt := builder.Options{
+		ManifestFilePath: manifest,
+		ConfigFilePath:   cfg,
+		BuildFuncName:    funcName,
+		BuildContextDir:  buildContext,
+		Tag:              tag,
+		OutputOpts:       output,
+		PubKeyPath:       clicontext.Path("public-key"),
+		ProgressMode:     "auto",
+	}
+	if debug {
+		opt.ProgressMode = "plain"
+	}
+
 	logger.WithFields(logrus.Fields{
-		"output": output,
+		"builder-options": opt,
 	}).Debug("starting build command")
-	builder, err := builder.New(clicontext.Context, cfg,
-		manifest, funcname, buildContext, tag, output, debug, clicontext.Path("public-key"))
+
+	builder, err := builder.New(clicontext.Context, opt)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}

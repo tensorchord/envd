@@ -52,12 +52,14 @@ var _ = Describe("Builder", func() {
 				ctrlStarlark := gomock.NewController(GinkgoT())
 				pub := sshconfig.GetPublicKey()
 				b = &generalBuilder{
-					manifestFilePath: manifestFilePath,
-					configFilePath:   configFilePath,
-					progressMode:     "plain",
-					tag:              tag,
-					buildfuncname:    "build",
-					pubKeyPath:       pub,
+					Options: Options{
+						ManifestFilePath: manifestFilePath,
+						ConfigFilePath:   configFilePath,
+						ProgressMode:     "plain",
+						Tag:              tag,
+						BuildFuncName:    "build",
+						PubKeyPath:       pub,
+					},
 					logger: logrus.WithFields(logrus.Fields{
 						"tag": tag,
 					}),
@@ -82,7 +84,7 @@ var _ = Describe("Builder", func() {
 						gomock.Any(), gomock.Eq("envd"), gomock.Any(), gomock.Any()).
 						Return(nil, errors.New("build error"))
 
-					pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.progressMode)
+					pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.ProgressMode)
 					Expect(err).NotTo(HaveOccurred())
 
 					close(pw.Status())
@@ -105,7 +107,7 @@ var _ = Describe("Builder", func() {
 					gomock.Any(), gomock.Eq("envd"), gomock.Any(), gomock.Any()).
 					Return(nil, nil)
 
-				pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.progressMode)
+				pw, err := progresswriter.NewPrinter(context.TODO(), os.Stdout, b.ProgressMode)
 				Expect(err).NotTo(HaveOccurred())
 
 				close(pw.Status())

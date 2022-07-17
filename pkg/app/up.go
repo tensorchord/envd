@@ -21,12 +21,10 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/docker"
-	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
@@ -111,12 +109,12 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get absolute path of the build context")
 	}
-	filename, funcname, err := builder.ParseFromStr(clicontext.String("from"))
+	fileName, funcName, err := builder.ParseFromStr(clicontext.String("from"))
 	if err != nil {
 		return err
 	}
 
-	manifest, err := filepath.Abs(filepath.Join(buildContext, filename))
+	manifest, err := filepath.Abs(filepath.Join(buildContext, fileName))
 	if err != nil {
 		return errors.Wrap(err, "failed to get absolute path of the build file")
 	}
@@ -139,21 +137,30 @@ func up(clicontext *cli.Context) error {
 	ctr := fileutil.Base(buildContext)
 
 	detach := clicontext.Bool("detach")
-
-	logger := logrus.WithFields(logrus.Fields{
-		"build-context":         buildContext,
-		"build-file":            manifest,
-		"config":                config,
-		"tag":                   tag,
-		"container-name":        ctr,
-		"detach":                detach,
-		flag.FlagBuildkitdImage: viper.GetString(flag.FlagBuildkitdImage),
-	})
-	logger.Debug("starting up command")
 	debug := clicontext.Bool("debug")
 	output := ""
-	builder, err := builder.New(clicontext.Context, config, manifest, funcname,
-		buildContext, tag, output, debug, clicontext.Path("public-key"))
+
+	opt := builder.Options{
+		ManifestFilePath: manifest,
+		ConfigFilePath:   config,
+		BuildFuncName:    funcName,
+		BuildContextDir:  buildContext,
+		Tag:              tag,
+		OutputOpts:       output,
+		PubKeyPath:       clicontext.Path("public-key"),
+		ProgressMode:     "auto",
+	}
+	if debug {
+		opt.ProgressMode = "plain"
+	}
+
+	logger := logrus.WithFields(logrus.Fields{
+		"builder-options": opt,
+		"container-name":  ctr,
+		"detach":          detach,
+	})
+	logger.Debug("starting up command")
+	builder, err := builder.New(clicontext.Context, opt)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
