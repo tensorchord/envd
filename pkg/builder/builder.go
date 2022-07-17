@@ -92,6 +92,7 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 
 	b := &generalBuilder{
 		Options: opt,
+		entries: entries,
 		logger: logrus.WithFields(logrus.Fields{
 			"tag": opt.Tag,
 		}),
