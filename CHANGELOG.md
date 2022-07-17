@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.2.0-alpha.6 (2022-07-16)
+
+ * [2a88ad1](https://github.com/tensorchord/envd/commit/2a88ad120b2a24b5095883a1e18de55189ff643f) chore(deps): bump github.com/urfave/cli/v2 from 2.10.3 to 2.11.0 (#610)
+ * [18abe90](https://github.com/tensorchord/envd/commit/18abe90072835534f75b392b5f1ef6dbbf0bbeb5) feat(builder): Abstract BuildFunc to use gateway client (#606)
+ * [178b8da](https://github.com/tensorchord/envd/commit/178b8dafdd4357688a911bfff103c397b08410a9) feat(WSL): Add ssh config entry to Windows ssh config if using WSL (#604)
+ * [ceb07f5](https://github.com/tensorchord/envd/commit/ceb07f5fc43ced6da9ada711eb8c127d14afa969) fix: set conda as the only python provider (#602)
+ * [f1dd546](https://github.com/tensorchord/envd/commit/f1dd546fe5598f11145a5a9c354a1e4878614ed3) fix: pre-create conda package cache directory (#600)
+ * [9b3fbe3](https://github.com/tensorchord/envd/commit/9b3fbe3c9c91c167196be3764de4f53b1a074489) feat(lang): Support image in base (#595)
+ * [b467279](https://github.com/tensorchord/envd/commit/b46727981968f8722feeff1023e0d85fa7bdc162) fix: Fix error handling issue (#597)
+ * [fa041a8](https://github.com/tensorchord/envd/commit/fa041a849dde7f61f82fa2afdf105e45efc888ef) fix: Pre-mkdir the .cache directory of user envd (#592)
+ * [54dfc52](https://github.com/tensorchord/envd/commit/54dfc52f4adc5cbce5de806dc6186e39adf21e0d) bug: fix missing function in example mnist (#589)
+ * [00249bb](https://github.com/tensorchord/envd/commit/00249bbd2330088dc584015353837917bd557503) Use DefaultText in up.go (#587)
+ * [302e449](https://github.com/tensorchord/envd/commit/302e4490992d5f74bf5a9e08293cfb42a89e0367) chore(deps): bump pypa/cibuildwheel from 2.7.0 to 2.8.0 (#583)
+
+### Contributors
+
+ * Ce Gao
+ * Guangyang Li
+ * Jinjing Zhou
+ * dependabot[bot]
+ * nullday
+
 ## v0.2.0-alpha.5 (2022-07-08)
 
  * [6cfc0f1](https://github.com/tensorchord/envd/commit/6cfc0f16224095605dd85fb38b9cf406fbb65118) feat: Support for build image update when exec build or up again (#570)
