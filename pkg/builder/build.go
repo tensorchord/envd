@@ -24,11 +24,11 @@ import (
 func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (*client.Result, error) {
 	return func(ctx context.Context, c client.Client) (*client.Result, error) {
 		depsFiles := []string{
-			b.pubKeyPath,
-			b.configFilePath,
-			b.manifestFilePath,
+			b.PubKeyPath,
+			b.ConfigFilePath,
+			b.ManifestFilePath,
 		}
-		isUpdated, err := b.CheckDepsFileUpdate(ctx, b.tag, depsFiles)
+		isUpdated, err := b.CheckDepsFileUpdate(ctx, b.Tag, depsFiles)
 		if err != nil {
 			b.logger.Debugf("failed to check manifest update: %s", err)
 		}
