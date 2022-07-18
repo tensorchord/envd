@@ -11,11 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package ir
 
-package flag
-
-const (
-	FlagCacheDir       = "cache-dir"
-	FlagBuildkitdImage = "buildkitd-image"
-	FlagDebug          = "debug"
+import (
+	"github.com/moby/buildkit/client/llb"
 )
+
+func (g Graph) CompileCacheDir(root llb.State, cacheDir string) llb.State {
+	root = llb.User("envd")(root)
+	run := root.Run(llb.Shlexf("mkdir %s", cacheDir), llb.WithCustomName("[internal] create cache dir"))
+	return run.Root()
+}

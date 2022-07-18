@@ -25,7 +25,7 @@ RUN apt-get update && \
     bzip2 ca-certificates libglib2.0-0 libsm6 libxext6 libxrender1 mercurial \
     procps subversion wget \
     # envd dependencies
-    python3 curl openssh-client git tini sudo python3-pip zsh vim \
+    curl openssh-client git tini sudo zsh vim \
     && rm -rf /var/lib/apt/lists/*
 
 # Leave these args here to better use the Docker build cache

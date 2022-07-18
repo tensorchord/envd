@@ -27,6 +27,8 @@ import (
 	"strings"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/tensorchord/envd/pkg/util/osutil"
 )
 
 type (
@@ -302,7 +304,28 @@ func buildHostname(name string) string {
 
 // AddEntry adds an entry to the user's sshconfig
 func AddEntry(name, iface string, port int, privateKeyPath string) error {
-	return add(getSSHConfigPath(), buildHostname(name), iface, port, privateKeyPath)
+	err := add(getSSHConfigPath(), buildHostname(name), iface, port, privateKeyPath)
+	if err != nil {
+		return err
+	}
+	if osutil.IsWsl() {
+		logrus.Debug("Try adding entry to WSL's ssh-agent")
+		winSshConfig, err := osutil.GetWslHostSshConfig()
+		if err != nil {
+			return err
+		}
+		winKeyPath, err := osutil.CopyToWinEnvdHome(privateKeyPath, 0600)
+		if err != nil {
+			return err
+		}
+		// Add the entry to the WSL host SSH config
+		logrus.Debugf("Adding entry to WSL's ssh-agent: %s", winSshConfig)
+		err = add(winSshConfig, buildHostname(name), iface, port, winKeyPath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func ReplaceKeyManagedByEnvd(oldKey string, newKey string) error {
@@ -329,7 +352,49 @@ func ReplaceKeyManagedByEnvd(oldKey string, newKey string) error {
 	if err != nil {
 		return err
 	}
-	return save(cfg, getSSHConfigPath())
+
+	err = save(cfg, getSSHConfigPath())
+	if err != nil {
+		return err
+	}
+
+	if osutil.IsWsl() {
+		winSshConfig, err := osutil.GetWslHostSshConfig()
+		if err != nil {
+			return err
+		}
+		cfg, err := getConfig(winSshConfig)
+		if err != nil {
+			return err
+		}
+		winNewKey, err := osutil.CopyToWinEnvdHome(newKey, 0600)
+		if err != nil {
+			return err
+		}
+		winOldKey, err := osutil.CopyToWinEnvdHome(oldKey, 0600)
+		if err != nil {
+			return err
+		}
+		logrus.Infof("Rewrite WSL ssh keys old: %s, new: %s", winOldKey, winNewKey)
+		for ih, h := range cfg.hosts {
+			for _, hn := range h.hostnames {
+				logrus.Info(h.hostnames)
+				if strings.HasSuffix(hn, ".envd") {
+					for ip, p := range h.params {
+						if p.keyword == identityFile && strings.Trim(p.args[0], "\"") == winOldKey {
+							logrus.Debug("Change key")
+							cfg.hosts[ih].params[ip].args[0] = winNewKey
+						}
+					}
+				}
+			}
+		}
+		err = save(cfg, winSshConfig)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func add(path, name, iface string, port int, privateKeyPath string) error {
@@ -361,7 +426,22 @@ func add(path, name, iface string, port int, privateKeyPath string) error {
 
 // RemoveEntry removes the entry to the user's sshconfig if found
 func RemoveEntry(name string) error {
-	return remove(getSSHConfigPath(), buildHostname(name))
+	err := remove(getSSHConfigPath(), buildHostname(name))
+	if err != nil {
+		return err
+	}
+	if osutil.IsWsl() {
+		logrus.Debug("Try removing entry from WSL's ssh-agent")
+		winSshConfig, err := osutil.GetWslHostSshConfig()
+		if err != nil {
+			return err
+		}
+		err = remove(winSshConfig, buildHostname(name))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // GetPort returns the corresponding SSH port for the dev env

@@ -39,19 +39,32 @@ import (
 )
 
 type Builder interface {
-	Build(ctx context.Context, pub string) error
+	Build(ctx context.Context) error
 	GPUEnabled() bool
 	NumGPUs() int
 }
 
-type generalBuilder struct {
-	manifestFilePath string
-	configFilePath   string
-	progressMode     string
-	tag              string
-	buildContextDir  string
-	buildfuncname    string
+type Options struct {
+	// ManifestFilePath is the path to the manifest file `build.envd`.
+	ManifestFilePath string
+	// ConfigFilePath is the path to the config file `config.envd`.
+	ConfigFilePath string
+	// ProgressMode is the output mode (auto, plain).
+	ProgressMode string
+	// Tag is the name of the image.
+	Tag string
+	// BuildContextDir is the directory of the build context.
+	BuildContextDir string
+	// BuildFuncName is the name of the build func.
+	BuildFuncName string
+	// PubKeyPath is the path to the ssh public key.
+	PubKeyPath string
+	// OutputOpts is the output options.
+	OutputOpts string
+}
 
+type generalBuilder struct {
+	Options
 	entries []client.ExportEntry
 
 	logger *logrus.Entry
@@ -59,9 +72,8 @@ type generalBuilder struct {
 	buildkitd.Client
 }
 
-func New(ctx context.Context, configFilePath, manifestFilePath, funcname,
-	buildContextDir, tag string, output string, debug bool) (Builder, error) {
-	entries, err := parseOutput(output)
+func New(ctx context.Context, opt Options) (Builder, error) {
+	entries, err := parseOutput(opt.OutputOpts)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse output")
 	}
@@ -78,21 +90,11 @@ func New(ctx context.Context, configFilePath, manifestFilePath, funcname,
 		return nil, errors.New("only one output type is supported")
 	}
 
-	var mode string = "auto"
-	if debug {
-		mode = "plain"
-	}
-
 	b := &generalBuilder{
-		manifestFilePath: manifestFilePath,
-		buildfuncname:    funcname,
-		configFilePath:   configFilePath,
-		buildContextDir:  buildContextDir,
-		entries:          entries,
-		progressMode:     mode,
-		tag:              tag,
+		Options: opt,
+		entries: entries,
 		logger: logrus.WithFields(logrus.Fields{
-			"tag": tag,
+			"tag": opt.Tag,
 		}),
 	}
 
@@ -106,7 +108,7 @@ func New(ctx context.Context, configFilePath, manifestFilePath, funcname,
 	}
 	b.Client = cli
 
-	b.Interpreter = starlark.NewInterpreter(buildContextDir)
+	b.Interpreter = starlark.NewInterpreter(opt.BuildContextDir)
 	return b, nil
 }
 
@@ -150,31 +152,13 @@ func (b generalBuilder) CheckDepsFileUpdate(ctx context.Context, tag string, dep
 	return false, nil
 }
 
-func (b generalBuilder) Build(ctx context.Context, pub string) error {
-	depsFiles := []string{
-		pub,
-		b.configFilePath,
-		b.manifestFilePath,
-	}
-	isUpdated, err := b.CheckDepsFileUpdate(ctx, b.tag, depsFiles)
-	if err != nil {
-		b.logger.Debugf("failed to check manifest update: %s", err)
-	}
-	if !isUpdated {
-		b.logger.Infof("manifest is not updated, skip building")
-		return nil
-	}
-	def, err := b.compile(ctx, pub)
-	if err != nil {
-		return errors.Wrap(err, "failed to compile")
-	}
-
-	pw, err := progresswriter.NewPrinter(ctx, os.Stdout, b.progressMode)
+func (b generalBuilder) Build(ctx context.Context) error {
+	pw, err := progresswriter.NewPrinter(ctx, os.Stdout, b.ProgressMode)
 	if err != nil {
 		return errors.Wrap(err, "failed to create progress writer")
 	}
 
-	if err = b.build(ctx, def, pw); err != nil {
+	if err = b.build(ctx, pw); err != nil {
 		return errors.Wrap(err, "failed to build")
 	}
 	return nil
@@ -182,21 +166,21 @@ func (b generalBuilder) Build(ctx context.Context, pub string) error {
 
 func (b generalBuilder) interpret() error {
 	// Evaluate config first.
-	if _, err := b.ExecFile(b.configFilePath, ""); err != nil {
+	if _, err := b.ExecFile(b.ConfigFilePath, ""); err != nil {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 
-	if _, err := b.ExecFile(b.manifestFilePath, b.buildfuncname); err != nil {
+	if _, err := b.ExecFile(b.ManifestFilePath, b.BuildFuncName); err != nil {
 		return errors.Wrap(err, "failed to exec starlark file")
 	}
 	return nil
 }
 
-func (b generalBuilder) compile(ctx context.Context, pub string) (*llb.Definition, error) {
+func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
 	if err := b.interpret(); err != nil {
 		return nil, errors.Wrap(err, "failed to interpret")
 	}
-	def, err := ir.Compile(ctx, fileutil.Base(b.buildContextDir), pub)
+	def, err := ir.Compile(ctx, fileutil.Base(b.BuildContextDir), b.PubKeyPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}
@@ -213,9 +197,9 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get expose ports")
 	}
-	labels[types.ImageLabelContext] = b.buildContextDir
+	labels[types.ImageLabelContext] = b.BuildContextDir
 
-	ep, err := ir.Entrypoint(b.buildContextDir)
+	ep, err := ir.Entrypoint(b.BuildContextDir)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get entrypoint")
 	}
@@ -226,7 +210,7 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	return data, nil
 }
 
-func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progresswriter.Writer) error {
+func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) error {
 	imageConfig, err := b.imageConfig(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to get labels")
@@ -250,7 +234,7 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 					entry = client.ExportEntry{
 						Type: client.ExporterDocker,
 						Attrs: map[string]string{
-							"name": b.tag,
+							"name": b.Tag,
 							// Ref https://github.com/r2d4/mockerfile/blob/140c6a912bbfdae220febe59ab535ef0acba0e1f/pkg/build/build.go#L65
 							"containerimage.config": imageConfig,
 						},
@@ -260,22 +244,22 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 					}
 				}
 				defer pipeW.Close()
-				_, err := b.Solve(ctx, def, client.SolveOpt{
+				_, err := b.Client.Build(ctx, client.SolveOpt{
 					Exports: []client.ExportEntry{entry},
 					LocalDirs: map[string]string{
-						flag.FlagContextDir: b.buildContextDir,
-						flag.FlagCacheDir:   home.GetManager().CacheDir(),
+						// TODO(gaocegege): Move it to BuildFunc with the help
+						// of llb.Local
+						flag.FlagCacheDir: home.GetManager().CacheDir(),
 					},
 					Session: attachable,
 					// TODO(gaocegege): Use llb.WithProxy to implement it.
 					FrontendAttrs: map[string]string{
 						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
 					},
-				}, pw.Status())
+				}, "envd", b.BuildFunc(), pw.Status())
 
 				if err != nil {
 					err = errors.Wrap(err, "failed to solve LLB")
-					b.logger.Error(err)
 					return err
 				}
 				b.logger.Debug("llb def is solved successfully")
@@ -299,22 +283,20 @@ func (b generalBuilder) build(ctx context.Context, def *llb.Definition, pw progr
 			})
 		default:
 			eg.Go(func() error {
-				_, err := b.Solve(ctx, def, client.SolveOpt{
+				_, err := b.Client.Build(ctx, client.SolveOpt{
 					Exports: []client.ExportEntry{entry},
 					LocalDirs: map[string]string{
-						flag.FlagContextDir: b.buildContextDir,
-						flag.FlagCacheDir:   home.GetManager().CacheDir(),
+						flag.FlagCacheDir: home.GetManager().CacheDir(),
 					},
 					Session: attachable,
 					// TODO(gaocegege): Use llb.WithProxy to implement it.
 					FrontendAttrs: map[string]string{
 						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
 					},
-				}, pw.Status())
+				}, "envd", b.BuildFunc(), pw.Status())
 
 				if err != nil {
 					err = errors.Wrap(err, "failed to solve LLB")
-					b.logger.Error(err)
 					return err
 				}
 				b.logger.Debug("llb def is solved successfully")
