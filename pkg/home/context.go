@@ -93,7 +93,7 @@ func (m generalManager) ContextGetCurrent() (types.BuilderType, string, error) {
 	return "", "", errors.New("no current context")
 }
 
-func (m generalManager) ContextCreate(
+func (m *generalManager) ContextCreate(
 	name string, builder types.BuilderType, socket string, use bool) error {
 	for _, c := range m.context.Contexts {
 		if c.Name == name {
@@ -113,7 +113,7 @@ func (m generalManager) ContextCreate(
 	return m.ContextUse(name)
 }
 
-func (m generalManager) ContextRemove(name string) error {
+func (m *generalManager) ContextRemove(name string) error {
 	for i, c := range m.context.Contexts {
 		if c.Name == name {
 			if m.context.Current == name {
@@ -131,7 +131,7 @@ func (m generalManager) ContextList() (types.EnvdContext, error) {
 	return m.context, nil
 }
 
-func (m generalManager) ContextUse(name string) error {
+func (m *generalManager) ContextUse(name string) error {
 	for _, c := range m.context.Contexts {
 		if c.Name == name {
 			m.context.Current = name
