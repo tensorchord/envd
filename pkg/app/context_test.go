@@ -57,7 +57,7 @@ var _ = Describe("home context", func() {
 			name := "envd-buildkitd-tcp-test"
 			buildContext := "testdata/build-test"
 			dockerArgs := []string{
-				"run", "-d", "-p", "12345:8000", "--name", name,
+				"run", "-d", "-p", "12345:8000", "--rm", "--name", name,
 				"--security-opt", "seccomp=unconfined", "--security-opt", "apparmor=unconfined",
 				"moby/buildkit:rootless", "--addr", "tcp://0.0.0.0:8000", "--oci-worker-no-process-sandbox",
 			}
