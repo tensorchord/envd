@@ -63,6 +63,7 @@ type BuilderType string
 const (
 	BuilderTypeDocker     BuilderType = "docker-container"
 	BuilderTypeKubernetes BuilderType = "kube-pod"
+	BuilderTypeTCP        BuilderType = "tcp"
 )
 
 type Dependency struct {

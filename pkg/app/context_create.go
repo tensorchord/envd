@@ -28,18 +28,19 @@ var CommandContextCreate = &cli.Command{
 	Usage: "Create envd context",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:  "name",
-			Usage: "Name of the context",
-			Value: "",
+			Name:     "name",
+			Usage:    "Name of the context",
+			Value:    "",
+			Required: true,
 		},
 		&cli.StringFlag{
 			Name:  "builder",
-			Usage: "Builder to use (docker-container, kube-pod)",
+			Usage: "Builder to use (docker-container, kube-pod, tcp)",
 			Value: string(types.BuilderTypeDocker),
 		},
 		&cli.StringFlag{
-			Name:  "builder-name",
-			Usage: "Builder name",
+			Name:  "builder-socket",
+			Usage: "Builder socket",
 			Value: "envd_buildkitd",
 		},
 		&cli.BoolFlag{
@@ -53,11 +54,11 @@ var CommandContextCreate = &cli.Command{
 func contextCreate(clicontext *cli.Context) error {
 	name := clicontext.String("name")
 	builder := clicontext.String("builder")
-	builderName := clicontext.String("builder-name")
+	builderSocket := clicontext.String("builder-socket")
 	use := clicontext.Bool("use")
 
 	err := home.GetManager().ContextCreate(name,
-		types.BuilderType(builder), builderName, use)
+		types.BuilderType(builder), builderSocket, use)
 	if err != nil {
 		return errors.Wrap(err, "failed to create context")
 	}

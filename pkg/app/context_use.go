@@ -27,9 +27,10 @@ var CommandContextUse = &cli.Command{
 	Usage: "Use the specified envd context",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:  "name",
-			Usage: "Name of the context",
-			Value: "",
+			Name:     "name",
+			Usage:    "Name of the context",
+			Value:    "",
+			Required: true,
 		},
 	},
 	Action: contextUse,

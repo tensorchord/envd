@@ -93,15 +93,15 @@ func (m generalManager) ContextGetCurrent() (types.BuilderType, string, error) {
 	return "", "", errors.New("no current context")
 }
 
-func (m generalManager) ContextCreate(
+func (m *generalManager) ContextCreate(
 	name string, builder types.BuilderType, socket string, use bool) error {
 	for _, c := range m.context.Contexts {
 		if c.Name == name {
-			return errors.New("context already exists")
+			return errors.Newf("context \"%s\" already exists", name)
 		}
 	}
 	switch builder {
-	case types.BuilderTypeDocker, types.BuilderTypeKubernetes:
+	case types.BuilderTypeDocker, types.BuilderTypeKubernetes, types.BuilderTypeTCP:
 		m.context.Contexts = append(m.context.Contexts, types.Context{
 			Name:          name,
 			Builder:       builder,
@@ -113,7 +113,7 @@ func (m generalManager) ContextCreate(
 	return m.ContextUse(name)
 }
 
-func (m generalManager) ContextRemove(name string) error {
+func (m *generalManager) ContextRemove(name string) error {
 	for i, c := range m.context.Contexts {
 		if c.Name == name {
 			if m.context.Current == name {
@@ -124,21 +124,21 @@ func (m generalManager) ContextRemove(name string) error {
 			return m.dumpContext()
 		}
 	}
-	return nil
+	return errors.Newf("cannot find context \"%s\"", name)
 }
 
 func (m generalManager) ContextList() (types.EnvdContext, error) {
 	return m.context, nil
 }
 
-func (m generalManager) ContextUse(name string) error {
+func (m *generalManager) ContextUse(name string) error {
 	for _, c := range m.context.Contexts {
 		if c.Name == name {
 			m.context.Current = name
 			return m.dumpContext()
 		}
 	}
-	return errors.New("context does not exist")
+	return errors.Newf("context \"%s\" does not exist", name)
 }
 
 func (m *generalManager) dumpContext() error {

@@ -27,9 +27,10 @@ var CommandContextRemove = &cli.Command{
 	Usage: "Remove envd context",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:  "name",
-			Usage: "Name of the context",
-			Value: "",
+			Name:     "name",
+			Usage:    "Name of the context",
+			Value:    "",
+			Required: true,
 		},
 	},
 	Action: contextRemove,
