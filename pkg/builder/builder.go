@@ -122,37 +122,10 @@ func (b generalBuilder) NumGPUs() int {
 	return ir.NumGPUs()
 }
 
-// Always return updated when met error
-func (b generalBuilder) CheckDepsFileUpdate(ctx context.Context, tag string, deps []string) (bool, error) {
-	dockerClient, err := docker.NewClient(ctx)
-	if err != nil {
-		return true, err
-	}
-	image, err := dockerClient.GetImage(ctx, tag)
-	if err != nil {
-		return true, err
-	}
-	imageCreatedTime := image.Created
-
-	latestTimestamp := int64(0)
-	for _, dep := range deps {
-		file, err := os.Stat(dep)
-		if err != nil {
-			return true, err
-		}
-		modifiedtime := file.ModTime().Unix()
-		// Only needt o use the latest modified time
-		if modifiedtime > latestTimestamp {
-			latestTimestamp = modifiedtime
-		}
-	}
-	if latestTimestamp > imageCreatedTime {
-		return true, nil
-	}
-	return false, nil
-}
-
 func (b generalBuilder) Build(ctx context.Context) error {
+	if !b.checkIfNeedBuild(ctx) {
+		return nil
+	}
 	pw, err := progresswriter.NewPrinter(ctx, os.Stdout, b.ProgressMode)
 	if err != nil {
 		return errors.Wrap(err, "failed to create progress writer")
@@ -324,4 +297,51 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 		}
 	}
 	return nil
+}
+
+func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
+	depsFiles := []string{
+		b.PubKeyPath,
+		b.ConfigFilePath,
+		b.ManifestFilePath,
+	}
+	isUpdated, err := b.checkDepsFileUpdate(ctx, b.Tag, depsFiles)
+	if err != nil {
+		b.logger.Debugf("failed to check manifest update: %s", err)
+	}
+	if !isUpdated {
+		b.logger.Infof("manifest is not updated, skip building")
+		return false
+	}
+	return true
+}
+
+// Always return updated when met error
+func (b generalBuilder) checkDepsFileUpdate(ctx context.Context, tag string, deps []string) (bool, error) {
+	dockerClient, err := docker.NewClient(ctx)
+	if err != nil {
+		return true, err
+	}
+	image, err := dockerClient.GetImage(ctx, tag)
+	if err != nil {
+		return true, err
+	}
+	imageCreatedTime := image.Created
+
+	latestTimestamp := int64(0)
+	for _, dep := range deps {
+		file, err := os.Stat(dep)
+		if err != nil {
+			return true, err
+		}
+		modifiedtime := file.ModTime().Unix()
+		// Only needt o use the latest modified time
+		if modifiedtime > latestTimestamp {
+			latestTimestamp = modifiedtime
+		}
+	}
+	if latestTimestamp > imageCreatedTime {
+		return true, nil
+	}
+	return false, nil
 }

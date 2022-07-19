@@ -23,20 +23,6 @@ import (
 
 func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (*client.Result, error) {
 	return func(ctx context.Context, c client.Client) (*client.Result, error) {
-		depsFiles := []string{
-			b.PubKeyPath,
-			b.ConfigFilePath,
-			b.ManifestFilePath,
-		}
-		isUpdated, err := b.CheckDepsFileUpdate(ctx, b.Tag, depsFiles)
-		if err != nil {
-			b.logger.Debugf("failed to check manifest update: %s", err)
-		}
-		if !isUpdated {
-			b.logger.Infof("manifest is not updated, skip building")
-			return nil, nil
-		}
-
 		def, err := b.compile(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to compile")
