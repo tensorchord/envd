@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package e2e
+package app
 
 import (
 	"context"
 	"strings"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
@@ -28,9 +26,8 @@ import (
 
 func BuildImage(exampleName string) func() {
 	return func() {
-		envdApp := app.New()
 		logrus.Info("building quick-start image")
-		err := BuildExampleImage(exampleName, envdApp)
+		err := BuildExampleImage(exampleName, New())
 		if err != nil {
 			panic(err)
 		}
@@ -48,7 +45,7 @@ func RemoveImage(exampleName string) func() {
 
 func RunContainer(exampleName string) func() {
 	return func() {
-		err := RunExampleContainer(exampleName, app.New())
+		err := RunExampleContainer(exampleName, New())
 		if err != nil {
 			panic(err)
 		}
@@ -57,7 +54,7 @@ func RunContainer(exampleName string) func() {
 
 func DestoryContainer(exampleName string) func() {
 	return func() {
-		err := DestroyExampleContainer(exampleName, app.New())
+		err := DestroyExampleContainer(exampleName, New())
 		if err != nil {
 			panic(err)
 		}
@@ -83,8 +80,8 @@ func (e *Example) Exec(cmd string) string {
 	return strings.Trim(string(ret), "\n")
 }
 
-func BuildExampleImage(exampleName string, app app.EnvdApp) error {
-	buildContext := "../testdata/" + exampleName
+func BuildExampleImage(exampleName string, app EnvdApp) error {
+	buildContext := "testdata/" + exampleName
 	tag := exampleName + ":e2etest"
 	args := []string{
 		"envd.test", "--debug", "build", "--path", buildContext, "--tag", tag,
@@ -106,8 +103,8 @@ func RemoveExampleImage(exampleName string) error {
 	return nil
 }
 
-func RunExampleContainer(exampleName string, app app.EnvdApp) error {
-	buildContext := "../testdata/" + exampleName
+func RunExampleContainer(exampleName string, app EnvdApp) error {
+	buildContext := "testdata/" + exampleName
 	tag := exampleName + ":e2etest"
 	args := []string{
 		"envd.test", "--debug", "up", "--path", buildContext, "--tag", tag, "--detach",
@@ -116,8 +113,8 @@ func RunExampleContainer(exampleName string, app app.EnvdApp) error {
 	return err
 }
 
-func DestroyExampleContainer(exampleName string, app app.EnvdApp) error {
-	buildContext := "../testdata/" + exampleName
+func DestroyExampleContainer(exampleName string, app EnvdApp) error {
+	buildContext := "testdata/" + exampleName
 	args := []string{
 		"envd.test", "--debug", "destroy", "--path", buildContext,
 	}
