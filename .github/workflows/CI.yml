@@ -174,7 +174,14 @@ jobs:
     env:
       GOPATH: ${{ github.workspace }}/go
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
     steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
