@@ -98,8 +98,9 @@ func (g *Graph) compileBase() llb.State {
 	logger.Debug("compile base image")
 
 	var base llb.State
+	// Do not update user permission in the base image.
 	if g.Image != nil {
-		base = llb.Image(*g.Image)
+		return llb.Image(*g.Image)
 	} else if g.CUDA == nil && g.CUDNN == nil {
 		switch g.Language.Name {
 		case "r":
@@ -135,11 +136,9 @@ func (g *Graph) compileBase() llb.State {
 			Run(llb.Shlex("sed -i \"s./root./home/envd.g\" /etc/passwd"),
 				llb.WithCustomName("[internal] set root home dir to /home/envd")).
 			Run(llb.Shlex("sed -i \"s/envd:x:1001/envd:x:0/g\" /etc/group"),
-				llb.WithCustomName("[internal] set envd group to 0 as root group"))
-		if g.Image == nil && g.Language.Name == "python" {
-			res = res.Run(llb.Shlex("chown -R root:root /opt/conda"),
+				llb.WithCustomName("[internal] set envd group to 0 as root group")).
+			Run(llb.Shlex("chown -R root:root /opt/conda"),
 				llb.WithCustomName("[internal] configure user permissions"))
-		}
 	} else {
 		res = base.
 			Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", g.gid)),
@@ -149,11 +148,9 @@ func (g *Graph) compileBase() llb.State {
 			Run(llb.Shlex("adduser envd sudo"),
 				llb.WithCustomName("[internal] add user envd to sudoers")).
 			Run(llb.Shlex("chown -R envd:envd /usr/local/lib"),
+				llb.WithCustomName("[internal] configure user permissions")).
+			Run(llb.Shlex("chown -R envd:envd /opt/conda"),
 				llb.WithCustomName("[internal] configure user permissions"))
-		if g.Image == nil && g.Language.Name == "python" {
-			res = res.Run(llb.Shlex("chown -R envd:envd /opt/conda"),
-				llb.WithCustomName("[internal] configure user permissions"))
-		}
 	}
 	return llb.User("envd")(res.Root())
 }

@@ -6,7 +6,7 @@ def build():
     install.system_packages(name = ["screenfetch"])
     shell("zsh")
     config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
-    git_config(name="envd", email="envd@envd", editor="vim")
+    # git_config(name="envd", email="envd@envd", editor="vim")
     install.vscode_extensions([
         "ms-python.python"
     ])

@@ -28,7 +28,20 @@ import (
 var _ = Describe("home manager", func() {
 	When("initialized", func() {
 		It("should initialized successfully", func() {
-			Expect(Initialize()).NotTo(HaveOccurred())
+			defaultManager = &generalManager{
+				cacheMap: make(map[string]bool),
+				context: types.EnvdContext{
+					Current: "default",
+					Contexts: []types.Context{
+						{
+							Name:          "default",
+							Builder:       types.BuilderTypeDocker,
+							BuilderSocket: "envd_buildkitd",
+						},
+					},
+				},
+			}
+			Expect(defaultManager.init()).NotTo(HaveOccurred())
 			m := GetManager()
 			Expect(m.CacheDir()).To(Equal(filepath.Join(xdg.CacheHome, "envd")))
 			Expect(m.ConfigFile()).To(Equal(filepath.Join(xdg.ConfigHome, "envd/config.envd")))

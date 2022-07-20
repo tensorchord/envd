@@ -93,13 +93,47 @@ jobs:
           git diff --cached --exit-code || (echo 'Please run "make generate" to verify generate' && exit 1);
       - name: Test
         run: make test
-      - name: send coverage
-        uses: shogo82148/actions-goveralls@v1
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
         with:
-          path-to-profile: coverage.out
-          working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
-          flag-name: ${{ matrix.os }}
-          parallel: true
+          name: coverage-out
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd/coverage.out
+  e2e:
+    name: e2e
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      GOPATH: ${{ github.workspace }}/go
+    defaults:
+      run:
+        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Cache Go modules
+        uses: actions/cache@preview
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+      - name: e2e test
+        run: make e2e-test
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: e2e-coverage-out
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd/e2e-coverage.out
   build:
     name: build
     strategy:
@@ -133,10 +167,42 @@ jobs:
         run: make
 
   # notifies that all test jobs are finished.
-  finish:
-    needs: test
+  report:
+    needs:
+      - test
+      - e2e
+    env:
+      GOPATH: ${{ github.workspace }}/go
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
     steps:
-      - uses: shogo82148/actions-goveralls@v1
+      - name: Check out code
+        uses: actions/checkout@v2
         with:
-          parallel-finished: true
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Install bins
+        run: |
+          go install github.com/mattn/goveralls@latest
+          go install github.com/wadey/gocovmerge@latest
+      - name: Get coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-out
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+      - name: Get coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: e2e-coverage-out
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+      # - name: Send coverage
+      #   env:
+      #     COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     gocovmerge e2e-coverage.out coverage.out > final.out
+      #     goveralls -coverprofile=final.out -service=github
