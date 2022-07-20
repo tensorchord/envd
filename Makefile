@@ -135,7 +135,7 @@ generate: mockgen-install  ## Generate mocks
 	@mockgen -source pkg/progress/compileui/display.go -destination pkg/progress/compileui/mock/mock.go -package mock
 
 ginkgo:
-	@which ginkgo && go install -mod=mod github.com/onsi/ginkgo/v2/ginkgo
+	@which ginkgo || go install -mod=mod github.com/onsi/ginkgo/v2/ginkgo
 
 # It is used by vscode to attach into the process.
 debug-local:
