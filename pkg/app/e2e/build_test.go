@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package app
+package e2e
 
 import (
 	"context"
@@ -20,6 +20,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
 )
@@ -29,44 +30,44 @@ var _ = Describe("build command", Ordered, func() {
 	customImageTestName := "testdata/custom-image-test"
 	When("given the right arguments", func() {
 		It("should build successfully", func() {
-			app := New()
-			err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
+			envdApp := app.New()
+			err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 			Expect(err).NotTo(HaveOccurred())
 			cli, err := docker.NewClient(context.TODO())
 			Expect(err).NotTo(HaveOccurred())
 			_, err = cli.Destroy(context.TODO(), buildTestName)
 			Expect(err).NotTo(HaveOccurred())
 
-			app = New()
+			envdApp = app.New()
 			args := []string{
 				"envd.test", "--debug", "build", "--path", buildTestName,
 			}
-			err = app.Run(args)
+			err = envdApp.Run(args)
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 	When("given the custom image", func() {
 		It("should build successfully", func() {
-			app := New()
-			err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
+			envdApp := app.New()
+			err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 			Expect(err).NotTo(HaveOccurred())
 			cli, err := docker.NewClient(context.TODO())
 			Expect(err).NotTo(HaveOccurred())
 			_, err = cli.Destroy(context.TODO(), customImageTestName)
 			Expect(err).NotTo(HaveOccurred())
 
-			app = New()
+			envdApp = app.New()
 			args := []string{
 				"envd.test", "--debug", "build", "--path", customImageTestName,
 			}
-			err = app.Run(args)
+			err = envdApp.Run(args)
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 	AfterAll(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
-		app := New()
-		err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
+		envdApp := app.New()
+		err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 		Expect(err).NotTo(HaveOccurred())
 		cli, err := docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())

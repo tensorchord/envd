@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package app
+package e2e
 
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/home"
 )
 
@@ -27,14 +28,14 @@ var _ = Describe("get env command", func() {
 	}
 	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
-		app := New()
-		err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
+		envdApp := app.New()
+		err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 		Expect(err).NotTo(HaveOccurred())
 	})
 	When("given the right arguments", func() {
 		It("should get the environments successfully", func() {
-			app := New()
-			err := app.Run(args)
+			envdApp := app.New()
+			err := envdApp.Run(args)
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})

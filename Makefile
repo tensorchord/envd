@@ -154,7 +154,7 @@ test: generate  ## Run the tests
 	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
 e2e-test: generate
-	@go test -race -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./pkg/app
+	@go test -race -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./pkg/app/e2e
 
 clean:  ## Clean the outputs and artifacts
 	@-rm -vrf ${OUTPUT_DIR}

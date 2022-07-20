@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package app
+package e2e
 
 import (
 	"context"
 	"strings"
 
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
@@ -27,7 +28,7 @@ import (
 func BuildImage(exampleName string) func() {
 	return func() {
 		logrus.Info("building quick-start image")
-		err := BuildExampleImage(exampleName, New())
+		err := BuildExampleImage(exampleName, app.New())
 		if err != nil {
 			panic(err)
 		}
@@ -45,7 +46,7 @@ func RemoveImage(exampleName string) func() {
 
 func RunContainer(exampleName string) func() {
 	return func() {
-		err := RunExampleContainer(exampleName, New())
+		err := RunExampleContainer(exampleName, app.New())
 		if err != nil {
 			panic(err)
 		}
@@ -54,7 +55,7 @@ func RunContainer(exampleName string) func() {
 
 func DestoryContainer(exampleName string) func() {
 	return func() {
-		err := DestroyExampleContainer(exampleName, New())
+		err := DestroyExampleContainer(exampleName, app.New())
 		if err != nil {
 			panic(err)
 		}
@@ -80,7 +81,7 @@ func (e *Example) Exec(cmd string) string {
 	return strings.Trim(string(ret), "\n")
 }
 
-func BuildExampleImage(exampleName string, app EnvdApp) error {
+func BuildExampleImage(exampleName string, app app.EnvdApp) error {
 	buildContext := "testdata/" + exampleName
 	tag := exampleName + ":e2etest"
 	args := []string{
@@ -103,7 +104,7 @@ func RemoveExampleImage(exampleName string) error {
 	return nil
 }
 
-func RunExampleContainer(exampleName string, app EnvdApp) error {
+func RunExampleContainer(exampleName string, app app.EnvdApp) error {
 	buildContext := "testdata/" + exampleName
 	tag := exampleName + ":e2etest"
 	args := []string{
@@ -113,7 +114,7 @@ func RunExampleContainer(exampleName string, app EnvdApp) error {
 	return err
 }
 
-func DestroyExampleContainer(exampleName string, app EnvdApp) error {
+func DestroyExampleContainer(exampleName string, app app.EnvdApp) error {
 	buildContext := "testdata/" + exampleName
 	args := []string{
 		"envd.test", "--debug", "destroy", "--path", buildContext,

@@ -12,16 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package app
+package e2e
 
 import (
-	"testing"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func TestMain(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "envd Suite")
-}
+var _ = Describe("e2e quickstart", Ordered, func() {
+	exampleName := "quick-start"
+	BeforeAll(BuildImage(exampleName))
+	BeforeEach(RunContainer(exampleName))
+	It("execute python demo.py", func() {
+		Expect(example(exampleName).Exec("python demo.py")).To(Equal("[2 3 4]"))
+	})
+	AfterEach(DestoryContainer(exampleName))
+	AfterAll(RemoveImage(exampleName))
+})
