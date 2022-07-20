@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/sirupsen/logrus"
+
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/ssh"
@@ -98,7 +99,10 @@ func RemoveExampleImage(exampleName string) error {
 	if err != nil {
 		return err
 	}
-	dockerClient.RemoveImage(ctx, exampleName+":e2etest")
+	err = dockerClient.RemoveImage(ctx, exampleName+":e2etest")
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
