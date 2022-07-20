@@ -194,21 +194,29 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	aptStage := g.compileUbuntuAPT(base)
 	var merged llb.State
 	var err error
-	switch g.Language.Name {
-	case "r":
-		merged, err = g.compileRLang(aptStage)
+	// Use custom logic when image is specified.
+	if g.Image != nil {
+		merged, err = g.compileCustomPython(aptStage)
 		if err != nil {
-			return llb.State{}, errors.Wrap(err, "failed to compile r language")
+			return llb.State{}, errors.Wrap(err, "failed to compile custom python image")
 		}
-	case "python":
-		merged, err = g.compilePython(aptStage)
-		if err != nil {
-			return llb.State{}, errors.Wrap(err, "failed to compile python")
-		}
-	case "julia":
-		merged, err = g.compileJulia(aptStage)
-		if err != nil {
-			return llb.State{}, errors.Wrap(err, "failed to compile julia")
+	} else {
+		switch g.Language.Name {
+		case "r":
+			merged, err = g.compileRLang(aptStage)
+			if err != nil {
+				return llb.State{}, errors.Wrap(err, "failed to compile r language")
+			}
+		case "python":
+			merged, err = g.compilePython(aptStage)
+			if err != nil {
+				return llb.State{}, errors.Wrap(err, "failed to compile python")
+			}
+		case "julia":
+			merged, err = g.compileJulia(aptStage)
+			if err != nil {
+				return llb.State{}, errors.Wrap(err, "failed to compile julia")
+			}
 		}
 	}
 
