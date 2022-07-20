@@ -192,12 +192,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: coverage-out
-          path: ./
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
       - name: Get coverage report
         uses: actions/download-artifact@v3
         with:
           name: e2e-coverage-out
-          path: ./
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
       - name: Send coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
