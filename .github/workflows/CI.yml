@@ -185,12 +185,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: coverage-out
-          path: ./coverage.out
+          path: ./
       - name: Get coverage report
         uses: actions/download-artifact@v3
         with:
           name: e2e-coverage-out
-          path: ./e2e-coverage.out
+          path: ./
       - name: Send coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
