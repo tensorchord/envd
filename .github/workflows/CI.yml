@@ -93,13 +93,6 @@ jobs:
           git diff --cached --exit-code || (echo 'Please run "make generate" to verify generate' && exit 1);
       - name: Test
         run: make test
-      - name: send coverage
-        uses: shogo82148/actions-goveralls@v1
-        with:
-          path-to-profile: coverage.out
-          working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
-          flag-name: unit test
-          parallel: true
   e2e:
     name: e2e
     strategy:
@@ -131,13 +124,6 @@ jobs:
             ${{ runner.OS }}-
       - name: e2e test
         run: make e2e-test
-      - name: send coverage
-        uses: shogo82148/actions-goveralls@v1
-        with:
-          path-to-profile: e2e-coverage.out
-          working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
-          flag-name: e2e
-          parallel: true
   build:
     name: build
     strategy:
@@ -171,12 +157,17 @@ jobs:
         run: make
 
   # notifies that all test jobs are finished.
-  finish:
+  report:
     needs:
       - test
       - e2e
     runs-on: ubuntu-latest
     steps:
-      - uses: shogo82148/actions-goveralls@v1
-        with:
-          parallel-finished: true
+      - name: Install goveralls
+        run: go install github.com/mattn/goveralls@latest
+      - name: Send coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          goveralls -coverprofile=coverage.out -service=github
+          goveralls -coverprofile=e2e-coverage.out -service=github
