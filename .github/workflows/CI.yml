@@ -186,8 +186,10 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.18
-      - name: Install goveralls
-        run: go install github.com/mattn/goveralls@latest
+      - name: Install bins
+        run: |
+          go install github.com/mattn/goveralls@latest
+          go install github.com/wadey/gocovmerge@latest
       - name: Get coverage report
         uses: actions/download-artifact@v3
         with:
@@ -202,5 +204,5 @@ jobs:
         env:
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          goveralls -coverprofile=coverage.out -service=github
-          goveralls -coverprofile=e2e-coverage.out -service=github
+          gocovmerge e2e-coverage.out coverage.out > final.out
+          goveralls -coverprofile=final.out -service=github
