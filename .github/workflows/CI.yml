@@ -98,7 +98,7 @@ jobs:
         with:
           path-to-profile: coverage.out
           working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
-          flag-name: ${{ matrix.os }}
+          flag-name: unit test
           parallel: true
   e2e:
     name: e2e
@@ -136,7 +136,7 @@ jobs:
         with:
           path-to-profile: e2e-coverage.out
           working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
-          flag-name: ${{ matrix.os }}
+          flag-name: e2e
           parallel: true
   build:
     name: build
