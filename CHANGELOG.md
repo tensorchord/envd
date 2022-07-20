@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.2.0-alpha.7 (2022-07-20)
+
+ * [67a1f34](https://github.com/tensorchord/envd/commit/67a1f340f45966161dbac2afb9083baeac948674) feat(lang): Remove conda from custom base image (#626)
+ * [890119d](https://github.com/tensorchord/envd/commit/890119d119e7becf9f39f392aa053ae1e70c77c0) fix: check manifest and image update in new gateway buildfunc (#624)
+ * [c8471db](https://github.com/tensorchord/envd/commit/c8471db20f0a7e48c2c8346b3ab88637445200f5) support buildkit TCP socket (#599)
+ * [ef8a90d](https://github.com/tensorchord/envd/commit/ef8a90df3bc1a3009381eb3fd10767f468fcefc2) feat: Refactor with Builder.Options (#615)
+ * [2a88ad1](https://github.com/tensorchord/envd/commit/2a88ad120b2a24b5095883a1e18de55189ff643f) chore(deps): bump github.com/urfave/cli/v2 from 2.10.3 to 2.11.0 (#610)
+
+### Contributors
+
+ * Ce Gao
+ * Keming
+ * dependabot[bot]
+ * nullday
+
 ## v0.2.0-alpha.6 (2022-07-15)
 
  * [18abe90](https://github.com/tensorchord/envd/commit/18abe90072835534f75b392b5f1ef6dbbf0bbeb5) feat(builder): Abstract BuildFunc to use gateway client (#606)
