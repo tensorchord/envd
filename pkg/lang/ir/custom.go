@@ -26,18 +26,10 @@ func (g Graph) compileCustomPython(aptStage llb.State) (llb.State, error) {
 
 	builtinSystemStage := pypiMirrorStage
 
-	pypiStage := llb.Diff(builtinSystemStage,
-		g.compileCustomPyPIPackages(builtinSystemStage),
-		llb.WithCustomName("install PyPI packages"))
-	systemStage := llb.Diff(builtinSystemStage,
-		g.compileCustomSystemPackages(builtinSystemStage),
-		llb.WithCustomName("install system packages"))
+	systemStage := g.compileSystemPackages(builtinSystemStage)
+	pypiStage := g.compileCustomPyPIPackages(systemStage)
 
-	merged := llb.Merge([]llb.State{
-		builtinSystemStage, systemStage, pypiStage,
-	}, llb.WithCustomName("merging all components into one"))
-
-	return merged, nil
+	return pypiStage, nil
 }
 
 func (g Graph) compileCustomPyPIPackages(root llb.State) llb.State {
