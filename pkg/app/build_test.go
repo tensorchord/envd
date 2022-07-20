@@ -25,10 +25,8 @@ import (
 )
 
 var _ = Describe("build command", func() {
-	buildContext := "testdata/build-test"
-	args := []string{
-		"envd.test", "--debug", "build", "--path", buildContext,
-	}
+	buildTestName := "testdata/build-test"
+	customImageTestName := "testdata/custom-image-test"
 	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
 		app := New()
@@ -36,12 +34,27 @@ var _ = Describe("build command", func() {
 		Expect(err).NotTo(HaveOccurred())
 		cli, err := docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())
-		_, err = cli.Destroy(context.TODO(), buildContext)
+		_, err = cli.Destroy(context.TODO(), buildTestName)
+		Expect(err).NotTo(HaveOccurred())
+		_, err = cli.Destroy(context.TODO(), customImageTestName)
 		Expect(err).NotTo(HaveOccurred())
 	})
 	When("given the right arguments", func() {
 		It("should build successfully", func() {
 			app := New()
+			args := []string{
+				"envd.test", "--debug", "build", "--path", buildTestName,
+			}
+			err := app.Run(args)
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+	When("given the custom image", func() {
+		It("should build successfully", func() {
+			app := New()
+			args := []string{
+				"envd.test", "--debug", "build", "--path", customImageTestName,
+			}
 			err := app.Run(args)
 			Expect(err).NotTo(HaveOccurred())
 		})
