@@ -100,20 +100,27 @@ func Base(dir string) string {
 	return filepath.Base(dir)
 }
 
+func MkdirIfNotExist(filepath string) error {
+	exist, err := DirExists(filepath)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		err = os.Mkdir(DefaultConfigDir, os.ModeDir|0700)
+		if err != nil {
+			return errors.Wrap(err, "failed to create the config dir")
+		}
+	}
+	return nil
+}
+
 // ConfigFile returns the location for the specified envd config file
 func ConfigFile(filename string) (string, error) {
 	if strings.ContainsRune(filename, os.PathSeparator) {
 		return "", fmt.Errorf("filename %s should not contain any path separator", filename)
 	}
-	exist, err := DirExists(DefaultConfigDir)
-	if err != nil {
+	if err := MkdirIfNotExist(DefaultConfigDir); err != nil {
 		return "", err
-	}
-	if !exist {
-		err = os.Mkdir(DefaultConfigDir, os.ModeDir|0700)
-		if err != nil {
-			return "", errors.Wrap(err, "failed to create the config dir")
-		}
 	}
 	return path.Join(DefaultConfigDir, filename), nil
 }
@@ -123,15 +130,8 @@ func CacheFile(filename string) (string, error) {
 	if strings.ContainsRune(filename, os.PathSeparator) {
 		return "", fmt.Errorf("filename %s should not contain any path separator", filename)
 	}
-	exist, err := DirExists(DefaultCacheDir)
-	if err != nil {
+	if err := MkdirIfNotExist(DefaultCacheDir); err != nil {
 		return "", err
-	}
-	if !exist {
-		err = os.Mkdir(DefaultCacheDir, os.ModeDir|0700)
-		if err != nil {
-			return "", errors.Wrap(err, "failed to create the cache dir")
-		}
 	}
 	return path.Join(DefaultCacheDir, filename), nil
 }
