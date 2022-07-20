@@ -134,6 +134,9 @@ generate: mockgen-install  ## Generate mocks
 	@mockgen -source pkg/lang/frontend/starlark/interpreter.go -destination pkg/lang/frontend/starlark/mock/mock.go -package mock
 	@mockgen -source pkg/progress/compileui/display.go -destination pkg/progress/compileui/mock/mock.go -package mock
 
+ginkgo:
+	@which ginkgo && go install -mod=mod github.com/onsi/ginkgo/v2/ginkgo
+
 # It is used by vscode to attach into the process.
 debug-local:
 	@for target in $(TARGETS); do                                                      \
@@ -153,7 +156,7 @@ test: generate  ## Run the tests
 	@go test -race -coverpkg=./pkg/... -coverprofile=coverage.out $(shell go list ./... | grep -v app)
 	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
-e2e-test: generate
+e2e-test: generate ginkgo
 	@ginkgo -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./e2e
 
 clean:  ## Clean the outputs and artifacts
