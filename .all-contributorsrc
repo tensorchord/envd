@@ -322,6 +322,16 @@
       "contributions": [
         "design"
       ]
+    },
+    {
+      "login": "sea-wyq",
+      "name": "wyq",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22475606?v=4",
+      "profile": "https://github.com/sea-wyq",
+      "contributions": [
+        "bug",
+        "design"
+      ]
     }
   ],
   "contributorsPerLine": 7,
