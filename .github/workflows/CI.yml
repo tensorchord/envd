@@ -100,6 +100,44 @@ jobs:
           working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
           flag-name: ${{ matrix.os }}
           parallel: true
+  e2e:
+    name: e2e
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      GOPATH: ${{ github.workspace }}/go
+    defaults:
+      run:
+        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Cache Go modules
+        uses: actions/cache@preview
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+      - name: e2e test
+        run: make e2e-test
+      - name: send coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: e2e-coverage.out
+          working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+          flag-name: ${{ matrix.os }}
+          parallel: true
   build:
     name: build
     strategy:
