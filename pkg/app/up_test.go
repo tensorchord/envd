@@ -22,6 +22,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 var _ = Describe("up command", func() {
@@ -62,5 +63,9 @@ var _ = Describe("up command", func() {
 			err = app.Run(destroyArgs)
 			Expect(err).NotTo(HaveOccurred())
 		})
+	})
+	AfterAll(func() {
+		// Cleanup graph.
+		ir.DefaultGraph = ir.NewGraph()
 	})
 })
