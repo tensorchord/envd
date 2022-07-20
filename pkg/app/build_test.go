@@ -29,7 +29,6 @@ var _ = Describe("build command", Ordered, func() {
 	customImageTestName := "testdata/custom-image-test"
 	When("given the right arguments", func() {
 		It("should build successfully", func() {
-			Expect(home.Initialize()).NotTo(HaveOccurred())
 			app := New()
 			err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
 			Expect(err).NotTo(HaveOccurred())
@@ -38,6 +37,7 @@ var _ = Describe("build command", Ordered, func() {
 			_, err = cli.Destroy(context.TODO(), buildTestName)
 			Expect(err).NotTo(HaveOccurred())
 
+			app = New()
 			args := []string{
 				"envd.test", "--debug", "build", "--path", buildTestName,
 			}
@@ -47,7 +47,6 @@ var _ = Describe("build command", Ordered, func() {
 	})
 	When("given the custom image", func() {
 		It("should build successfully", func() {
-			Expect(home.Initialize()).NotTo(HaveOccurred())
 			app := New()
 			err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
 			Expect(err).NotTo(HaveOccurred())
@@ -56,6 +55,7 @@ var _ = Describe("build command", Ordered, func() {
 			_, err = cli.Destroy(context.TODO(), customImageTestName)
 			Expect(err).NotTo(HaveOccurred())
 
+			app = New()
 			args := []string{
 				"envd.test", "--debug", "build", "--path", customImageTestName,
 			}

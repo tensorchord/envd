@@ -29,7 +29,8 @@ func (g Graph) compileCustomPython(aptStage llb.State) (llb.State, error) {
 	pypiStage := llb.Diff(builtinSystemStage,
 		g.compileCustomPyPIPackages(builtinSystemStage),
 		llb.WithCustomName("install PyPI packages"))
-	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
+	systemStage := llb.Diff(builtinSystemStage,
+		g.compileCustomSystemPackages(builtinSystemStage),
 		llb.WithCustomName("install system packages"))
 
 	merged := llb.Merge([]llb.State{
@@ -64,5 +65,31 @@ func (g Graph) compileCustomPyPIPackages(root llb.State) llb.State {
 	run.AddMount(cacheDir, cache,
 		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared),
 		llb.SourcePath("/cache"))
+	return run.Root()
+}
+
+func (g Graph) compileCustomSystemPackages(root llb.State) llb.State {
+	if len(g.SystemPackages) == 0 {
+		return root
+	}
+
+	// Compose the package install command.
+	var sb strings.Builder
+	sb.WriteString("apt-get update && apt-get install -y --no-install-recommends")
+
+	for _, pkg := range g.SystemPackages {
+		sb.WriteString(fmt.Sprintf(" %s", pkg))
+	}
+
+	cacheDir := "/var/cache/apt"
+	cacheLibDir := "/var/lib/apt"
+
+	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
+		llb.WithCustomNamef("apt-get install %s",
+			strings.Join(g.SystemPackages, " ")))
+	run.AddMount(cacheDir, llb.Scratch(),
+		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
+	run.AddMount(cacheLibDir, llb.Scratch(),
+		llb.AsPersistentCacheDir(g.CacheID(cacheLibDir), llb.CacheMountShared))
 	return run.Root()
 }
