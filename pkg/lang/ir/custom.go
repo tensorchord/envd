@@ -26,7 +26,7 @@ func (g Graph) compileCustomPython(aptStage llb.State) (llb.State, error) {
 
 	builtinSystemStage := pypiMirrorStage
 
-	systemStage := g.compileSystemPackages(builtinSystemStage)
+	systemStage := g.compileCustomSystemPackages(builtinSystemStage)
 	pypiStage := g.compileCustomPyPIPackages(systemStage)
 
 	return pypiStage, nil
