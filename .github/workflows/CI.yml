@@ -97,7 +97,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: coverage-out
-          path: ./coverage.out
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd/coverage.out
   e2e:
     name: e2e
     strategy:
@@ -133,7 +133,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: e2e-coverage-out
-          path: ./e2e-coverage.out
+          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd/e2e-coverage.out
   build:
     name: build
     strategy:
