@@ -200,9 +200,9 @@ jobs:
         with:
           name: e2e-coverage-out
           path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
-      - name: Send coverage
-        env:
-          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gocovmerge e2e-coverage.out coverage.out > final.out
-          goveralls -coverprofile=final.out -service=github
+      # - name: Send coverage
+      #   env:
+      #     COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     gocovmerge e2e-coverage.out coverage.out > final.out
+      #     goveralls -coverprofile=final.out -service=github
