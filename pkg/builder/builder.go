@@ -39,7 +39,7 @@ import (
 )
 
 type Builder interface {
-	Build(ctx context.Context) error
+	Build(ctx context.Context, force bool) error
 	GPUEnabled() bool
 	NumGPUs() int
 }
@@ -122,8 +122,8 @@ func (b generalBuilder) NumGPUs() int {
 	return ir.NumGPUs()
 }
 
-func (b generalBuilder) Build(ctx context.Context) error {
-	if !b.checkIfNeedBuild(ctx) {
+func (b generalBuilder) Build(ctx context.Context, force bool) error {
+	if !force && !b.checkIfNeedBuild(ctx) {
 		return nil
 	}
 	pw, err := progresswriter.NewPrinter(ctx, os.Stdout, b.ProgressMode)

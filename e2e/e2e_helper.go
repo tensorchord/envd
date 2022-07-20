@@ -85,7 +85,7 @@ func BuildExampleImage(exampleName string, app app.EnvdApp) error {
 	buildContext := "testdata/" + exampleName
 	tag := exampleName + ":e2etest"
 	args := []string{
-		"envd.test", "--debug", "build", "--path", buildContext, "--tag", tag,
+		"envd.test", "--debug", "build", "--path", buildContext, "--tag", tag, "--force",
 	}
 	err := app.Run(args)
 	return err
@@ -108,7 +108,7 @@ func RunExampleContainer(exampleName string, app app.EnvdApp) error {
 	buildContext := "testdata/" + exampleName
 	tag := exampleName + ":e2etest"
 	args := []string{
-		"envd.test", "--debug", "up", "--path", buildContext, "--tag", tag, "--detach",
+		"envd.test", "--debug", "up", "--path", buildContext, "--tag", tag, "--detach", "--force",
 	}
 	err := app.Run(args)
 	return err

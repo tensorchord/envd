@@ -45,7 +45,7 @@ var _ = Describe("up command", Ordered, func() {
 	When("given the right arguments", func() {
 		It("should up and destroy successfully", func() {
 			args := append(baseArgs, []string{
-				"up", "--path", buildContext, "--detach",
+				"up", "--path", buildContext, "--detach", "--force",
 			}...)
 			envdApp := app.New()
 			err := envdApp.Run(args)
