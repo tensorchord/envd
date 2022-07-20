@@ -161,8 +161,14 @@ jobs:
     needs:
       - test
       - e2e
+    env:
+      GOPATH: ${{ github.workspace }}/go
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
       - name: Install goveralls
         run: go install github.com/mattn/goveralls@latest
       - name: Send coverage
@@ -171,3 +177,4 @@ jobs:
         run: |
           goveralls -coverprofile=coverage.out -service=github
           goveralls -coverprofile=e2e-coverage.out -service=github
+        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
