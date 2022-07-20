@@ -155,6 +155,7 @@ test: generate  ## Run the tests
 
 e2e-test: generate
 	@go test -race -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./pkg/app
+	@go test -race -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./pkg/app/e2e
 
 clean:  ## Clean the outputs and artifacts
 	@-rm -vrf ${OUTPUT_DIR}

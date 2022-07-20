@@ -84,7 +84,7 @@ func (e *Example) Exec(cmd string) string {
 }
 
 func BuildExampleImage(exampleName string, app app.EnvdApp) error {
-	buildContext := "../examples/" + exampleName
+	buildContext := "../testdata/" + exampleName
 	tag := exampleName + ":e2etest"
 	args := []string{
 		"envd.test", "--debug", "build", "--path", buildContext, "--tag", tag,
@@ -107,7 +107,7 @@ func RemoveExampleImage(exampleName string) error {
 }
 
 func RunExampleContainer(exampleName string, app app.EnvdApp) error {
-	buildContext := "../examples/" + exampleName
+	buildContext := "../testdata/" + exampleName
 	tag := exampleName + ":e2etest"
 	args := []string{
 		"envd.test", "--debug", "up", "--path", buildContext, "--tag", tag, "--detach",
@@ -117,7 +117,7 @@ func RunExampleContainer(exampleName string, app app.EnvdApp) error {
 }
 
 func DestroyExampleContainer(exampleName string, app app.EnvdApp) error {
-	buildContext := "../examples/" + exampleName
+	buildContext := "../testdata/" + exampleName
 	args := []string{
 		"envd.test", "--debug", "destroy", "--path", buildContext,
 	}
