@@ -24,10 +24,10 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 )
 
-var _ = Describe("build command", func() {
+var _ = Describe("build command", Ordered, func() {
 	buildTestName := "testdata/build-test"
 	customImageTestName := "testdata/custom-image-test"
-	BeforeEach(func() {
+	BeforeAll(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
 		app := New()
 		err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
@@ -58,5 +58,17 @@ var _ = Describe("build command", func() {
 			err := app.Run(args)
 			Expect(err).NotTo(HaveOccurred())
 		})
+	})
+	AfterAll(func() {
+		Expect(home.Initialize()).NotTo(HaveOccurred())
+		app := New()
+		err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
+		Expect(err).NotTo(HaveOccurred())
+		cli, err := docker.NewClient(context.TODO())
+		Expect(err).NotTo(HaveOccurred())
+		_, err = cli.Destroy(context.TODO(), buildTestName)
+		Expect(err).NotTo(HaveOccurred())
+		_, err = cli.Destroy(context.TODO(), customImageTestName)
+		Expect(err).NotTo(HaveOccurred())
 	})
 })
