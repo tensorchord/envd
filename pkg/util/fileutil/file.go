@@ -38,7 +38,7 @@ func init() {
 		panic(err)
 	}
 	DefaultConfigDir = path.Join(home, ".config/envd")
-	DefaultCacheDir = path.Join(home, ".config/envd")
+	DefaultCacheDir = path.Join(home, ".cache/envd")
 }
 
 // FileExists returns true if the file exists
