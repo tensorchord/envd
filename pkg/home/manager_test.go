@@ -18,11 +18,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/adrg/xdg"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var _ = Describe("home manager", func() {
@@ -43,16 +43,16 @@ var _ = Describe("home manager", func() {
 			}
 			Expect(defaultManager.init()).NotTo(HaveOccurred())
 			m := GetManager()
-			Expect(m.CacheDir()).To(Equal(filepath.Join(xdg.CacheHome, "envd")))
-			Expect(m.ConfigFile()).To(Equal(filepath.Join(xdg.ConfigHome, "envd/config.envd")))
-			Expect(m.ContextFile()).To(Equal(filepath.Join(xdg.ConfigHome, "envd/contexts")))
+			Expect(m.CacheDir()).To(Equal(filepath.Join(fileutil.DefaultCacheDir)))
+			Expect(m.ConfigFile()).To(Equal(filepath.Join(fileutil.DefaultConfigDir, "config.envd")))
+			Expect(m.ContextFile()).To(Equal(filepath.Join(fileutil.DefaultConfigDir, "contexts")))
 			driver, socket, err := m.ContextGetCurrent()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(driver).To(Equal(types.BuilderTypeDocker))
 			Expect(socket).To(Equal("envd_buildkitd"))
 		})
 		It("should return the cache status", func() {
-			Expect(os.RemoveAll(filepath.Join(xdg.CacheHome, "envd/cache.status"))).NotTo(HaveOccurred())
+			Expect(os.RemoveAll(filepath.Join(fileutil.DefaultCacheDir, "cache.status"))).NotTo(HaveOccurred())
 			Expect(Initialize()).NotTo(HaveOccurred())
 			m := GetManager()
 			m.(*generalManager).cacheMap = make(map[string]bool)

@@ -15,7 +15,6 @@
 package home
 
 import (
-	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 
 	"github.com/tensorchord/envd/pkg/util/fileutil"
@@ -26,8 +25,8 @@ type configManager interface {
 }
 
 func (m *generalManager) initConfig() error {
-	// Create $XDG_CONFIG_HOME/envd/config.envd
-	config, err := xdg.ConfigFile("envd/config.envd")
+	// Create $HOME/.config/envd/config.envd
+	config, err := fileutil.ConfigFile("config.envd")
 	if err != nil {
 		return errors.Wrap(err, "failed to get config file")
 	}

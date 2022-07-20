@@ -17,12 +17,29 @@
 package fileutil
 
 import (
+	"fmt"
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 )
+
+var (
+	DefaultConfigDir string
+	DefaultCacheDir  string
+)
+
+func init() {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+	DefaultConfigDir = path.Join(home, ".config/envd")
+	DefaultCacheDir = path.Join(home, ".config/envd")
+}
 
 // FileExists returns true if the file exists
 func FileExists(filename string) (bool, error) {
@@ -81,4 +98,40 @@ func RootDir() (string, error) {
 
 func Base(dir string) string {
 	return filepath.Base(dir)
+}
+
+// ConfigFile returns the location for the specified envd config file
+func ConfigFile(filename string) (string, error) {
+	if strings.ContainsRune(filename, os.PathSeparator) {
+		return "", fmt.Errorf("filename %s should not contain any path separator", filename)
+	}
+	exist, err := DirExists(DefaultConfigDir)
+	if err != nil {
+		return "", err
+	}
+	if !exist {
+		err = os.Mkdir(DefaultConfigDir, os.ModeDir|0700)
+		if err != nil {
+			return "", errors.Wrap(err, "failed to create the config dir")
+		}
+	}
+	return path.Join(DefaultConfigDir, filename), nil
+}
+
+// CacheFile returns the location for the specified envd cache file
+func CacheFile(filename string) (string, error) {
+	if strings.ContainsRune(filename, os.PathSeparator) {
+		return "", fmt.Errorf("filename %s should not contain any path separator", filename)
+	}
+	exist, err := DirExists(DefaultCacheDir)
+	if err != nil {
+		return "", err
+	}
+	if !exist {
+		err = os.Mkdir(DefaultCacheDir, os.ModeDir|0700)
+		if err != nil {
+			return "", errors.Wrap(err, "failed to create the cache dir")
+		}
+	}
+	return path.Join(DefaultCacheDir, filename), nil
 }

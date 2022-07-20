@@ -18,11 +18,11 @@ import (
 	"encoding/gob"
 	"os"
 
-	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 type contextManager interface {
@@ -36,11 +36,11 @@ type contextManager interface {
 }
 
 func (m *generalManager) initContext() error {
-	contextfile, err := xdg.ConfigFile("envd/contexts")
+	contextFile, err := fileutil.ConfigFile("contexts")
 	if err != nil {
 		return errors.Wrap(err, "failed to get context file")
 	}
-	m.contextFile = contextfile
+	m.contextFile = contextFile
 
 	// Create default context.
 

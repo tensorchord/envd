@@ -3,7 +3,6 @@ module github.com/tensorchord/envd
 go 1.18
 
 require (
-	github.com/adrg/xdg v0.4.0
 	github.com/alessio/shellescape v1.4.1
 	github.com/cockroachdb/errors v1.9.0
 	github.com/containerd/console v1.0.3
