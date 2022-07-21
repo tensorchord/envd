@@ -72,6 +72,11 @@ To build and push the image to a registry:
 			Usage:   "Output destination (e.g. type=tar,dest=path,push=true)",
 			Aliases: []string{"o"},
 		},
+		&cli.BoolFlag{
+			Name:  "force",
+			Usage: "Force rebuild the image",
+			Value: false,
+		},
 	},
 
 	Action: build,
@@ -116,6 +121,7 @@ func build(clicontext *cli.Context) error {
 	})
 	debug := clicontext.Bool("debug")
 	output := clicontext.String("output")
+	force := clicontext.Bool("force")
 
 	opt := builder.Options{
 		ManifestFilePath: manifest,
@@ -139,5 +145,5 @@ func build(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
-	return builder.Build(clicontext.Context)
+	return builder.Build(clicontext.Context, force)
 }

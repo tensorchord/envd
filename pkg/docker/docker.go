@@ -75,6 +75,7 @@ type Client interface {
 
 	ListImage(ctx context.Context) ([]types.ImageSummary, error)
 	GetImage(ctx context.Context, image string) (types.ImageSummary, error)
+	RemoveImage(ctx context.Context, image string) error
 
 	GetInfo(ctx context.Context) (types.Info, error)
 
@@ -179,6 +180,15 @@ func (c generalClient) ListImage(ctx context.Context) ([]types.ImageSummary, err
 		Filters: dockerFilters(false),
 	})
 	return images, err
+}
+
+func (c generalClient) RemoveImage(ctx context.Context, image string) error {
+	_, err := c.ImageRemove(ctx, image, types.ImageRemoveOptions{})
+	if err != nil {
+		logrus.WithError(err).Errorf("failed to remove image %s", image)
+		return err
+	}
+	return nil
 }
 
 func (c generalClient) GetImage(ctx context.Context, image string) (types.ImageSummary, error) {

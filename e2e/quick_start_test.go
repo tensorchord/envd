@@ -12,30 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package app
+package e2e
 
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"github.com/tensorchord/envd/pkg/home"
 )
 
-var _ = Describe("get env command", func() {
-	args := []string{
-		"envd.test", "--debug", "envs", "list",
-	}
-	BeforeEach(func() {
-		Expect(home.Initialize()).NotTo(HaveOccurred())
-		app := New()
-		err := app.Run([]string{"envd.test", "--debug", "bootstrap"})
-		Expect(err).NotTo(HaveOccurred())
+var _ = Describe("e2e quickstart", Ordered, func() {
+	exampleName := "quick-start"
+	BeforeAll(BuildImage(exampleName))
+	BeforeEach(RunContainer(exampleName))
+	It("execute python demo.py", func() {
+		Expect(example(exampleName).Exec("python demo.py")).To(Equal("[2 3 4]"))
 	})
-	When("given the right arguments", func() {
-		It("should get the environments successfully", func() {
-			app := New()
-			err := app.Run(args)
-			Expect(err).NotTo(HaveOccurred())
-		})
-	})
+	AfterEach(DestoryContainer(exampleName))
+	AfterAll(RemoveImage(exampleName))
 })

@@ -138,6 +138,7 @@ func up(clicontext *cli.Context) error {
 
 	detach := clicontext.Bool("detach")
 	debug := clicontext.Bool("debug")
+	force := clicontext.Bool("force")
 	output := ""
 
 	opt := builder.Options{
@@ -165,7 +166,7 @@ func up(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to create the builder")
 	}
 
-	if err := builder.Build(clicontext.Context); err != nil {
+	if err := builder.Build(clicontext.Context, force); err != nil {
 		return errors.Wrap(err, "failed to build the image")
 	}
 	// Do not attach GPU if the flag is set.
@@ -198,7 +199,7 @@ func up(clicontext *cli.Context) error {
 	}
 	numGPUs := builder.NumGPUs()
 
-	err = dockerClient.CleanEnvdIfExists(clicontext.Context, ctr, clicontext.Bool("force"))
+	err = dockerClient.CleanEnvdIfExists(clicontext.Context, ctr, force)
 	if err != nil {
 		return errors.Wrap(err, "failed to start the envd environment")
 	}

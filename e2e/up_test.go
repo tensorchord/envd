@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package app
+package e2e
 
 import (
 	"context"
@@ -20,6 +20,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -33,8 +34,8 @@ var _ = Describe("up command", Ordered, func() {
 	}
 	BeforeAll(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
-		app := New()
-		err := app.Run(append(baseArgs, "bootstrap"))
+		envdApp := app.New()
+		err := envdApp.Run(append(baseArgs, "bootstrap"))
 		Expect(err).NotTo(HaveOccurred())
 		cli, err := docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())
@@ -44,23 +45,23 @@ var _ = Describe("up command", Ordered, func() {
 	When("given the right arguments", func() {
 		It("should up and destroy successfully", func() {
 			args := append(baseArgs, []string{
-				"up", "--path", buildContext, "--detach",
+				"up", "--path", buildContext, "--detach", "--force",
 			}...)
-			app := New()
-			err := app.Run(args)
+			envdApp := app.New()
+			err := envdApp.Run(args)
 			Expect(err).NotTo(HaveOccurred())
 
 			depsArgs := append(baseArgs, []string{
 				"envs", "describe", "--env", env,
 			}...)
 
-			err = app.Run(depsArgs)
+			err = envdApp.Run(depsArgs)
 			Expect(err).NotTo(HaveOccurred())
 
 			destroyArgs := append(baseArgs, []string{
 				"destroy", "--path", buildContext,
 			}...)
-			err = app.Run(destroyArgs)
+			err = envdApp.Run(destroyArgs)
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})
