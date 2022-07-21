@@ -17,11 +17,11 @@ package home
 import (
 	"encoding/gob"
 	"os"
-	"path/filepath"
 
-	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 type cacheManager interface {
@@ -32,14 +32,14 @@ type cacheManager interface {
 }
 
 func (m *generalManager) initCache() error {
-	// Create $XDG_CACHE_HOME/envd
-	_, err := xdg.CacheFile("envd/cache")
-	if err != nil {
-		return errors.Wrap(err, "failed to get cache")
-	}
-	m.cacheDir = filepath.Join(xdg.CacheHome, "envd")
+	// Create $HOME/.cache/envd/
+	m.cacheDir = fileutil.DefaultCacheDir
 
-	m.cacheStatusFile = filepath.Join(m.cacheDir, "cache.status")
+	cacheStatusFile, err := fileutil.CacheFile("cache.status")
+	if err != nil {
+		return errors.Wrap(err, "failed to get cache.status file path")
+	}
+	m.cacheStatusFile = cacheStatusFile
 	_, err = os.Stat(m.cacheStatusFile)
 	if err != nil {
 		if os.IsNotExist(err) {

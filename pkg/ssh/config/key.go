@@ -21,7 +21,6 @@ import (
 	"encoding/pem"
 	"os"
 
-	"github.com/adrg/xdg"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
@@ -135,12 +134,12 @@ func generatePublicKey(privatekey *rsa.PublicKey) ([]byte, error) {
 }
 
 func getDefaultKeyPaths() (string, string, error) {
-	public, err := xdg.ConfigFile("envd/" + config.PublicKeyFile)
+	public, err := fileutil.ConfigFile(config.PublicKeyFile)
 	if err != nil {
 		return "", "", errors.Wrap(err, "Cannot get public key path")
 	}
 
-	private, err := xdg.ConfigFile("envd/" + config.PrivateKeyFile)
+	private, err := fileutil.ConfigFile(config.PrivateKeyFile)
 	if err != nil {
 		return "", "", errors.Wrap(err, "Cannot get private key path")
 	}
