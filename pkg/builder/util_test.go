@@ -16,7 +16,7 @@ package builder
 import (
 	"testing"
 
-	"github.com/moby/buildkit/frontend/gateway/client"
+	"github.com/moby/buildkit/client"
 	gatewayclient "github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
