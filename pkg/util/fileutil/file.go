@@ -106,9 +106,9 @@ func MkdirIfNotExist(filepath string) error {
 		return err
 	}
 	if !exist {
-		err = os.Mkdir(DefaultConfigDir, os.ModeDir|0700)
+		err = os.MkdirAll(DefaultConfigDir, os.ModeDir|0700)
 		if err != nil {
-			return errors.Wrap(err, "failed to create the config dir")
+			return errors.Wrap(err, "failed to create the dir")
 		}
 	}
 	return nil
