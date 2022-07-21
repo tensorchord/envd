@@ -14,7 +14,7 @@
 
 > **⚠️ envd is still under heavy development, and subject to change. it is not feature-complete or production-ready. Please contact us in [discord](https://discord.gg/KqswhpVgdU) if there is any problem.**
 
-envd is a **machine learning development environment** for data science and AI/ML engineering teams.
+envd (`ɪnˈvdɪ`) is a **machine learning development environment** for data science and AI/ML engineering teams.
 
 🐍 **No Docker, only Python** - Focus on writing Python code, we will take care of Docker and development environment setup.
 
@@ -125,7 +125,7 @@ See [envd documentation](https://envd.tensorchord.ai/docs/get-started).
 `envd` can be installed with `pip`. After the installation, please run `envd bootstrap` to bootstrap.
 
 ```bash
-pip install envd
+pip install --pre --upgrade envd
 envd bootstrap
 ```
 
@@ -220,6 +220,8 @@ We welcome all kinds of contributions from the open-source community, individual
 
 - Join our [discord community](https://discord.gg/KqswhpVgdU)! 
 - To build from the source, please read our [contributing documentation](https://envd.tensorchord.ai/docs/community/contributing) and [development tutorial](https://envd.tensorchord.ai/docs/community/development).
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/tensorchord/envd)
 
 ## Contributors ✨
 
