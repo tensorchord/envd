@@ -61,6 +61,12 @@ type Options struct {
 	PubKeyPath string
 	// OutputOpts is the output options.
 	OutputOpts string
+	// ExportCache is the options to export cache.
+	// e.g. type=registry,ref=docker.io/username/image
+	ExportCache string
+	// ImportCache is the options to import cache.
+	// e.g. type=registry,ref=docker.io/username/image
+	ImportCache string
 }
 
 type generalBuilder struct {
@@ -188,6 +194,11 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 	if err != nil {
 		return errors.Wrap(err, "failed to get labels")
 	}
+
+	ce, err := ParseExportCache([]string{b.ExportCache}, nil)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse export cache")
+	}
 	// k := platforms.Format(platforms.DefaultSpec())
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -199,6 +210,9 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 	for _, entry := range b.entries {
 		// Set up docker config auth.
 		attachable := []session.Attachable{authprovider.NewDockerAuthProvider(os.Stderr)}
+		b.logger.WithFields(logrus.Fields{
+			"type": entry.Type,
+		}).Debug("build image with buildkit")
 		switch entry.Type {
 		// Create default build.
 		case client.ExporterDocker:
@@ -217,20 +231,15 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 					}
 				}
 				defer pipeW.Close()
-				_, err := b.Client.Build(ctx, client.SolveOpt{
-					Exports: []client.ExportEntry{entry},
+				solveOpt := client.SolveOpt{
+					CacheExports: ce,
+					Exports:      []client.ExportEntry{entry},
 					LocalDirs: map[string]string{
-						// TODO(gaocegege): Move it to BuildFunc with the help
-						// of llb.Local
 						flag.FlagCacheDir: home.GetManager().CacheDir(),
 					},
 					Session: attachable,
-					// TODO(gaocegege): Use llb.WithProxy to implement it.
-					FrontendAttrs: map[string]string{
-						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
-					},
-				}, "envd", b.BuildFunc(), pw.Status())
-
+				}
+				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
 					err = errors.Wrap(err, "failed to solve LLB")
 					return err
@@ -256,18 +265,15 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 			})
 		default:
 			eg.Go(func() error {
-				_, err := b.Client.Build(ctx, client.SolveOpt{
-					Exports: []client.ExportEntry{entry},
+				solveOpt := client.SolveOpt{
+					CacheExports: ce,
+					Exports:      []client.ExportEntry{entry},
 					LocalDirs: map[string]string{
 						flag.FlagCacheDir: home.GetManager().CacheDir(),
 					},
 					Session: attachable,
-					// TODO(gaocegege): Use llb.WithProxy to implement it.
-					FrontendAttrs: map[string]string{
-						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
-					},
-				}, "envd", b.BuildFunc(), pw.Status())
-
+				}
+				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
 					err = errors.Wrap(err, "failed to solve LLB")
 					return err

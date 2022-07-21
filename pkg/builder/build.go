@@ -28,9 +28,17 @@ func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (
 			return nil, errors.Wrap(err, "failed to compile")
 		}
 
-		res, err := c.Solve(ctx, client.SolveRequest{
+		sreq := client.SolveRequest{
 			Definition: def.ToPB(),
-		})
+		}
+		if b.Options.ImportCache != "" {
+			ci, err := ParseImportCache([]string{b.Options.ImportCache})
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to get the import cache")
+			}
+			sreq.CacheImports = ci
+		}
+		res, err := c.Solve(ctx, sreq)
 		if err != nil {
 			return nil, err
 		}

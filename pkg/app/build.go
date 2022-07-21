@@ -77,8 +77,18 @@ To build and push the image to a registry:
 			Usage: "Force rebuild the image",
 			Value: false,
 		},
+		// https://github.com/urfave/cli/issues/1134#issuecomment-1191407527
+		&cli.StringFlag{
+			Name:    "export-cache",
+			Usage:   "Export the cache (e.g. type=registry,ref=<image>)",
+			Aliases: []string{"ec"},
+		},
+		&cli.StringFlag{
+			Name:    "import-cache",
+			Usage:   "Import the cache (e.g. type=registry,ref=<image>)",
+			Aliases: []string{"ic"},
+		},
 	},
-
 	Action: build,
 }
 
@@ -122,6 +132,8 @@ func build(clicontext *cli.Context) error {
 	debug := clicontext.Bool("debug")
 	output := clicontext.String("output")
 	force := clicontext.Bool("force")
+	exportCache := clicontext.String("export-cache")
+	importCache := clicontext.String("import-cache")
 
 	opt := builder.Options{
 		ManifestFilePath: manifest,
@@ -132,6 +144,8 @@ func build(clicontext *cli.Context) error {
 		OutputOpts:       output,
 		PubKeyPath:       clicontext.Path("public-key"),
 		ProgressMode:     "auto",
+		ExportCache:      exportCache,
+		ImportCache:      importCache,
 	}
 	if debug {
 		opt.ProgressMode = "plain"
