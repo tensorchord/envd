@@ -61,10 +61,10 @@ type Options struct {
 	PubKeyPath string
 	// OutputOpts is the output options.
 	OutputOpts string
-	// ExportCache is the options to export cache.
+	// ExportCache is the option to export cache.
 	// e.g. type=registry,ref=docker.io/username/image
 	ExportCache string
-	// ImportCache is the options to import cache.
+	// ImportCache is the option to import cache.
 	// e.g. type=registry,ref=docker.io/username/image
 	ImportCache string
 }
