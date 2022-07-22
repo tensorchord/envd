@@ -122,7 +122,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	root = llb.User("envd")(root)
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 	cache := root.File(llb.Mkdir("/cache",
-		0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)), llb.WithCustomName("[internal] settings pip cache mount permissions"))
+		0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)), llb.WithCustomName("[internal] setting pip cache mount permissions"))
 	run := root.
 		Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s",
 			strings.Join(g.PyPIPackages, " ")))
@@ -143,10 +143,10 @@ func (g Graph) compilePyPIIndex(root llb.State) llb.State {
 		pypiMirror := root.
 			File(llb.Mkdir(filepath.Dir(pypiIndexFilePath),
 				0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
-				llb.WithCustomName("[internal] settings PyPI index")).
+				llb.WithCustomName("[internal] setting PyPI index")).
 			File(llb.Mkfile(pypiIndexFilePath,
 				0644, []byte(content), llb.WithUIDGID(g.uid, g.gid)),
-				llb.WithCustomName("[internal] settings PyPI index"))
+				llb.WithCustomName("[internal] setting PyPI index"))
 		return pypiMirror
 	}
 	return root

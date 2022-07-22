@@ -16,10 +16,118 @@ package builder
 import (
 	"testing"
 
+	"github.com/moby/buildkit/client"
+	gatewayclient "github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
 )
 
-func Test_parseOutput(t *testing.T) {
+func TestParseImportCache(t *testing.T) {
+	type testCase struct {
+		importCaches []string // --import-cache
+		expected     []gatewayclient.CacheOptionsEntry
+		expectedErr  string
+	}
+	testCases := []testCase{
+		{
+			importCaches: []string{"type=registry,ref=example.com/foo/bar", "type=local,src=/path/to/store"},
+			expected: []gatewayclient.CacheOptionsEntry{
+				{
+					Type: "registry",
+					Attrs: map[string]string{
+						"ref": "example.com/foo/bar",
+					},
+				},
+				{
+					Type: "local",
+					Attrs: map[string]string{
+						"src": "/path/to/store",
+					},
+				},
+			},
+		},
+		{
+			importCaches: []string{"example.com/foo/bar", "example.com/baz/qux"},
+			expected: []gatewayclient.CacheOptionsEntry{
+				{
+					Type: "registry",
+					Attrs: map[string]string{
+						"ref": "example.com/foo/bar",
+					},
+				},
+				{
+					Type: "registry",
+					Attrs: map[string]string{
+						"ref": "example.com/baz/qux",
+					},
+				},
+			},
+		},
+	}
+	for _, tc := range testCases {
+		im, err := ParseImportCache(tc.importCaches)
+		if tc.expectedErr == "" {
+			require.EqualValues(t, tc.expected, im)
+		} else {
+			require.Error(t, err)
+			require.Contains(t, err.Error(), tc.expectedErr)
+		}
+	}
+}
+
+func TestParseExportCache(t *testing.T) {
+	type testCase struct {
+		exportCaches          []string // --export-cache
+		legacyExportCacheOpts []string // --export-cache-opt (legacy)
+		expected              []client.CacheOptionsEntry
+		expectedErr           string
+	}
+	testCases := []testCase{
+		{
+			exportCaches: []string{"type=registry,ref=example.com/foo/bar"},
+			expected: []client.CacheOptionsEntry{
+				{
+					Type: "registry",
+					Attrs: map[string]string{
+						"ref":  "example.com/foo/bar",
+						"mode": "min",
+					},
+				},
+			},
+		},
+		{
+			exportCaches:          []string{"example.com/foo/bar"},
+			legacyExportCacheOpts: []string{"mode=max"},
+			expected: []client.CacheOptionsEntry{
+				{
+					Type: "registry",
+					Attrs: map[string]string{
+						"ref":  "example.com/foo/bar",
+						"mode": "max",
+					},
+				},
+			},
+		},
+		{
+			exportCaches:          []string{"type=registry,ref=example.com/foo/bar"},
+			legacyExportCacheOpts: []string{"mode=max"},
+			expectedErr:           "--export-cache-opt is not supported for the specified --export-cache",
+		},
+		// TODO: test multiple exportCaches (valid for CLI but not supported by solver)
+
+	}
+	for _, tc := range testCases {
+		ex, err := ParseExportCache(tc.exportCaches, tc.legacyExportCacheOpts)
+		if tc.expectedErr == "" {
+			require.EqualValues(t, tc.expected, ex)
+		} else {
+			require.Error(t, err)
+			require.Contains(t, err.Error(), tc.expectedErr)
+		}
+	}
+}
+
+func TestParseOutput(t *testing.T) {
 	type args struct {
 		output string
 	}

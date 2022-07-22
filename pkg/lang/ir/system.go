@@ -32,11 +32,11 @@ func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
 		logrus.WithField("source", *g.UbuntuAPTSource).Debug("using custom APT source")
 		aptSource := llb.Scratch().
 			File(llb.Mkdir(filepath.Dir(aptSourceFilePath), 0755, llb.WithParents(true)),
-				llb.WithCustomName("[internal] settings apt source")).
+				llb.WithCustomName("[internal] setting apt source")).
 			File(llb.Mkfile(aptSourceFilePath, 0644, []byte(*g.UbuntuAPTSource)),
-				llb.WithCustomName("[internal] settings apt source"))
+				llb.WithCustomName("[internal] setting apt source"))
 		return llb.Merge([]llb.State{root, aptSource},
-			llb.WithCustomName("[internal] settings apt source"))
+			llb.WithCustomName("[internal] setting apt source"))
 	}
 	return root
 }
