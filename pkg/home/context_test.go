@@ -26,11 +26,11 @@ var _ = Describe("context test", func() {
 	testContext := "envd_home_test"
 	testSocket := "0.0.0.0:12345"
 	testBuilder := types.BuilderTypeTCP
-	
+
 	BeforeEach(func() {
 		Expect(Initialize()).To(Succeed())
 	})
-	
+
 	Describe("create with use", Ordered, func() {
 		BeforeAll(func() {
 			err := GetManager().ContextCreate(testContext, testBuilder, testSocket, true)
@@ -42,6 +42,7 @@ var _ = Describe("context test", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(contexts.Current).To(Equal(testContext))
 			builder, socket, err := GetManager().ContextGetCurrent()
+			Expect(err).NotTo(HaveOccurred())
 			Expect(builder).To(Equal(testBuilder))
 			Expect(socket).To(Equal(testSocket))
 		})
