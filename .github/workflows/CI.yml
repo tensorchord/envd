@@ -94,7 +94,7 @@ jobs:
       - name: Test
         run: make test
       - name: Upload coverage report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-out
           path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd/coverage.out
@@ -130,7 +130,7 @@ jobs:
       - name: e2e test
         run: make e2e-test
       - name: Upload coverage report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: e2e-coverage-out
           path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd/e2e-coverage.out
