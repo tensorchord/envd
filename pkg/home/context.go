@@ -110,7 +110,10 @@ func (m *generalManager) ContextCreate(
 	default:
 		return errors.New("unknown builder type")
 	}
-	return m.ContextUse(name)
+	if use {
+		return m.ContextUse(name)
+	}
+	return m.dumpContext()
 }
 
 func (m *generalManager) ContextRemove(name string) error {
