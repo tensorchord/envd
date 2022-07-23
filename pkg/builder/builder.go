@@ -190,11 +190,6 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 }
 
 func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) error {
-	imageConfig, err := b.imageConfig(ctx)
-	if err != nil {
-		return errors.Wrap(err, "failed to get labels")
-	}
-
 	ce, err := ParseExportCache([]string{b.ExportCache}, nil)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse export cache")
@@ -222,8 +217,6 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 						Type: client.ExporterDocker,
 						Attrs: map[string]string{
 							"name": b.Tag,
-							// Ref https://github.com/r2d4/mockerfile/blob/140c6a912bbfdae220febe59ab535ef0acba0e1f/pkg/build/build.go#L65
-							"containerimage.config": imageConfig,
 						},
 						Output: func(map[string]string) (io.WriteCloser, error) {
 							return pipeW, nil

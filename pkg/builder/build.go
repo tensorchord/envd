@@ -18,6 +18,7 @@ import (
 	"context"
 
 	"github.com/cockroachdb/errors"
+	"github.com/moby/buildkit/exporter/containerimage/exptypes"
 	"github.com/moby/buildkit/frontend/gateway/client"
 )
 
@@ -26,6 +27,11 @@ func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (
 		def, err := b.compile(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to compile")
+		}
+
+		imageConfig, err := b.imageConfig(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get labels")
 		}
 
 		sreq := client.SolveRequest{
@@ -42,6 +48,8 @@ func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (
 		if err != nil {
 			return nil, err
 		}
+
+		res.AddMeta(exptypes.ExporterImageConfigKey, []byte(imageConfig))
 
 		return res, nil
 	}
