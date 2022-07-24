@@ -24,7 +24,7 @@ import (
 
 func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (*client.Result, error) {
 	return func(ctx context.Context, c client.Client) (*client.Result, error) {
-		b.logger.Debug("Running BuildFunc for envd")
+		b.logger.Debug("running BuildFunc for envd")
 		def, err := b.compile(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to compile")
