@@ -23,6 +23,7 @@ import (
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 var _ = Describe("build command", Ordered, func() {
@@ -75,5 +76,7 @@ var _ = Describe("build command", Ordered, func() {
 		Expect(err).NotTo(HaveOccurred())
 		_, err = cli.Destroy(context.TODO(), customImageTestName)
 		Expect(err).NotTo(HaveOccurred())
+		// Init DefaultGraph.
+		ir.DefaultGraph = ir.NewGraph()
 	})
 })
