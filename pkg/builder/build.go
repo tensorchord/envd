@@ -50,6 +50,7 @@ func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (
 		}
 
 		res.AddMeta(exptypes.ExporterImageConfigKey, []byte(imageConfig))
+		b.logger.Debugf("setting image config: %s", imageConfig)
 
 		return res, nil
 	}
