@@ -100,6 +100,7 @@ func (g *Graph) compileBase() llb.State {
 	var base llb.State
 	// Do not update user permission in the base image.
 	if g.Image != nil {
+		logger.WithField("image", *g.Image).Debugf("using custom base image")
 		return llb.Image(*g.Image)
 	} else if g.CUDA == nil && g.CUDNN == nil {
 		switch g.Language.Name {
