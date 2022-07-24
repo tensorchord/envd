@@ -24,6 +24,7 @@ import (
 
 func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (*client.Result, error) {
 	return func(ctx context.Context, c client.Client) (*client.Result, error) {
+		b.logger.Debug("Running BuildFunc for envd")
 		def, err := b.compile(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to compile")
@@ -46,7 +47,7 @@ func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (
 		}
 		res, err := c.Solve(ctx, sreq)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to solve")
 		}
 
 		res.AddMeta(exptypes.ExporterImageConfigKey, []byte(imageConfig))
