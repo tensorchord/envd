@@ -190,6 +190,7 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 }
 
 func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) error {
+	b.logger.Debug("building envd image")
 	ce, err := ParseExportCache([]string{b.ExportCache}, nil)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse export cache")

@@ -142,6 +142,7 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 func (g Graph) Entrypoint(buildContextDir string) ([]string, error) {
 	// Do not set entrypoint if the image is customized.
 	if g.Image != nil {
+		logrus.Debug("skip entrypoint because the image is customized")
 		return []string{}, nil
 	}
 
@@ -176,6 +177,8 @@ wait -n`
 		config.ContainerAuthorizedKeysPath,
 		config.SSHPortInContainer, g.Shell, customCmd.String())
 	ep = append(ep, cmd)
+
+	logrus.WithField("entrypoint", ep).Debug("generate entrypoint")
 	return ep, nil
 }
 
