@@ -139,6 +139,9 @@ func ParseExportCache(exportCaches, legacyExportCacheOpts []string) ([]client.Ca
 		}
 	}
 	for _, exportCache := range exportCaches {
+		if len(exportCache) <= 0 {
+			continue
+		}
 		legacy := !strings.Contains(exportCache, "type=")
 		if legacy {
 			logrus.Warnf("--export-cache <ref> --export-cache-opt <opt>=<optval> is deprecated. Please use --export-cache type=registry,ref=<ref>,<opt>=<optval>[,<opt>=<optval>] instead")
