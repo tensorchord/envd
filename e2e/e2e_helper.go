@@ -26,14 +26,27 @@ import (
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
 
-func BuildImage(exampleName string) func() {
+func BuildImage(exampleName string, force bool) func() {
 	return func() {
 		logrus.Info("building quick-start image")
-		err := BuildExampleImage(exampleName, app.New())
+		var err error
+		if force {
+			err = BuildExampleImage(exampleName, app.New())
+		} else {
+			err = BuildExampleImageWithoutForce(exampleName, app.New())
+		}
 		if err != nil {
 			panic(err)
 		}
 	}
+}
+
+func GetDockerClient(ctx context.Context) docker.Client {
+	dockerClient, err := docker.NewClient(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return dockerClient
 }
 
 func RemoveImage(exampleName string) func() {
@@ -87,6 +100,16 @@ func BuildExampleImage(exampleName string, app app.EnvdApp) error {
 	tag := exampleName + ":e2etest"
 	args := []string{
 		"envd.test", "--debug", "build", "--path", buildContext, "--tag", tag, "--force",
+	}
+	err := app.Run(args)
+	return err
+}
+
+func BuildExampleImageWithoutForce(exampleName string, app app.EnvdApp) error {
+	buildContext := "testdata/" + exampleName
+	tag := exampleName + ":e2etest"
+	args := []string{
+		"envd.test", "--debug", "build", "--path", buildContext, "--tag", tag,
 	}
 	err := app.Run(args)
 	return err

@@ -21,7 +21,7 @@ import (
 
 var _ = Describe("e2e quickstart", Ordered, func() {
 	exampleName := "quick-start"
-	BeforeAll(BuildImage(exampleName))
+	BeforeAll(BuildImage(exampleName, true))
 	BeforeEach(RunContainer(exampleName))
 	It("execute python demo.py", func() {
 		Expect(example(exampleName).Exec("python demo.py")).To(Equal("[2 3 4]"))
