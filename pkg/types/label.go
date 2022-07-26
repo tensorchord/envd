@@ -20,14 +20,15 @@ const (
 	ContainerLabelRStudioServerAddr = "ai.tensorchord.envd.rstudio.server.address"
 	ContainerLabelSSHPort           = "ai.tensorchord.envd.ssh.port"
 
-	ImageLabelVendor  = "ai.tensorchord.envd.vendor"
-	ImageLabelGPU     = "ai.tensorchord.envd.gpu"
-	ImageLabelAPT     = "ai.tensorchord.envd.apt.packages"
-	ImageLabelPyPI    = "ai.tensorchord.envd.pypi.packages"
-	ImageLabelR       = "ai.tensorchord.envd.r.packages"
-	ImageLabelCUDA    = "ai.tensorchord.envd.gpu.cuda"
-	ImageLabelCUDNN   = "ai.tensorchord.envd.gpu.cudnn"
-	ImageLabelContext = "ai.tensorchord.envd.build.context"
+	ImageLabelVendor    = "ai.tensorchord.envd.vendor"
+	ImageLabelGPU       = "ai.tensorchord.envd.gpu"
+	ImageLabelAPT       = "ai.tensorchord.envd.apt.packages"
+	ImageLabelPyPI      = "ai.tensorchord.envd.pypi.packages"
+	ImageLabelR         = "ai.tensorchord.envd.r.packages"
+	ImageLabelCUDA      = "ai.tensorchord.envd.gpu.cuda"
+	ImageLabelCUDNN     = "ai.tensorchord.envd.gpu.cudnn"
+	ImageLabelContext   = "ai.tensorchord.envd.build.context"
+	ImageLabelCacheHash = "ai.tensorchord.envd.cache.hash"
 
 	ImageVendorEnvd = "envd"
 )

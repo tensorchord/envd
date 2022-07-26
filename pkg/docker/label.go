@@ -55,3 +55,9 @@ func dockerFiltersWithName(name string) filters.Args {
 	f.Add("reference", name)
 	return f
 }
+
+func dockerFiltersWithCacheLabel(hash string) filters.Args {
+	f := filters.NewArgs()
+	f.Add("label", fmt.Sprintf("%s=%s", types.ImageLabelCacheHash, hash))
+	return f
+}

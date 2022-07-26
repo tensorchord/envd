@@ -18,6 +18,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
@@ -71,7 +72,8 @@ type Options struct {
 
 type generalBuilder struct {
 	Options
-	entries []client.ExportEntry
+	manifestCodeHash uint64
+	entries          []client.ExportEntry
 
 	logger *logrus.Entry
 	starlark.Interpreter
@@ -96,9 +98,15 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 		return nil, errors.New("only one output type is supported")
 	}
 
+	manifestHash, err := starlark.GetEnvdProgramHash(opt.ManifestFilePath)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to compile manifest file")
+	}
+
 	b := &generalBuilder{
-		Options: opt,
-		entries: entries,
+		Options:          opt,
+		manifestCodeHash: manifestHash,
+		entries:          entries,
 		logger: logrus.WithFields(logrus.Fields{
 			"tag": opt.Tag,
 		}),
@@ -167,11 +175,17 @@ func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
 	return def, nil
 }
 
+func (b generalBuilder) addBuilderTag(labels *map[string]string) {
+	(*labels)[types.ImageLabelCacheHash] = strconv.FormatUint(b.manifestCodeHash, 16)
+}
+
 func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	labels, err := ir.Labels()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get labels")
 	}
+	b.addBuilderTag(&labels)
+
 	ports, err := ir.ExposedPorts()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get expose ports")
@@ -303,9 +317,8 @@ func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
 	depsFiles := []string{
 		b.PubKeyPath,
 		b.ConfigFilePath,
-		b.ManifestFilePath,
 	}
-	isUpdated, err := b.checkDepsFileUpdate(ctx, b.Tag, depsFiles)
+	isUpdated, err := b.checkDepsFileUpdate(ctx, b.Tag, b.ManifestFilePath, depsFiles)
 	if err != nil {
 		b.logger.Debugf("failed to check manifest update: %s", err)
 	}
@@ -317,12 +330,13 @@ func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
 }
 
 // Always return updated when met error
-func (b generalBuilder) checkDepsFileUpdate(ctx context.Context, tag string, deps []string) (bool, error) {
+func (b generalBuilder) checkDepsFileUpdate(ctx context.Context, tag string, manifest string, deps []string) (bool, error) {
 	dockerClient, err := docker.NewClient(ctx)
 	if err != nil {
 		return true, err
 	}
-	image, err := dockerClient.GetImage(ctx, tag)
+
+	image, err := dockerClient.GetImageWithCacheHashLabel(ctx, strconv.FormatUint(b.manifestCodeHash, 16))
 	if err != nil {
 		return true, err
 	}
