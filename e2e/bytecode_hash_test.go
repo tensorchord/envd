@@ -28,7 +28,10 @@ func appendSomeToFile(path string) {
 		panic(err)
 	}
 	blank := "\n\n"
-	f.Write([]byte(blank))
+	_, err = f.Write([]byte(blank))
+	if err != nil {
+		panic(err)
+	}
 	if err := f.Close(); err != nil {
 		panic(err)
 	}
@@ -49,6 +52,7 @@ var _ = Describe("bytecode hash cache target", func() {
 		Expect(err).NotTo(HaveOccurred())
 		newCreated := imageSum.Created
 		Expect(oldCreated).To(Equal(newCreated))
-		RemoveExampleImage(exampleName)
+		err = RemoveExampleImage(exampleName)
+		Expect(err).NotTo(HaveOccurred())
 	})
 })
