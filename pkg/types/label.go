@@ -28,7 +28,7 @@ const (
 	ImageLabelCUDA      = "ai.tensorchord.envd.gpu.cuda"
 	ImageLabelCUDNN     = "ai.tensorchord.envd.gpu.cudnn"
 	ImageLabelContext   = "ai.tensorchord.envd.build.context"
-	ImageLabelCacheHash = "ai.tensorchord.envd.cache.hash"
+	ImageLabelCacheHash = "ai.tensorchord.envd.build.manifestBytecodeHash"
 
 	ImageVendorEnvd = "envd"
 )
