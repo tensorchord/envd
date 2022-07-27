@@ -15,7 +15,7 @@ end_of_line = lf
 indent_style = tab
 indent_size = 4
 
-[*.{py,rst,txt}]
+[*.{py,rst,txt,envd}]
 indent_style = space
 trim_trailing_whitespace = true
 indent_size = 4
