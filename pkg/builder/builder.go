@@ -335,7 +335,7 @@ func (b generalBuilder) checkDepsFileUpdate(ctx context.Context, tag string, man
 		return true, err
 	}
 
-	image, err := dockerClient.GetImageWithCacheHashLabel(ctx, b.manifestCodeHash)
+	image, err := dockerClient.GetImageWithCacheHashLabel(ctx, tag, b.manifestCodeHash)
 	if err != nil {
 		return true, err
 	}

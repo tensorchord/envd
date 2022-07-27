@@ -40,19 +40,20 @@ func appendSomeToFile(path string) {
 var _ = Describe("bytecode hash cache target", func() {
 	exampleName := "quick-start"
 	It("add some blank to build.envd", func() {
+		testcase := "add-blank"
+		e := NewExample(exampleName, testcase)
 		ctx := context.TODO()
-		BuildImage(exampleName, false)()
+		e.BuildImage(false)()
 		dockerClient := GetDockerClient(ctx)
-		imageSum, err := dockerClient.GetImage(ctx, exampleName+":e2etest")
+		imageSum, err := dockerClient.GetImage(ctx, e.Tag)
 		Expect(err).NotTo(HaveOccurred())
 		oldCreated := imageSum.Created
 		appendSomeToFile("testdata/" + exampleName + "/build.envd")
-		BuildImage(exampleName, false)()
-		imageSum, err = dockerClient.GetImage(ctx, exampleName+":e2etest")
+		e.BuildImage(false)()
+		imageSum, err = dockerClient.GetImage(ctx, e.Tag)
 		Expect(err).NotTo(HaveOccurred())
 		newCreated := imageSum.Created
 		Expect(oldCreated).To(Equal(newCreated))
-		err = RemoveExampleImage(exampleName)
-		Expect(err).NotTo(HaveOccurred())
+		e.RemoveImage()()
 	})
 })

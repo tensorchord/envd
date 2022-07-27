@@ -75,7 +75,7 @@ type Client interface {
 
 	ListImage(ctx context.Context) ([]types.ImageSummary, error)
 	GetImage(ctx context.Context, image string) (types.ImageSummary, error)
-	GetImageWithCacheHashLabel(ctx context.Context, image string) (types.ImageSummary, error)
+	GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error)
 	RemoveImage(ctx context.Context, image string) error
 
 	GetInfo(ctx context.Context) (types.Info, error)
@@ -205,9 +205,9 @@ func (c generalClient) GetImage(ctx context.Context, image string) (types.ImageS
 	return images[0], nil
 }
 
-func (c generalClient) GetImageWithCacheHashLabel(ctx context.Context, hash string) (types.ImageSummary, error) {
+func (c generalClient) GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error) {
 	images, err := c.ImageList(ctx, types.ImageListOptions{
-		Filters: dockerFiltersWithCacheLabel(hash),
+		Filters: dockerFiltersWithCacheLabel(image, hash),
 	})
 	if err != nil {
 		return types.ImageSummary{}, err

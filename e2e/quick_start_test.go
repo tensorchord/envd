@@ -21,11 +21,13 @@ import (
 
 var _ = Describe("e2e quickstart", Ordered, func() {
 	exampleName := "quick-start"
-	BeforeAll(BuildImage(exampleName, true))
-	BeforeEach(RunContainer(exampleName))
+	testcase := "e2e"
+	e := NewExample(exampleName, testcase)
+	BeforeAll(e.BuildImage(true))
+	BeforeEach(e.RunContainer())
 	It("execute python demo.py", func() {
-		Expect(example(exampleName).Exec("python demo.py")).To(Equal("[2 3 4]"))
+		Expect(e.Exec("python demo.py")).To(Equal("[2 3 4]"))
 	})
-	AfterEach(DestoryContainer(exampleName))
-	AfterAll(RemoveImage(exampleName))
+	AfterEach(e.DestroyContainer())
+	AfterAll(e.RemoveImage())
 })
