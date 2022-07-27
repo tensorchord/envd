@@ -30,7 +30,6 @@ func ParseCondaEnvYaml(condaEnvFile string) (*CondaEnv, error) {
 	env := &CondaEnv{}
 	config := viper.New()
 	config.SetConfigFile(condaEnvFile)
-	//尝试进行配置读取
 	if err := config.ReadInConfig(); err != nil {
 		return nil, errors.Wrapf(err, "failed to read the Conda Env File %s", condaEnvFile)
 	}
@@ -50,8 +49,3 @@ func ParseCondaEnvYaml(condaEnvFile string) (*CondaEnv, error) {
 	logrus.Debug("parsed python requirements: ", env)
 	return env, nil
 }
-
-//func main() {
-//	conda, _ := ParseCondaEnvYaml("env.yaml")
-//	fmt.Println(conda.envName)
-//}
