@@ -212,11 +212,11 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	if envfileStr != "" {
 		buildContextDir := starlark.Universe[builtin.BuildContextDir]
 		buildContextDirStr := buildContextDir.(starlark.String).GoString()
-		buf := filepath.Join(buildContextDirStr, envenvfileFileStr)
+		buf := filepath.Join(buildContextDirStr, envfileStr)
 		path = &buf
 	}
 
-	logger.Debugf("rule `%s` is invoked, name=%v, channel=%v,envFile=%s", ruleConda, nameList, channelList, envfile)
+	logger.Debugf("rule `%s` is invoked, name=%v, channel=%v,envFile=%s", ruleConda, nameList, channelList, envfileStr)
 	ir.CondaPackage(nameList, channelList, path)
 
 	return starlark.None, nil
