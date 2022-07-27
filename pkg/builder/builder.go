@@ -18,7 +18,6 @@ import (
 	"context"
 	"io"
 	"os"
-	"strconv"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
@@ -72,7 +71,7 @@ type Options struct {
 
 type generalBuilder struct {
 	Options
-	manifestCodeHash uint64
+	manifestCodeHash string
 	entries          []client.ExportEntry
 
 	logger *logrus.Entry
@@ -176,7 +175,7 @@ func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
 }
 
 func (b generalBuilder) addBuilderTag(labels *map[string]string) {
-	(*labels)[types.ImageLabelCacheHash] = strconv.FormatUint(b.manifestCodeHash, 16)
+	(*labels)[types.ImageLabelCacheHash] = b.manifestCodeHash
 }
 
 func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
@@ -336,7 +335,7 @@ func (b generalBuilder) checkDepsFileUpdate(ctx context.Context, tag string, man
 		return true, err
 	}
 
-	image, err := dockerClient.GetImageWithCacheHashLabel(ctx, strconv.FormatUint(b.manifestCodeHash, 16))
+	image, err := dockerClient.GetImageWithCacheHashLabel(ctx, b.manifestCodeHash)
 	if err != nil {
 		return true, err
 	}
