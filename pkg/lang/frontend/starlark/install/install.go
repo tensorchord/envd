@@ -187,10 +187,10 @@ func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin,
 func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var name, channel *starlark.List
-	var envfile starlark.String
+	var envFile starlark.String
 
 	if err := starlark.UnpackArgs(ruleConda,
-		args, kwargs, "name", &name, "channel?", &channel, "envfile?", &envfile); err != nil {
+		args, kwargs, "name", &name, "channel?", &channel, "envFile?", &envFile); err != nil {
 		return nil, err
 	}
 
@@ -208,15 +208,15 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 		}
 	}
 	var path *string = nil
-	envfileStr := envfile.GoString()
-	if envfileStr != "" {
+	envFileStr := envFile.GoString()
+	if envFileStr != "" {
 		buildContextDir := starlark.Universe[builtin.BuildContextDir]
 		buildContextDirStr := buildContextDir.(starlark.String).GoString()
-		buf := filepath.Join(buildContextDirStr, envfileStr)
+		buf := filepath.Join(buildContextDirStr, envFileStr)
 		path = &buf
 	}
 
-	logger.Debugf("rule `%s` is invoked, name=%v, channel=%v,envFile=%s", ruleConda, nameList, channelList, envfileStr)
+	logger.Debugf("rule `%s` is invoked, name=%v, channel=%v,envFile=%s", ruleConda, nameList, channelList, envFileStr)
 	ir.CondaPackage(nameList, channelList, path)
 
 	return starlark.None, nil
