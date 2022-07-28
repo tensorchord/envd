@@ -46,6 +46,7 @@ func (g Graph) compileRun(root llb.State) llb.State {
 	if len(g.Exec) == 0 {
 		return root
 	}
+	root = root.AddEnv("PATH", "$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/conda/bin:/usr/local/julia/bin:/opt/conda/envs/envd/bin")
 	if len(g.Exec) == 1 {
 		return root.Run(llb.Shlex(g.Exec[0])).Root()
 	}
