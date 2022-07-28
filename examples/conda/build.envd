@@ -2,8 +2,8 @@ def build():
     install.conda_packages(name = [
         "pytorch",
         "cudatoolkit=11.3",
-    ], channel= ["pytorch"])
-    base(os="ubuntu20.04", language="python3.8",envFile="env.yaml")
+    ],env_file="env.yaml")
+    base(os="ubuntu20.04", language="python3.8")
     install.python_packages(name = [
         "flask"
     ])
