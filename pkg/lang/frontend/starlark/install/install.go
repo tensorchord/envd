@@ -190,7 +190,7 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	var env_file starlark.String
 
 	if err := starlark.UnpackArgs(ruleConda,
-		args, kwargs, "name", &name, "channel?", &channel, "env_file?", &env_file); err != nil {
+		args, kwargs, "name?", &name, "channel?", &channel, "env_file?", &env_file); err != nil {
 		return nil, err
 	}
 

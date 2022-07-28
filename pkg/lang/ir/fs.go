@@ -19,6 +19,6 @@ import (
 
 func (g Graph) CompileCacheDir(root llb.State, cacheDir string) llb.State {
 	root = llb.User("envd")(root)
-	run := root.Run(llb.Shlexf("mkdir %s", cacheDir), llb.WithCustomName("[internal] create cache dir"))
+	run := root.Run(llb.Shlexf("mkdir -p %s", cacheDir), llb.WithCustomName("[internal] create cache dir"))
 	return run.Root()
 }
