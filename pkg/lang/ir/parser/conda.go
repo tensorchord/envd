@@ -41,7 +41,7 @@ func ParseCondaEnvYaml(condaEnvFile string) (*CondaEnv, error) {
 		default:
 			for _, pkgs := range dependencies.(map[string]interface{}) {
 				for _, p := range pkgs.([]interface{}) {
-					env.PipPackages = append(env.CondaPackages, p.(string))
+					env.PipPackages = append(env.PipPackages, p.(string))
 				}
 			}
 		}
