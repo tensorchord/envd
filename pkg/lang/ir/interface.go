@@ -189,3 +189,10 @@ func CondaPackage(deps []string, channel []string, envFile *string) error {
 	}
 	return nil
 }
+
+func Copy(src, dest string) {
+	DefaultGraph.Copy = append(DefaultGraph.Copy, CopyInfo{
+		Source:      src,
+		Destination: dest,
+	})
+}

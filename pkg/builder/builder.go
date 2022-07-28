@@ -242,7 +242,8 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 					CacheExports: ce,
 					Exports:      []client.ExportEntry{entry},
 					LocalDirs: map[string]string{
-						flag.FlagCacheDir: home.GetManager().CacheDir(),
+						flag.FlagCacheDir:     home.GetManager().CacheDir(),
+						flag.FlagBuildContext: b.BuildContextDir,
 					},
 					Session: attachable,
 				}
@@ -276,7 +277,8 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 					CacheExports: ce,
 					Exports:      []client.ExportEntry{entry},
 					LocalDirs: map[string]string{
-						flag.FlagCacheDir: home.GetManager().CacheDir(),
+						flag.FlagCacheDir:     home.GetManager().CacheDir(),
+						flag.FlagBuildContext: b.BuildContextDir,
 					},
 					Session: attachable,
 				}

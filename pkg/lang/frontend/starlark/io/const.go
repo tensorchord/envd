@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package flag
+package io
 
 const (
-	FlagCacheDir       = "cache-dir"
-	FlagBuildkitdImage = "buildkitd-image"
-	FlagDebug          = "debug"
-	FlagBuildContext   = "build-context"
+	ruleCopy = "io.copy"
 )

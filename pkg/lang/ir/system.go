@@ -25,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/config"
+	"github.com/tensorchord/envd/pkg/flag"
 )
 
 func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
@@ -54,6 +55,21 @@ func (g Graph) compileRun(root llb.State) llb.State {
 		run = run.Run(llb.Shlex(c))
 	}
 	return run.Root()
+}
+
+func (g Graph) compileCopy(root llb.State) llb.State {
+	if len(g.Copy) == 0 {
+		return root
+	}
+
+	result := root
+	// Compose the copy command.
+	for _, c := range g.Copy {
+		result = result.File(llb.Copy(
+			llb.Local(flag.FlagBuildContext), c.Source, c.Destination,
+			llb.WithUIDGID(g.uid, g.gid)))
+	}
+	return result
 }
 
 func (g *Graph) compileCUDAPackages() llb.State {
