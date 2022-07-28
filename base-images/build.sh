@@ -19,7 +19,7 @@ docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
-     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
+    --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -t ${DOCKER_HUB_ORG}/python:3.8-ubuntu20.04-cuda11.6-cudnn8 \
     -f python3.8-ubuntu20.04-cuda11.6.Dockerfile .
@@ -27,7 +27,7 @@ docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
-     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
+    --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -t ${DOCKER_HUB_ORG}/python:3.8-ubuntu20.04 \
     -f python3.8-ubuntu20.04.Dockerfile .

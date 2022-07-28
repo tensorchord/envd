@@ -14,6 +14,8 @@ LABEL maintainer "envd-maintainers <envd-maintainers@tensorchord.ai>"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV PATH="/usr/bin:${PATH}"
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends --no-install-suggests --fix-missing \
@@ -23,7 +25,9 @@ RUN apt-get update && \
     procps subversion wget \
     # envd dependencies
     python3 curl openssh-client git tini sudo python3-pip zsh vim \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    # prompt
+    curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
 
 COPY --from=envd /usr/bin/envd-ssh /var/envd/bin/envd-ssh
 

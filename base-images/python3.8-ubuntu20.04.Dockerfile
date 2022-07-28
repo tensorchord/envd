@@ -16,6 +16,8 @@ LABEL maintainer "envd-maintainers <envd-maintainers@tensorchord.ai>"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV PATH="/usr/bin:${PATH}"
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
 RUN apt-get update && \
     apt-get install apt-utils && \
@@ -26,7 +28,9 @@ RUN apt-get update && \
     procps subversion wget \
     # envd dependencies
     curl openssh-client git tini sudo zsh vim \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    # prompt
+    curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
 
 # Leave these args here to better use the Docker build cache
 ARG CONDA_VERSION=py39_4.11.0

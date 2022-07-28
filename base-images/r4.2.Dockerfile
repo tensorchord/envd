@@ -16,6 +16,8 @@ LABEL maintainer "envd-maintainers <envd-maintainers@tensorchord.ai>"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV PATH="/usr/bin:${PATH}"
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends --no-install-suggests --fix-missing \
@@ -25,7 +27,9 @@ RUN apt-get update && \
     libpq5 psmisc procps python-setuptools pwgen lsb-release \
     # envd dependencies
     python3 curl openssh-client git tini sudo zsh vim \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    # prompt
+    curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
 
 RUN set -x && \
     UNAME_M="$(uname -m)" && \

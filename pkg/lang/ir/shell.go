@@ -16,6 +16,7 @@ package ir
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
@@ -25,7 +26,36 @@ import (
 	"github.com/tensorchord/envd/pkg/shell"
 )
 
+const (
+	starshipConfig = `
+[container]
+format = "[$symbol \\[envd\\]]($style)"
+
+[sudo]
+disabled = false
+symbol = "sudo "
+
+[python]
+symbol = "Py "
+
+[status]
+map_symbol = true
+disabled = false
+`
+)
+
 func (g *Graph) compileShell(root llb.State) (llb.State, error) {
+	// starship config
+	config := llb.Scratch().
+		File(llb.Mkdir(filepath.Dir(defaultConfigDir), 0755, llb.WithParents(true)),
+			llb.WithCustomName("[internal] creating config dir")).
+		File(llb.Mkfile(starshipConfigPath, 0644, []byte(starshipConfig)),
+			llb.WithCustomName("[internal] setting prompt config"))
+	config.Run(
+		llb.Shlex(`bash -c 'echo "eval \"\$(starship init bash)\"" >> /home/envd/.bashrc'`),
+		llb.WithCustomName("[internal] setting prompt config"))
+	root = llb.Merge([]llb.State{root, config}, llb.WithCustomName("[internal] setting prompt config"))
+
 	if g.Shell == shellZSH {
 		return g.compileZSH(root)
 	}
@@ -48,9 +78,12 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 			&llb.CopyInfo{CreateDestPath: true}, llb.WithUIDGID(g.uid, g.gid))).
 		File(llb.Mkfile(installPath,
 			0644, []byte(m.InstallScript()), llb.WithUIDGID(g.uid, g.gid)))
-	run := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)),
+	zshrc := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)),
 		llb.WithCustomName("install oh-my-zsh")).
 		File(llb.Mkfile(zshrcPath,
 			0644, []byte(m.ZSHRC()), llb.WithUIDGID(g.uid, g.gid)))
-	return run, nil
+	config := zshrc.Run(
+		llb.Shlex(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> /home/envd/.zshrc'`),
+		llb.WithCustomName("[interna] setting prompt config"))
+	return config.Root(), nil
 }
