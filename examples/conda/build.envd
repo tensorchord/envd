@@ -1,8 +1,8 @@
 def build():
-    base(os="ubuntu20.04", language="python3.8")   # 声明基础镜像和conda的python版本
+    base(os="ubuntu20.04", language="python3.8")
     install.conda_packages(name = [
         "pytorch",
-    ],env_file="env.yaml")
+    ],envFile="env.yaml")
 
     install.python_packages(name = [
         "flask"
