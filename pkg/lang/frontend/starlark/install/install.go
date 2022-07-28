@@ -209,7 +209,7 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 	var path *string = nil
 	env_filestr := env_file.GoString()
-	if envFileStr != "" {
+	if env_filestr != "" {
 		buildContextDir := starlark.Universe[builtin.BuildContextDir]
 		buildContextDirStr := buildContextDir.(starlark.String).GoString()
 		buf := filepath.Join(buildContextDirStr, env_filestr)
