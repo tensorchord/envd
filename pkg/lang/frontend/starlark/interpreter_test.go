@@ -12,22 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package e2e
+package starlark
 
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("e2e quickstart", Ordered, func() {
-	exampleName := "quick-start"
-	testcase := "e2e"
-	e := NewExample(exampleName, testcase)
-	BeforeAll(e.BuildImage(true))
-	BeforeEach(e.RunContainer())
-	It("execute python demo.py", func() {
-		Expect(e.Exec("python demo.py")).To(Equal("[2 3 4]"))
+var _ = Describe("Starlark", func() {
+	It("should be able to compile envd", func() {
+		filename := "testdata/test.envd"
+		hash, err := GetEnvdProgramHash(filename)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(hash).To(Equal("6beb7c4921722246"))
 	})
-	AfterEach(e.DestroyContainer())
-	AfterAll(e.RemoveImage())
 })

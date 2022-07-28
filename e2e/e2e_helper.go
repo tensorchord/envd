@@ -26,55 +26,62 @@ import (
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
 
-func BuildImage(exampleName string) func() {
+func (e *Example) BuildImage(force bool) func() {
 	return func() {
 		logrus.Info("building quick-start image")
-		err := BuildExampleImage(exampleName, app.New())
+		buildContext := "testdata/" + e.Name
+		args := []string{
+			"envd.test", "--debug", "build", "--path", buildContext, "--tag", e.Tag,
+		}
+		if force {
+			args = append(args, "--force")
+		}
+		err := e.app.Run(args)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
 
-func RemoveImage(exampleName string) func() {
+func (e *Example) RemoveImage() func() {
 	return func() {
-		err := RemoveExampleImage(exampleName)
+		ctx := context.TODO()
+		dockerClient, err := docker.NewClient(ctx)
+		if err != nil {
+			panic(err)
+		}
+		err = dockerClient.RemoveImage(ctx, e.Tag)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
 
-func RunContainer(exampleName string) func() {
-	return func() {
-		err := RunExampleContainer(exampleName, app.New())
-		if err != nil {
-			panic(err)
-		}
+func GetDockerClient(ctx context.Context) docker.Client {
+	dockerClient, err := docker.NewClient(ctx)
+	if err != nil {
+		panic(err)
 	}
-}
-
-func DestoryContainer(exampleName string) func() {
-	return func() {
-		err := DestroyExampleContainer(exampleName, app.New())
-		if err != nil {
-			panic(err)
-		}
-	}
+	return dockerClient
 }
 
 type Example struct {
 	Name string
+	Tag  string
+	app  app.EnvdApp
 }
 
-func example(name string) *Example {
+func NewExample(name string, testcaseAbbr string) *Example {
+	tag := name + ":" + testcaseAbbr
 	return &Example{
 		Name: name,
+		Tag:  tag,
+		app:  app.New(),
 	}
 }
 
 func (e *Example) Exec(cmd string) string {
-	sshClient := getSSHClient(e.Name)
+	sshClient := e.getSSHClient()
 	ret, err := sshClient.ExecWithOutput(cmd)
 	if err != nil {
 		panic(err)
@@ -82,51 +89,35 @@ func (e *Example) Exec(cmd string) string {
 	return strings.Trim(string(ret), "\n")
 }
 
-func BuildExampleImage(exampleName string, app app.EnvdApp) error {
-	buildContext := "testdata/" + exampleName
-	tag := exampleName + ":e2etest"
-	args := []string{
-		"envd.test", "--debug", "build", "--path", buildContext, "--tag", tag, "--force",
+func (e *Example) RunContainer() func() {
+	return func() {
+		buildContext := "testdata/" + e.Name
+		args := []string{
+			"envd.test", "--debug", "up", "--path", buildContext, "--tag", e.Tag, "--detach", "--force",
+		}
+		err := e.app.Run(args)
+		if err != nil {
+			panic(err)
+		}
 	}
-	err := app.Run(args)
-	return err
 }
 
-func RemoveExampleImage(exampleName string) error {
-	ctx := context.TODO()
-	dockerClient, err := docker.NewClient(ctx)
-	if err != nil {
-		return err
+func (e *Example) DestroyContainer() func() {
+	return func() {
+		buildContext := "testdata/" + e.Name
+		args := []string{
+			"envd.test", "--debug", "destroy", "--path", buildContext,
+		}
+		err := e.app.Run(args)
+		if err != nil {
+			panic(err)
+		}
 	}
-	err = dockerClient.RemoveImage(ctx, exampleName+":e2etest")
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
-func RunExampleContainer(exampleName string, app app.EnvdApp) error {
-	buildContext := "testdata/" + exampleName
-	tag := exampleName + ":e2etest"
-	args := []string{
-		"envd.test", "--debug", "up", "--path", buildContext, "--tag", tag, "--detach", "--force",
-	}
-	err := app.Run(args)
-	return err
-}
-
-func DestroyExampleContainer(exampleName string, app app.EnvdApp) error {
-	buildContext := "testdata/" + exampleName
-	args := []string{
-		"envd.test", "--debug", "destroy", "--path", buildContext,
-	}
-	err := app.Run(args)
-	return err
-}
-
-func getSSHClient(exampleName string) ssh.Client {
+func (e *Example) getSSHClient() ssh.Client {
 	localhost := "127.0.0.1"
-	port, err := sshconfig.GetPort(exampleName)
+	port, err := sshconfig.GetPort(e.Name)
 	if err != nil {
 		panic(err)
 	}

@@ -15,6 +15,11 @@
 package starlark
 
 import (
+	"bytes"
+	"hash/fnv"
+	"io/ioutil"
+	"strconv"
+
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/repl"
@@ -51,6 +56,30 @@ func NewInterpreter(buildContextDir string) Interpreter {
 		},
 		buildContextDir: buildContextDir,
 	}
+}
+
+func GetEnvdProgramHash(filename string) (string, error) {
+	envdSrc, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+	// No Check builtin or predeclared for now
+	funcAlwaysHas := func(x string) bool {
+		return true
+	}
+	_, prog, err := starlark.SourceProgram(filename, envdSrc, funcAlwaysHas)
+	if err != nil {
+		return "", err
+	}
+	buf := new(bytes.Buffer)
+	err = prog.Write(buf)
+	if err != nil {
+		return "", err
+	}
+	h := fnv.New64a()
+	h.Write(buf.Bytes())
+	hashsum := h.Sum64()
+	return strconv.FormatUint(hashsum, 16), nil
 }
 
 func (s generalInterpreter) ExecFile(filename string, funcname string) (interface{}, error) {
