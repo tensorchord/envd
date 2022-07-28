@@ -46,20 +46,19 @@ disabled = false
 
 func (g *Graph) compileShell(root llb.State) (llb.State, error) {
 	// starship config
-	config := llb.Scratch().
+	config := root.
 		File(llb.Mkdir(filepath.Dir(defaultConfigDir), 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] creating config dir")).
 		File(llb.Mkfile(starshipConfigPath, 0644, []byte(starshipConfig)),
 			llb.WithCustomName("[internal] setting prompt config"))
-	config.Run(
-		llb.Shlex(`bash -c 'echo "eval \"\$(starship init bash)\"" >> /home/envd/.bashrc'`),
-		llb.WithCustomName("[internal] setting prompt config"))
-	root = llb.Merge([]llb.State{root, config}, llb.WithCustomName("[internal] setting prompt config"))
+
+	run := config.Run(llb.Shlex(`bash -c 'echo "eval \"\$(starship init bash)\"" >> /home/envd/.bashrc'`),
+		llb.WithCustomName("[internal] setting prompt config")).Root()
 
 	if g.Shell == shellZSH {
-		return g.compileZSH(root)
+		return g.compileZSH(run)
 	}
-	return root, nil
+	return run, nil
 }
 
 func (g Graph) compileZSH(root llb.State) (llb.State, error) {
