@@ -152,13 +152,18 @@ func (m generalManager) DownloadOrCache() (bool, error) {
 func (m generalManager) createEnvdPromptTheme() error {
 	path := "themes/envd.zsh-theme"
 	content := `
-PROMPT="(envd) %(?:%{$fg_bold[green]%}%{%G➜%} :%{$fg_bold[red]%}%{%G➜%} )"
-PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%} $(git_prompt_info)'
+function set-prompt() {
+	local envd='%F{yellow}[envd container]%f '
+	local pwd='%F{blue}%~%f '
+	local branch='$(git rev-parse --abbrev-ref HEAD 2>/dev/null)'
+	branch=${branch//\%/%%}
+	local git_branch="%F{green}git:(%f%F{red}${branch}%f%F{green})%f"
+	local next='> '
+	PROMPT=${envd}${pwd}${git_branch}$'\n'${next}
+}
 
-ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"
-ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
-ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[blue]%}) %{$fg[yellow]%}%{%G✗%}"
-ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd set-prompt
 `
 	absolutePath := filepath.Join(m.OHMyZSHDir(), path)
 	logger := logrus.WithField("path", absolutePath)
