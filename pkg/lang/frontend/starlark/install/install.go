@@ -190,7 +190,7 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	var envFile starlark.String
 
 	if err := starlark.UnpackArgs(ruleConda,
-		args, kwargs, "name?", &name, "channel?", &channel, "envFile?", &envFile); err != nil {
+		args, kwargs, "name?", &name, "channel?", &channel, "env_file?", &envFile); err != nil {
 		return nil, err
 	}
 
@@ -216,7 +216,7 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 		path = &buf
 	}
 
-	logger.Debugf("rule `%s` is invoked, name=%v, channel=%v,envFile=%s", ruleConda, nameList, channelList, envFileStr)
+	logger.Debugf("rule `%s` is invoked, name=%v, channel=%v, env_file=%s", ruleConda, nameList, channelList, envFileStr)
 	if err := ir.CondaPackage(nameList, channelList, path); err != nil {
 		return starlark.None, err
 	}
