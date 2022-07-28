@@ -20,7 +20,7 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 RUN apt-get update && \
-    apt-get install apt-utils && \
+    apt-get install -y apt-utils && \
     apt-get install -y --no-install-recommends --no-install-suggests --fix-missing \
     bash-static libtinfo5 libncursesw5 \
     # conda dependencies
@@ -30,7 +30,7 @@ RUN apt-get update && \
     curl openssh-client git tini sudo zsh vim \
     && rm -rf /var/lib/apt/lists/* \
     # prompt
-    curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
+    && curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
 
 # Leave these args here to better use the Docker build cache
 ARG CONDA_VERSION=py39_4.11.0

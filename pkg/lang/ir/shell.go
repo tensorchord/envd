@@ -16,7 +16,6 @@ package ir
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
@@ -47,9 +46,9 @@ disabled = false
 func (g *Graph) compileShell(root llb.State) (llb.State, error) {
 	// starship config
 	config := root.
-		File(llb.Mkdir(filepath.Dir(defaultConfigDir), 0755, llb.WithParents(true)),
+		File(llb.Mkdir(defaultConfigDir, 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] creating config dir")).
-		File(llb.Mkfile(starshipConfigPath, 0644, []byte(starshipConfig)),
+		File(llb.Mkfile(starshipConfigPath, 0644, []byte(starshipConfig), llb.WithUIDGID(g.uid, g.gid)),
 			llb.WithCustomName("[internal] setting prompt config"))
 
 	run := config.Run(llb.Shlex(`bash -c 'echo "eval \"\$(starship init bash)\"" >> /home/envd/.bashrc'`),
@@ -83,6 +82,6 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 			0644, []byte(m.ZSHRC()), llb.WithUIDGID(g.uid, g.gid)))
 	config := zshrc.Run(
 		llb.Shlex(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> /home/envd/.zshrc'`),
-		llb.WithCustomName("[interna] setting prompt config"))
+		llb.WithCustomName("[internal] setting prompt config"))
 	return config.Root(), nil
 }

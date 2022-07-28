@@ -29,7 +29,7 @@ RUN apt-get update && \
     python3 curl openssh-client git tini sudo zsh vim \
     && rm -rf /var/lib/apt/lists/* \
     # prompt
-    curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
+    && curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
 
 RUN set -x && \
     UNAME_M="$(uname -m)" && \

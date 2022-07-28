@@ -70,9 +70,7 @@ RUN apt-get update && \
     libcusparse-dev-11-6=${NV_LIBCUSPARSE_DEV_VERSION} \
     ${NV_LIBCUBLAS_DEV_PACKAGE} \
     ${NV_LIBNCCL_DEV_PACKAGE} \
-    && rm -rf /var/lib/apt/lists/* \
-    # prompt
-    curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
+    && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends --no-install-suggests --fix-missing bash-static \
@@ -81,7 +79,9 @@ RUN apt-get update && \
     procps subversion wget \
     # envd dependencies
     curl openssh-client git tini sudo zsh vim \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    # prompt
+    && curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
 
 # Keep apt from auto upgrading the cublas and nccl packages. See https://gitlab.com/nvidia/container-images/cuda/-/issues/88
 RUN apt-mark hold ${NV_LIBCUBLAS_DEV_PACKAGE_NAME} ${NV_LIBNCCL_DEV_PACKAGE_NAME}
