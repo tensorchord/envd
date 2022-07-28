@@ -1,17 +1,29 @@
 def build():
-    base(os="ubuntu20.04", language="python3.8")
+    config.conda_channel(channel="""
+channels:
+  - defaults
+show_channel_urls: true
+default_channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free
+custom_channels:
+  conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+""")
     install.conda_packages(name = [
         "pytorch",
-    ],envFile="env.yaml")
-
+        # "torchvision",  # optional
+        "cudatoolkit=11.3",
+    ], channel= ["pytorch"])
+    base(os="ubuntu20.04", language="python3.8")
     install.python_packages(name = [
         "flask"
     ])
-    install.system_packages(name = [
-        "libgl1-mesa-glx",
-        "openmim"
-    ])
-    run(commands=[
-    "mim install mmcv-full",
-    "mim install mmdet==2.24.0",
-    ])
+    install.cuda(version="11.6", cudnn="8")
