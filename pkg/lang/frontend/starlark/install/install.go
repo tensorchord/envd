@@ -217,7 +217,9 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	logger.Debugf("rule `%s` is invoked, name=%v, channel=%v,envFile=%s", ruleConda, nameList, channelList, envFileStr)
-	ir.CondaPackage(nameList, channelList, path)
+	if err := ir.CondaPackage(nameList, channelList, path); err != nil {
+		return starlark.None, err
+	}
 
 	return starlark.None, nil
 }

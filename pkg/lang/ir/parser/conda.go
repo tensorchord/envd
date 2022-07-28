@@ -35,15 +35,17 @@ func ParseCondaEnvYaml(condaEnvFile string) (*CondaEnv, error) {
 	}
 	env.EnvName = config.GetString("name")
 	for _, dependencies := range config.Get("dependencies").([]interface{}) {
-		switch dependencies.(type) {
+		switch dep := dependencies.(type) {
 		case string:
-			env.CondaPackages = append(env.CondaPackages, dependencies.(string))
-		default:
+			env.CondaPackages = append(env.CondaPackages, dep)
+		case map[string]interface{}:
 			for _, pkgs := range dependencies.(map[string]interface{}) {
 				for _, p := range pkgs.([]interface{}) {
 					env.PipPackages = append(env.PipPackages, p.(string))
 				}
 			}
+		default:
+			return nil, errors.New("failed to parse conda env with dependencies")
 		}
 	}
 	logrus.Debug("parsed python requirements: ", env)
