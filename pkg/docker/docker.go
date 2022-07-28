@@ -387,7 +387,7 @@ func (c generalClient) CleanEnvdIfExists(ctx context.Context, name string, force
 	}
 	if running {
 		logrus.Errorf("container %s is running, cannot clean envd, please save your data and stop the running container if you need to envd up again.", name)
-		return errors.New("Still running envd container")
+		return errors.Newf("\"%s\" is stil running, please run `envd destroy --name %s` stop it first", name, name)
 	}
 	return c.ContainerRemove(ctx, name, types.ContainerRemoveOptions{})
 }

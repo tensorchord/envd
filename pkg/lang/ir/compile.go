@@ -223,8 +223,9 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 		}
 	}
 
+	copy := g.compileCopy(merged)
 	// TODO(gaocegege): Support order-based exec.
-	run := g.compileRun(merged)
+	run := g.compileRun(copy)
 	finalStage, err := g.compileGit(run)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile git")

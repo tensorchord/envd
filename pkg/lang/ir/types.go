@@ -21,6 +21,7 @@ import (
 
 // A Graph contains the state,
 // such as its call stack and thread-local storage.
+// TODO(gaocegeg): Refactor it to support order.
 type Graph struct {
 	uid int
 	gid int
@@ -50,6 +51,8 @@ type Graph struct {
 	VSCodePlugins []vscode.Plugin
 
 	Exec []string
+	Copy []CopyInfo
+
 	*JupyterConfig
 	*GitConfig
 	*CondaConfig
@@ -57,6 +60,11 @@ type Graph struct {
 
 	Writer      compileui.Writer
 	CachePrefix string
+}
+
+type CopyInfo struct {
+	Source      string
+	Destination string
 }
 
 type RStudioServerConfig struct {
