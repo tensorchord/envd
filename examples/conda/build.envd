@@ -1,10 +1,17 @@
 def build():
+    base(os="ubuntu20.04", language="python3.8")   # 声明基础镜像和conda的python版本
     install.conda_packages(name = [
         "pytorch",
-        "cudatoolkit=11.3",
     ],env_file="env.yaml")
-    base(os="ubuntu20.04", language="python3.8")
+
     install.python_packages(name = [
         "flask"
-        "openmim",
+    ])
+    install.system_packages(name = [
+        "libgl1-mesa-glx",
+        "openmim"
+    ])
+    run(commands=[
+    "mim install mmcv-full",
+    "mim install mmdet==2.24.0",
     ])
