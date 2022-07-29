@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.2.0-alpha.8 (2022-07-29)
+
+ * [728a421](https://github.com/tensorchord/envd/commit/728a421840ba10c6ba78c836a22dc7af140d370d) feat: add starship as the prompt manager (#681)
+ * [6cbc53f](https://github.com/tensorchord/envd/commit/6cbc53f54c7b95c374dbc93a242e78f7be5dbd86) fix: Add environment variable PATH in run (#680)
+ * [cb8ed6b](https://github.com/tensorchord/envd/commit/cb8ed6b5c6ae0a4ea77eb853bfccb450137b6b19) feat(lang): Add io.copy (#675)
+ * [b3ee633](https://github.com/tensorchord/envd/commit/b3ee6334a54e7d89b3f2631631c112c1d5ecac6a) fix: Fix lint issues in conda env yaml feature PR (#679)
+ * [a796a12](https://github.com/tensorchord/envd/commit/a796a129d83e5c707bb9d0c1c32295208b136495) feat(lang): Support env.yaml in conda_packages (#674)
+ * [af3e78d](https://github.com/tensorchord/envd/commit/af3e78d6733f53f5d31eda045725c0af599aefa6) feature:  add label ai.tensorchord.envd.build.manifestBytecodeHash to image for cache robust (#661)
+ * [3044002](https://github.com/tensorchord/envd/commit/30440022266b908adbb790e59c6696b36bf92b28) chore(deps): bump github.com/onsi/gomega from 1.19.0 to 1.20.0 (#657)
+ * [400fd7f](https://github.com/tensorchord/envd/commit/400fd7f8af0a04d1d0aa5fd7f047fea59172a7ef) chore(deps): bump github.com/urfave/cli/v2 from 2.11.0 to 2.11.1 (#655)
+ * [30e8caf](https://github.com/tensorchord/envd/commit/30e8cafc80b04b1bfa6e4d9d2ba273928c8b3919) chore(deps): bump actions/upload-artifact from 2 to 3 (#654)
+ * [04360d6](https://github.com/tensorchord/envd/commit/04360d63ba984a1a58faaf300d0cee64269d442a) chore(deps): bump pypa/cibuildwheel from 2.8.0 to 2.8.1 (#653)
+ * [de6c59e](https://github.com/tensorchord/envd/commit/de6c59e730da4520bccc747bb941bb12ced913d7) chore(deps): bump github.com/sirupsen/logrus from 1.8.1 to 1.9.0 (#656)
+ * [62091a4](https://github.com/tensorchord/envd/commit/62091a460b5502d24fa57a04ad19cf273c832832) fix(build): Fix image config (#651)
+ * [4c1df28](https://github.com/tensorchord/envd/commit/4c1df286df7c3d5c4a99b4bbc5958f86d08e0738) fix: context create with 'use' (#652)
+ * [6f05072](https://github.com/tensorchord/envd/commit/6f05072f1f2a72b55d8e2bac468707219ceb30b4) feat(CLI): Support cache (#648)
+ * [42e7531](https://github.com/tensorchord/envd/commit/42e75312a84e590c4c3b1d2f9de4ec7a6a716bb3) remove xdg, use $HOME/.config and $HOME/.cache (#641)
+
+### Contributors
+
+ * Ce Gao
+ * Keming
+ * dependabot[bot]
+ * nullday
+ * wyq
+
 ## v0.2.0-alpha.7 (2022-07-20)
 
  * [67a1f34](https://github.com/tensorchord/envd/commit/67a1f340f45966161dbac2afb9083baeac948674) feat(lang): Remove conda from custom base image (#626)
