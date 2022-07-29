@@ -16,7 +16,7 @@
 
 envd (`ɪnˈvdɪ`) is a **machine learning development environment** for data science and AI/ML engineering teams.
 
-🐍 **No Docker, only Python** - Focus on writing Python code, we will take care of Docker and development environment setup.
+🐍 **No Docker** - Focus on writing Python/R/Julia code, we will take care of Docker and development environment setup.
 
 🖨️ **Built-in Jupyter/VSCode** - First-class support for Jupyter and VSCode remote extension.
 
@@ -32,9 +32,9 @@ It is still too difficult to configure development environments and reproduce re
 
 `envd` is a **machine learning development environment** for data science and AI/ML engineering teams. Environments built with `envd` provide the following features out-of-the-box:
 
-🐍 **Life is short, use Python[^1]**
+🐍 **Life is short, use Python[^1]/R/Julia**
 
-Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. `envd` builds are isolated and clean. You can write simple instructions in Python, instead of Bash / Makefile / Dockerfile / ...
+Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. `envd` builds are isolated and clean. You can write simple instructions in Python/R/Julia, instead of Bash / Makefile / Dockerfile / ...
 
 ![envd](./docs/images/envd.png)
 
@@ -92,8 +92,8 @@ You can reproduce the same dev environment, on your laptop, public cloud VMs, or
 
 We’re focused on helping data scientists and teams that develop AI/ML models. And they may suffer from:
 
-- building the development environments with Python, CUDA, Docker, SSH, and so on. Do you have a complicated Dockerfile or build script that sets up all your dev environments, but is always breaking?
-- Updating the environment. Do you always need to ask infrastructure engineers how to add a new python package in the Dockerfile?
+- building the development environments with Python/R/Julia, CUDA, Docker, SSH, and so on. Do you have a complicated Dockerfile or build script that sets up all your dev environments, but is always breaking?
+- Updating the environment. Do you always need to ask infrastructure engineers how to add a new Python/R/Julia package in the Dockerfile?
 - Managing environments and machines. Do you always forget which machines are used for the specific project, because you handle multiple projects concurrently?
 
 ---
@@ -153,6 +153,8 @@ def build():
     ])
     shell("zsh")
 ```
+
+*Note that we use Python here as an example but please check out examples for other languages such as R and Julia [here](https://github.com/tensorchord/envd/tree/main/examples).*
 
 Then please run the command below to set up a new environment:
 
