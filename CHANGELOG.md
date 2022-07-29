@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.0-alpha.11 (2022-07-29)
+
+ * [62bd2dc](https://github.com/tensorchord/envd/commit/62bd2dcf37be2c8b811b34ea6d05189250dbdd1f) bug: Fix version prefix (#696)
+
+### Contributors
+
+ * Jinjing Zhou
+
 ## v0.2.0-alpha.10 (2022-07-29)
 
  * [4dffb5d](https://github.com/tensorchord/envd/commit/4dffb5d94eaab981959fa56cfd7e5d540776f1c7) bug: Fix git tag version (#692)
