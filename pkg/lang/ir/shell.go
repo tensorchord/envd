@@ -51,6 +51,10 @@ func (g *Graph) compileShell(root llb.State) (llb.State, error) {
 }
 
 func (g *Graph) compilePrompt(root llb.State) llb.State {
+	// skip this for customized image
+	if g.Image != nil {
+		return root
+	}
 	// starship config
 	config := root.
 		File(llb.Mkdir(defaultConfigDir, 0755, llb.WithParents(true)),
