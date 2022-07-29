@@ -137,37 +137,11 @@ func (m generalManager) DownloadOrCache() (bool, error) {
 		return false, errors.Wrap(err, "failed to checkout master")
 	}
 
-	// if err := m.createEnvdPromptTheme(); err != nil {
-	// 	return false, errors.Wrap(err, "failed to create envd.zsh-theme")
-	// }
-
 	if err := home.GetManager().MarkCache(cacheKey, true); err != nil {
 		return false, errors.Wrap(err, "failed to update cache status")
 	}
 	l.Debug("oh-my-zsh is downloaded")
 	return false, nil
-}
-
-// Refer to https://github.com/tensorchord/envd/issues/183#issuecomment-1148172564
-func (m generalManager) createEnvdPromptTheme() error {
-	path := "themes/envd.zsh-theme"
-	content := `
-PROMPT="(envd) %(?:%{$fg_bold[green]%}%{%G➜%} :%{$fg_bold[red]%}%{%G➜%} )"
-PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%} $(git_prompt_info)'
-
-ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"
-ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
-ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[blue]%}) %{$fg[yellow]%}%{%G✗%}"
-ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
-`
-	absolutePath := filepath.Join(m.OHMyZSHDir(), path)
-	logger := logrus.WithField("path", absolutePath)
-	logger.Debug("creating envd.zsh-theme")
-	if err := os.WriteFile(
-		absolutePath, []byte(content), 0644); err != nil {
-		return err
-	}
-	return nil
 }
 
 func (m generalManager) OHMyZSHDir() string {

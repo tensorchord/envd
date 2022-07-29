@@ -4,6 +4,10 @@ ROOT_DIR=`dirname $0`
 
 ENVD_VERSION="${ENVD_VERSION:-0.0.1}"
 DOCKER_HUB_ORG="${DOCKER_HUB_ORG:-tensorchord}"
+PYTHON_VERSION="${PYTHON_VERSION:-3.9}"
+ENVD_OS="${ENVD_OS:-ubuntu20.04}"
+JULIA_VERSION="${JULIA_VERSION:-1.8rc1}"
+RLANG_VERSION="${RLANG_VERSION:-4.2}"
 
 
 cd ${ROOT_DIR}
@@ -21,16 +25,16 @@ docker buildx build \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -t ${DOCKER_HUB_ORG}/python:3.9-ubuntu20.04 \
-    -f python3.9-ubuntu20.04.Dockerfile .
+    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS} \
+    -f python${PYTHON_VERSION}-${ENVD_OS}.Dockerfile .
 docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -t ${DOCKER_HUB_ORG}/python:3.9-ubuntu20.04-cuda11.6-cudnn8 \
-    -f python3.9-ubuntu20.04-cuda11.6.Dockerfile .
+    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-cuda11.6-cudnn8 \
+    -f python${PYTHON_VERSION}-${ENVD_OS}-cuda11.6.Dockerfile .
 
 # TODO(gaocegege): Support linux/arm64
 docker buildx build \
@@ -38,15 +42,15 @@ docker buildx build \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
-    -t ${DOCKER_HUB_ORG}/r-base:4.2 \
+    -t ${DOCKER_HUB_ORG}/r-base:${RLANG_VERSION} \
     --pull --push --platform linux/x86_64 \
-    -f r4.2.Dockerfile .
+    -f r${RLANG_VERSION}.Dockerfile .
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
-    -t ${DOCKER_HUB_ORG}/julia:1.8rc1-ubuntu20.04 \
+    -t ${DOCKER_HUB_ORG}/julia:${JULIA_VERSION}-${ENVD_OS} \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -f julia1.8rc1-ubuntu20.04.Dockerfile .
+    -f julia${JULIA_VERSION}-${ENVD_OS}.Dockerfile .
 cd - > /dev/null
