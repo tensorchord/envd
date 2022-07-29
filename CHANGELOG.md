@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.0-alpha.9 (2022-07-29)
+
+ * [6daa661](https://github.com/tensorchord/envd/commit/6daa661bdcbaf3bdcbad1e63e34039e54ffe088d) bug: Add release dependency (#689)
+ * [1f4b468](https://github.com/tensorchord/envd/commit/1f4b46864a03a449127ac540687571943e965102) bug: Use git version by default when build ssh (#688)
+
+### Contributors
+
+ * Jinjing Zhou
+
 ## v0.2.0-alpha.8 (2022-07-29)
 
  * [728a421](https://github.com/tensorchord/envd/commit/728a421840ba10c6ba78c836a22dc7af140d370d) feat: add starship as the prompt manager (#681)
