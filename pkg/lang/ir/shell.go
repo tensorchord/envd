@@ -50,7 +50,7 @@ func (g *Graph) compileShell(root llb.State) (llb.State, error) {
 	return root, nil
 }
 
-func (g *Graph) compilePrompt(root llb.State) (llb.State) {
+func (g *Graph) compilePrompt(root llb.State) llb.State {
 	// starship config
 	config := root.
 		File(llb.Mkdir(defaultConfigDir, 0755, llb.WithParents(true)),

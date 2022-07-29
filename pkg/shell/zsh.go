@@ -16,7 +16,6 @@ package shell
 
 import (
 	_ "embed"
-	"os"
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
