@@ -19,6 +19,10 @@ const (
 	languageDefault   = "python"
 	pypiIndexModeAuto = "auto"
 
+	// used inside the container
+	defaultConfigDir   = "/home/envd/.config"
+	starshipConfigPath = "/home/envd/.config/starship.toml"
+
 	aptSourceFilePath = "/etc/apt/sources.list"
 	pypiIndexFilePath = "/etc/pip.conf"
 

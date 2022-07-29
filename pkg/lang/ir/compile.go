@@ -223,7 +223,8 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 		}
 	}
 
-	copy := g.compileCopy(merged)
+	prompt := g.compilePrompt(merged)
+	copy := g.compileCopy(prompt)
 	// TODO(gaocegege): Support order-based exec.
 	run := g.compileRun(copy)
 	finalStage, err := g.compileGit(run)

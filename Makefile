@@ -95,7 +95,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: help lint test build container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build
+.PHONY: help lint test build dev container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build
 
 .DEFAULT_GOAL:=build
 
@@ -128,6 +128,9 @@ build-local:
 
 pypi-build: clean
 	@python setup.py sdist bdist_wheel
+
+dev: pypi-build  ## install envd command for local debug
+	@pip install --force-reinstall dist/*.whl
 
 generate: mockgen-install  ## Generate mocks
 	@mockgen -source pkg/buildkitd/buildkitd.go -destination pkg/buildkitd/mock/mock.go -package mock

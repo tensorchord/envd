@@ -25,11 +25,48 @@ import (
 	"github.com/tensorchord/envd/pkg/shell"
 )
 
+const (
+	starshipConfig = `
+[container]
+format = "[$symbol \\[envd\\]]($style)"
+
+[sudo]
+disabled = false
+symbol = "sudo "
+
+[python]
+symbol = "Py "
+
+[status]
+map_symbol = true
+disabled = false
+`
+)
+
 func (g *Graph) compileShell(root llb.State) (llb.State, error) {
 	if g.Shell == shellZSH {
 		return g.compileZSH(root)
 	}
 	return root, nil
+}
+
+func (g *Graph) compilePrompt(root llb.State) llb.State {
+	// starship config
+	config := root.
+		File(llb.Mkdir(defaultConfigDir, 0755, llb.WithParents(true)),
+			llb.WithCustomName("[internal] creating config dir")).
+		File(llb.Mkfile(starshipConfigPath, 0644, []byte(starshipConfig), llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomName("[internal] setting prompt config"))
+
+	run := config.Run(llb.Shlex(`bash -c 'echo "eval \"\$(starship init bash)\"" >> /home/envd/.bashrc'`),
+		llb.WithCustomName("[internal] setting prompt config")).Root()
+
+	if g.Shell == shellZSH {
+		run = run.Run(
+			llb.Shlex(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> /home/envd/.zshrc'`),
+			llb.WithCustomName("[internal] setting prompt config")).Root()
+	}
+	return run
 }
 
 func (g Graph) compileZSH(root llb.State) (llb.State, error) {
@@ -48,9 +85,9 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 			&llb.CopyInfo{CreateDestPath: true}, llb.WithUIDGID(g.uid, g.gid))).
 		File(llb.Mkfile(installPath,
 			0644, []byte(m.InstallScript()), llb.WithUIDGID(g.uid, g.gid)))
-	run := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)),
+	zshrc := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)),
 		llb.WithCustomName("install oh-my-zsh")).
 		File(llb.Mkfile(zshrcPath,
 			0644, []byte(m.ZSHRC()), llb.WithUIDGID(g.uid, g.gid)))
-	return run, nil
+	return zshrc, nil
 }
