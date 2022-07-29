@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.0-alpha.10 (2022-07-29)
+
+ * [4dffb5d](https://github.com/tensorchord/envd/commit/4dffb5d94eaab981959fa56cfd7e5d540776f1c7) bug: Fix git tag version (#692)
+
+### Contributors
+
+ * Jinjing Zhou
+
 ## v0.2.0-alpha.9 (2022-07-29)
 
  * [6daa661](https://github.com/tensorchord/envd/commit/6daa661bdcbaf3bdcbad1e63e34039e54ffe088d) bug: Add release dependency (#689)
