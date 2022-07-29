@@ -137,9 +137,9 @@ func (m generalManager) DownloadOrCache() (bool, error) {
 		return false, errors.Wrap(err, "failed to checkout master")
 	}
 
-	if err := m.createEnvdPromptTheme(); err != nil {
-		return false, errors.Wrap(err, "failed to create envd.zsh-theme")
-	}
+	// if err := m.createEnvdPromptTheme(); err != nil {
+	// 	return false, errors.Wrap(err, "failed to create envd.zsh-theme")
+	// }
 
 	if err := home.GetManager().MarkCache(cacheKey, true); err != nil {
 		return false, errors.Wrap(err, "failed to update cache status")

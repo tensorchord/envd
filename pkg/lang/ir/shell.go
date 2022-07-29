@@ -44,6 +44,13 @@ disabled = false
 )
 
 func (g *Graph) compileShell(root llb.State) (llb.State, error) {
+	if g.Shell == shellZSH {
+		return g.compileZSH(root)
+	}
+	return root, nil
+}
+
+func (g *Graph) compilePrompt(root llb.State) (llb.State) {
 	// starship config
 	config := root.
 		File(llb.Mkdir(defaultConfigDir, 0755, llb.WithParents(true)),
@@ -55,9 +62,11 @@ func (g *Graph) compileShell(root llb.State) (llb.State, error) {
 		llb.WithCustomName("[internal] setting prompt config")).Root()
 
 	if g.Shell == shellZSH {
-		return g.compileZSH(run)
+		run = run.Run(
+			llb.Shlex(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> /home/envd/.zshrc'`),
+			llb.WithCustomName("[internal] setting prompt config")).Root()
 	}
-	return run, nil
+	return run
 }
 
 func (g Graph) compileZSH(root llb.State) (llb.State, error) {
@@ -80,8 +89,5 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 		llb.WithCustomName("install oh-my-zsh")).
 		File(llb.Mkfile(zshrcPath,
 			0644, []byte(m.ZSHRC()), llb.WithUIDGID(g.uid, g.gid)))
-	config := zshrc.Run(
-		llb.Shlex(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> /home/envd/.zshrc'`),
-		llb.WithCustomName("[internal] setting prompt config"))
-	return config.Root(), nil
+	return zshrc, nil
 }
