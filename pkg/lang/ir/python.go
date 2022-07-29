@@ -113,12 +113,13 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	// Compose the package install command.
 	var sb strings.Builder
 	// Always use the conda's pip.
-	sb.WriteString("/opt/conda/bin/conda run -n envd pip install")
+	sb.WriteString("/opt/conda/envs/envd/bin/python -m pip install")
 	for _, pkg := range g.PyPIPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}
 
 	cmd := sb.String()
+	logrus.Debugf("pip command: %s", cmd)
 	root = llb.User("envd")(root)
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 	cache := root.File(llb.Mkdir("/cache",
