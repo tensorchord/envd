@@ -95,6 +95,7 @@ jobs:
     name: Build & push images
     if: github.repository == 'tensorchord/envd'
     runs-on: ubuntu-latest
+    needs: goreleaser
     steps:
     - uses: actions/checkout@v3
     - name: Set up Docker Buildx
