@@ -68,15 +68,16 @@ func GetDockerClient(ctx context.Context) docker.Client {
 type Example struct {
 	Name string
 	Tag  string
-	app  app.EnvdApp
+	app  *app.EnvdApp
 }
 
 func NewExample(name string, testcaseAbbr string) *Example {
 	tag := name + ":" + testcaseAbbr
+	app := app.New()
 	return &Example{
 		Name: name,
 		Tag:  tag,
-		app:  app.New(),
+		app:  &app,
 	}
 }
 
