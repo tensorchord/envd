@@ -18,7 +18,7 @@ In the future, we should also keep the possibility for remote or cloud access.
     - Linux/Mac
     - wsl access from the windows
 
-## Proposal
+## API
 ```
 expose(local_port=<LPORT>, host_port=<RPORT>, svc=<SERVICE_NAME>)
 ```
