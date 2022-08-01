@@ -50,7 +50,8 @@ var _ = Describe("Builder", func() {
 			BeforeEach(func() {
 				ctrl := gomock.NewController(GinkgoT())
 				ctrlStarlark := gomock.NewController(GinkgoT())
-				pub := sshconfig.GetPublicKey()
+				pub, err := sshconfig.GetPublicKey()
+				Expect(err).NotTo(HaveOccurred())
 				b = &generalBuilder{
 					Options: Options{
 						ManifestFilePath: manifestFilePath,

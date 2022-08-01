@@ -69,14 +69,14 @@ var CommandUp = &cli.Command{
 			Name:    "private-key",
 			Usage:   "Path to the private key",
 			Aliases: []string{"k"},
-			Value:   sshconfig.GetPrivateKey(),
+			Value:   sshconfig.GetPrivateKeyOrPanic(),
 			Hidden:  true,
 		},
 		&cli.PathFlag{
 			Name:    "public-key",
 			Usage:   "Path to the public key",
 			Aliases: []string{"pubk"},
-			Value:   sshconfig.GetPublicKey(),
+			Value:   sshconfig.GetPublicKeyOrPanic(),
 			Hidden:  true,
 		},
 		&cli.DurationFlag{
@@ -234,8 +234,10 @@ func up(clicontext *cli.Context) error {
 	}
 
 	if !detach {
-		sshClient, err := ssh.NewClient(
-			localhost, "envd", sshPortInHost, true, clicontext.Path("private-key"), "")
+		opt := ssh.DefaultOptions()
+		opt.PrivateKeyPath = clicontext.Path("private-key")
+		opt.Port = sshPortInHost
+		sshClient, err := ssh.NewClient(opt)
 		if err != nil {
 			return errors.Wrap(err, "failed to create the ssh client")
 		}

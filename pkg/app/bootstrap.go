@@ -52,8 +52,9 @@ var CommandBootstrap = &cli.Command{
 			Aliases: []string{"m"},
 		},
 		&cli.StringSliceFlag{
-			Name:    "ssh-keypair",
-			Usage:   fmt.Sprintf("Manually specify ssh key pair as `publicKey,privateKey`. Envd will generate a keypair at %s and %s if not specified", sshconfig.GetPublicKey(), sshconfig.GetPrivateKey()),
+			Name: "ssh-keypair",
+			Usage: fmt.Sprintf("Manually specify ssh key pair as `publicKey,privateKey`. Envd will generate a keypair at %s and %s if not specified",
+				sshconfig.GetPublicKeyOrPanic(), sshconfig.GetPrivateKeyOrPanic()),
 			Aliases: []string{"k"},
 		},
 	},
@@ -85,19 +86,27 @@ func bootstrap(clicontext *cli.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "Cannot get default key status")
 		}
+
+		path, err := sshconfig.GetPrivateKey()
+		if err != nil {
+			return errors.Wrap(err, "Cannot get private key path")
+		}
+
 		if keyExists {
 			var exists bool
 			var newPrivateKeyName string
+
 			for ok := true; ok; ok = exists {
-				newPrivateKeyName = filepath.Join(filepath.Dir(sshconfig.GetPrivateKey()), fmt.Sprintf("envd_%s.pk", namesgenerator.GetRandomName(0)))
+				newPrivateKeyName = filepath.Join(filepath.Dir(path),
+					fmt.Sprintf("envd_%s.pk", namesgenerator.GetRandomName(0)))
 				exists, err = fileutil.FileExists(newPrivateKeyName)
 				if err != nil {
 					return err
 				}
 			}
 			logrus.Debugf("New key name: %s", newPrivateKeyName)
-			err := sshconfig.ReplaceKeyManagedByEnvd(sshconfig.GetPrivateKey(), newPrivateKeyName)
-			if err != nil {
+			if err := sshconfig.ReplaceKeyManagedByEnvd(
+				path, newPrivateKeyName); err != nil {
 				return err
 			}
 		}
@@ -106,7 +115,7 @@ func bootstrap(clicontext *cli.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "Cannot open public key")
 		}
-		err = ioutil.WriteFile(sshconfig.GetPublicKey(), pubKey, 0644)
+		err = ioutil.WriteFile(path, pubKey, 0644)
 		if err != nil {
 			return errors.Wrap(err, "Cannot write public key")
 		}
@@ -115,7 +124,7 @@ func bootstrap(clicontext *cli.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "Cannot open private key")
 		}
-		err = ioutil.WriteFile(sshconfig.GetPrivateKey(), priKey, 0600)
+		err = ioutil.WriteFile(path, priKey, 0600)
 
 		if err != nil {
 			return errors.Wrap(err, "Cannot write private key")

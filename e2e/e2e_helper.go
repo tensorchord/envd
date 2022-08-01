@@ -18,12 +18,12 @@ import (
 	"context"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/ssh"
-	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
 
 func (e *Example) BuildImage(force bool) func() {
@@ -80,13 +80,16 @@ func NewExample(name string, testcaseAbbr string) *Example {
 	}
 }
 
-func (e *Example) Exec(cmd string) string {
-	sshClient := e.getSSHClient()
+func (e *Example) Exec(cmd string) (string, error) {
+	sshClient, err := e.getSSHClient()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get ssh client")
+	}
 	ret, err := sshClient.ExecWithOutput(cmd)
 	if err != nil {
-		panic(err)
+		return "", errors.Wrap(err, "failed to exec command")
 	}
-	return strings.Trim(string(ret), "\n")
+	return strings.Trim(string(ret), "\n"), nil
 }
 
 func (e *Example) RunContainer() func() {
@@ -115,17 +118,14 @@ func (e *Example) DestroyContainer() func() {
 	}
 }
 
-func (e *Example) getSSHClient() ssh.Client {
-	localhost := "127.0.0.1"
-	port, err := sshconfig.GetPort(e.Name)
+func (e *Example) getSSHClient() (ssh.Client, error) {
+	opt, err := ssh.GetOptions(e.Name)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "failed to get ssh options")
 	}
-	priv_path := sshconfig.GetPrivateKey()
-	sshClient, err := ssh.NewClient(
-		localhost, "envd", port, true, priv_path, "")
+	sshClient, err := ssh.NewClient(*opt)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "failed to create ssh client")
 	}
-	return sshClient
+	return sshClient, nil
 }

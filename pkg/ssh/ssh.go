@@ -37,6 +37,7 @@ import (
 	"golang.org/x/term"
 
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/ssh/config"
 )
 
 type Client interface {
@@ -45,14 +46,47 @@ type Client interface {
 	Close() error
 }
 
+type Options struct {
+	Server         string
+	User           string
+	Port           int
+	Auth           bool
+	PrivateKeyPath string
+	PrivateKeyPwd  string
+}
+
+func DefaultOptions() Options {
+	return Options{
+		Server:        "localhost",
+		User:          "envd",
+		Auth:          true,
+		PrivateKeyPwd: "",
+	}
+}
+
+func GetOptions(entry string) (*Options, error) {
+	path, err := config.GetPrivateKey()
+	if err != nil {
+		return nil, errors.Wrap(err, "getting private key failed")
+	}
+	port, err := config.GetPort(entry)
+	if err != nil {
+		return nil, errors.Wrap(err, "getting port failed")
+	}
+	// TODO(gaocegege): Make it configurable.
+	opt := DefaultOptions()
+	opt.Port = port
+	opt.PrivateKeyPath = path
+	return &opt, nil
+}
+
 type generalClient struct {
 	cli *ssh.Client
 }
 
-func NewClient(server, user string,
-	port int, auth bool, privateKeyPath, privateKeyPwd string) (Client, error) {
+func NewClient(opt Options) (Client, error) {
 	config := &ssh.ClientConfig{
-		User: user,
+		User: opt.User,
 		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 			// use OpenSSH's known_hosts file if you care about host validation
 			return nil
@@ -61,14 +95,15 @@ func NewClient(server, user string,
 
 	var cli *ssh.Client
 
-	if auth {
+	if opt.Auth {
 		// read private key file
-		pemBytes, err := ioutil.ReadFile(privateKeyPath)
+		pemBytes, err := ioutil.ReadFile(opt.PrivateKeyPath)
 		if err != nil {
-			return nil, errors.Wrapf(err, "reading private key %s failed", privateKeyPath)
+			return nil, errors.Wrapf(
+				err, "reading private key %s failed", opt.PrivateKeyPath)
 		}
 		// create signer
-		signer, err := signerFromPem(pemBytes, []byte(privateKeyPwd))
+		signer, err := signerFromPem(pemBytes, []byte(opt.PrivateKeyPwd))
 		if err != nil {
 			return nil, errors.Wrap(err, "creating signer from private key failed")
 		}
@@ -77,7 +112,7 @@ func NewClient(server, user string,
 		}
 	}
 
-	host := fmt.Sprintf("%s:%d", server, port)
+	host := fmt.Sprintf("%s:%d", opt.Server, opt.Port)
 	// open connection
 	conn, err := ssh.Dial("tcp", host, config)
 	if err != nil {

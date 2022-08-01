@@ -348,7 +348,12 @@ func ReplaceKeyManagedByEnvd(oldKey string, newKey string) error {
 		}
 	}
 
-	err = os.Rename(GetPrivateKey(), newKey)
+	path, err := GetPrivateKey()
+	if err != nil {
+		return err
+	}
+
+	err = os.Rename(path, newKey)
 	if err != nil {
 		return err
 	}
