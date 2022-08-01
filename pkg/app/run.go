@@ -15,6 +15,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/cockroachdb/errors"
 	"github.com/urfave/cli/v2"
 
@@ -69,7 +71,7 @@ func run(clicontext *cli.Context) error {
 	if bytes, err := sshClient.ExecWithOutput(clicontext.String("command")); err != nil {
 		return errors.Wrap(err, "failed to execute the command")
 	} else {
-		println(string(bytes))
+		fmt.Fprint(clicontext.App.Writer, string(bytes))
 	}
 	return nil
 }
