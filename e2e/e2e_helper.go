@@ -24,7 +24,6 @@ import (
 
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
-	"github.com/tensorchord/envd/pkg/ssh"
 )
 
 func (e *Example) BuildImage(force bool) func() {
@@ -92,7 +91,7 @@ func (e *Example) Exec(cmd string) (string, error) {
 	buffer := new(bytes.Buffer)
 	e.app.Writer = buffer
 
-	return strings.Trim(string(buffer.Bytes()), "\n"), nil
+	return strings.Trim(buffer.String(), "\n"), nil
 }
 
 func (e *Example) RunContainer() func() {
@@ -119,16 +118,4 @@ func (e *Example) DestroyContainer() func() {
 			panic(err)
 		}
 	}
-}
-
-func (e *Example) getSSHClient() (ssh.Client, error) {
-	opt, err := ssh.GetOptions(e.Name)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get ssh options")
-	}
-	sshClient, err := ssh.NewClient(*opt)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create ssh client")
-	}
-	return sshClient, nil
 }
