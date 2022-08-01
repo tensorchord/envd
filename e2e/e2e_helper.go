@@ -15,6 +15,7 @@
 package e2e
 
 import (
+	"bytes"
 	"context"
 	"strings"
 
@@ -81,15 +82,17 @@ func NewExample(name string, testcaseAbbr string) *Example {
 }
 
 func (e *Example) Exec(cmd string) (string, error) {
-	sshClient, err := e.getSSHClient()
-	if err != nil {
-		return "", errors.Wrap(err, "failed to get ssh client")
+	args := []string{
+		"envd.test", "run", "--name", e.Name, "--command", cmd,
 	}
-	ret, err := sshClient.ExecWithOutput(cmd)
+	err := e.app.Run(args)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to exec command")
+		return "", errors.Wrap(err, "failed to start `run` command")
 	}
-	return strings.Trim(string(ret), "\n"), nil
+	buffer := new(bytes.Buffer)
+	e.app.Writer = buffer
+
+	return strings.Trim(string(buffer.Bytes()), "\n"), nil
 }
 
 func (e *Example) RunContainer() func() {
