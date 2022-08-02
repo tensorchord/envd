@@ -15,5 +15,6 @@
 package io
 
 const (
-	ruleCopy = "io.copy"
+	ruleCopy  = "io.copy"
+	ruleMount = "io.mount"
 )

@@ -196,3 +196,10 @@ func Copy(src, dest string) {
 		Destination: dest,
 	})
 }
+
+func Mount(src, dest string) {
+	DefaultGraph.Mount = append(DefaultGraph.Mount, MountInfo{
+		Source:      src,
+		Destination: dest,
+	})
+}

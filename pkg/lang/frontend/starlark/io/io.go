@@ -15,6 +15,10 @@
 package io
 
 import (
+	"os/user"
+	"path/filepath"
+	"strings"
+
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -29,8 +33,44 @@ var (
 var Module = &starlarkstruct.Module{
 	Name: "io",
 	Members: starlark.StringDict{
-		"copy": starlark.NewBuiltin(ruleCopy, ruleFuncCopy),
+		"copy":  starlark.NewBuiltin(ruleCopy, ruleFuncCopy),
+		"mount": starlark.NewBuiltin(ruleMount, ruleFuncMount),
 	},
+}
+
+func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var source, destination starlark.String
+
+	if err := starlark.UnpackArgs(ruleMount, args, kwargs,
+		"src?", &source, "dest?", &destination); err != nil {
+		return nil, err
+	}
+
+	sourceStr := source.GoString()
+	destinationStr := destination.GoString()
+
+	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s",
+		ruleMount, sourceStr, destinationStr)
+
+	// Expand source directory based on host user
+	usr, _ := user.Current()
+	dir := usr.HomeDir
+	if sourceStr == "~" {
+		sourceStr = dir
+	} else if strings.HasPrefix(sourceStr, "~/") {
+		sourceStr = filepath.Join(dir, sourceStr[2:])
+	}
+	// Expand dest directory based on container user envd
+	dir = "/home/envd/"
+	if destinationStr == "~" {
+		destinationStr = dir
+	} else if strings.HasPrefix(destinationStr, "~/") {
+		destinationStr = filepath.Join(dir, destinationStr[2:])
+	}
+	ir.Mount(sourceStr, destinationStr)
+
+	return starlark.None, nil
 }
 
 func ruleFuncCopy(thread *starlark.Thread, _ *starlark.Builtin,

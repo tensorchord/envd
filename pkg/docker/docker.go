@@ -412,8 +412,8 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 	base = filepath.Join("/home/envd", base)
 	config.WorkingDir = base
 
-	mountOption := make([]mount.Mount, len(mountOptionsStr)+1)
-	for i, option := range mountOptionsStr {
+	mountOption := make([]mount.Mount, 0, len(mountOptionsStr)+len(g.Mount)+1)
+	for _, option := range mountOptionsStr {
 		mStr := strings.Split(option, ":")
 		if len(mStr) != 2 {
 			return "", "", errors.Newf("Invalid mount options %s", option)
@@ -423,17 +423,29 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 			"mount-path":     mStr[0],
 			"container-path": mStr[1],
 		}).Debug("setting up container working directory")
-		mountOption[i] = mount.Mount{
+		mountOption = append(mountOption, mount.Mount{
 			Type:   mount.TypeBind,
 			Source: mStr[0],
 			Target: mStr[1],
-		}
+		})
 	}
-	mountOption[len(mountOptionsStr)] = mount.Mount{
+	for _, m := range g.Mount {
+		logger.WithFields(logrus.Fields{
+			"mount-path":     m.Source,
+			"container-path": m.Destination,
+		}).Debug("setting up declared mount directory")
+		mountOption = append(mountOption, mount.Mount{
+			Type:   mount.TypeBind,
+			Source: m.Source,
+			Target: m.Destination,
+		})
+	}
+
+	mountOption = append(mountOption, mount.Mount{
 		Type:   mount.TypeBind,
 		Source: buildContext,
 		Target: base,
-	}
+	})
 
 	logger.WithFields(logrus.Fields{
 		"mount-path":  buildContext,
