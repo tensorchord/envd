@@ -30,9 +30,10 @@ import (
 )
 
 var CommandImage = &cli.Command{
-	Name:    "images",
-	Aliases: []string{"image", "i"},
-	Usage:   "Manage envd images",
+	Name:     "images",
+	Category: CategoryBasic,
+	Aliases:  []string{"image", "i"},
+	Usage:    "Manage envd images",
 
 	Subcommands: []*cli.Command{
 		CommandDescribeImage,

@@ -25,8 +25,9 @@ import (
 )
 
 var CommandRun = &cli.Command{
-	Name:  "run",
-	Usage: "Spawns a command installed into the environment.",
+	Name:     "run",
+	Category: CategoryBasic,
+	Usage:    "Spawns a command installed into the environment.",
 	Flags: []cli.Flag{
 		&cli.PathFlag{
 			Name:    "name",

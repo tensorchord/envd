@@ -14,18 +14,9 @@
 
 package app
 
-import (
-	"github.com/urfave/cli/v2"
+const (
+	CategoryBasic      = "Basic Commands"
+	CategoryManagement = "Management Commands"
+	CategoryAdvanced   = "Advanced Commands"
+	CategoryOther      = "Other Commands"
 )
-
-var CommandContext = &cli.Command{
-	Name:     "context",
-	Category: CategoryManagement,
-	Usage:    "Manage envd contexts",
-	Subcommands: []*cli.Command{
-		CommandContextCreate,
-		CommandContextList,
-		CommandContextRemove,
-		CommandContextUse,
-	},
-}

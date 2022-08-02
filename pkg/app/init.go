@@ -29,9 +29,10 @@ import (
 var templatef embed.FS
 
 var CommandInit = &cli.Command{
-	Name:    "init",
-	Aliases: []string{"i"},
-	Usage:   "Initializes the current directory with the build.envd file",
+	Name:     "init",
+	Category: CategoryManagement,
+	Aliases:  []string{"i"},
+	Usage:    "Initializes the current directory with the build.envd file",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     "lang",

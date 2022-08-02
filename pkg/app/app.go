@@ -37,6 +37,8 @@ func New() EnvdApp {
 	internalApp.EnableBashCompletion = true
 	internalApp.Name = "envd"
 	internalApp.Usage = "Development environment for data science and AI/ML teams"
+	internalApp.HideHelpCommand = true
+	internalApp.HideVersion = true
 	internalApp.Version = version.GetVersion().String()
 	internalApp.Flags = []cli.Flag{
 		&cli.BoolFlag{
@@ -44,16 +46,17 @@ func New() EnvdApp {
 			Usage: "enable debug output in logs",
 		},
 		&cli.StringFlag{
-			Name:  flag.FlagBuildkitdImage,
-			Usage: "docker image to use for buildkitd",
-			Value: "docker.io/moby/buildkit:v0.10.3",
+			Name:   flag.FlagBuildkitdImage,
+			Usage:  "docker image to use for buildkitd",
+			Value:  "docker.io/moby/buildkit:v0.10.3",
+			Hidden: true,
 		},
 	}
 
 	internalApp.Commands = []*cli.Command{
 		CommandBootstrap,
-		CommandBuild,
 		CommandContext,
+		CommandBuild,
 		CommandDestroy,
 		CommandEnvironment,
 		CommandImage,
@@ -65,6 +68,29 @@ func New() EnvdApp {
 		CommandUp,
 		CommandVersion,
 	}
+
+	internalApp.CustomAppHelpTemplate = ` envd - Development environment for data science and AI/ML teams
+
+ Usage:
+    envd up --path <path>
+
+    envd run --name <env-name> --command "pip list"{{if .VisibleCommands}}
+
+ Build and launch envd environments. Get more information at: https://envd.tensorchord.ai/.
+ To get started with using envd, check out the getting started guide: https://envd.tensorchord.ai/guide/getting-started.html.
+ {{range .VisibleCategories}}{{if .Name}}
+ {{.Name}}:{{range .VisibleCommands}}
+	{{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{else}}{{range .VisibleCommands}}
+ {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{end}}{{end}}{{end}}{{if .VisibleFlagCategories}}
+
+ Global Options:{{range .VisibleFlagCategories}}
+	{{if .Name}}{{.Name}}
+	{{end}}{{range .Flags}}{{.}}
+	{{end}}{{end}}{{else}}{{if .VisibleFlags}}
+
+ Global Options:
+	{{range $index, $option := .VisibleFlags}}{{if $index}}
+	{{end}}{{wrap $option.String 6}}{{end}}{{end}}{{end}}`
 
 	// Deal with debug flag.
 	var debugEnabled bool

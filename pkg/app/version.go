@@ -23,10 +23,11 @@ import (
 )
 
 var CommandVersion = &cli.Command{
-	Name:    "version",
-	Aliases: []string{"v"},
-	Usage:   "Print envd version information",
-	Action:  printVersion,
+	Name:     "version",
+	Category: CategoryOther,
+	Aliases:  []string{"v"},
+	Usage:    "Print envd version information",
+	Action:   printVersion,
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "short",

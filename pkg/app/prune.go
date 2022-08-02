@@ -23,8 +23,9 @@ import (
 )
 
 var CommandPrune = &cli.Command{
-	Name:  "prune",
-	Usage: "Clean up the build cache",
+	Name:     "prune",
+	Category: CategoryManagement,
+	Usage:    "Clean up the build cache",
 	Flags: []cli.Flag{
 		&cli.DurationFlag{
 			Name:  "keep-duration",
