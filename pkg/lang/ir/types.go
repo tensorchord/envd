@@ -50,8 +50,9 @@ type Graph struct {
 
 	VSCodePlugins []vscode.Plugin
 
-	Exec []string
-	Copy []CopyInfo
+	Exec  []string
+	Copy  []CopyInfo
+	Mount []MountInfo
 
 	*JupyterConfig
 	*GitConfig
@@ -63,6 +64,11 @@ type Graph struct {
 }
 
 type CopyInfo struct {
+	Source      string
+	Destination string
+}
+
+type MountInfo struct {
 	Source      string
 	Destination string
 }
