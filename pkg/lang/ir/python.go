@@ -56,7 +56,7 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 		return llb.State{}, errors.Wrap(err, "failed to compile shell")
 	}
 
-	condaEnvStage := g.setCondaENV(shellStage)
+	condaEnvStage := g.compileCondaEnvironment(shellStage)
 
 	condaStage := llb.Diff(builtinSystemStage,
 		g.compileCondaPackages(condaEnvStage),
