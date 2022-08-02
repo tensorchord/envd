@@ -20,21 +20,20 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/docker"
-	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandBuild = &cli.Command{
-	Name:    "build",
-	Aliases: []string{"b"},
-	Usage:   "Build the envd environment",
+	Name:     "build",
+	Category: CategoryBasic,
+	Aliases:  []string{"b"},
+	Usage:    "Build the envd environment",
 	Description: `
 To build an image using build.envd:
 	$ envd build
@@ -123,11 +122,10 @@ func build(clicontext *cli.Context) error {
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
-		"build-context":         buildContext,
-		"build-file":            manifest,
-		"config":                cfg,
-		"tag":                   tag,
-		flag.FlagBuildkitdImage: viper.GetString(flag.FlagBuildkitdImage),
+		"build-context": buildContext,
+		"build-file":    manifest,
+		"config":        cfg,
+		"tag":           tag,
 	})
 	debug := clicontext.Bool("debug")
 	output := clicontext.String("output")

@@ -38,9 +38,10 @@ const (
 )
 
 var CommandUp = &cli.Command{
-	Name:    "up",
-	Aliases: []string{"u"},
-	Usage:   "Build and run the envd environment",
+	Name:     "up",
+	Category: CategoryBasic,
+	Aliases:  []string{"u"},
+	Usage:    "Build and run the envd environment",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:        "tag",

@@ -19,8 +19,9 @@ import (
 )
 
 var CommandContext = &cli.Command{
-	Name:  "context",
-	Usage: "Manage envd contexts",
+	Name:     "context",
+	Category: CategoryManagement,
+	Usage:    "Manage envd contexts",
 	Subcommands: []*cli.Command{
 		CommandContextCreate,
 		CommandContextList,
