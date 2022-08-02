@@ -15,15 +15,15 @@
 package e2e
 
 import (
+	"bytes"
 	"context"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
-	"github.com/tensorchord/envd/pkg/ssh"
-	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
 
 func (e *Example) BuildImage(force bool) func() {
@@ -68,25 +68,32 @@ func GetDockerClient(ctx context.Context) docker.Client {
 type Example struct {
 	Name string
 	Tag  string
-	app  app.EnvdApp
+	app  *app.EnvdApp
 }
 
 func NewExample(name string, testcaseAbbr string) *Example {
 	tag := name + ":" + testcaseAbbr
+	app := app.New()
 	return &Example{
 		Name: name,
 		Tag:  tag,
-		app:  app.New(),
+		app:  &app,
 	}
 }
 
-func (e *Example) Exec(cmd string) string {
-	sshClient := e.getSSHClient()
-	ret, err := sshClient.ExecWithOutput(cmd)
-	if err != nil {
-		panic(err)
+func (e *Example) Exec(cmd string) (string, error) {
+	args := []string{
+		"envd.test", "run", "--name", e.Name, "--command", cmd,
 	}
-	return strings.Trim(string(ret), "\n")
+
+	buffer := new(bytes.Buffer)
+	e.app.Writer = buffer
+
+	err := e.app.Run(args)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to start `run` command")
+	}
+	return strings.Trim(buffer.String(), "\n"), nil
 }
 
 func (e *Example) RunContainer() func() {
@@ -113,19 +120,4 @@ func (e *Example) DestroyContainer() func() {
 			panic(err)
 		}
 	}
-}
-
-func (e *Example) getSSHClient() ssh.Client {
-	localhost := "127.0.0.1"
-	port, err := sshconfig.GetPort(e.Name)
-	if err != nil {
-		panic(err)
-	}
-	priv_path := sshconfig.GetPrivateKey()
-	sshClient, err := ssh.NewClient(
-		localhost, "envd", port, true, priv_path, "")
-	if err != nil {
-		panic(err)
-	}
-	return sshClient
 }

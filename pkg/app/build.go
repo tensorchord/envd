@@ -64,7 +64,7 @@ To build and push the image to a registry:
 			Name:    "public-key",
 			Usage:   "Path to the public key",
 			Aliases: []string{"pubk"},
-			Value:   sshconfig.GetPublicKey(),
+			Value:   sshconfig.GetPublicKeyOrPanic(),
 			Hidden:  true,
 		},
 		&cli.StringFlag{

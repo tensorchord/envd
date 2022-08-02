@@ -26,7 +26,9 @@ var _ = Describe("e2e quickstart", Ordered, func() {
 	BeforeAll(e.BuildImage(true))
 	BeforeEach(e.RunContainer())
 	It("execute python demo.py", func() {
-		Expect(e.Exec("python demo.py")).To(Equal("[2 3 4]"))
+		res, err := e.Exec("python demo.py")
+		Expect(err).To(BeNil())
+		Expect(res).To(Equal("[2 3 4]"))
 	})
 	AfterEach(e.DestroyContainer())
 	AfterAll(e.RemoveImage())

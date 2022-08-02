@@ -23,7 +23,6 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/envd"
-	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
@@ -36,12 +35,6 @@ var CommandDescribeEnvironment = &cli.Command{
 			Name:    "env",
 			Usage:   "Specify the envd environment to use",
 			Aliases: []string{"e"},
-		},
-		&cli.PathFlag{
-			Name:    "private-key",
-			Usage:   "Path to the private key",
-			Aliases: []string{"k"},
-			Value:   sshconfig.GetPrivateKey(),
 		},
 	},
 	Action: getEnvironmentDependency,

@@ -155,7 +155,25 @@ func DefaultKeyExists() (bool, error) {
 }
 
 // GetPublicKey returns the path to the public key
-func GetPublicKey() string {
+func GetPublicKey() (string, error) {
+	pub, _, err := getDefaultKeyPaths()
+	if err != nil {
+		return "", err
+	}
+	return pub, nil
+}
+
+// GetPrivateKey returns the path to the private key
+func GetPrivateKey() (string, error) {
+	_, pri, err := getDefaultKeyPaths()
+	if err != nil {
+		return "", err
+	}
+	return pri, nil
+}
+
+// GetPublicKeyOrPanic returns the path to the public key or panic.
+func GetPublicKeyOrPanic() string {
 	pub, _, err := getDefaultKeyPaths()
 	if err != nil {
 		logrus.Fatal("Cannot get public key path")
@@ -163,8 +181,8 @@ func GetPublicKey() string {
 	return pub
 }
 
-// GetPrivateKey returns the path to the private key
-func GetPrivateKey() string {
+// GetPrivateKeyOrPanic returns the path to the private key or panic.
+func GetPrivateKeyOrPanic() string {
 	_, pri, err := getDefaultKeyPaths()
 	if err != nil {
 		logrus.Fatal("Cannot get private key path")
