@@ -72,18 +72,10 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 		return nil
 	}
 
-	var cmd []string
-	// Use python in conda env.
-	if g.CondaEnabled() {
-		cmd = append(cmd, "/opt/conda/bin/python3")
-	} else {
-		cmd = append(cmd, "python3")
-	}
-
-	cmd = append(cmd, []string{
-		"-m", "notebook",
+	cmd := []string{
+		"python3", "-m", "notebook",
 		"--ip", "0.0.0.0", "--notebook-dir", workingDir,
-	}...)
+	}
 
 	if g.JupyterConfig.Password != "" {
 		cmd = append(cmd, "--NotebookApp.password", g.JupyterConfig.Password,
