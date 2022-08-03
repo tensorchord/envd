@@ -142,7 +142,7 @@ func RStudioServer() error {
 
 func Run(commands []string) error {
 	// TODO(gaocegege): Support order-based exec.
-	DefaultGraph.Exec = commands
+	DefaultGraph.Exec = append(DefaultGraph.Exec, commands...)
 	return nil
 }
 

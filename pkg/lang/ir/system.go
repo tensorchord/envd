@@ -47,13 +47,14 @@ func (g Graph) compileRun(root llb.State) llb.State {
 		return root
 	}
 	root = root.AddEnv("PATH", "$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/conda/bin:/usr/local/julia/bin:/opt/conda/envs/envd/bin")
+	logrus.Debugf("compile run: %s", strings.Join(g.Exec, " "))
 	if len(g.Exec) == 1 {
-		return root.Run(llb.Shlex(g.Exec[0])).Root()
+		return root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.Exec[0]))).Root()
 	}
 
-	run := root.Run(llb.Shlex(g.Exec[0]))
+	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.Exec[0])))
 	for _, c := range g.Exec[1:] {
-		run = run.Run(llb.Shlex(c))
+		run = run.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", c)))
 	}
 	return run.Root()
 }

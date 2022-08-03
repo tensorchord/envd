@@ -16,7 +16,7 @@ package ir
 
 const (
 	osDefault         = "ubuntu20.04"
-	languageDefault   = "python"
+	languageDefault   = "python3"
 	pypiIndexModeAuto = "auto"
 
 	// used inside the container
