@@ -12,6 +12,8 @@ labels: "type/bug \U0001F41B"
 
 ## Additional Info
 
+<!-- It will be very helpful if you can provide the version info by running the command `envd version`. -->
+
 ---
 <!-- Issue Author: Don't delete this message to encourage other users to support your issue! -->
 **Message from the maintainers**:
