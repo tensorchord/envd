@@ -4,11 +4,16 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "saturday"
+      day: "monday"
+      time: "10:00"
+      timezone: "Asia/Shanghai"
     open-pull-requests-limit: 5
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "saturday"
+      day: "monday"
+      time: "10:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 5
