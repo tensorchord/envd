@@ -1,0 +1,28 @@
+def build():
+    # Use ubuntu20.04 as base image and install python
+    base(os="ubuntu20.04", language="python3")
+
+    # Add the packages you are using here
+    install.python_packages(["numpy", "dgl", "torch"])
+    
+    # Select the shell environment you like
+    shell("zsh")
+
+    io.mount(src="~/.envd/data/dgl", dest="~/.dgl")
+
+def build_gpu():
+    # Use ubuntu20.04 as base image and install python    
+    base(os="ubuntu20.04", language="python3")  
+
+    # install cuda
+    install.cuda(version="11.6", cudnn="8")
+
+    # Add the packages you are using here
+    install.python_packages(["numpy"])
+    install.python_packages(["torch --extra-index-url https://download.pytorch.org/whl/cu116"])
+    install.python_packages(["dgl-cu113 -f https://data.dgl.ai/wheels/repo.html"])
+    
+    # Select the shell environment you like
+    shell("zsh")
+    
+    io.mount(src="~/.envd/data/dgl", dest="~/.dgl")
