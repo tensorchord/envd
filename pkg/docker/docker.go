@@ -79,6 +79,7 @@ type Client interface {
 	RemoveImage(ctx context.Context, image string) error
 
 	GetInfo(ctx context.Context) (types.Info, error)
+	Stats(ctx context.Context, cname string, statChan chan<- *Stats, done <-chan bool) error
 
 	// GPUEnabled returns true if nvidia container runtime exists in docker daemon.
 	GPUEnabled(ctx context.Context) (bool, error)
@@ -598,6 +599,49 @@ func (c generalClient) Exec(ctx context.Context, cname string, cmd []string) err
 	return c.ContainerExecStart(ctx, execID, types.ExecStartCheck{
 		Detach: true,
 	})
+}
+
+func (c generalClient) Stats(ctx context.Context, cname string, statChan chan<- *Stats, done <-chan bool) (retErr error) {
+	errC := make(chan error, 1)
+	containerStats, err := c.ContainerStats(ctx, cname, true)
+	readCloser := containerStats.Body
+	quit := make(chan struct{})
+	defer func() {
+		close(statChan)
+		close(quit)
+
+		if err := <-errC; err != nil && retErr == nil {
+			retErr = err
+		}
+
+		if err := readCloser.Close(); err != nil && retErr == nil {
+			retErr = err
+		}
+	}()
+
+	go func() {
+		// block here waiting for the signal to stop function
+		select {
+		case <-done:
+			readCloser.Close()
+		case <-quit:
+			return
+		}
+	}()
+
+	if err != nil {
+		return err
+	}
+	decoder := json.NewDecoder(readCloser)
+	stats := new(Stats)
+	for err := decoder.Decode(stats); !errors.Is(err, io.EOF); err = decoder.Decode(stats) {
+		if err != nil {
+			return err
+		}
+		statChan <- stats
+		stats = new(Stats)
+	}
+	return nil
 }
 
 func deviceRequests(count int) []container.DeviceRequest {
