@@ -66,6 +66,11 @@ func GetGitTagFromVersion() string {
 	return ""
 }
 
+// SetGitTagForE2ETest sets the gitTag for test purpose.
+func SetGitTagForE2ETest(tag string) {
+	gitTag = tag
+}
+
 // GetEnvdVersion gets Envd version information
 func GetEnvdVersion() string {
 	var versionStr string

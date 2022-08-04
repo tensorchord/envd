@@ -170,8 +170,14 @@ test: generate  ## Run the tests
 	@go test -race -coverpkg=./pkg/... -coverprofile=coverage.out $(shell go list ./... | grep -v e2e)
 	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
-e2e-test: generate
-	@go test -race -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./e2e
+e2e-test:
+	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
+		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
+		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
+		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
+		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
+		-X $(ROOT)/pkg/version.developmentFlag=true" \
+		-race -v -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./e2e
 
 clean:  ## Clean the outputs and artifacts
 	@-rm -vrf ${OUTPUT_DIR}

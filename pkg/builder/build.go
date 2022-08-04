@@ -25,18 +25,9 @@ import (
 func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (*client.Result, error) {
 	return func(ctx context.Context, c client.Client) (*client.Result, error) {
 		b.logger.Debug("running BuildFunc for envd")
-		def, err := b.compile(ctx)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to compile")
-		}
-
-		imageConfig, err := b.imageConfig(ctx)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get labels")
-		}
 
 		sreq := client.SolveRequest{
-			Definition: def.ToPB(),
+			Definition: b.definition.ToPB(),
 		}
 		if b.Options.ImportCache != "" {
 			ci, err := ParseImportCache([]string{b.Options.ImportCache})
@@ -48,6 +39,11 @@ func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (
 		res, err := c.Solve(ctx, sreq)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to solve")
+		}
+
+		imageConfig, err := b.imageConfig(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get labels")
 		}
 
 		res.AddMeta(exptypes.ExporterImageConfigKey, []byte(imageConfig))

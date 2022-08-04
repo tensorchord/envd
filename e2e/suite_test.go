@@ -15,11 +15,23 @@
 package e2e
 
 import (
+	"os/exec"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/tensorchord/envd/pkg/version"
 )
+
+func init() {
+	// Set the git tag to get the correct image in ir package.
+	cmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
+	tag, err := cmd.Output()
+	if err != nil {
+		panic(err)
+	}
+	version.SetGitTagForE2ETest(string(tag))
+}
 
 func TestMain(t *testing.T) {
 	RegisterFailHandler(Fail)
