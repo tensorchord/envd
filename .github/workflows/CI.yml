@@ -64,16 +64,9 @@ jobs:
       matrix:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    env:
-      GOPATH: ${{ github.workspace }}/go
-    defaults:
-      run:
-        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-        with:
-          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
@@ -97,7 +90,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage-out
-          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd/coverage.out
+          path: coverage.out
   e2e:
     name: e2e
     strategy:
@@ -130,23 +123,16 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: e2e-coverage-out
-          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd/e2e-coverage.out
+          path: e2e-coverage.out
   build:
     name: build
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-    env:
-      GOPATH: ${{ github.workspace }}/go
-    defaults:
-      run:
-        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-        with:
-          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
@@ -168,17 +154,10 @@ jobs:
     needs:
       - test
       - e2e
-    env:
-      GOPATH: ${{ github.workspace }}/go
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-        with:
-          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
@@ -191,12 +170,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: coverage-out
-          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+          path: coverage.out
       - name: Get coverage report
         uses: actions/download-artifact@v3
         with:
           name: e2e-coverage-out
-          path: ${{ env.GOPATH }}/src/github.com/tensorchord/envd
+          path: e2e-coverage.out
       # - name: Send coverage
       #   env:
       #     COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
