@@ -127,8 +127,9 @@ jobs:
             ${{ runner.OS }}-build-${{ env.cache-name }}-
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
-      - uses: actions-ecosystem/action-get-latest-tag@v1
+      - name: 'Get Previous tag'
         id: get-latest-tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
       - name: e2e test
         run: make e2e-test
         env:
