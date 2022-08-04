@@ -29,6 +29,7 @@ import (
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/version"
 )
 
 func NewGraph() *Graph {
@@ -139,6 +140,26 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 	return ports, nil
 }
 
+func (g Graph) DefaultCacheImporter() (*string, error) {
+	switch g.Language.Name {
+	case "python":
+		v, err := g.getAppropriatePythonVersion()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get python version")
+		}
+		// We only support remote cache for 3.9 currently.
+		if v == "3.9" {
+			res := fmt.Sprintf(
+				"type=registry,ref=docker.io/tensorchord/python-cache:%s-envd-%s",
+				v, version.GetGitTagFromVersion())
+			return &res, nil
+		}
+		return nil, nil
+	default:
+		return nil, nil
+	}
+}
+
 func (g Graph) Entrypoint(buildContextDir string) ([]string, error) {
 	// Do not set entrypoint if the image is customized.
 	if g.Image != nil {
@@ -193,10 +214,12 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	}).Debug("compile LLB")
 
 	// TODO(gaocegege): Support more OS and langs.
-	base := g.compileBase()
+	base, err := g.compileBase()
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get the base image")
+	}
 	aptStage := g.compileUbuntuAPT(base)
 	var merged llb.State
-	var err error
 	// Use custom logic when image is specified.
 	if g.Image != nil {
 		merged, err = g.compileCustomPython(aptStage)

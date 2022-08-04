@@ -15,11 +15,18 @@
 package e2e
 
 import (
+	"os"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/tensorchord/envd/pkg/version"
 )
+
+func init() {
+	version.SetGitTagForE2ETest(os.Getenv("GIT_LATEST_TAG"))
+}
 
 func TestMain(t *testing.T) {
 	RegisterFailHandler(Fail)

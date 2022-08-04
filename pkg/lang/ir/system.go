@@ -15,6 +15,7 @@
 package ir
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -26,6 +27,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/version"
 )
 
 func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
@@ -75,7 +77,9 @@ func (g Graph) compileCopy(root llb.State) llb.State {
 }
 
 func (g *Graph) compileCUDAPackages() llb.State {
-	root := llb.Image(fmt.Sprintf("docker.io/tensorchord/python:3.9-%s-cuda%s-cudnn%s", g.OS, *g.CUDA, *g.CUDNN))
+	root := llb.Image(fmt.Sprintf(
+		"docker.io/tensorchord/python:3.9-%s-cuda%s-cudnn%s-envd-%s",
+		g.OS, *g.CUDA, *g.CUDNN, version.GetGitTagFromVersion()))
 	return root
 }
 
@@ -105,7 +109,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
-func (g *Graph) compileBase() llb.State {
+func (g *Graph) compileBase() (llb.State, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"os":       g.OS,
 		"language": g.Language.Name,
@@ -119,11 +123,12 @@ func (g *Graph) compileBase() llb.State {
 	// Do not update user permission in the base image.
 	if g.Image != nil {
 		logger.WithField("image", *g.Image).Debugf("using custom base image")
-		return llb.Image(*g.Image)
+		return llb.Image(*g.Image), nil
 	} else if g.CUDA == nil && g.CUDNN == nil {
 		switch g.Language.Name {
 		case "r":
-			base = llb.Image("docker.io/tensorchord/r-base:4.2")
+			base = llb.Image(fmt.Sprintf("docker.io/tensorchord/r-base:4.2-envd-%s",
+				version.GetGitTagFromVersion()))
 			// r-base image already has GID 1000.
 			// It is a trick, we actually use GID 1000
 			if g.gid == 1000 {
@@ -133,17 +138,28 @@ func (g *Graph) compileBase() llb.State {
 				g.uid = 1001
 			}
 		case "python":
-			base = llb.Image("docker.io/tensorchord/python:3.9-ubuntu20.04")
+			base = llb.Image(fmt.Sprintf(
+				"docker.io/tensorchord/python:3.9-ubuntu20.04-envd-%s",
+				version.GetGitTagFromVersion()))
 		case "julia":
-			base = llb.Image("docker.io/tensorchord/julia:1.8rc1-ubuntu20.04")
+			base = llb.Image(fmt.Sprintf(
+				"docker.io/tensorchord/julia:1.8rc1-ubuntu20.04-envd-%s",
+				version.GetGitTagFromVersion()))
 		}
 	} else {
 		base = g.compileCUDAPackages()
 	}
 	var res llb.ExecState
+
+	// Install conda first.
+	condaStage, err := g.installConda(base)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to install conda")
+	}
+
 	// TODO(gaocegege): Refactor user to a separate stage.
 	if g.uid == 0 {
-		res = base.
+		res = condaStage.
 			Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", 1001)),
 				llb.WithCustomName("[internal] still create group envd for root context")).
 			Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %d -g envd -s /bin/sh -m envd", 1001)),
@@ -159,7 +175,7 @@ func (g *Graph) compileBase() llb.State {
 			Run(llb.Shlex("chown -R root:root /opt/conda"),
 				llb.WithCustomName("[internal] configure user permissions"))
 	} else {
-		res = base.
+		res = condaStage.
 			Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", g.gid)),
 				llb.WithCustomName("[internal] create user group envd")).
 			Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %d -g envd -s /bin/sh -m envd", g.uid)),
@@ -171,7 +187,7 @@ func (g *Graph) compileBase() llb.State {
 			Run(llb.Shlex("chown -R envd:envd /opt/conda"),
 				llb.WithCustomName("[internal] configure user permissions"))
 	}
-	return llb.User("envd")(res.Root())
+	return llb.User("envd")(res.Root()), nil
 }
 
 func (g Graph) copySSHKey(root llb.State) (llb.State, error) {

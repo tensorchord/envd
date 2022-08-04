@@ -29,6 +29,7 @@ func parseLanguage(l string) (string, *string, error) {
 		return "", nil, errors.New("language is required")
 	}
 
+	// Get version from the string.
 	re := regexp.MustCompile(`\d[\d,]*[\.]?[\d{2}]*[\.]?[\d{2}]*`)
 	if !re.MatchString(l) {
 		language = l

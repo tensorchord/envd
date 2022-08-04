@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 ROOT_DIR=`dirname $0`
 
 GIT_TAG_VERSION=$(git describe --tags --abbrev=0 | sed -r 's/[v]+//g') # remove v from version
@@ -26,7 +28,7 @@ docker buildx build \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS} \
+    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-envd-v${ENVD_VERSION} \
     -f python${PYTHON_VERSION}-${ENVD_OS}.Dockerfile .
 docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
@@ -34,7 +36,7 @@ docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-cuda11.6-cudnn8 \
+    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-cuda11.6-cudnn8-envd-v${ENVD_VERSION} \
     -f python${PYTHON_VERSION}-${ENVD_OS}-cuda11.6.Dockerfile .
 
 # TODO(gaocegege): Support linux/arm64
@@ -43,7 +45,7 @@ docker buildx build \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
-    -t ${DOCKER_HUB_ORG}/r-base:${RLANG_VERSION} \
+    -t ${DOCKER_HUB_ORG}/r-base:${RLANG_VERSION}-envd-v${ENVD_VERSION} \
     --pull --push --platform linux/x86_64 \
     -f r${RLANG_VERSION}.Dockerfile .
 docker buildx build \
@@ -51,7 +53,7 @@ docker buildx build \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --build-arg HTTP_PROXY=${HTTP_PROXY} \
     --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
-    -t ${DOCKER_HUB_ORG}/julia:${JULIA_VERSION}-${ENVD_OS} \
+    -t ${DOCKER_HUB_ORG}/julia:${JULIA_VERSION}-${ENVD_OS}-envd-v${ENVD_VERSION} \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -f julia${JULIA_VERSION}-${ENVD_OS}.Dockerfile .
 cd - > /dev/null
