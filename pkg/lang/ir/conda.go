@@ -15,16 +15,23 @@
 package ir
 
 import (
+	_ "embed"
 	"fmt"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 )
 
 const (
-	condarc        = "/home/envd/.condarc"
-	defaultVersion = "3.9"
+	condarc             = "/home/envd/.condarc"
+	condaVersionDefault = "py39_4.11.0"
+)
+
+var (
+	//go:embed install-conda.sh
+	installCondaBash string
 )
 
 func (g Graph) CondaEnabled() bool {
@@ -80,7 +87,7 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
-func (g Graph) compileCondaEnvironment(root llb.State) llb.State {
+func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	root = llb.User("envd")(root)
 
 	cacheDir := "/opt/conda/pkgs"
@@ -97,15 +104,18 @@ func (g Graph) compileCondaEnvironment(root llb.State) llb.State {
 
 	pythonVersion, err := g.GetAppropriatePythonVersion()
 	if err != nil {
-		pythonVersion = defaultVersion
+		return llb.State{}, errors.Wrap(err, "failed to get python version")
 	}
+
 	cmd := fmt.Sprintf(
-		"bash -c \"/opt/conda/bin/conda create -n envd python=%s\"", pythonVersion)
+		"bash -c \"/opt/conda/bin/conda create -n envd python=%s\"",
+		pythonVersion)
 
 	// Create a conda environment.
-	run = run.Run(llb.Shlex(cmd), llb.WithCustomName("[internal] create conda environment"))
-	run.AddMount(cacheDir, cache,
-		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
+	run = run.Run(llb.Shlex(cmd),
+		llb.WithCustomName("[internal] create conda environment"))
+	run.AddMount(cacheDir, cache, llb.AsPersistentCacheDir(
+		g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
 
 	switch g.Shell {
 	case shellBASH:
@@ -119,5 +129,15 @@ func (g Graph) compileCondaEnvironment(root llb.State) llb.State {
 			llb.Shlex(`bash -c 'echo "source /opt/conda/bin/activate envd" >> /home/envd/.zshrc'`),
 			llb.WithCustomName("[internal] add conda environment to zshrc"))
 	}
-	return run.Root()
+	return run.Root(), nil
+}
+
+func (g Graph) installConda(root llb.State) (llb.State, error) {
+	run := root.AddEnv("CONDA_VERSION", condaVersionDefault).
+		File(llb.Mkdir("/opt/conda", 0755, llb.WithParents(true),
+			llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomName("[internal] create conda directory")).
+		Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installCondaBash)),
+			llb.WithCustomName("[internal] install conda"))
+	return run.Root(), nil
 }

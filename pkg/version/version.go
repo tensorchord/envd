@@ -24,12 +24,6 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-
-	"github.com/cockroachdb/errors"
-	"github.com/urfave/cli/v2"
-
-	"github.com/tensorchord/envd/pkg/envd"
-	"github.com/tensorchord/envd/pkg/types"
 )
 
 var (
@@ -40,11 +34,12 @@ var (
 	// the program at linking time.
 	Revision = ""
 
-	version      = "0.0.0+unknown"
-	buildDate    = "1970-01-01T00:00:00Z" // output from `date -u +'%Y-%m-%dT%H:%M:%SZ'`
-	gitCommit    = ""                     // output from `git rev-parse HEAD`
-	gitTag       = ""                     // output from `git describe --exact-match --tags HEAD` (if clean tree state)
-	gitTreeState = ""                     // determined from `git status --porcelain`. either 'clean' or 'dirty'
+	version         = "0.0.0+unknown"
+	buildDate       = "1970-01-01T00:00:00Z" // output from `date -u +'%Y-%m-%dT%H:%M:%SZ'`
+	gitCommit       = ""                     // output from `git rev-parse HEAD`
+	gitTag          = ""                     // output from `git describe --exact-match --tags HEAD` (if clean tree state)
+	gitTreeState    = ""                     // determined from `git status --porcelain`. either 'clean' or 'dirty'
+	developmentFlag = "false"
 )
 
 // Version contains envd version information
@@ -59,25 +54,24 @@ type Version struct {
 	Platform     string
 }
 
-type DetailedVersion struct {
-	OSVersion         string
-	OSType            string
-	KernelVersion     string
-	Architecture      string
-	DockerVersion     string
-	ContainerRuntimes string
-	DefaultRuntime    string
-}
-
 func (v Version) String() string {
 	return v.Version
+}
+
+// GetGitTagFromVersion gets the git tag.
+func GetGitTagFromVersion() string {
+	if gitTag != "" {
+		return gitTag
+	}
+	return ""
 }
 
 // GetEnvdVersion gets Envd version information
 func GetEnvdVersion() string {
 	var versionStr string
 
-	if gitCommit != "" && gitTag != "" && gitTreeState == "clean" {
+	if gitCommit != "" && gitTag != "" &&
+		gitTreeState == "clean" && developmentFlag == "false" {
 		// if we have a clean tree state and the current commit is tagged,
 		// this is an official release.
 		versionStr = gitTag
@@ -101,15 +95,6 @@ func GetEnvdVersion() string {
 	return versionStr
 }
 
-func GetRuntimes(info *types.EnvdInfo) string {
-	runtimesMap := info.Runtimes
-	keys := make([]string, 0, len(runtimesMap))
-	for k := range runtimesMap {
-		keys = append(keys, k)
-	}
-	return "[" + strings.Join(keys, ",") + "]"
-}
-
 // GetVersion returns the version information
 func GetVersion() Version {
 	return Version{
@@ -122,32 +107,6 @@ func GetVersion() Version {
 		Compiler:     runtime.Compiler,
 		Platform:     fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH),
 	}
-}
-
-func GetDetailedVersion(clicontext *cli.Context) (DetailedVersion, error) {
-	engine, err := envd.New(clicontext.Context)
-	if err != nil {
-		return DetailedVersion{}, errors.Wrap(
-			err, "failed to create engine for docker server",
-		)
-	}
-
-	info, err := engine.GetInfo(clicontext.Context)
-	if err != nil {
-		return DetailedVersion{}, errors.Wrap(
-			err, "failed to get detailed version info from docker server",
-		)
-	}
-
-	return DetailedVersion{
-		OSVersion:         info.OSVersion,
-		OSType:            info.OSType,
-		KernelVersion:     info.KernelVersion,
-		DockerVersion:     info.ServerVersion,
-		Architecture:      info.Architecture,
-		DefaultRuntime:    info.DefaultRuntime,
-		ContainerRuntimes: GetRuntimes(info),
-	}, nil
 }
 
 var (

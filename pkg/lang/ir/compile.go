@@ -193,10 +193,12 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	}).Debug("compile LLB")
 
 	// TODO(gaocegege): Support more OS and langs.
-	base := g.compileBase()
+	base, err := g.compileBase()
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get the base image")
+	}
 	aptStage := g.compileUbuntuAPT(base)
 	var merged llb.State
-	var err error
 	// Use custom logic when image is specified.
 	if g.Image != nil {
 		merged, err = g.compileCustomPython(aptStage)
