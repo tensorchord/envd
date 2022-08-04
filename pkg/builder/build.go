@@ -29,13 +29,27 @@ func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (
 		sreq := client.SolveRequest{
 			Definition: b.definition.ToPB(),
 		}
+
+		// Get the envd default cache importer in docker.io/tensorchord/...
+		if defaultImporter, err := b.defaultCacheImporter(); err != nil {
+			return nil, errors.Wrap(err, "failed to get default importer")
+		} else {
+			ci, err := ParseImportCache([]string{*defaultImporter})
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to get the import cache")
+			}
+			sreq.CacheImports = append(sreq.CacheImports, ci...)
+		}
+
+		// Get the user-defined cache importer.
 		if b.Options.ImportCache != "" {
 			ci, err := ParseImportCache([]string{b.Options.ImportCache})
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to get the import cache")
 			}
-			sreq.CacheImports = ci
+			sreq.CacheImports = append(sreq.CacheImports, ci...)
 		}
+
 		res, err := c.Solve(ctx, sreq)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to solve")

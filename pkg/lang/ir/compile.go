@@ -29,6 +29,7 @@ import (
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/version"
 )
 
 func NewGraph() *Graph {
@@ -137,6 +138,22 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 	}
 
 	return ports, nil
+}
+
+func (g Graph) DefaultCacheImporter() (*string, error) {
+	switch g.Language.Name {
+	case "python":
+		v, err := g.getAppropriatePythonVersion()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get python version")
+		}
+		res := fmt.Sprintf(
+			"type=registry,ref=docker.io/gaocegege/python-cache:%s-envd-%s",
+			v, version.GetGitTagFromVersion())
+		return &res, nil
+	default:
+		return nil, nil
+	}
 }
 
 func (g Graph) Entrypoint(buildContextDir string) ([]string, error) {

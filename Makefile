@@ -96,7 +96,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: help lint test build dev container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build
+.PHONY: help lint test build dev container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build base-image
 
 .DEFAULT_GOAL:=build-local
 

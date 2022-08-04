@@ -102,7 +102,7 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	// Always init bash since we will use it to create jupyter notebook service.
 	run := root.Run(llb.Shlex("bash -c \"/opt/conda/bin/conda init bash\""), llb.WithCustomName("[internal] initialize conda bash environment"))
 
-	pythonVersion, err := g.GetAppropriatePythonVersion()
+	pythonVersion, err := g.getAppropriatePythonVersion()
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get python version")
 	}

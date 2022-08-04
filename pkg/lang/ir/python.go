@@ -28,7 +28,11 @@ const (
 	pythonVersionDefault = "3.9"
 )
 
-func (g Graph) GetAppropriatePythonVersion() (string, error) {
+func (g Graph) getAppropriatePythonVersion() (string, error) {
+	if g.Language.Version == nil {
+		return pythonVersionDefault, nil
+	}
+
 	version := *g.Language.Version
 	if version == "3" || version == "" {
 		return pythonVersionDefault, nil

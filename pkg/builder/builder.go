@@ -211,6 +211,13 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	return data, nil
 }
 
+func (b generalBuilder) defaultCacheImporter() (*string, error) {
+	if ir.DefaultGraph != nil {
+		return ir.DefaultGraph.DefaultCacheImporter()
+	}
+	return nil, nil
+}
+
 func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) error {
 	b.logger.Debug("building envd image")
 	ce, err := ParseExportCache([]string{b.ExportCache}, nil)
