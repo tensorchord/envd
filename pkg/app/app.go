@@ -67,6 +67,7 @@ func New() EnvdApp {
 		CommandResume,
 		CommandUp,
 		CommandVersion,
+		CommandTop,
 	}
 
 	internalApp.CustomAppHelpTemplate = ` envd - Development environment for data science and AI/ML teams
