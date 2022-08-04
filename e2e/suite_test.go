@@ -15,7 +15,7 @@
 package e2e
 
 import (
-	"os/exec"
+	"os"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -25,14 +25,7 @@ import (
 )
 
 func init() {
-	// Set the git tag to get the correct image in ir package.
-	cmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
-	tag, err := cmd.Output()
-	println(tag)
-	if err != nil {
-		panic(err)
-	}
-	version.SetGitTagForE2ETest(string(tag))
+	version.SetGitTagForE2ETest(os.Getenv("GIT_LATEST_TAG"))
 }
 
 func TestMain(t *testing.T) {

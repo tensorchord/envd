@@ -74,6 +74,7 @@ GIT_COMMIT=$(shell git rev-parse HEAD)
 GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-match --tags HEAD 2>/dev/null; fi)
 GIT_TREE_STATE=$(shell if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)
 GITSHA ?= $(shell git rev-parse --short HEAD)
+GIT_LATEST_TAG ?= $(shell git describe --tags --abbrev=0)
 
 # Track code version with Docker Label.
 DOCKER_LABELS ?= git-describe="$(shell date -u +v%Y%m%d)-$(shell git describe --tags --always --dirty)"
@@ -135,7 +136,7 @@ build-local:
 		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
 		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
 		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
-		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
+		-X $(ROOT)/pkg/version.gitTag=$(GIT_LATEST_TAG) \
 		-X $(ROOT)/pkg/version.developmentFlag=true" \
 	    $(CMD_DIR)/$${target};                                                         \
 	done

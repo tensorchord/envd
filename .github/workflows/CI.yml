@@ -127,8 +127,12 @@ jobs:
             ${{ runner.OS }}-build-${{ env.cache-name }}-
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
       - name: e2e test
         run: make e2e-test
+        env:
+          GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
