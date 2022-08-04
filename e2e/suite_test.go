@@ -20,6 +20,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -27,6 +28,7 @@ func init() {
 	// Set the git tag to get the correct image in ir package.
 	cmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
 	tag, err := cmd.Output()
+	println(tag)
 	if err != nil {
 		panic(err)
 	}
