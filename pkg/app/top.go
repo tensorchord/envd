@@ -86,7 +86,9 @@ func top(clicontext *cli.Context) error {
 }
 
 func initGrid(ctx context.Context, envs []types.EnvdEnvironment, collector metrics.Collector) []ui.Drawable {
-	rows := make([]*metrics.WidgetRow, 2)
+	// There will be a header
+	rowNumber := len(envs) + 1
+	rows := make([]*metrics.WidgetRow, rowNumber)
 	header := metrics.NewWidgetRow(0)
 	header.Add(metrics.NewNameCol("Name"))
 	header.Add(metrics.NewNameCol("ID"))
