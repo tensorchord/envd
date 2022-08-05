@@ -74,6 +74,7 @@ GIT_COMMIT=$(shell git rev-parse HEAD)
 GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-match --tags HEAD 2>/dev/null; fi)
 GIT_TREE_STATE=$(shell if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)
 GITSHA ?= $(shell git rev-parse --short HEAD)
+GIT_LATEST_TAG ?= $(shell git describe --tags --abbrev=0)
 
 # Track code version with Docker Label.
 DOCKER_LABELS ?= git-describe="$(shell date -u +v%Y%m%d)-$(shell git describe --tags --always --dirty)"
@@ -95,11 +96,20 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: help lint test build dev container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build
+.PHONY: help lint test build dev container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build base-image
 
-.DEFAULT_GOAL:=build
+.DEFAULT_GOAL:=build-local
 
-build: build-local  ## Build the release version of envd
+build-release:
+	@for target in $(TARGETS); do                                                      \
+	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath -v -o $(OUTPUT_DIR)/$${target}     \
+	    -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
+		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
+		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
+		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
+		-X $(ROOT)/pkg/version.gitTag=$(GIT_TAG)" \
+	    $(CMD_DIR)/$${target};                                                         \
+	done
 
 help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
@@ -122,7 +132,12 @@ addlicense-install:
 build-local:
 	@for target in $(TARGETS); do                                                      \
 	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath -v -o $(OUTPUT_DIR)/$${target}     \
-	    -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) -X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) -X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) -X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)"                     \
+	    -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
+		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
+		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
+		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
+		-X $(ROOT)/pkg/version.gitTag=$(GIT_LATEST_TAG) \
+		-X $(ROOT)/pkg/version.developmentFlag=true" \
 	    $(CMD_DIR)/$${target};                                                         \
 	done
 
@@ -156,8 +171,14 @@ test: generate  ## Run the tests
 	@go test -race -coverpkg=./pkg/... -coverprofile=coverage.out $(shell go list ./... | grep -v e2e)
 	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
-e2e-test: generate
-	@go test -race -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./e2e
+e2e-test:
+	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
+		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
+		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
+		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
+		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
+		-X $(ROOT)/pkg/version.developmentFlag=true" \
+		-race -v -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./e2e
 
 clean:  ## Clean the outputs and artifacts
 	@-rm -vrf ${OUTPUT_DIR}

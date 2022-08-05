@@ -18,6 +18,7 @@ builds:
       - -X github.com/tensorchord/envd/pkg/version.buildDate={{ .Date }}
       - -X github.com/tensorchord/envd/pkg/version.gitCommit={{ .Commit }}
       - -X github.com/tensorchord/envd/pkg/version.gitTreeState=clean
+      - -X github.com/tensorchord/envd/pkg/version.gitTag={{ .Tag }}
   - env:
       - CGO_ENABLED=0
     goos:

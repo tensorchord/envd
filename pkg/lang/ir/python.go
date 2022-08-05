@@ -24,10 +24,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (g Graph) GetAppropriatePythonVersion() (string, error) {
+const (
+	pythonVersionDefault = "3.9"
+)
+
+func (g Graph) getAppropriatePythonVersion() (string, error) {
+	if g.Language.Version == nil {
+		return pythonVersionDefault, nil
+	}
+
 	version := *g.Language.Version
 	if version == "3" || version == "" {
-		return defaultVersion, nil
+		return pythonVersionDefault, nil
 	}
 	if strings.HasPrefix(version, "3.") {
 		return version, nil
@@ -56,7 +64,10 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 		return llb.State{}, errors.Wrap(err, "failed to compile shell")
 	}
 
-	condaEnvStage := g.compileCondaEnvironment(shellStage)
+	condaEnvStage, err := g.compileCondaEnvironment(shellStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile conda environment")
+	}
 
 	condaStage := llb.Diff(builtinSystemStage,
 		g.compileCondaPackages(condaEnvStage),

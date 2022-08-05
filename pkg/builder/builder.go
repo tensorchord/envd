@@ -74,6 +74,8 @@ type generalBuilder struct {
 	manifestCodeHash string
 	entries          []client.ExportEntry
 
+	definition *llb.Definition
+
 	logger *logrus.Entry
 	starlark.Interpreter
 	buildkitd.Client
@@ -139,6 +141,13 @@ func (b generalBuilder) Build(ctx context.Context, force bool) error {
 	if !force && !b.checkIfNeedBuild(ctx) {
 		return nil
 	}
+
+	def, err := b.compile(ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to compile")
+	}
+	b.definition = def
+
 	pw, err := progresswriter.NewPrinter(ctx, os.Stdout, b.ProgressMode)
 	if err != nil {
 		return errors.Wrap(err, "failed to create progress writer")
@@ -200,6 +209,13 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 		return "", errors.Wrap(err, "failed to get image config")
 	}
 	return data, nil
+}
+
+func (b generalBuilder) defaultCacheImporter() (*string, error) {
+	if ir.DefaultGraph != nil {
+		return ir.DefaultGraph.DefaultCacheImporter()
+	}
+	return nil, nil
 }
 
 func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) error {

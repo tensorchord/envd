@@ -16,9 +16,13 @@ package app
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/envd"
+	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -48,7 +52,7 @@ func printVersion(ctx *cli.Context) error {
 	short := ctx.Bool("short")
 	detail := ctx.Bool("detail")
 	ver := version.GetVersion()
-	detailVer, err := version.GetDetailedVersion(ctx)
+	detailVer, err := getDetailedVersion(ctx)
 	fmt.Printf("envd: %s\n", ver)
 	if short {
 		return nil
@@ -77,4 +81,49 @@ func printVersion(ctx *cli.Context) error {
 		}
 	}
 	return nil
+}
+
+func getDetailedVersion(clicontext *cli.Context) (detailedVersion, error) {
+	engine, err := envd.New(clicontext.Context)
+	if err != nil {
+		return detailedVersion{}, errors.Wrap(
+			err, "failed to create engine for docker server",
+		)
+	}
+
+	info, err := engine.GetInfo(clicontext.Context)
+	if err != nil {
+		return detailedVersion{}, errors.Wrap(
+			err, "failed to get detailed version info from docker server",
+		)
+	}
+
+	return detailedVersion{
+		OSVersion:         info.OSVersion,
+		OSType:            info.OSType,
+		KernelVersion:     info.KernelVersion,
+		DockerVersion:     info.ServerVersion,
+		Architecture:      info.Architecture,
+		DefaultRuntime:    info.DefaultRuntime,
+		ContainerRuntimes: GetRuntimes(info),
+	}, nil
+}
+
+type detailedVersion struct {
+	OSVersion         string
+	OSType            string
+	KernelVersion     string
+	Architecture      string
+	DockerVersion     string
+	ContainerRuntimes string
+	DefaultRuntime    string
+}
+
+func GetRuntimes(info *types.EnvdInfo) string {
+	runtimesMap := info.Runtimes
+	keys := make([]string, 0, len(runtimesMap))
+	for k := range runtimesMap {
+		keys = append(keys, k)
+	}
+	return "[" + strings.Join(keys, ",") + "]"
 }
