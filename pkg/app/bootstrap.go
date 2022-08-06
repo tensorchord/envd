@@ -64,12 +64,38 @@ var CommandBootstrap = &cli.Command{
 }
 
 func bootstrap(clicontext *cli.Context) error {
-	// If not specified, generate only if key doesn't exist
-	sshKeyPair := clicontext.StringSlice("ssh-keypair")
-	if len(sshKeyPair) != 0 && len(sshKeyPair) != 2 {
-		return errors.Errorf("Invliad ssh-keypair flag")
+	stages := []struct {
+		Name string
+		Func func(*cli.Context) error
+	}{{
+		"SSH Key",
+		sshKey,
+	}, {
+		"autocomplete",
+		autocomplete,
+	}, {
+		"buildkit",
+		buildkit,
+	}}
+
+	total := len(stages)
+	for i, stage := range stages {
+		logrus.Infof("[%d/%d] Bootstrap %s", i+1, total, stage.Name)
+		err := stage.Func(clicontext)
+		if err != nil {
+			return err
+		}
 	}
-	if len(sshKeyPair) == 0 {
+
+	return nil
+}
+
+func sshKey(clicontext *cli.Context) error {
+	sshKeyPair := clicontext.StringSlice("ssh-keypair")
+
+	switch len(sshKeyPair) {
+	case 0:
+		// If not specified, generate only if key doesn't exist
 		keyExists, err := sshconfig.DefaultKeyExists()
 		if err != nil {
 			return errors.Wrap(err, "Cannot get default key status")
@@ -80,7 +106,8 @@ func bootstrap(clicontext *cli.Context) error {
 				return errors.Wrap(err, "failed to generate ssh key")
 			}
 		}
-	} else if len(sshKeyPair) == 2 {
+		return nil
+	case 2:
 		// Specified new pairs. Only change to specified pairs when default key doesn't exist
 		// Raise error if already exists
 		keyExists, err := sshconfig.DefaultKeyExists()
@@ -125,46 +152,59 @@ func bootstrap(clicontext *cli.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "Cannot open private key")
 		}
-		err = ioutil.WriteFile(path, priKey, 0600)
 
+		err = ioutil.WriteFile(path, priKey, 0600)
 		if err != nil {
 			return errors.Wrap(err, "Cannot write private key")
 		}
+		return nil
 
+	default:
+		return errors.Errorf("Invliad ssh-keypair flag")
 	}
+}
 
+func autocomplete(clicontext *cli.Context) error {
 	autocomplete := clicontext.Bool("with-autocomplete")
-	if autocomplete {
-		// Because this requires sudo, it should warn and not fail the rest of it.
-		err := ac.InsertBashCompleteEntry()
-		if err != nil {
-			logrus.Warnf("Warning: %s\n", err.Error())
-			err = nil
-		}
-		err = ac.InsertZSHCompleteEntry()
-		if err != nil {
-			logrus.Warnf("Warning: %s\n", err.Error())
-			err = nil
-		}
-
-		logrus.Info("You may have to restart your shell for autocomplete to get initialized (e.g. run \"exec $SHELL\")\n")
+	if !autocomplete {
+		return nil
 	}
 
+	// Because this requires sudo, it should warn and not fail the rest of it.
+	err := ac.InsertBashCompleteEntry()
+	if err != nil {
+		logrus.Warnf("Warning: %s\n", err.Error())
+		err = nil
+	}
+	err = ac.InsertZSHCompleteEntry()
+	if err != nil {
+		logrus.Warnf("Warning: %s\n", err.Error())
+		err = nil
+	}
+
+	logrus.Info("You may have to restart your shell for autocomplete to get initialized (e.g. run \"exec $SHELL\")\n")
+	return nil
+}
+
+func buildkit(clicontext *cli.Context) error {
 	buildkit := clicontext.Bool("buildkit")
-
-	if buildkit {
-		currentDriver, currentSocket, err := home.GetManager().ContextGetCurrent()
-		if err != nil {
-			return errors.Wrap(err, "failed to get the current context")
-		}
-		logrus.Debug("bootstrap the buildkitd container")
-		bkClient, err := buildkitd.NewClient(clicontext.Context,
-			currentDriver, currentSocket, clicontext.String("dockerhub-mirror"))
-		if err != nil {
-			return errors.Wrap(err, "failed to create buildkit client")
-		}
-		defer bkClient.Close()
-		logrus.Infof("The buildkit is running at %s", bkClient.BuildkitdAddr())
+	if !buildkit {
+		return nil
 	}
+
+	currentDriver, currentSocket, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+
+	logrus.Debug("bootstrap the buildkitd container")
+	bkClient, err := buildkitd.NewClient(clicontext.Context,
+		currentDriver, currentSocket, clicontext.String("dockerhub-mirror"))
+	if err != nil {
+		return errors.Wrap(err, "failed to create buildkit client")
+	}
+	defer bkClient.Close()
+	logrus.Infof("The buildkit is running at %s", bkClient.BuildkitdAddr())
+
 	return nil
 }
