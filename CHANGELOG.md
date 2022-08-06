@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.0-alpha.13 (2022-08-06)
+
+
+### Contributors
+
+
 ## v0.2.0-alpha.12 (2022-08-06)
 
  * [8bef795](https://github.com/tensorchord/envd/commit/8bef795c6acd581b68492df715d67c9ed32ccc49) feat(CLI): :recycle: refactor bootstrap command to show what's envd doing (#728)
