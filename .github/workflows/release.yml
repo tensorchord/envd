@@ -121,7 +121,7 @@ jobs:
     # only trigger on main repo when tag starts with v
     if: github.repository == 'tensorchord/envd' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    needs: goreleaser
+    needs: image_publish
     steps:
     - uses: actions/checkout@v3
     - name: Set up Docker Buildx
