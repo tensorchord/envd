@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.2.0-alpha.12 (2022-08-06)
+
+ * [8bef795](https://github.com/tensorchord/envd/commit/8bef795c6acd581b68492df715d67c9ed32ccc49) feat(CLI): :recycle: refactor bootstrap command to show what's envd doing (#728)
+ * [8f19748](https://github.com/tensorchord/envd/commit/8f197483f9f59e0712bc0f54259331621fc05ad8) Bug: fix SIGSEGV of envd top (#726)
+ * [8c83cad](https://github.com/tensorchord/envd/commit/8c83cada88d3cb0fff0eb6c19aa880c6c163cf17) feat(base-image): Move conda to llb and cache it (#724)
+ * [5587c3f](https://github.com/tensorchord/envd/commit/5587c3fa6f70e465df5ba14f3cec2f99339f7bcb) feature: add envd top commands (#718)
+ * [f22b283](https://github.com/tensorchord/envd/commit/f22b28328c6bd1b59bd870ef6b3a49bf0281375f) bug: allow multiple run command and use bash -c  (#720)
+ * [da8feb7](https://github.com/tensorchord/envd/commit/da8feb77175448a4ce2bb2b0815a8a9f62c347b2) bug: fix notebook entry when setting conda channel (#719)
+ * [116271c](https://github.com/tensorchord/envd/commit/116271c93323de18eb33fc834c971c9ca7e85b12) example: add a dgl GAT example (#714)
+ * [84ffea3](https://github.com/tensorchord/envd/commit/84ffea335115d94162896123831ad5459521e2ca) feat(lang): Add proposal for expose (#568)
+ * [ace70e9](https://github.com/tensorchord/envd/commit/ace70e95f4bc54cf1d58585b62d1976344d79728) feat: support io.mount (#708)
+ * [a1e0395](https://github.com/tensorchord/envd/commit/a1e039595539d966916f59daacc0613b3b06bc28) feat(lang): Add default conda pkg cache (#705)
+ * [c515f3c](https://github.com/tensorchord/envd/commit/c515f3cf62b2450eb36dc659974fd8875cf56f48) feat(CLI): Add category and refine help text (#707)
+ * [54f412a](https://github.com/tensorchord/envd/commit/54f412a21eb47060439e3749c34d57bbfce26ba4) feat(CLI): Support run command (#701)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * Wei Zhang
+ * nullday
+
 ## v0.2.0-alpha.11 (2022-07-29)
 
  * [62bd2dc](https://github.com/tensorchord/envd/commit/62bd2dcf37be2c8b811b34ea6d05189250dbdd1f) bug: Fix version prefix (#696)
