@@ -351,6 +351,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "zwpaper",
+      "name": "Wei Zhang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3764335?v=4",
+      "profile": "https://page.codespaper.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
