@@ -1,5 +1,6 @@
 def build():
-    base(language="python", image="python:3.8")
+    base(language="python", image="python:3.9")
     install.python_packages(name=[
       "via",
     ])
+    config.entrypoint(["date", "-u"])

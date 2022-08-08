@@ -200,10 +200,11 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	}
 	labels[types.ImageLabelContext] = b.BuildContextDir
 
-	ep, err := ir.Entrypoint(b.BuildContextDir)
+	ep, err := ir.CompileEntrypoint(b.BuildContextDir)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get entrypoint")
 	}
+	b.logger.Debugf("final entrypoint: {%s}\n", ep)
 	data, err := ImageConfigStr(labels, ports, ep)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get image config")

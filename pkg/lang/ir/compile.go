@@ -90,7 +90,7 @@ func ExposedPorts() (map[string]struct{}, error) {
 	return DefaultGraph.ExposedPorts()
 }
 
-func Entrypoint(buildContextDir string) ([]string, error) {
+func CompileEntrypoint(buildContextDir string) ([]string, error) {
 	return DefaultGraph.Entrypoint(buildContextDir)
 }
 
@@ -161,10 +161,8 @@ func (g Graph) DefaultCacheImporter() (*string, error) {
 }
 
 func (g Graph) Entrypoint(buildContextDir string) ([]string, error) {
-	// Do not set entrypoint if the image is customized.
 	if g.Image != nil {
-		logrus.Debug("skip entrypoint because the image is customized")
-		return []string{}, nil
+		return g.Exec, nil
 	}
 
 	ep := []string{
