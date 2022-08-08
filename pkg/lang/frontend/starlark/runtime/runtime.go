@@ -18,9 +18,10 @@ import (
 	"fmt"
 
 	"github.com/sirupsen/logrus"
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 var (
