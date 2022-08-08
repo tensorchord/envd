@@ -40,6 +40,7 @@ import (
 
 type Builder interface {
 	Build(ctx context.Context, force bool) error
+	Interpret() error
 	GPUEnabled() bool
 	NumGPUs() int
 }
@@ -159,20 +160,23 @@ func (b generalBuilder) Build(ctx context.Context, force bool) error {
 	return nil
 }
 
-func (b generalBuilder) interpret() error {
+func (b generalBuilder) Interpret() error {
 	// Evaluate config first.
-	if _, err := b.ExecFile(b.ConfigFilePath, ""); err != nil {
-		return errors.Wrap(err, "failed to exec starlark file")
+	if b.ConfigFilePath != "" {
+		b.logger.Debug("evaluating config file")
+		if _, err := b.ExecFile(b.ConfigFilePath, ""); err != nil {
+			return errors.Wrapf(err, "failed to exec starlark file %s", b.ConfigFilePath)
+		}
 	}
 
 	if _, err := b.ExecFile(b.ManifestFilePath, b.BuildFuncName); err != nil {
-		return errors.Wrap(err, "failed to exec starlark file")
+		return errors.Wrapf(err, "failed to exec starlark file %s", b.ManifestFilePath)
 	}
 	return nil
 }
 
 func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
-	if err := b.interpret(); err != nil {
+	if err := b.Interpret(); err != nil {
 		return nil, errors.Wrap(err, "failed to interpret")
 	}
 	def, err := ir.Compile(ctx, fileutil.Base(b.BuildContextDir), b.PubKeyPath)

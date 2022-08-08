@@ -16,12 +16,16 @@ package app
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandRun = &cli.Command{
@@ -36,8 +40,25 @@ var CommandRun = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:    "command",
-			Usage:   "Command to execute",
+			Usage:   "Command defined in build.envd to execute",
 			Aliases: []string{"c"},
+		},
+		&cli.PathFlag{
+			Name:    "from",
+			Usage:   "Function to execute, format `file:func`",
+			Aliases: []string{"f"},
+			Value:   "build.envd:build",
+		},
+		&cli.PathFlag{
+			Name:    "path",
+			Usage:   "Path to the directory containing the build.envd",
+			Aliases: []string{"p"},
+			Value:   ".",
+		},
+		&cli.StringFlag{
+			Name:    "raw",
+			Usage:   "Raw command to execute",
+			Aliases: []string{"r"},
 		},
 	},
 
@@ -46,6 +67,53 @@ var CommandRun = &cli.Command{
 
 func run(clicontext *cli.Context) error {
 	name := clicontext.String("name")
+	command := clicontext.String("command")
+	rawCommand := clicontext.String("raw")
+	path := clicontext.String("path")
+
+	if command != "" && rawCommand != "" {
+		return errors.New("--raw and --command are mutually exclusive and may only be used once")
+	}
+
+	resultCommand := rawCommand
+	if command != "" {
+		buildContext, err := filepath.Abs(path)
+		if err != nil {
+			return errors.Wrap(err, "failed to get absolute path of the build context")
+		}
+		fileName, funcName, err := builder.ParseFromStr(clicontext.String("from"))
+		if err != nil {
+			return err
+		}
+		manifest, err := filepath.Abs(filepath.Join(buildContext, fileName))
+		if err != nil {
+			return errors.Wrap(err, "failed to get absolute path of the build file")
+		}
+		if manifest == "" {
+			return errors.Newf("build file %s does not exist", fileName)
+		}
+		opt := builder.Options{
+			ManifestFilePath: manifest,
+			BuildContextDir:  buildContext,
+			BuildFuncName:    funcName,
+		}
+		builder, err := builder.New(clicontext.Context, opt)
+		if err != nil {
+			return errors.Wrap(err, "failed to create the builder")
+		}
+		if err := builder.Interpret(); err != nil {
+			return errors.Wrap(err, "failed to interpret the build file")
+		}
+		if cmd, ok := ir.DefaultGraph.RuntimeCommands[command]; !ok {
+			return errors.Newf("command %s does not exist", command)
+		} else {
+			resultCommand = cmd
+		}
+		// Get the environment name if `name` is not specified.
+		if name == "" {
+			name = fileutil.Base(path)
+		}
+	}
 
 	// Check if the container is running.
 	dockerClient, err := docker.NewClient(clicontext.Context)
@@ -69,8 +137,10 @@ func run(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the ssh client")
 	}
-	if bytes, err := sshClient.ExecWithOutput(clicontext.String("command")); err != nil {
-		return errors.Wrap(err, "failed to execute the command")
+	if bytes, err := sshClient.ExecWithOutput(resultCommand); err != nil {
+		fmt.Fprintln(clicontext.App.Writer, string(bytes))
+		return errors.Wrapf(err,
+			"failed to execute the command `%s`", resultCommand)
 	} else {
 		fmt.Fprint(clicontext.App.Writer, string(bytes))
 	}

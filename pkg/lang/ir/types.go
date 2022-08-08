@@ -50,9 +50,10 @@ type Graph struct {
 
 	VSCodePlugins []vscode.Plugin
 
-	Exec  []string
-	Copy  []CopyInfo
-	Mount []MountInfo
+	Exec            []string
+	Copy            []CopyInfo
+	Mount           []MountInfo
+	RuntimeCommands map[string]string
 
 	*JupyterConfig
 	*GitConfig

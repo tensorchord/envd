@@ -83,7 +83,23 @@ func NewExample(name string, testcaseAbbr string) *Example {
 
 func (e *Example) Exec(cmd string) (string, error) {
 	args := []string{
-		"envd.test", "run", "--name", e.Name, "--command", cmd,
+		"envd.test", "run", "--name", e.Name, "--raw", cmd,
+	}
+
+	buffer := new(bytes.Buffer)
+	e.app.Writer = buffer
+
+	err := e.app.Run(args)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to start `run` command")
+	}
+	return strings.Trim(buffer.String(), "\n"), nil
+}
+
+func (e *Example) ExecRuntimeCommand(cmd string) (string, error) {
+	buildContext := "testdata/" + e.Name
+	args := []string{
+		"envd.test", "run", "-p", buildContext, "--command", cmd,
 	}
 
 	buffer := new(bytes.Buffer)

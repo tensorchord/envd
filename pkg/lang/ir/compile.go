@@ -42,12 +42,13 @@ func NewGraph() *Graph {
 		CUDNN:   nil,
 		NumGPUs: -1,
 
-		PyPIPackages:   []string{},
-		RPackages:      []string{},
-		JuliaPackages:  []string{},
-		SystemPackages: []string{},
-		Exec:           []string{},
-		Shell:          shellBASH,
+		PyPIPackages:    []string{},
+		RPackages:       []string{},
+		JuliaPackages:   []string{},
+		SystemPackages:  []string{},
+		Exec:            []string{},
+		RuntimeCommands: make(map[string]string),
+		Shell:           shellBASH,
 	}
 }
 

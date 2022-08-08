@@ -24,7 +24,6 @@ require (
 	github.com/onsi/gomega v1.20.0
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799
-	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.12.0
@@ -39,7 +38,10 @@ require (
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 )
 
-require github.com/op/go-logging v0.0.0-20160211212156-b2cb9fa56473 // indirect
+require (
+	github.com/op/go-logging v0.0.0-20160211212156-b2cb9fa56473 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+)
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect

@@ -208,3 +208,9 @@ func Mount(src, dest string) {
 func Entrypoint(args []string) {
 	DefaultGraph.Exec = append(DefaultGraph.Exec, strings.Join(args, " "))
 }
+
+func RuntimeCommands(commands map[string]string) {
+	for k, v := range commands {
+		DefaultGraph.RuntimeCommands[k] = v
+	}
+}
