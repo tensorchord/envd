@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/cockroachdb/errors"
@@ -28,7 +29,6 @@ import (
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -183,13 +183,13 @@ wait -n`
 	// Generate jupyter and rstudio server commands.
 	var customCmd strings.Builder
 	if g.JupyterConfig != nil {
-		workingDir := fmt.Sprintf("/home/envd/%s", fileutil.Base(buildContextDir))
+		workingDir := filepath.Join("/home/envd", filepath.Base(buildContextDir))
 		jupyterCmd := g.generateJupyterCommand(workingDir)
 		customCmd.WriteString(strings.Join(jupyterCmd, " "))
 		customCmd.WriteString("\n")
 	}
 	if g.RStudioServerConfig != nil {
-		workingDir := fmt.Sprintf("/home/envd/%s", fileutil.Base(buildContextDir))
+		workingDir := filepath.Join("/home/envd", filepath.Base(buildContextDir))
 		rstudioCmd := g.generateRStudioCommand(workingDir)
 		customCmd.WriteString(strings.Join(rstudioCmd, " "))
 		customCmd.WriteString("\n")

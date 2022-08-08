@@ -17,9 +17,7 @@
 package fileutil
 
 import (
-	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -37,8 +35,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	DefaultConfigDir = path.Join(home, ".config/envd")
-	DefaultCacheDir = path.Join(home, ".cache/envd")
+	DefaultConfigDir = filepath.Join(home, ".config", "envd")
+	DefaultCacheDir = filepath.Join(home, ".cache", "envd")
 }
 
 // FileExists returns true if the file exists
@@ -96,42 +94,22 @@ func RootDir() (string, error) {
 	return filepath.Base(cwd), nil
 }
 
-func Base(dir string) string {
-	return filepath.Base(dir)
-}
-
-func MkdirIfNotExist(filepath string) error {
-	exist, err := DirExists(filepath)
-	if err != nil {
-		return err
-	}
-	if !exist {
-		err = os.MkdirAll(filepath, os.ModeDir|0700)
-		if err != nil {
-			return errors.Wrap(err, "failed to create the dir")
-		}
-	}
-	return nil
-}
-
 // ConfigFile returns the location for the specified envd config file
 func ConfigFile(filename string) (string, error) {
-	if strings.ContainsRune(filename, os.PathSeparator) {
-		return "", fmt.Errorf("filename %s should not contain any path separator", filename)
-	}
-	if err := MkdirIfNotExist(DefaultConfigDir); err != nil {
-		return "", err
-	}
-	return path.Join(DefaultConfigDir, filename), nil
+	return validateAndJoin(DefaultConfigDir, filename)
 }
 
 // CacheFile returns the location for the specified envd cache file
 func CacheFile(filename string) (string, error) {
-	if strings.ContainsRune(filename, os.PathSeparator) {
-		return "", fmt.Errorf("filename %s should not contain any path separator", filename)
+	return validateAndJoin(DefaultCacheDir, filename)
+}
+
+func validateAndJoin(dir, file string) (string, error) {
+	if strings.ContainsRune(file, os.PathSeparator) {
+		return "", errors.Newf("filename %s should not contain any path separator", file)
 	}
-	if err := MkdirIfNotExist(DefaultCacheDir); err != nil {
-		return "", err
+	if err := os.MkdirAll(dir, os.ModeDir|0700); err != nil {
+		return "", errors.Wrap(err, "failed to create the dir")
 	}
-	return path.Join(DefaultCacheDir, filename), nil
+	return filepath.Join(dir, file), nil
 }

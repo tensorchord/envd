@@ -29,7 +29,6 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
@@ -139,14 +138,14 @@ func up(clicontext *cli.Context) error {
 	tag := clicontext.String("tag")
 	if tag == "" {
 		logrus.Debug("tag not specified, using default")
-		tag = fmt.Sprintf("%s:%s", fileutil.Base(buildContext), "dev")
+		tag = fmt.Sprintf("%s:%s", filepath.Base(buildContext), "dev")
 	}
 	// The current container engine is only Docker. It should be expaned to support other container engines.
 	tag, err = docker.NormalizeNamed(tag)
 	if err != nil {
 		return err
 	}
-	ctr := fileutil.Base(buildContext)
+	ctr := filepath.Base(buildContext)
 
 	detach := clicontext.Bool("detach")
 	debug := clicontext.Bool("debug")

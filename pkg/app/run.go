@@ -25,7 +25,6 @@ import (
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandRun = &cli.Command{
@@ -111,7 +110,7 @@ func run(clicontext *cli.Context) error {
 		}
 		// Get the environment name if `name` is not specified.
 		if name == "" {
-			name = fileutil.Base(path)
+			name = filepath.Base(path)
 		}
 	}
 
