@@ -106,7 +106,7 @@ func build(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get absolute path of the build file")
 	}
 	if manifest == "" {
-		return errors.New("file does not exist")
+		return errors.Newf("build file %s does not exist", fileName)
 	}
 
 	cfg := home.GetManager().ConfigFile()

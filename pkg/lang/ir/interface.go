@@ -203,3 +203,9 @@ func Mount(src, dest string) {
 		Destination: dest,
 	})
 }
+
+func RuntimeCommands(commands map[string]string) {
+	for k, v := range commands {
+		DefaultGraph.RuntimeCommands[k] = v
+	}
+}

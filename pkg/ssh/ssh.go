@@ -161,7 +161,7 @@ func (c generalClient) ExecWithOutput(cmd string) ([]byte, error) {
 		return nil, errors.Wrap(err, "requesting agent forwarding failed")
 	}
 
-	return session.Output(cmd)
+	return session.CombinedOutput(cmd)
 }
 
 func (c generalClient) Attach() error {
