@@ -179,7 +179,7 @@ e2e-test:
 		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
 		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
 		-X $(ROOT)/pkg/version.developmentFlag=true" \
-		-race -v -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./e2e
+		-race -v -timeout 20m -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./e2e
 
 clean:  ## Clean the outputs and artifacts
 	@-rm -vrf ${OUTPUT_DIR}

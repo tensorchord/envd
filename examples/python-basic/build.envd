@@ -1,7 +1,10 @@
 def build():
-    base(os="ubuntu20.04", language="python3.8")
+    base(os="ubuntu20.04", language="python")
     #config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
     install.python_packages([
         "via",
     ])
     io.copy(src="./build.envd", dest="/")
+    runtime.command(commands={
+        "test": "ls /",
+    })

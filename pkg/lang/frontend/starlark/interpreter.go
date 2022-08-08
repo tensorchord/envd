@@ -28,6 +28,7 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/config"
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/install"
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/io"
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/runtime"
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/universe"
 )
 
@@ -55,6 +56,7 @@ func NewInterpreter(buildContextDir string) Interpreter {
 			"install": install.Module,
 			"config":  config.Module,
 			"io":      io.Module,
+			"runtime": runtime.Module,
 		},
 		buildContextDir: buildContextDir,
 	}
