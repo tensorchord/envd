@@ -140,6 +140,9 @@ func (b generalBuilder) NumGPUs() int {
 
 func (b generalBuilder) Build(ctx context.Context, force bool) error {
 	if !force && !b.checkIfNeedBuild(ctx) {
+		if err := b.Interpret(); err != nil {
+			return errors.Wrap(err, "failed to interpret")
+		}
 		return nil
 	}
 
