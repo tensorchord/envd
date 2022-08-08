@@ -26,7 +26,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 def build_envd_if_not_found():
     if not os.path.exists("bin/envd"):
         logging.info("envd not found. Build from scratch")
-        errno = subprocess.call(["make", "build"])
+        errno = subprocess.call(["make", "build-release"])
         assert errno == 0, "Failed to build envd"
 
 

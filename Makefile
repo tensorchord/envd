@@ -144,7 +144,8 @@ build-local:
 pypi-build: clean
 	@python setup.py sdist bdist_wheel
 
-dev: pypi-build  ## install envd command for local debug
+dev: clean build-local  ## install envd command for local debug
+	@python setup.py bdist_wheel
 	@pip install --force-reinstall dist/*.whl
 
 generate: mockgen-install  ## Generate mocks
