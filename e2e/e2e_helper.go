@@ -96,6 +96,21 @@ func (e *Example) Exec(cmd string) (string, error) {
 	return strings.Trim(buffer.String(), "\n"), nil
 }
 
+func (e *Example) ExecRuntimeCommand(cmd string) (string, error) {
+	args := []string{
+		"envd.test", "run", "--name", e.Name, "--command", cmd,
+	}
+
+	buffer := new(bytes.Buffer)
+	e.app.Writer = buffer
+
+	err := e.app.Run(args)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to start `run` command")
+	}
+	return strings.Trim(buffer.String(), "\n"), nil
+}
+
 func (e *Example) RunContainer() func() {
 	return func() {
 		buildContext := "testdata/" + e.Name
