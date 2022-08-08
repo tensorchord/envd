@@ -97,8 +97,9 @@ func (e *Example) Exec(cmd string) (string, error) {
 }
 
 func (e *Example) ExecRuntimeCommand(cmd string) (string, error) {
+	buildContext := "testdata/" + e.Name
 	args := []string{
-		"envd.test", "run", "--name", e.Name, "--command", cmd,
+		"envd.test", "run", "-p", buildContext, "--command", cmd,
 	}
 
 	buffer := new(bytes.Buffer)
