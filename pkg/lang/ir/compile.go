@@ -92,7 +92,7 @@ func ExposedPorts() (map[string]struct{}, error) {
 }
 
 func CompileEntrypoint(buildContextDir string) ([]string, error) {
-	return DefaultGraph.Entrypoint(buildContextDir)
+	return DefaultGraph.GetEntrypoint(buildContextDir)
 }
 
 func (g Graph) GPUEnabled() bool {
@@ -161,9 +161,9 @@ func (g Graph) DefaultCacheImporter() (*string, error) {
 	}
 }
 
-func (g Graph) Entrypoint(buildContextDir string) ([]string, error) {
+func (g Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
 	if g.Image != nil {
-		return g.entrypoint, nil
+		return g.Entrypoint, nil
 	}
 
 	ep := []string{

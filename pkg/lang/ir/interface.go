@@ -205,7 +205,7 @@ func Mount(src, dest string) {
 }
 
 func Entrypoint(args []string) {
-	DefaultGraph.entrypoint = append(DefaultGraph.entrypoint, args...)
+	DefaultGraph.Entrypoint = append(DefaultGraph.Entrypoint, args...)
 }
 
 func RuntimeCommands(commands map[string]string) {

@@ -53,7 +53,7 @@ type Graph struct {
 	Exec            []string
 	Copy            []CopyInfo
 	Mount           []MountInfo
-	entrypoint      []string
+	Entrypoint      []string
 	RuntimeCommands map[string]string
 
 	*JupyterConfig
