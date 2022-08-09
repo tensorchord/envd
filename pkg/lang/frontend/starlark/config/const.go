@@ -23,4 +23,5 @@ const (
 	ruleGPU                = "config.gpu"
 	ruleJuliaPackageServer = "config.julia_pkg_server"
 	ruleRStudioServer      = "config.rstudio_server"
+	ruleEntrypoint         = "config.entrypoint"
 )

@@ -42,6 +42,7 @@ var Module = &starlarkstruct.Module{
 		"julia_pkg_server": starlark.NewBuiltin(
 			ruleJuliaPackageServer, ruleFuncJuliaPackageServer),
 		"rstudio_server": starlark.NewBuiltin(ruleRStudioServer, ruleFuncRStudioServer),
+		"entrypoint":     starlark.NewBuiltin(ruleEntrypoint, ruleFuncEntrypoint),
 	},
 }
 
@@ -194,5 +195,25 @@ func ruleFuncCondaChannel(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
+	return starlark.None, nil
+}
+
+func ruleFuncEntrypoint(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var argv *starlark.List
+
+	if err := starlark.UnpackArgs(ruleEntrypoint, args, kwargs, "name", &argv); err != nil {
+		return nil, err
+	}
+
+	argList := []string{}
+	if argv != nil {
+		for i := 0; i < argv.Len(); i++ {
+			argList = append(argList, argv.Index(i).(starlark.String).GoString())
+		}
+	}
+
+	logger.Debugf("user defined entrypoints: {%s}\n", argList)
+	ir.Entrypoint(argList)
 	return starlark.None, nil
 }

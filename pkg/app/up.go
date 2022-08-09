@@ -216,7 +216,7 @@ func up(clicontext *cli.Context) error {
 
 	err = dockerClient.CleanEnvdIfExists(clicontext.Context, ctr, force)
 	if err != nil {
-		return errors.Wrap(err, "failed to start the envd environment")
+		return errors.Wrap(err, "failed to clean the envd environment")
 	}
 	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
 		tag, ctr, buildContext, gpu, numGPUs, sshPortInHost, *ir.DefaultGraph, clicontext.Duration("timeout"),
