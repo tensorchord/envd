@@ -116,60 +116,14 @@ var CommandUp = &cli.Command{
 }
 
 func up(clicontext *cli.Context) error {
-	buildContext, err := filepath.Abs(clicontext.Path("path"))
-	if err != nil {
-		return errors.Wrap(err, "failed to get absolute path of the build context")
-	}
-	fileName, funcName, err := builder.ParseFromStr(clicontext.String("from"))
+	opt, err := parseBuildOpt(clicontext)
 	if err != nil {
 		return err
 	}
 
-	manifest, err := filepath.Abs(filepath.Join(buildContext, fileName))
-	if err != nil {
-		return errors.Wrap(err, "failed to get absolute path of the build file")
-	}
-	if manifest == "" {
-		return errors.New("file does not exist")
-	}
-
-	config := home.GetManager().ConfigFile()
-
-	tag := clicontext.String("tag")
-	if tag == "" {
-		logrus.Debug("tag not specified, using default")
-		tag = fmt.Sprintf("%s:%s", filepath.Base(buildContext), "dev")
-	}
-	// The current container engine is only Docker. It should be expaned to support other container engines.
-	tag, err = docker.NormalizeNamed(tag)
-	if err != nil {
-		return err
-	}
-	ctr := filepath.Base(buildContext)
-
+	ctr := filepath.Base(opt.BuildContextDir)
 	detach := clicontext.Bool("detach")
-	debug := clicontext.Bool("debug")
 	force := clicontext.Bool("force")
-	output := ""
-	exportCache := clicontext.String("export-cache")
-	importCache := clicontext.String("import-cache")
-
-	opt := builder.Options{
-		ManifestFilePath: manifest,
-		ConfigFilePath:   config,
-		BuildFuncName:    funcName,
-		BuildContextDir:  buildContext,
-		Tag:              tag,
-		OutputOpts:       output,
-		PubKeyPath:       clicontext.Path("public-key"),
-		ProgressMode:     "auto",
-		ExportCache:      exportCache,
-		ImportCache:      importCache,
-	}
-	if debug {
-		opt.ProgressMode = "plain"
-	}
-
 	logger := logrus.WithFields(logrus.Fields{
 		"builder-options": opt,
 		"container-name":  ctr,
@@ -219,14 +173,14 @@ func up(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to clean the envd environment")
 	}
 	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
-		tag, ctr, buildContext, gpu, numGPUs, sshPortInHost, *ir.DefaultGraph, clicontext.Duration("timeout"),
+		opt.Tag, ctr, opt.BuildContextDir, gpu, numGPUs, sshPortInHost, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))
 	if err != nil {
 		return errors.Wrap(err, "failed to start the envd environment")
 	}
 	logrus.Debugf("container %s is running", containerID)
 
-	logrus.Debugf("Add entry %s to SSH config. at %s", buildContext, containerIP)
+	logrus.Debugf("Add entry %s to SSH config. at %s", opt.BuildContextDir, containerIP)
 	if err = sshconfig.AddEntry(
 		ctr, localhost, sshPortInHost, clicontext.Path("private-key")); err != nil {
 		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
@@ -247,4 +201,58 @@ func up(clicontext *cli.Context) error {
 	}
 
 	return nil
+}
+
+func parseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
+	buildContext, err := filepath.Abs(clicontext.Path("path"))
+	if err != nil {
+		return builder.Options{}, errors.Wrap(err, "failed to get absolute path of the build context")
+	}
+	fileName, funcName, err := builder.ParseFromStr(clicontext.String("from"))
+	if err != nil {
+		return builder.Options{}, err
+	}
+
+	manifest, err := filepath.Abs(filepath.Join(buildContext, fileName))
+	if err != nil {
+		return builder.Options{}, errors.Wrap(err, "failed to get absolute path of the build file")
+	}
+	if manifest == "" {
+		return builder.Options{}, errors.New("file does not exist")
+	}
+
+	config := home.GetManager().ConfigFile()
+
+	tag := clicontext.String("tag")
+	if tag == "" {
+		logrus.Debug("tag not specified, using default")
+		tag = fmt.Sprintf("%s:%s", filepath.Base(buildContext), "dev")
+	}
+	// The current container engine is only Docker. It should be expaned to support other container engines.
+	tag, err = docker.NormalizeNamed(tag)
+	if err != nil {
+		return builder.Options{}, err
+	}
+	output := ""
+	exportCache := clicontext.String("export-cache")
+	importCache := clicontext.String("import-cache")
+
+	opt := builder.Options{
+		ManifestFilePath: manifest,
+		ConfigFilePath:   config,
+		BuildFuncName:    funcName,
+		BuildContextDir:  buildContext,
+		Tag:              tag,
+		OutputOpts:       output,
+		PubKeyPath:       clicontext.Path("public-key"),
+		ProgressMode:     "auto",
+		ExportCache:      exportCache,
+		ImportCache:      importCache,
+	}
+
+	debug := clicontext.Bool("debug")
+	if debug {
+		opt.ProgressMode = "plain"
+	}
+	return opt, nil
 }
