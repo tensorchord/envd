@@ -213,7 +213,7 @@ func ruleFuncEntrypoint(thread *starlark.Thread, _ *starlark.Builtin,
 		}
 	}
 
-	logger.Debugf(" user defined entrypoints: {%s}\n", argList)
+	logger.Debugf("user defined entrypoints: {%s}\n", argList)
 	ir.Entrypoint(argList)
 	return starlark.None, nil
 }

@@ -163,7 +163,7 @@ func (g Graph) DefaultCacheImporter() (*string, error) {
 
 func (g Graph) Entrypoint(buildContextDir string) ([]string, error) {
 	if g.Image != nil {
-		return g.Exec, nil
+		return g.entrypoint, nil
 	}
 
 	ep := []string{

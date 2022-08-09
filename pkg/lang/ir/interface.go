@@ -16,7 +16,6 @@ package ir
 
 import (
 	"errors"
-	"strings"
 
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/lang/ir/parser"
@@ -206,7 +205,7 @@ func Mount(src, dest string) {
 }
 
 func Entrypoint(args []string) {
-	DefaultGraph.Exec = append(DefaultGraph.Exec, strings.Join(args, " "))
+	DefaultGraph.entrypoint = append(DefaultGraph.entrypoint, args...)
 }
 
 func RuntimeCommands(commands map[string]string) {
