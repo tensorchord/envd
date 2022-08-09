@@ -122,10 +122,10 @@ See [envd documentation](https://envd.tensorchord.ai/docs/get-started).
 
 ### Install and bootstrap `envd`
 
-`envd` can be installed with `pip`. After the installation, please run `envd bootstrap` to bootstrap.
+`envd` can be installed with `pip` (only support Python3). After the installation, please run `envd bootstrap` to bootstrap.
 
 ```bash
-pip install --pre --upgrade envd
+pip3 install --pre --upgrade envd
 envd bootstrap
 ```
 

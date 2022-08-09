@@ -142,11 +142,11 @@ build-local:
 	done
 
 pypi-build: clean
-	@python setup.py sdist bdist_wheel
+	@python3 setup.py sdist bdist_wheel
 
 dev: clean build-local  ## install envd command for local debug
-	@python setup.py bdist_wheel
-	@pip install --force-reinstall dist/*.whl
+	@python3 setup.py bdist_wheel
+	@pip3 install --force-reinstall dist/*.whl
 
 generate: mockgen-install  ## Generate mocks
 	@mockgen -source pkg/buildkitd/buildkitd.go -destination pkg/buildkitd/mock/mock.go -package mock
