@@ -142,23 +142,11 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 }
 
 func (g Graph) DefaultCacheImporter() (*string, error) {
-	switch g.Language.Name {
-	case "python":
-		v, err := g.getAppropriatePythonVersion()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get python version")
-		}
-		// We only support remote cache for 3.9 currently.
-		if v == "3.9" {
-			res := fmt.Sprintf(
-				"type=registry,ref=docker.io/tensorchord/python-cache:%s-envd-%s",
-				v, version.GetGitTagFromVersion())
-			return &res, nil
-		}
-		return nil, nil
-	default:
-		return nil, nil
-	}
+	// The base remote cache should work for all languages.
+	res := fmt.Sprintf(
+		"type=registry,ref=docker.io/tensorchord/python-cache:envd-%s",
+		version.GetGitTagFromVersion())
+	return &res, nil
 }
 
 func (g Graph) Entrypoint(buildContextDir string) ([]string, error) {

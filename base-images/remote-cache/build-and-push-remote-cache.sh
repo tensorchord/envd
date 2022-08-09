@@ -9,6 +9,6 @@ ENVD_VERSION="${ENVD_VERSION:-$GIT_TAG_VERSION}"
 
 cd ${ROOT_DIR}
 
-envd build --export-cache type=registry,ref=docker.io/tensorchord/python-cache:3.9-envd-v${ENVD_VERSION} --force
+envd build --export-cache type=registry,ref=docker.io/tensorchord/python-cache:envd-v${ENVD_VERSION} --force
 
 cd - > /dev/null
