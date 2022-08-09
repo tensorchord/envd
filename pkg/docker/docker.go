@@ -38,7 +38,6 @@ import (
 
 	envdconfig "github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/lang/ir"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
@@ -409,7 +408,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		User:         "envd",
 		ExposedPorts: nat.PortSet{},
 	}
-	base := fileutil.Base(buildContext)
+	base := filepath.Base(buildContext)
 	base = filepath.Join("/home/envd", base)
 	config.WorkingDir = base
 

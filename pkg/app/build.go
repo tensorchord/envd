@@ -26,7 +26,6 @@ import (
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandBuild = &cli.Command{
@@ -114,7 +113,7 @@ func build(clicontext *cli.Context) error {
 	tag := clicontext.String("tag")
 	if tag == "" {
 		logrus.Debug("tag not specified, using default")
-		tag = fmt.Sprintf("%s:%s", fileutil.Base(buildContext), "dev")
+		tag = fmt.Sprintf("%s:%s", filepath.Base(buildContext), "dev")
 	}
 	tag, err = docker.NormalizeNamed(tag)
 	if err != nil {

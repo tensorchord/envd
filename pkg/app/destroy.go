@@ -23,7 +23,6 @@ import (
 
 	"github.com/tensorchord/envd/pkg/docker"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandDestroy = &cli.Command{
@@ -69,7 +68,7 @@ func destroy(clicontext *cli.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to get absolute path of the build context")
 		}
-		ctrName = fileutil.Base(buildContext)
+		ctrName = filepath.Base(buildContext)
 	}
 	if ctrName, err := dockerClient.Destroy(clicontext.Context, ctrName); err != nil {
 		return errors.Wrapf(err, "failed to destroy the environment: %s", ctrName)

@@ -18,6 +18,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
@@ -35,7 +36,6 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/progress/progresswriter"
 	"github.com/tensorchord/envd/pkg/types"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 type Builder interface {
@@ -179,7 +179,7 @@ func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
 	if err := b.Interpret(); err != nil {
 		return nil, errors.Wrap(err, "failed to interpret")
 	}
-	def, err := ir.Compile(ctx, fileutil.Base(b.BuildContextDir), b.PubKeyPath)
+	def, err := ir.Compile(ctx, filepath.Base(b.BuildContextDir), b.PubKeyPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}
