@@ -14,36 +14,26 @@
 
 package data
 
-import (
-	"fmt"
-
-	"go.starlark.net/starlark"
-)
+import "fmt"
 
 type EnvdManagedDataSource struct {
 	name string
 }
 
-func (d EnvdManagedDataSource) Type() string {
-	return "Envd Managed Data Source"
+func (e EnvdManagedDataSource) Init() error {
+	return nil
 }
 
-func (d EnvdManagedDataSource) String() string {
-	return "Envd Managed Data Source"
+func (e EnvdManagedDataSource) GetHostDir() (string, error) {
+	return "", nil
 }
 
-func (d EnvdManagedDataSource) Freeze()              {}
-func (d EnvdManagedDataSource) Truth() starlark.Bool { return false }
-func (d EnvdManagedDataSource) Hash() (uint32, error) {
-	return hashString(fmt.Sprintf("envd://%s", d.name)), nil
+func (e EnvdManagedDataSource) Type() string {
+	return "envd managed data source"
 }
 
-func (d *EnvdManagedDataSource) Init() {
-	panic("not implemented") // TODO: Implement
-}
-
-func (d *EnvdManagedDataSource) GetHostDir() string {
-	panic("not implemented") // TODO: Implement
+func (e EnvdManagedDataSource) Hash() (uint32, error) {
+	return hashString(fmt.Sprintf("envd://%s", e.name)), nil
 }
 
 func NewEnvdManagedDataSource(name string) *EnvdManagedDataSource {

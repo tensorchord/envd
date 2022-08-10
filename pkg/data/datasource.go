@@ -14,6 +14,9 @@
 
 package data
 
-const (
-	ruleEnvdManagedDataSource = "data.envd"
-)
+type DataSource interface {
+	Init() error
+	GetHostDir() (string, error)
+	Type() string
+	Hash() (uint32, error)
+}

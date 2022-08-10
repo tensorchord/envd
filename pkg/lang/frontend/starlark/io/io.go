@@ -15,6 +15,7 @@
 package io
 
 import (
+	"errors"
 	"os/user"
 	"path/filepath"
 	"strings"
@@ -25,6 +26,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/data"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	// envdData "github.com/tensorchord/envd/pkg/data"
 )
 
 var (
@@ -50,11 +52,21 @@ func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	var sourceStr string
-	if v, ok := source.(data.EnvdManagedDataSource); ok {
+	var err error
 
+	if v, ok := source.(*data.DataSourceValue); ok {
+		v.Init()
+		sourceStr, err = v.GetHostDir()
+		if err != nil {
+			return nil, err
+		}
+	} else if vs, ok := source.(starlark.String); ok {
+		sourceStr = vs.GoString()
+	} else {
+		return starlark.None, errors.New("invalid source")
 	}
 
-	sourceStr := source.GoString()
+	// sourceStr := source.GoString()
 	destinationStr := destination.GoString()
 
 	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s",

@@ -18,6 +18,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
+
+	envdData "github.com/tensorchord/envd/pkg/data"
 )
 
 var (
@@ -39,6 +41,8 @@ func ruleValueEnvdManagedDataSource(thread *starlark.Thread, _ *starlark.Builtin
 		"name?", &name); err != nil {
 		return nil, err
 	}
+	logger.Debugf("rule `%s` is invoked, name=%s",
+		ruleEnvdManagedDataSource, name)
 
-	return NewEnvdManagedDataSource(name.String()), nil
+	return NewDataSourceValue(envdData.NewEnvdManagedDataSource(name.String())), nil
 }
