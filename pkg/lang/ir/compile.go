@@ -130,6 +130,12 @@ func (g Graph) Labels() (map[string]string, error) {
 
 func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 	ports := make(map[string]struct{})
+
+	// do not expose ports for custom images
+	if g.Image != nil {
+		return ports, nil
+	}
+
 	ports[fmt.Sprintf("%d/tcp", config.SSHPortInContainer)] = struct{}{}
 	if g.JupyterConfig != nil {
 		ports[fmt.Sprintf("%d/tcp", config.JupyterPortInContainer)] = struct{}{}
