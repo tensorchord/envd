@@ -15,8 +15,9 @@
 package flag
 
 const (
-	FlagCacheDir       = "cache-dir"
-	FlagBuildkitdImage = "buildkitd-image"
-	FlagDebug          = "debug"
-	FlagBuildContext   = "build-context"
+	FlagCacheDir           = "cache-dir"
+	FlagBuildkitdImage     = "buildkitd-image"
+	FlagDebug              = "debug"
+	FlagBuildContext       = "build-context"
+	FlagDockerOrganization = "docker-organization"
 )
