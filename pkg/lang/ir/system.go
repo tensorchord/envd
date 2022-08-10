@@ -24,6 +24,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/flag"
@@ -78,7 +79,8 @@ func (g Graph) compileCopy(root llb.State) llb.State {
 
 func (g *Graph) compileCUDAPackages() llb.State {
 	root := llb.Image(fmt.Sprintf(
-		"docker.io/tensorchord/python:3.9-%s-cuda%s-cudnn%s-envd-%s",
+		"docker.io/%s/python:3.9-%s-cuda%s-cudnn%s-envd-%s",
+		viper.GetString(flag.FlagDockerOrganization),
 		g.OS, *g.CUDA, *g.CUDNN, version.GetGitTagFromVersion()))
 	return root
 }
@@ -127,7 +129,8 @@ func (g *Graph) compileBase() (llb.State, error) {
 	} else if g.CUDA == nil && g.CUDNN == nil {
 		switch g.Language.Name {
 		case "r":
-			base = llb.Image(fmt.Sprintf("docker.io/tensorchord/r-base:4.2-envd-%s",
+			base = llb.Image(fmt.Sprintf("docker.io/%s/r-base:4.2-envd-%s",
+				viper.GetString(flag.FlagDockerOrganization),
 				version.GetGitTagFromVersion()))
 			// r-base image already has GID 1000.
 			// It is a trick, we actually use GID 1000
@@ -139,11 +142,13 @@ func (g *Graph) compileBase() (llb.State, error) {
 			}
 		case "python":
 			base = llb.Image(fmt.Sprintf(
-				"docker.io/tensorchord/python:3.9-ubuntu20.04-envd-%s",
+				"docker.io/%s/python:3.9-ubuntu20.04-envd-%s",
+				viper.GetString(flag.FlagDockerOrganization),
 				version.GetGitTagFromVersion()))
 		case "julia":
 			base = llb.Image(fmt.Sprintf(
-				"docker.io/tensorchord/julia:1.8rc1-ubuntu20.04-envd-%s",
+				"docker.io/%s/julia:1.8rc1-ubuntu20.04-envd-%s",
+				viper.GetString(flag.FlagDockerOrganization),
 				version.GetGitTagFromVersion()))
 		}
 	} else {

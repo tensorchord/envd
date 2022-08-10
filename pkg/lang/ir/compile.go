@@ -25,8 +25,10 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"github.com/tensorchord/envd/pkg/config"
+	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/version"
@@ -144,7 +146,8 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 func (g Graph) DefaultCacheImporter() (*string, error) {
 	// The base remote cache should work for all languages.
 	res := fmt.Sprintf(
-		"type=registry,ref=docker.io/tensorchord/python-cache:envd-%s",
+		"type=registry,ref=docker.io/%s/python-cache:envd-%s",
+		viper.GetString(flag.FlagDockerOrganization),
 		version.GetGitTagFromVersion())
 	return &res, nil
 }

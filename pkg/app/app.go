@@ -51,6 +51,12 @@ func New() EnvdApp {
 			Value:  "docker.io/moby/buildkit:v0.10.3",
 			Hidden: true,
 		},
+		&cli.StringFlag{
+			Name:   flag.FlagDockerOrganization,
+			Usage:  "docker organization to use",
+			Value:  "tensorchord",
+			Hidden: true,
+		},
 	}
 
 	internalApp.Commands = []*cli.Command{
@@ -111,6 +117,8 @@ func New() EnvdApp {
 		// TODO(gaocegege): Add a config struct to keep them.
 		viper.Set(flag.FlagBuildkitdImage, context.String(flag.FlagBuildkitdImage))
 		viper.Set(flag.FlagDebug, debugEnabled)
+		viper.Set(flag.FlagDockerOrganization,
+			context.String(flag.FlagDockerOrganization))
 		return nil
 	}
 
