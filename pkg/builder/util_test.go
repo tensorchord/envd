@@ -193,3 +193,68 @@ func TestParseOutput(t *testing.T) {
 		})
 	}
 }
+
+func TestParseFromStr(t *testing.T) {
+	type testCase struct {
+		name        string
+		from        string
+		expectFile  string
+		expectFunc  string
+		expectError bool
+	}
+
+	testCases := []testCase{
+		{
+			"empty",
+			"",
+			"build.envd",
+			"build",
+			false,
+		},
+		{
+			"without func",
+			"main.envd",
+			"main.envd",
+			"build",
+			false,
+		},
+		{
+			"without func but has :",
+			"test.envd:",
+			"test.envd",
+			"build",
+			false,
+		},
+		{
+			"without file",
+			":test",
+			"build.envd",
+			"test",
+			false,
+		},
+		{
+			"all",
+			"hello.envd:run",
+			"hello.envd",
+			"run",
+			false,
+		},
+		{
+			"more than 2 :",
+			"test.envd:run:foo",
+			"",
+			"",
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		file, function, err := ParseFromStr(tc.from)
+		if tc.expectError {
+			require.Error(t, err)
+		} else {
+			require.Equal(t, file, tc.expectFile, tc.name)
+			require.Equal(t, function, tc.expectFunc, tc.name)
+		}
+	}
+}

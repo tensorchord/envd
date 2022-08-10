@@ -321,18 +321,23 @@ func resolveExporterDest(exporter, dest string) (func(map[string]string) (io.Wri
 func ParseFromStr(fromStr string) (string, string, error) {
 	filename := defaultFile
 	funcname := defaultFunc
-	if strings.Contains(fromStr, ":") {
-		fromArr := strings.Split(fromStr, ":")
+	if !strings.Contains(fromStr, ":") {
+		if len(fromStr) > 0 {
+			filename = fromStr
+		}
+		return filename, funcname, nil
+	}
 
-		if len(fromArr) != 2 {
-			return "", "", errors.New("invalid from format, expected `file:func`")
-		}
-		if fromArr[0] != "" {
-			filename = fromArr[0]
-		}
-		if fromArr[1] != "" {
-			funcname = fromArr[1]
-		}
+	fromArr := strings.Split(fromStr, ":")
+
+	if len(fromArr) != 2 {
+		return "", "", errors.New("invalid from format, expected `file:func`")
+	}
+	if fromArr[0] != "" {
+		filename = fromArr[0]
+	}
+	if fromArr[1] != "" {
+		funcname = fromArr[1]
 	}
 	return filename, funcname, nil
 }
