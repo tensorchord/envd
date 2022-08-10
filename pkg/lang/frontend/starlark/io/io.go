@@ -23,6 +23,7 @@ import (
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/data"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
@@ -40,11 +41,17 @@ var Module = &starlarkstruct.Module{
 
 func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var source, destination starlark.String
+	var source starlark.Value
+	var destination starlark.String
 
 	if err := starlark.UnpackArgs(ruleMount, args, kwargs,
 		"src?", &source, "dest?", &destination); err != nil {
 		return nil, err
+	}
+
+	var sourceStr string
+	if v, ok := source.(data.EnvdManagedDataSource); ok {
+
 	}
 
 	sourceStr := source.GoString()
