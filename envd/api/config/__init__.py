@@ -41,12 +41,12 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe mu
     pass
 
 
-def jupyter(password: str, port: int):
+def jupyter(token: str, port: int):
     """
     Configure jupyter notebook configuration
 
     Args:
-        password (str): Password for access authentication
+        token (str): Token for access authentication
         port (int): Port to serve jupyter notebook
     """
     pass

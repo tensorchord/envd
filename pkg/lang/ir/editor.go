@@ -78,13 +78,12 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 		"--ip", "0.0.0.0", "--notebook-dir", workingDir,
 	}
 
-	if g.JupyterConfig.Password != "" {
-		cmd = append(cmd, "--NotebookApp.password", g.JupyterConfig.Password,
-			"--NotebookApp.token", "''")
+	if g.JupyterConfig.Token != "" {
+		cmd = append(cmd, "--NotebookApp.token", g.JupyterConfig.Token)
 	} else {
-		cmd = append(cmd, "--NotebookApp.password", "''",
-			"--NotebookApp.token", "''")
+		cmd = append(cmd, "--NotebookApp.token", "''")
 	}
+
 	if g.JupyterConfig.Port != 0 {
 		p := strconv.Itoa(int(config.JupyterPortInContainer))
 		cmd = append(cmd, "--port", p)
