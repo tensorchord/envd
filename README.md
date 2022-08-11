@@ -204,11 +204,11 @@ def build():
     config.jupyter(password="")
 ```
 
-You can get the endpoint of the running Jupyter notebook via `envd get envs`.
+You can get the endpoint of the running Jupyter notebook via `envd envs ls`.
 
 ```bash
 $ envd up --detach
-$ envd get env
+$ envd envs ls
 NAME                    JUPYTER                 SSH TARGET              CONTEXT                                 IMAGE                   GPU     CUDA    CUDNN   STATUS          CONTAINER ID 
 envd-quick-start        http://localhost:42779   envd-quick-start.envd   /home/gaocegege/code/envd-quick-start   envd-quick-start:dev    false   <none>  <none>  Up 54 seconds   bd3f6a729e94
 ```
