@@ -15,16 +15,11 @@
 package app
 
 import (
-	"fmt"
-	"path/filepath"
-
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
-	"github.com/tensorchord/envd/pkg/docker"
-	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
 
@@ -91,63 +86,17 @@ To build and push the image to a registry:
 }
 
 func build(clicontext *cli.Context) error {
-	buildContext, err := filepath.Abs(clicontext.Path("path"))
-	if err != nil {
-		return errors.Wrap(err, "failed to get absolute path of the build context")
-	}
-
-	fileName, funcName, err := builder.ParseFromStr(clicontext.String("from"))
-	if err != nil {
-		return err
-	}
-	manifest, err := filepath.Abs(filepath.Join(buildContext, fileName))
-	if err != nil {
-		return errors.Wrap(err, "failed to get absolute path of the build file")
-	}
-	if manifest == "" {
-		return errors.Newf("build file %s does not exist", fileName)
-	}
-
-	cfg := home.GetManager().ConfigFile()
-
-	tag := clicontext.String("tag")
-	if tag == "" {
-		logrus.Debug("tag not specified, using default")
-		tag = fmt.Sprintf("%s:%s", filepath.Base(buildContext), "dev")
-	}
-	tag, err = docker.NormalizeNamed(tag)
+	opt, err := parseBuildOpt(clicontext)
 	if err != nil {
 		return err
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
-		"build-context": buildContext,
-		"build-file":    manifest,
-		"config":        cfg,
-		"tag":           tag,
+		"build-context": opt.BuildContextDir,
+		"build-file":    opt.ManifestFilePath,
+		"config":        opt.ConfigFilePath,
+		"tag":           opt.Tag,
 	})
-	debug := clicontext.Bool("debug")
-	output := clicontext.String("output")
-	force := clicontext.Bool("force")
-	exportCache := clicontext.String("export-cache")
-	importCache := clicontext.String("import-cache")
-
-	opt := builder.Options{
-		ManifestFilePath: manifest,
-		ConfigFilePath:   cfg,
-		BuildFuncName:    funcName,
-		BuildContextDir:  buildContext,
-		Tag:              tag,
-		OutputOpts:       output,
-		PubKeyPath:       clicontext.Path("public-key"),
-		ProgressMode:     "auto",
-		ExportCache:      exportCache,
-		ImportCache:      importCache,
-	}
-	if debug {
-		opt.ProgressMode = "plain"
-	}
-
 	logger.WithFields(logrus.Fields{
 		"builder-options": opt,
 	}).Debug("starting build command")
@@ -156,5 +105,6 @@ func build(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create the builder")
 	}
+	force := clicontext.Bool("force")
 	return builder.Build(clicontext.Context, force)
 }
