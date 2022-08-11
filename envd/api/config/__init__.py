@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
+from typing import Optional, List
 
 
 def apt_source(mode: Optional[str], source: Optional[str]):
@@ -82,4 +82,33 @@ custom_channels:
 
     Args:
         channel (str): Basically the same with file content of an usual .condarc
+    """
+
+def entrypoint(args: List[str]):
+    """
+    Configure entrypoint for custom base image
+
+    Example usage:
+    ```
+    config.entrypoint(["date", "-u"])
+    ```
+
+    Args:
+        args (List[str]): list of arguments to run
+    """
+
+def gpu():
+    """
+    """
+
+def cran_mirror():
+    """
+    """
+
+def julia_pkg_server():
+    """
+    """
+
+def rstudio_server():
+    """
     """

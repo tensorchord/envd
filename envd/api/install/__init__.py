@@ -30,7 +30,7 @@ def conda_packages(name: List[str]):
     """Install python package by Conda
 
     Args:
-        name (List[str]): List of package names with optional version assignment, 
+        name (List[str]): List of package names with optional version assignment,
             such as ['pytorch', 'tensorflow==1.13.0']
     """
 
@@ -50,4 +50,8 @@ def vscode_extensions(name: List[str]):
     """Install VS Code extensions
     Args:
       name (list of str): extension names, such as ['ms-python.python']
+    """
+
+def julia_packages():
+    """
     """
