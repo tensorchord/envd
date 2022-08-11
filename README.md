@@ -113,7 +113,7 @@ Before envd             |  After envd
 
 ## Documentation 📝
 
-See [envd documentation](https://envd.tensorchord.ai/docs/get-started).
+See [envd documentation](https://envd.tensorchord.ai/guide/getting-started).
 
 ## Getting Started
 
