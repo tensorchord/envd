@@ -96,8 +96,8 @@ type GitConfig struct {
 }
 
 type JupyterConfig struct {
-	Password string
-	Port     int64
+	Token string
+	Port  int64
 }
 
 const (

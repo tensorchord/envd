@@ -27,29 +27,27 @@ func TestGenerateCommand(t *testing.T) {
 		{
 			graph: Graph{
 				JupyterConfig: &JupyterConfig{
-					Password: "",
-					Port:     8888,
+					Token: "",
+					Port:  8888,
 				},
 			},
 			dir: "test",
 			expected: []string{
 				"python3", "-m", "notebook", "--ip", "0.0.0.0", "--notebook-dir", "test",
-				"--NotebookApp.password", "''", "--NotebookApp.token", "''",
-				"--port", "8888",
+				"--NotebookApp.token", "''", "--port", "8888",
 			},
 		},
 		{
 			graph: Graph{
 				JupyterConfig: &JupyterConfig{
-					Password: "test",
-					Port:     8888,
+					Token: "test",
+					Port:  8888,
 				},
 			},
 			dir: "test",
 			expected: []string{
 				"python3", "-m", "notebook", "--ip", "0.0.0.0", "--notebook-dir", "test",
-				"--NotebookApp.password", "test", "--NotebookApp.token", "''",
-				"--port", "8888",
+				"--NotebookApp.token", "test", "--port", "8888",
 			},
 		},
 		{

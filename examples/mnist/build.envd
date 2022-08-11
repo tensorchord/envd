@@ -9,7 +9,7 @@ def build():
         "numpy",
     ])
     shell("zsh")
-    config.jupyter(password="", port=8888)
+    config.jupyter(token="", port=8888)
 
 def build_gpu():
     build()

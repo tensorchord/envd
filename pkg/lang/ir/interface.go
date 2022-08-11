@@ -129,8 +129,8 @@ func Shell(shell string) error {
 
 func Jupyter(pwd string, port int64) error {
 	DefaultGraph.JupyterConfig = &JupyterConfig{
-		Password: pwd,
-		Port:     port,
+		Token: pwd,
+		Port:  port,
 	}
 	return nil
 }
