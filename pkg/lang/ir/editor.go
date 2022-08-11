@@ -78,7 +78,7 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 	}
 
 	if g.JupyterConfig.Password != "" {
-		cmd = append(cmd, "--NotebookApp.password", "''",
+		cmd = append(cmd, "--NotebookApp.password", g.JupyterConfig.Password,
 			"--NotebookApp.token", g.JupyterConfig.Password)
 	} else {
 		cmd = append(cmd, "--NotebookApp.password", "''",

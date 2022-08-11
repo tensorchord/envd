@@ -48,7 +48,7 @@ func TestGenerateCommand(t *testing.T) {
 			dir: "test",
 			expected: []string{
 				"python3", "-m", "notebook", "--ip", "0.0.0.0", "--notebook-dir", "test",
-				"--NotebookApp.password", "test", "--NotebookApp.token", "''",
+				"--NotebookApp.password", "test", "--NotebookApp.token", "test",
 				"--port", "8888",
 			},
 		},
