@@ -15,11 +15,16 @@
 package app
 
 import (
+	"fmt"
+	"path/filepath"
+
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
+	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
 
@@ -86,7 +91,7 @@ To build and push the image to a registry:
 }
 
 func build(clicontext *cli.Context) error {
-	opt, err := parseBuildOpt(clicontext)
+	opt, err := ParseBuildOpt(clicontext)
 	if err != nil {
 		return err
 	}
@@ -101,10 +106,89 @@ func build(clicontext *cli.Context) error {
 		"builder-options": opt,
 	}).Debug("starting build command")
 
+	builder, err := GetBuilder(clicontext, opt)
+	if err != nil {
+		return err
+	}
+	if err = InterpretEnvdDef(builder); err != nil {
+		return err
+	}
+	return BuildImage(clicontext, builder)
+}
+
+func GetBuilder(clicontext *cli.Context, opt builder.Options) (builder.Builder, error) {
 	builder, err := builder.New(clicontext.Context, opt)
 	if err != nil {
-		return errors.Wrap(err, "failed to create the builder")
+		return nil, errors.Wrap(err, "failed to create the builder")
 	}
+	return builder, nil
+}
+
+func InterpretEnvdDef(builder builder.Builder) error {
+	if err := builder.Interpret(); err != nil {
+		return errors.Wrap(err, "failed to interpret")
+	}
+	return nil
+}
+
+func BuildImage(clicontext *cli.Context, builder builder.Builder) error {
 	force := clicontext.Bool("force")
-	return builder.Build(clicontext.Context, force)
+	if err := builder.Build(clicontext.Context, force); err != nil {
+		return errors.Wrap(err, "failed to build the image")
+	}
+	return nil
+}
+
+func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
+	buildContext, err := filepath.Abs(clicontext.Path("path"))
+	if err != nil {
+		return builder.Options{}, errors.Wrap(err, "failed to get absolute path of the build context")
+	}
+	fileName, funcName, err := builder.ParseFromStr(clicontext.String("from"))
+	if err != nil {
+		return builder.Options{}, err
+	}
+
+	manifest, err := filepath.Abs(filepath.Join(buildContext, fileName))
+	if err != nil {
+		return builder.Options{}, errors.Wrap(err, "failed to get absolute path of the build file")
+	}
+	if manifest == "" {
+		return builder.Options{}, errors.New("file does not exist")
+	}
+
+	config := home.GetManager().ConfigFile()
+
+	tag := clicontext.String("tag")
+	if tag == "" {
+		logrus.Debug("tag not specified, using default")
+		tag = fmt.Sprintf("%s:%s", filepath.Base(buildContext), "dev")
+	}
+	// The current container engine is only Docker. It should be expaned to support other container engines.
+	tag, err = docker.NormalizeNamed(tag)
+	if err != nil {
+		return builder.Options{}, err
+	}
+	output := ""
+	exportCache := clicontext.String("export-cache")
+	importCache := clicontext.String("import-cache")
+
+	opt := builder.Options{
+		ManifestFilePath: manifest,
+		ConfigFilePath:   config,
+		BuildFuncName:    funcName,
+		BuildContextDir:  buildContext,
+		Tag:              tag,
+		OutputOpts:       output,
+		PubKeyPath:       clicontext.Path("public-key"),
+		ProgressMode:     "auto",
+		ExportCache:      exportCache,
+		ImportCache:      importCache,
+	}
+
+	debug := clicontext.Bool("debug")
+	if debug {
+		opt.ProgressMode = "plain"
+	}
+	return opt, nil
 }
