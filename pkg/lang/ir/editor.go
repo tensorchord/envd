@@ -20,6 +20,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 
+	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
@@ -85,7 +86,7 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 			"--NotebookApp.token", "''")
 	}
 	if g.JupyterConfig.Port != 0 {
-		p := strconv.Itoa(int(g.JupyterConfig.Port))
+		p := strconv.Itoa(int(config.JupyterPortInContainer))
 		cmd = append(cmd, "--port", p)
 	}
 	return cmd
