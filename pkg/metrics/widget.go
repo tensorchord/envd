@@ -69,6 +69,7 @@ func NewNameCol(name string) *WidgetCol {
 	w := widgets.NewParagraph()
 	w.Text = name
 	w.Border = false
+	w.TextStyle.Fg = ui.ColorClear
 	return &WidgetCol{
 		widget: w,
 		Height: defaultRowHeight,
@@ -86,6 +87,7 @@ func NewCPUCol(metChan <-chan Metrics) *WidgetCol {
 			val := ms.CPUUtil
 			w.BarColor = colorScale(val)
 			w.Label = fmt.Sprintf("%d%%", val)
+			w.LabelStyle.Fg = ui.ColorClear
 			if val > 100 {
 				val = 100
 			}
@@ -108,6 +110,7 @@ func NewMEMCol(metChan <-chan Metrics) *WidgetCol {
 			ms := <-metChan
 			mPercent := ms.MemPercent
 			w.BarColor = colorScale(mPercent)
+			w.LabelStyle.Fg = ui.ColorClear
 			w.Label = fmt.Sprintf("%s / %s", cwidgets.ByteFormat64Short(ms.MemUsage), cwidgets.ByteFormat64Short(ms.MemLimit))
 			w.Percent = mPercent
 		}
