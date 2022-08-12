@@ -55,10 +55,14 @@ func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 	var err error
 
 	if v, ok := source.(*data.DataSourceValue); ok {
-		v.Init()
-		sourceStr, err = v.GetHostDir()
+		err = v.Init()
 		if err != nil {
-			return nil, err
+			return starlark.None, err
+		}
+		sourceStr, err = v.GetHostDir()
+		logger.Debugf("data source: %s")
+		if err != nil {
+			return starlark.None, err
 		}
 	} else if vs, ok := source.(starlark.String); ok {
 		sourceStr = vs.GoString()

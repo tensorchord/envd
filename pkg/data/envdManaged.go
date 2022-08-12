@@ -36,7 +36,7 @@ func (e *EnvdManagedDataSource) Init() error {
 }
 
 func (e *EnvdManagedDataSource) GetHostDir() (string, error) {
-	return "", nil
+	return e.hostDataDir, nil
 }
 
 func (e *EnvdManagedDataSource) Type() string {

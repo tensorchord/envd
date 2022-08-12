@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
+	"github.com/sirupsen/logrus"
 )
 
 type dataManager interface {
@@ -31,7 +32,12 @@ func (m *generalManager) InitDataDir(name string) (string, error) {
 		return "", errors.Wrap(err, "failed to get user home dir")
 	}
 	newDataDir := filepath.Join(home, ".envd", "data", name)
-	err = os.Mkdir(newDataDir, 0644)
+	if _, err := os.Stat(newDataDir); !os.IsNotExist(err) {
+		logrus.Infof("Data dir %s already exists, skipping creation", newDataDir)
+		return newDataDir, nil
+	}
+
+	err = os.Mkdir(newDataDir, 0777) // Avoid UID/GID issues
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create data dir")
 	}
