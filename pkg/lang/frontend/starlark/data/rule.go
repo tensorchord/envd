@@ -30,6 +30,12 @@ var Module = &starlarkstruct.Module{
 	Name: "data",
 	Members: starlark.StringDict{
 		"envd": starlark.NewBuiltin(ruleEnvdManagedDataSource, ruleValueEnvdManagedDataSource),
+		"path": &starlarkstruct.Module{
+			Name: "path",
+			Members: starlark.StringDict{
+				"huggingface": starlark.String(huggingFaceDatasetPath),
+				"dgl":         starlark.String(dglFaceDatasetPath),
+			}},
 	},
 }
 

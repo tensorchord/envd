@@ -14,25 +14,36 @@
 
 package data
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/tensorchord/envd/pkg/home"
+)
 
 type EnvdManagedDataSource struct {
-	name string
+	name        string
+	hostDataDir string
 }
 
-func (e EnvdManagedDataSource) Init() error {
+func (e *EnvdManagedDataSource) Init() error {
+	manager := home.GetManager()
+	hostDataDir, err := manager.InitDataDir(e.name)
+	if err != nil {
+		return err
+	}
+	e.hostDataDir = hostDataDir
 	return nil
 }
 
-func (e EnvdManagedDataSource) GetHostDir() (string, error) {
+func (e *EnvdManagedDataSource) GetHostDir() (string, error) {
 	return "", nil
 }
 
-func (e EnvdManagedDataSource) Type() string {
+func (e *EnvdManagedDataSource) Type() string {
 	return "envd managed data source"
 }
 
-func (e EnvdManagedDataSource) Hash() (uint32, error) {
+func (e *EnvdManagedDataSource) Hash() (uint32, error) {
 	return hashString(fmt.Sprintf("envd://%s", e.name)), nil
 }
 

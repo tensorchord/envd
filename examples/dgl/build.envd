@@ -3,12 +3,13 @@ def build():
     base(os="ubuntu20.04", language="python3")
 
     # Add the packages you are using here
-    install.python_packages(["numpy", "dgl", "torch"])
+    # install.python_packages(["numpy", "dgl", "torch"])
     
     # Select the shell environment you like
     shell("zsh")
 
-    io.mount(src="~/.envd/data/dgl", dest="~/.dgl")
+    # io.mount(src="~/.envd/data/dgl", dest="~/.dgl")
+    io.mount(src=data.envd("dgl"), dest=data.path.dgl)
 
 def build_gpu():
     # Use ubuntu20.04 as base image and install python    
@@ -25,4 +26,4 @@ def build_gpu():
     # Select the shell environment you like
     shell("zsh")
     
-    io.mount(src="~/.envd/data/dgl", dest="~/.dgl")
+    io.mount(src=data.envd("dgl"), dest=data.path.dgl)

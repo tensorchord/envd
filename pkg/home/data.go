@@ -12,10 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package data
+package home
 
-const (
-	ruleEnvdManagedDataSource = "data.envd"
-	huggingFaceDatasetPath    = "~/.cache/huggingface/datasets"
-	dglFaceDatasetPath        = "~/.dgl"
+import (
+	"os"
+	"path/filepath"
+
+	"github.com/cockroachdb/errors"
 )
+
+func (m *generalManager) InitDataDir(name string) (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get user home dir")
+	}
+	newDataDir := filepath.Join(home, ".envd", "data", name)
+	err = os.Mkdir(newDataDir, 0644)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create data dir")
+	}
+	return newDataDir, nil
+}
