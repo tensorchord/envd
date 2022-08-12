@@ -77,12 +77,10 @@ func (g Graph) compileCopy(root llb.State) llb.State {
 	return result
 }
 
-func (g *Graph) compileCUDAPackages() llb.State {
-	root := llb.Image(fmt.Sprintf(
+func (g *Graph) compileCUDAPackages(org, version string) llb.State {
+	return llb.Image(fmt.Sprintf(
 		"docker.io/%s/python:3.9-%s-cuda%s-cudnn%s-envd-%s",
-		viper.GetString(flag.FlagDockerOrganization),
-		g.OS, *g.CUDA, *g.CUDNN, version.GetGitTagFromVersion()))
-	return root
+		org, g.OS, *g.CUDA, *g.CUDNN, version))
 }
 
 func (g Graph) compileSystemPackages(root llb.State) llb.State {
@@ -122,6 +120,12 @@ func (g *Graph) compileBase() (llb.State, error) {
 	logger.Debug("compile base image")
 
 	var base llb.State
+	org := viper.GetString(flag.FlagDockerOrganization)
+	v := version.GetGitTagFromVersion()
+	if v == "" {
+		// empty version tag only appear in dev built, set to `latest` if so.
+		v = "latest"
+	}
 	// Do not update user permission in the base image.
 	if g.Image != nil {
 		logger.WithField("image", *g.Image).Debugf("using custom base image")
@@ -129,9 +133,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 	} else if g.CUDA == nil && g.CUDNN == nil {
 		switch g.Language.Name {
 		case "r":
-			base = llb.Image(fmt.Sprintf("docker.io/%s/r-base:4.2-envd-%s",
-				viper.GetString(flag.FlagDockerOrganization),
-				version.GetGitTagFromVersion()))
+			base = llb.Image(fmt.Sprintf("docker.io/%s/r-base:4.2-envd-%s", org, v))
 			// r-base image already has GID 1000.
 			// It is a trick, we actually use GID 1000
 			if g.gid == 1000 {
@@ -142,17 +144,13 @@ func (g *Graph) compileBase() (llb.State, error) {
 			}
 		case "python":
 			base = llb.Image(fmt.Sprintf(
-				"docker.io/%s/python:3.9-ubuntu20.04-envd-%s",
-				viper.GetString(flag.FlagDockerOrganization),
-				version.GetGitTagFromVersion()))
+				"docker.io/%s/python:3.9-ubuntu20.04-envd-%s", org, v))
 		case "julia":
 			base = llb.Image(fmt.Sprintf(
-				"docker.io/%s/julia:1.8rc1-ubuntu20.04-envd-%s",
-				viper.GetString(flag.FlagDockerOrganization),
-				version.GetGitTagFromVersion()))
+				"docker.io/%s/julia:1.8rc1-ubuntu20.04-envd-%s", org, v))
 		}
 	} else {
-		base = g.compileCUDAPackages()
+		base = g.compileCUDAPackages(org, v)
 	}
 	var res llb.ExecState
 
