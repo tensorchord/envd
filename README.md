@@ -85,7 +85,7 @@ $ docker build
 
 You can reproduce the same dev environment, on your laptop, public cloud VMs, or Docker containers, without any change in setup. You can also collaborate with your colleagues without "let me configure the environment in your machine".
 
-🖨️ **Seamless experience of Jupyter/VSCode** 
+🖨️ **Seamless experience of Jupyter/VSCode**
 
 `envd` provides first-class support for Jupyter and VSCode remote extension. You benefit without sacrificing any developer experience.
 
@@ -101,7 +101,7 @@ We’re focused on helping data scientists and teams that develop AI/ML models. 
 
 **Talk with us**
 
-💬 Interested in talking with us about your experience building or managing AI/ML applications? 
+💬 Interested in talking with us about your experience building or managing AI/ML applications?
 
 [**Set up a time to chat!**](https://forms.gle/9HDBHX5Y3fzuDCDAA)
 
@@ -165,25 +165,25 @@ cd envd-quick-start && envd up
 
 ```
 $ cd envd-quick-start && envd up
-[+] ⌚ parse build.envd and download/cache dependencies 2.8s ✅ (finished)     
- => download oh-my-zsh                                                    2.8s 
-[+] 🐋 build envd environment 18.3s (25/25) ✅ (finished)                      
- => create apt source dir                                                 0.0s 
- => local://cache-dir                                                     0.1s 
- => => transferring cache-dir: 5.12MB                                     0.1s 
+[+] ⌚ parse build.envd and download/cache dependencies 2.8s ✅ (finished)
+ => download oh-my-zsh                                                    2.8s
+[+] 🐋 build envd environment 18.3s (25/25) ✅ (finished)
+ => create apt source dir                                                 0.0s
+ => local://cache-dir                                                     0.1s
+ => => transferring cache-dir: 5.12MB                                     0.1s
 ...
- => pip install numpy                                                    13.0s 
- => copy /oh-my-zsh /home/envd/.oh-my-zsh                                 0.1s 
- => mkfile /home/envd/install.sh                                          0.0s 
- => install oh-my-zsh                                                     0.1s 
- => mkfile /home/envd/.zshrc                                              0.0s 
+ => pip install numpy                                                    13.0s
+ => copy /oh-my-zsh /home/envd/.oh-my-zsh                                 0.1s
+ => mkfile /home/envd/install.sh                                          0.0s
+ => install oh-my-zsh                                                     0.1s
+ => mkfile /home/envd/.zshrc                                              0.0s
  => install shell                                                         0.0s
  => install PyPI packages                                                 0.0s
  => merging all components into one                                       0.3s
  => => merging                                                            0.3s
- => mkfile /home/envd/.gitconfig                                          0.0s 
- => exporting to oci image format                                         2.4s 
- => => exporting layers                                                   2.0s 
+ => mkfile /home/envd/.gitconfig                                          0.0s
+ => exporting to oci image format                                         2.4s
+ => => exporting layers                                                   2.0s
  => => exporting manifest sha256:7dbe9494d2a7a39af16d514b997a5a8f08b637f  0.0s
  => => exporting config sha256:1da06b907d53cf8a7312c138c3221e590dedc2717  0.0s
  => => sending tarball                                                    0.4s
@@ -209,7 +209,7 @@ You can get the endpoint of the running Jupyter notebook via `envd envs ls`.
 ```bash
 $ envd up --detach
 $ envd envs ls
-NAME                    JUPYTER                 SSH TARGET              CONTEXT                                 IMAGE                   GPU     CUDA    CUDNN   STATUS          CONTAINER ID 
+NAME                    JUPYTER                 SSH TARGET              CONTEXT                                 IMAGE                   GPU     CUDA    CUDNN   STATUS          CONTAINER ID
 envd-quick-start        http://localhost:42779   envd-quick-start.envd   /home/gaocegege/code/envd-quick-start   envd-quick-start:dev    false   <none>  <none>  Up 54 seconds   bd3f6a729e94
 ```
 
@@ -221,8 +221,8 @@ Please checkout [ROADMAP](https://envd.tensorchord.ai/docs/community/roadmap).
 
 We welcome all kinds of contributions from the open-source community, individuals, and partners.
 
-- Join our [discord community](https://discord.gg/KqswhpVgdU)! 
-- To build from the source, please read our [contributing documentation](https://envd.tensorchord.ai/docs/community/contributing) and [development tutorial](https://envd.tensorchord.ai/docs/community/development).
+- Join our [discord community](https://discord.gg/KqswhpVgdU)!
+- To build from the source, please read our [contributing documentation](https://envd.tensorchord.ai/community/contributing.html) and [development tutorial](https://envd.tensorchord.ai/community/development.html).
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/tensorchord/envd)
 
