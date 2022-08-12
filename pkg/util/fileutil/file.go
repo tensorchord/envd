@@ -51,6 +51,29 @@ func FileExists(filename string) (bool, error) {
 	return !info.IsDir(), nil
 }
 
+// FindFileAbsPath returns the absolute path for the given path and file
+func FindFileAbsPath(path, fileName string) (string, error) {
+	manifest := filepath.Join(path, fileName)
+	exist, err := FileExists(manifest)
+	if err != nil {
+		return "", err
+	}
+	var absPath string
+	if exist {
+		absPath, err = filepath.Abs(manifest)
+		if err != nil {
+			return "", err
+		}
+		return absPath, nil
+	}
+	// check if ${PWD}/fileName exists
+	absPath, err = filepath.Abs(fileName)
+	if err != nil {
+		return "", err
+	}
+	return absPath, nil
+}
+
 func RemoveAll(dirname string) error {
 	return os.RemoveAll(dirname)
 }

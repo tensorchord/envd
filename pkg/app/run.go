@@ -25,6 +25,7 @@ import (
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandRun = &cli.Command{
@@ -84,7 +85,7 @@ func run(clicontext *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		manifest, err := filepath.Abs(filepath.Join(buildContext, fileName))
+		manifest, err := fileutil.FindFileAbsPath(buildContext, fileName)
 		if err != nil {
 			return errors.Wrap(err, "failed to get absolute path of the build file")
 		}
