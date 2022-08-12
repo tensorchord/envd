@@ -13,9 +13,6 @@ ENVD_OS="${ENVD_OS:-ubuntu20.04}"
 JULIA_VERSION="${JULIA_VERSION:-1.8rc1}"
 RLANG_VERSION="${RLANG_VERSION:-4.2}"
 
-echo $ENVD_VERSION
-exit 1
-
 cd ${ROOT_DIR}
 # ubuntu 22.04 build require moby/buildkit version greater than 0.8.1
 if ! docker buildx inspect cuda; then
