@@ -60,7 +60,6 @@ func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 			return starlark.None, err
 		}
 		sourceStr, err = v.GetHostDir()
-		logger.Debugf("data source: %s")
 		if err != nil {
 			return starlark.None, err
 		}
