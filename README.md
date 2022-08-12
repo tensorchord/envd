@@ -85,7 +85,7 @@ $ docker build
 
 You can reproduce the same dev environment, on your laptop, public cloud VMs, or Docker containers, without any change in setup. You can also collaborate with your colleagues without "let me configure the environment in your machine".
 
-🖨️ **Seamless experience of Jupyter/VSCode** 
+🖨️ **Seamless experience of Jupyter/VSCode**
 
 `envd` provides first-class support for Jupyter and VSCode remote extension. You benefit without sacrificing any developer experience.
 
@@ -101,7 +101,7 @@ We’re focused on helping data scientists and teams that develop AI/ML models. 
 
 **Talk with us**
 
-💬 Interested in talking with us about your experience building or managing AI/ML applications? 
+💬 Interested in talking with us about your experience building or managing AI/ML applications?
 
 [**Set up a time to chat!**](https://forms.gle/9HDBHX5Y3fzuDCDAA)
 
@@ -113,7 +113,7 @@ Before envd             |  After envd
 
 ## Documentation 📝
 
-See [envd documentation](https://envd.tensorchord.ai/docs/get-started).
+See [envd documentation](https://envd.tensorchord.ai/guide/getting-started).
 
 ## Getting Started
 
@@ -165,25 +165,25 @@ cd envd-quick-start && envd up
 
 ```
 $ cd envd-quick-start && envd up
-[+] ⌚ parse build.envd and download/cache dependencies 2.8s ✅ (finished)     
- => download oh-my-zsh                                                    2.8s 
-[+] 🐋 build envd environment 18.3s (25/25) ✅ (finished)                      
- => create apt source dir                                                 0.0s 
- => local://cache-dir                                                     0.1s 
- => => transferring cache-dir: 5.12MB                                     0.1s 
+[+] ⌚ parse build.envd and download/cache dependencies 2.8s ✅ (finished)
+ => download oh-my-zsh                                                    2.8s
+[+] 🐋 build envd environment 18.3s (25/25) ✅ (finished)
+ => create apt source dir                                                 0.0s
+ => local://cache-dir                                                     0.1s
+ => => transferring cache-dir: 5.12MB                                     0.1s
 ...
- => pip install numpy                                                    13.0s 
- => copy /oh-my-zsh /home/envd/.oh-my-zsh                                 0.1s 
- => mkfile /home/envd/install.sh                                          0.0s 
- => install oh-my-zsh                                                     0.1s 
- => mkfile /home/envd/.zshrc                                              0.0s 
+ => pip install numpy                                                    13.0s
+ => copy /oh-my-zsh /home/envd/.oh-my-zsh                                 0.1s
+ => mkfile /home/envd/install.sh                                          0.0s
+ => install oh-my-zsh                                                     0.1s
+ => mkfile /home/envd/.zshrc                                              0.0s
  => install shell                                                         0.0s
  => install PyPI packages                                                 0.0s
  => merging all components into one                                       0.3s
  => => merging                                                            0.3s
- => mkfile /home/envd/.gitconfig                                          0.0s 
- => exporting to oci image format                                         2.4s 
- => => exporting layers                                                   2.0s 
+ => mkfile /home/envd/.gitconfig                                          0.0s
+ => exporting to oci image format                                         2.4s
+ => => exporting layers                                                   2.0s
  => => exporting manifest sha256:7dbe9494d2a7a39af16d514b997a5a8f08b637f  0.0s
  => => exporting config sha256:1da06b907d53cf8a7312c138c3221e590dedc2717  0.0s
  => => sending tarball                                                    0.4s
@@ -201,7 +201,7 @@ def build():
         "numpy",
     ])
     shell("zsh")
-    config.jupyter(password="")
+    config.jupyter(token="")
 ```
 
 You can get the endpoint of the running Jupyter notebook via `envd envs ls`.
@@ -209,7 +209,7 @@ You can get the endpoint of the running Jupyter notebook via `envd envs ls`.
 ```bash
 $ envd up --detach
 $ envd envs ls
-NAME                    JUPYTER                 SSH TARGET              CONTEXT                                 IMAGE                   GPU     CUDA    CUDNN   STATUS          CONTAINER ID 
+NAME                    JUPYTER                 SSH TARGET              CONTEXT                                 IMAGE                   GPU     CUDA    CUDNN   STATUS          CONTAINER ID
 envd-quick-start        http://localhost:42779   envd-quick-start.envd   /home/gaocegege/code/envd-quick-start   envd-quick-start:dev    false   <none>  <none>  Up 54 seconds   bd3f6a729e94
 ```
 
@@ -221,8 +221,8 @@ Please checkout [ROADMAP](https://envd.tensorchord.ai/docs/community/roadmap).
 
 We welcome all kinds of contributions from the open-source community, individuals, and partners.
 
-- Join our [discord community](https://discord.gg/KqswhpVgdU)! 
-- To build from the source, please read our [contributing documentation](https://envd.tensorchord.ai/docs/community/contributing) and [development tutorial](https://envd.tensorchord.ai/docs/community/development).
+- Join our [discord community](https://discord.gg/KqswhpVgdU)!
+- To build from the source, please read our [contributing documentation](https://envd.tensorchord.ai/community/contributing.html) and [development tutorial](https://envd.tensorchord.ai/community/development.html).
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/tensorchord/envd)
 
@@ -268,7 +268,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://rudeigerc.dev/"><img src="https://avatars.githubusercontent.com/u/18243819?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Yuchen Cheng</b></sub></a><br /><a href="https://github.com/tensorchord/envd/issues?q=author%3Arudeigerc" title="Bug reports">🐛</a> <a href="#infra-rudeigerc" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#maintenance-rudeigerc" title="Maintenance">🚧</a> <a href="#tool-rudeigerc" title="Tools">🔧</a></td>
     <td align="center"><a href="https://github.com/yczheng0"><img src="https://avatars.githubusercontent.com/u/21327543?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Yunchuan Zheng</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=yczheng0" title="Code">💻</a></td>
     <td align="center"><a href="http://lizheming.top"><img src="https://avatars.githubusercontent.com/u/9639449?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Zheming Li</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=lizhemingi" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/Xiaoaier-Z-L"><img src="https://avatars.githubusercontent.com/u/96805673?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Zhenguo.Li</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=Xiaoaier-Z-L" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Xiaoaier-Z-L"><img src="https://avatars.githubusercontent.com/u/96805673?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Zhenguo.Li</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=Xiaoaier-Z-L" title="Code">💻</a> <a href="https://github.com/tensorchord/envd/commits?author=Xiaoaier-Z-L" title="Documentation">📖</a></td>
   </tr>
   <tr>
     <td align="center"><a href="https://blog.triplez.cn/"><img src="https://avatars.githubusercontent.com/u/16285716?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Zhenzhen Zhao</b></sub></a><br /><a href="#infra-Triple-Z" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#userTesting-Triple-Z" title="User Testing">📓</a> <a href="https://github.com/tensorchord/envd/commits?author=Triple-Z" title="Code">💻</a></td>
