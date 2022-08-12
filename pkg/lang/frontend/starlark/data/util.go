@@ -15,8 +15,9 @@
 package data
 
 import (
-	envdData "github.com/tensorchord/envd/pkg/data"
 	"go.starlark.net/starlark"
+
+	envdData "github.com/tensorchord/envd/pkg/data"
 )
 
 type DataSourceValue struct {
