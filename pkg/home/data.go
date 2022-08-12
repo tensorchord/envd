@@ -21,6 +21,10 @@ import (
 	"github.com/cockroachdb/errors"
 )
 
+type dataManager interface {
+	InitDataDir(name string) (string, error)
+}
+
 func (m *generalManager) InitDataDir(name string) (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {

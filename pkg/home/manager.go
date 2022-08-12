@@ -28,6 +28,7 @@ type Manager interface {
 	configManager
 	contextManager
 	cacheManager
+	dataManager
 }
 
 type generalManager struct {
