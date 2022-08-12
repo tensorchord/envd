@@ -53,6 +53,9 @@ func FileExists(filename string) (bool, error) {
 
 // FindFileAbsPath returns the absolute path for the given path and file
 func FindFileAbsPath(path, fileName string) (string, error) {
+	if len(fileName) <= 0 {
+		return "", errors.New("file name is empty")
+	}
 	manifest := filepath.Join(path, fileName)
 	exist, err := FileExists(manifest)
 	if err != nil {
