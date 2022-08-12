@@ -116,6 +116,7 @@ jobs:
       run: |
           docker login --username "${DOCKERIO_USERNAME}" --password "${DOCKERIO_PASSWORD}"
           ./base-images/build.sh
+          DOCKER_IMAGE_TAG=latest ./base-images/build.sh
   cache_publish:
     name: Build & Push the remote cache
     # only trigger on main repo when tag starts with v

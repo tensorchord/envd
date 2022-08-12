@@ -6,12 +6,12 @@ ROOT_DIR=`dirname $0`
 
 GIT_TAG_VERSION=$(git describe --tags --abbrev=0 | sed -r 's/[v]+//g') # remove v from version
 ENVD_VERSION="${ENVD_VERSION:-$GIT_TAG_VERSION}"
+DOCKER_IMAGE_TAG="${DOCKER_IMAGE_TAG:-$ENVD_VERSION}"
 DOCKER_HUB_ORG="${DOCKER_HUB_ORG:-tensorchord}"
 PYTHON_VERSION="${PYTHON_VERSION:-3.9}"
 ENVD_OS="${ENVD_OS:-ubuntu20.04}"
 JULIA_VERSION="${JULIA_VERSION:-1.8rc1}"
 RLANG_VERSION="${RLANG_VERSION:-4.2}"
-
 
 cd ${ROOT_DIR}
 # ubuntu 22.04 build require moby/buildkit version greater than 0.8.1
@@ -26,26 +26,26 @@ docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-envd-v${ENVD_VERSION} \
+    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-envd-v${DOCKER_IMAGE_TAG} \
     -f python${PYTHON_VERSION}-${ENVD_OS}.Dockerfile .
 docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-cuda11.6-cudnn8-envd-v${ENVD_VERSION} \
+    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-cuda11.6-cudnn8-envd-v${DOCKER_IMAGE_TAG} \
     -f python${PYTHON_VERSION}-${ENVD_OS}-cuda11.6.Dockerfile .
 
 # TODO(gaocegege): Support linux/arm64
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
-    -t ${DOCKER_HUB_ORG}/r-base:${RLANG_VERSION}-envd-v${ENVD_VERSION} \
+    -t ${DOCKER_HUB_ORG}/r-base:${RLANG_VERSION}-envd-v${DOCKER_IMAGE_TAG} \
     --pull --push --platform linux/x86_64 \
     -f r${RLANG_VERSION}.Dockerfile .
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
     --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
-    -t ${DOCKER_HUB_ORG}/julia:${JULIA_VERSION}-${ENVD_OS}-envd-v${ENVD_VERSION} \
+    -t ${DOCKER_HUB_ORG}/julia:${JULIA_VERSION}-${ENVD_OS}-envd-v${DOCKER_IMAGE_TAG} \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -f julia${JULIA_VERSION}-${ENVD_OS}.Dockerfile .
 cd - > /dev/null

@@ -36,9 +36,15 @@ var CommandInit = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     "lang",
-			Usage:    "language usage. Support Python, R",
+			Usage:    "language usage. Support Python, R, Julia",
 			Aliases:  []string{"l"},
 			Required: true,
+		},
+		&cli.BoolFlag{
+			Name:     "force",
+			Usage:    "overwrite the build.envd if existed",
+			Aliases:  []string{"f"},
+			Required: false,
 		},
 	},
 	Action: initCommand,
@@ -57,6 +63,7 @@ func isValidLang(lang string) bool {
 
 func initCommand(clicontext *cli.Context) error {
 	lang := strings.ToLower(clicontext.String("lang"))
+	force := clicontext.Bool("force")
 	if !isValidLang(lang) {
 		return errors.Errorf("invalid language %s", lang)
 	}
@@ -65,8 +72,8 @@ func initCommand(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	if exists {
-		return errors.Errorf("build.envd already exists")
+	if exists && !force {
+		return errors.Errorf("build.envd already exists, use --force to overwrite it")
 	}
 
 	buildEnvdContent, err := templatef.ReadFile("template/" + lang + ".envd")

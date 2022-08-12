@@ -473,10 +473,14 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 	var jupyterPortInHost int
 	// TODO(gaocegege): Avoid specific logic to set the port.
 	if g.JupyterConfig != nil {
-		var err error
-		jupyterPortInHost, err = netutil.GetFreePort()
-		if err != nil {
-			return "", "", errors.Wrap(err, "failed to get a free port")
+		if g.JupyterConfig.Port != 0 {
+			jupyterPortInHost = int(g.JupyterConfig.Port)
+		} else {
+			var err error
+			jupyterPortInHost, err = netutil.GetFreePort()
+			if err != nil {
+				return "", "", errors.Wrap(err, "failed to get a free port")
+			}
 		}
 		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.JupyterPortInContainer))
 		hostConfig.PortBindings[natPort] = []nat.PortBinding{

@@ -67,15 +67,15 @@ func ruleFuncGPU(thread *starlark.Thread, _ *starlark.Builtin,
 
 func ruleFuncJupyter(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var password starlark.String
+	var token starlark.String
 	var port starlark.Int
 
 	if err := starlark.UnpackArgs(ruleJupyter, args, kwargs,
-		"password?", &password, "port?", &port); err != nil {
+		"token?", &token, "port?", &port); err != nil {
 		return nil, err
 	}
 
-	pwdStr := password.GoString()
+	pwdStr := token.GoString()
 
 	portInt, ok := port.Int64()
 	if !ok {

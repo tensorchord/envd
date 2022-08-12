@@ -134,8 +134,7 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 
 func (g Graph) installConda(root llb.State) (llb.State, error) {
 	run := root.AddEnv("CONDA_VERSION", condaVersionDefault).
-		File(llb.Mkdir("/opt/conda", 0755, llb.WithParents(true),
-			llb.WithUIDGID(g.uid, g.gid)),
+		File(llb.Mkdir("/opt/conda", 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] create conda directory")).
 		Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installCondaBash)),
 			llb.WithCustomName("[internal] install conda"))
