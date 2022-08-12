@@ -107,8 +107,5 @@ brews:
     skip_upload: auto
     caveats: |
       Please run `envd bootstrap` first to bootstrap
-    dependencies:
-      - name: go
-        type: build
     test: |
       system "#{bin}/envd version"
