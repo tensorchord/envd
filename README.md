@@ -201,7 +201,7 @@ def build():
         "numpy",
     ])
     shell("zsh")
-    config.jupyter(token="")
+    config.jupyter()
 ```
 
 You can get the endpoint of the running Jupyter notebook via `envd envs ls`.

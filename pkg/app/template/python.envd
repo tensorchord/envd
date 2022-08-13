@@ -1,6 +1,6 @@
 def build():
     # Use ubuntu20.04 as base image and install python
-    base(os="ubuntu20.04", language="python3")
+    base(os="ubuntu20.04", language="python")
     # Uncomment line below to enable Pypi mirror
     # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
 
@@ -11,4 +11,4 @@ def build():
     shell("zsh")
 
     # Setup jupyter notebook
-    config.jupyter(token="", port=8888)
+    config.jupyter()
