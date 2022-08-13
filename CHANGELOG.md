@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.2.0-alpha.14 (2022-08-12)
+
+ * [b9f0af8](https://github.com/tensorchord/envd/commit/b9f0af8056129fe6c5a2e590cd428463186cac0e) fix: -path and -file bug (#766)
+ * [4a359f1](https://github.com/tensorchord/envd/commit/4a359f1eb608a0680a94379b4ac52756d605be9d) fix(release): :hammer: drop go build dep for homebrew (#768)
+ * [542c7cb](https://github.com/tensorchord/envd/commit/542c7cbc3f8b7658905b85e10ff47ea216b44f7e) Fix the color display in wezterm (#767)
+ * [590b4c0](https://github.com/tensorchord/envd/commit/590b4c04bffab550778a3fe911db3280ffb72b09) fix(CLI): 🔨  use latest version for local build (#763)
+ * [2342367](https://github.com/tensorchord/envd/commit/2342367d3edb6d6c240afffc6b2414b1e83f0413) fix(docs): :memo: fix contributing and dev links, clean tailing space (#764)
+ * [b4a8519](https://github.com/tensorchord/envd/commit/b4a851920092b66f97ed6af301472af183c986a8) fix: modify jupyter's authority from hash password to token string (#762)
+ * [1f0af98](https://github.com/tensorchord/envd/commit/1f0af9825eb6f1b8843feb7fbb9b12a10e1c902d) fix: use defined jupyter port (#757)
+ * [381b653](https://github.com/tensorchord/envd/commit/381b653b4dd428e5b68c1876bac74653ae2b3068) docs(README): update Documentations link to https://envd.tensorchord.… (#758)
+ * [ad4b9ec](https://github.com/tensorchord/envd/commit/ad4b9ec8894b08104a47defd0039fdb081b087e3) fix: do not expose ports for custom image (#754)
+ * [e77b7d6](https://github.com/tensorchord/envd/commit/e77b7d61cfaeec1d62a7119373a646a7907cb933) docs(README): Correct the cmd of get Jupyter Notebook endpoint (#756)
+ * [8675316](https://github.com/tensorchord/envd/commit/86753162812f07ad030a6aecbcaa7f57839aae54) fix: ParseFromStr, add unittest (#755)
+ * [382aa2d](https://github.com/tensorchord/envd/commit/382aa2db5a6bdd26d1a9f96f775cd749f9927f4e) bug(CLI): fix short alias confusion (#752)
+ * [7625cd2](https://github.com/tensorchord/envd/commit/7625cd28658ad02dd05f523446985152e8eb887b) feat: Avoid gid in base image cache (#749)
+ * [2e39182](https://github.com/tensorchord/envd/commit/2e39182582bf779e304fa6b7878c1428be938694) feat(CLI): :sparkles: add --force args for init to overwrite build.envd (#748)
+ * [d241898](https://github.com/tensorchord/envd/commit/d2418984c7e67cc1a5184fc2894e8439e58e97ef) docs(README): One obvious way to declare supported python version (#745)
+ * [b492e83](https://github.com/tensorchord/envd/commit/b492e838eb1a9bef6769806c2604d51fecfa2fff) add entrypoint in custom image (#739)
+ * [4df956b](https://github.com/tensorchord/envd/commit/4df956b14ec05ac4204d8891b6791f065205b5c5) The workaround to fix the label loss (#741)
+ * [dd609da](https://github.com/tensorchord/envd/commit/dd609da753b71331bfb48f997760890b47563ad4) feat: Enable build for all languages (#738)
+ * [ed998ce](https://github.com/tensorchord/envd/commit/ed998cede32a4cdaa996964c6ec7ef492b4802d6) feat(lang): Add a new func runtime.command (#736)
+ * [3c46efc](https://github.com/tensorchord/envd/commit/3c46efcf651af6d80010e93212ef8d2f0e26e8fa) fix: setup.py build (#735)
+
+### Contributors
+
+ * Bingyi Sun
+ * Ce Gao
+ * Keming
+ * Wei Zhang
+ * Zhenguo.Li
+ * nullday
+
 ## v0.2.0-alpha.13 (2022-08-06)
 
 
