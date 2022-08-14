@@ -56,16 +56,17 @@ func (g Graph) compileVSCode() (*llb.State, error) {
 }
 
 func (g *Graph) compileJupyter() error {
-	if g.JupyterConfig != nil {
-		g.PyPIPackages = append(g.PyPIPackages, "jupyter")
-		switch g.Language.Name {
-		case "python":
-			return nil
-		default:
-			return errors.Newf("Jupyter is not supported in %s yet", g.Language.Name)
-		}
+	if g.JupyterConfig == nil {
+		return nil
 	}
-	return nil
+
+	g.PyPIPackages = append(g.PyPIPackages, "jupyter")
+	switch g.Language.Name {
+	case "python":
+		return nil
+	default:
+		return errors.Newf("Jupyter is not supported in %s yet", g.Language.Name)
+	}
 }
 
 func (g Graph) generateJupyterCommand(workingDir string) []string {
@@ -73,21 +74,17 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 		return nil
 	}
 
+	if g.JupyterConfig.Token == "" {
+		g.JupyterConfig.Token = "''"
+	}
+
 	cmd := []string{
 		"python3", "-m", "notebook",
 		"--ip", "0.0.0.0", "--notebook-dir", workingDir,
+		"--NotebookApp.token", g.JupyterConfig.Token,
+		"--port", strconv.Itoa(config.JupyterPortInContainer),
 	}
 
-	if g.JupyterConfig.Token != "" {
-		cmd = append(cmd, "--NotebookApp.token", g.JupyterConfig.Token)
-	} else {
-		cmd = append(cmd, "--NotebookApp.token", "''")
-	}
-
-	if g.JupyterConfig.Port != 0 {
-		p := strconv.Itoa(int(config.JupyterPortInContainer))
-		cmd = append(cmd, "--port", p)
-	}
 	return cmd
 }
 
