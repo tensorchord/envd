@@ -202,7 +202,7 @@ func ruleFuncEntrypoint(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var argv *starlark.List
 
-	if err := starlark.UnpackArgs(ruleEntrypoint, args, kwargs, "name", &argv); err != nil {
+	if err := starlark.UnpackArgs(ruleEntrypoint, args, kwargs, "args", &argv); err != nil {
 		return nil, err
 	}
 

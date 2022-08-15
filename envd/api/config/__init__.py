@@ -18,27 +18,26 @@ from typing import Optional, List
 def apt_source(mode: Optional[str], source: Optional[str]):
     r"""Configure apt sources
 
-    Example usage:
-    ```
-    apt_source(source='''
-deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
-deb https://mirror.sjtu.edu.cn/ubuntu focal-updates main restricted
-deb https://mirror.sjtu.edu.cn/ubuntu focal universe
-deb https://mirror.sjtu.edu.cn/ubuntu focal-updates universe
-deb https://mirror.sjtu.edu.cn/ubuntu focal multiverse
-deb https://mirror.sjtu.edu.cn/ubuntu focal-updates multiverse
-deb https://mirror.sjtu.edu.cn/ubuntu focal-backports main restricted universe multiverse
-deb http://archive.canonical.com/ubuntu focal partner
-deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe multiverse
-    '''
-    )
-    ```
+        Example usage:
+        ```
+        apt_source(source='''
+    deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
+    deb https://mirror.sjtu.edu.cn/ubuntu focal-updates main restricted
+    deb https://mirror.sjtu.edu.cn/ubuntu focal universe
+    deb https://mirror.sjtu.edu.cn/ubuntu focal-updates universe
+    deb https://mirror.sjtu.edu.cn/ubuntu focal multiverse
+    deb https://mirror.sjtu.edu.cn/ubuntu focal-updates multiverse
+    deb https://mirror.sjtu.edu.cn/ubuntu focal-backports main restricted universe multiverse
+    deb http://archive.canonical.com/ubuntu focal partner
+    deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe multiverse
+        '''
+        )
+        ```
 
-    Args:
-        mode (str, optional): This argument is not supported currently
-        source (str, optional): The apt source configuration
+        Args:
+            mode (str, optional): This argument is not supported currently
+            source (str, optional): The apt source configuration
     """
-    pass
 
 
 def jupyter(token: str, port: int):
@@ -49,40 +48,47 @@ def jupyter(token: str, port: int):
         token (str): Token for access authentication
         port (int): Port to serve jupyter notebook
     """
-    pass
 
-def pip_index(url):
+
+def pip_index(mode: str, url: str, extra_url: str):
     """
     Configure pypi index mirror
 
     Args:
-        url (str): Pypi index url (i.e. https://mirror.sjtu.edu.cn/pypi/web/simple)
+        mode (str): NOT supported yet
+        url (str): PyPI index URL (i.e. https://mirror.sjtu.edu.cn/pypi/web/simple)
+        extra_url (str): PyPI extra index URL. `url` and `extra_url` will be
+            treated equally, see https://github.com/pypa/pip/issues/8606
     """
-    pass
 
-def conda_channel(channel:str):
+
+def conda_channel(channel: str):
     """
-    Configure conda channel mirror
+        Configure conda channel mirror
 
-    Example usage:
-    ```
-    config.conda_channel(channel='''
-channels:
-  - defaults
-show_channel_urls: true
-default_channels:
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
-custom_channels:
-  conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-    '''
-    )
-    ```
+        Example usage:
+        ```
+        config.conda_channel(channel='''
+    channels:
+      - defaults
+    show_channel_urls: true
+    default_channels:
+      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+    custom_channels:
+      conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+        '''
 
-    Args:
-        channel (str): Basically the same with file content of an usual .condarc
+        Args:
+            channel (str): conda channel mirror
+        )
+        ```
+
+        Args:
+            channel (str): Basically the same with file content of an usual .condarc
     """
+
 
 def entrypoint(args: List[str]):
     """
@@ -97,18 +103,41 @@ def entrypoint(args: List[str]):
         args (List[str]): list of arguments to run
     """
 
-def gpu():
+
+def gpu(count: int):
     """
+    Configure the number of GPUs required
+
+    Example usage:
+    ```
+    config.gpu(count=2)
+    ```
+
+    Args:
+        count (int): number of GPUs
     """
 
-def cran_mirror():
+
+def cran_mirror(url: str):
     """
+    Configure the mirror URL, default is https://cran.rstudio.com
+
+    Args:
+        url (str): mirror URL
     """
 
-def julia_pkg_server():
+
+def julia_pkg_server(url: str):
     """
+    Configure the package server for Julia.
+    Since Julia 1.5, https://pkg.julialang.org` is the default pkg server.
+
+    Args:
+        url (str): Julia pkg server URL
     """
+
 
 def rstudio_server():
     """
+    Not implemented yet.
     """

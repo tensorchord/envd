@@ -16,15 +16,12 @@ from typing import List, Optional
 
 
 def system_packages(name: List[str]):
-    """Install package by system-level package manager(apt on Ubuntu)
-    """
-    pass
+    """Install package by system-level package manager(apt on Ubuntu)"""
 
 
 def python_packages(name: List[str]):
-    """Install python package by pip
-    """
-    pass
+    """Install python package by pip"""
+
 
 def conda_packages(name: List[str]):
     """Install python package by Conda
@@ -34,10 +31,10 @@ def conda_packages(name: List[str]):
             such as ['pytorch', 'tensorflow==1.13.0']
     """
 
+
 def r_packages(name: List[str]):
-    """Install R packages by R package manager
-    """
-    pass
+    """Install R packages by R package manager"""
+
 
 def cuda(version: str, cudnn: Optional[str] = None):
     """Install CUDA dependency
@@ -46,12 +43,13 @@ def cuda(version: str, cudnn: Optional[str] = None):
       cudnn (optional, str): CUDNN version, such as '6'
     """
 
+
 def vscode_extensions(name: List[str]):
     """Install VS Code extensions
     Args:
       name (list of str): extension names, such as ['ms-python.python']
     """
 
+
 def julia_packages():
-    """
-    """
+    """ """
