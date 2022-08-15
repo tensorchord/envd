@@ -1,3 +1,8 @@
+def jupyter_lab():
+    install.python_packages(["jupyterlab"])
+    runtime.daemon(commands=["jupyter-lab"])
+
+
 def build():
     base(os="ubuntu20.04", language="python")
     #config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
@@ -8,3 +13,4 @@ def build():
     runtime.command(commands={
         "test": "ls /",
     })
+    jupyter_lab()
