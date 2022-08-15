@@ -15,10 +15,11 @@
 package io
 
 import (
-	"errors"
 	"os/user"
 	"path/filepath"
 	"strings"
+
+	"github.com/cockroachdb/errors"
 
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
@@ -26,7 +27,6 @@ import (
 
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/data"
 	"github.com/tensorchord/envd/pkg/lang/ir"
-	// envdData "github.com/tensorchord/envd/pkg/data"
 )
 
 var (
@@ -66,10 +66,9 @@ func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 	} else if vs, ok := source.(starlark.String); ok {
 		sourceStr = vs.GoString()
 	} else {
-		return starlark.None, errors.New("invalid source")
+		return starlark.None, errors.New("invalid data source")
 	}
 
-	// sourceStr := source.GoString()
 	destinationStr := destination.GoString()
 
 	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s",

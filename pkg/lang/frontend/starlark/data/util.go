@@ -17,11 +17,11 @@ package data
 import (
 	"go.starlark.net/starlark"
 
-	envdData "github.com/tensorchord/envd/pkg/data"
+	envddata "github.com/tensorchord/envd/pkg/data"
 )
 
 type DataSourceValue struct {
-	source envdData.DataSource
+	source envddata.DataSource
 }
 
 func (d DataSourceValue) Init() error {
@@ -48,6 +48,6 @@ func (d DataSourceValue) Hash() (uint32, error) {
 	return d.source.Hash()
 }
 
-func NewDataSourceValue(source envdData.DataSource) *DataSourceValue {
+func NewDataSourceValue(source envddata.DataSource) *DataSourceValue {
 	return &DataSourceValue{source: source}
 }

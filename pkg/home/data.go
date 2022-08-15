@@ -27,17 +27,13 @@ type dataManager interface {
 }
 
 func (m *generalManager) InitDataDir(name string) (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", errors.Wrap(err, "failed to get user home dir")
-	}
-	newDataDir := filepath.Join(home, ".envd", "data", name)
+	newDataDir := filepath.Join(m.CacheDir(), "data", name)
 	if _, err := os.Stat(newDataDir); !os.IsNotExist(err) {
 		logrus.Infof("Data dir %s already exists, skipping creation", newDataDir)
 		return newDataDir, nil
 	}
 
-	err = os.Mkdir(newDataDir, 0777) // Avoid UID/GID issues
+	err := os.Mkdir(newDataDir, 0777) // Avoid UID/GID issues
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create data dir")
 	}

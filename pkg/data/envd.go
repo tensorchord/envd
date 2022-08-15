@@ -18,6 +18,8 @@ import (
 	"fmt"
 
 	"github.com/tensorchord/envd/pkg/home"
+
+	"go.starlark.net/starlark"
 )
 
 type EnvdManagedDataSource struct {
@@ -44,7 +46,7 @@ func (e *EnvdManagedDataSource) Type() string {
 }
 
 func (e *EnvdManagedDataSource) Hash() (uint32, error) {
-	return hashString(fmt.Sprintf("envd://%s", e.name)), nil
+	return starlark.String(fmt.Sprintf("envd://%s", e.name)).Hash()
 }
 
 func NewEnvdManagedDataSource(name string) *EnvdManagedDataSource {
