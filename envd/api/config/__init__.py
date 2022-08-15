@@ -16,33 +16,31 @@ from typing import Optional, List
 
 
 def apt_source(mode: Optional[str], source: Optional[str]):
-    r"""Configure apt sources
+    """Configure apt sources
 
-        Example usage:
-        ```
-        apt_source(source='''
-    deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
-    deb https://mirror.sjtu.edu.cn/ubuntu focal-updates main restricted
-    deb https://mirror.sjtu.edu.cn/ubuntu focal universe
-    deb https://mirror.sjtu.edu.cn/ubuntu focal-updates universe
-    deb https://mirror.sjtu.edu.cn/ubuntu focal multiverse
-    deb https://mirror.sjtu.edu.cn/ubuntu focal-updates multiverse
-    deb https://mirror.sjtu.edu.cn/ubuntu focal-backports main restricted universe multiverse
-    deb http://archive.canonical.com/ubuntu focal partner
-    deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe multiverse
-        '''
-        )
-        ```
+    Example usage:
+    ```
+    apt_source(source='''
+        deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
+        deb https://mirror.sjtu.edu.cn/ubuntu focal-updates main restricted
+        deb https://mirror.sjtu.edu.cn/ubuntu focal universe
+        deb https://mirror.sjtu.edu.cn/ubuntu focal-updates universe
+        deb https://mirror.sjtu.edu.cn/ubuntu focal multiverse
+        deb https://mirror.sjtu.edu.cn/ubuntu focal-updates multiverse
+        deb https://mirror.sjtu.edu.cn/ubuntu focal-backports main restricted universe multiverse
+        deb http://archive.canonical.com/ubuntu focal partner
+        deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe multiverse
+    ''')
+    ```
 
-        Args:
-            mode (str, optional): This argument is not supported currently
-            source (str, optional): The apt source configuration
+    Args:
+        mode (str, optional): This argument is not supported currently
+        source (str, optional): The apt source configuration
     """
 
 
 def jupyter(token: str, port: int):
-    """
-    Configure jupyter notebook configuration
+    """Configure jupyter notebook configuration
 
     Args:
         token (str): Token for access authentication
@@ -51,8 +49,7 @@ def jupyter(token: str, port: int):
 
 
 def pip_index(mode: str, url: str, extra_url: str):
-    """
-    Configure pypi index mirror
+    """Configure pypi index mirror
 
     Args:
         mode (str): NOT supported yet
@@ -63,36 +60,29 @@ def pip_index(mode: str, url: str, extra_url: str):
 
 
 def conda_channel(channel: str):
-    """
-        Configure conda channel mirror
+    """Configure conda channel mirror
 
-        Example usage:
-        ```
-        config.conda_channel(channel='''
+    Example usage:
+    ```
+    config.conda_channel(channel='''
     channels:
-      - defaults
+        - defaults
     show_channel_urls: true
     default_channels:
-      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
-      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
-      - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+        - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+        - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+        - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
     custom_channels:
-      conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-        '''
+        conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud''')
+    ```
 
-        Args:
-            channel (str): conda channel mirror
-        )
-        ```
-
-        Args:
-            channel (str): Basically the same with file content of an usual .condarc
+    Args:
+        channel (str): Basically the same with file content of an usual .condarc
     """
 
 
 def entrypoint(args: List[str]):
-    """
-    Configure entrypoint for custom base image
+    """Configure entrypoint for custom base image
 
     Example usage:
     ```
@@ -105,8 +95,7 @@ def entrypoint(args: List[str]):
 
 
 def gpu(count: int):
-    """
-    Configure the number of GPUs required
+    """Configure the number of GPUs required
 
     Example usage:
     ```
@@ -119,8 +108,7 @@ def gpu(count: int):
 
 
 def cran_mirror(url: str):
-    """
-    Configure the mirror URL, default is https://cran.rstudio.com
+    """Configure the mirror URL, default is https://cran.rstudio.com
 
     Args:
         url (str): mirror URL
@@ -128,8 +116,7 @@ def cran_mirror(url: str):
 
 
 def julia_pkg_server(url: str):
-    """
-    Configure the package server for Julia.
+    """Configure the package server for Julia.
     Since Julia 1.5, https://pkg.julialang.org` is the default pkg server.
 
     Args:
@@ -139,5 +126,5 @@ def julia_pkg_server(url: str):
 
 def rstudio_server():
     """
-    Not implemented yet.
+    Enable the RStudio Server (only work for `base(os="ubuntu20.04", language="r")`)
     """
