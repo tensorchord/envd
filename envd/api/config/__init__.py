@@ -73,7 +73,8 @@ def conda_channel(channel: str):
         - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
         - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
     custom_channels:
-        conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud''')
+        conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+    ''')
     ```
 
     Args:
