@@ -19,35 +19,38 @@ from typing import Optional
 
 def base(os: str, language: str):
     """Set base image
+
     Args:
         os (str): The operating system(i.e. `ubuntu20.04`)
         language (str): The programing language dependency(i.e. `python3.8`)
     """
-    pass
 
 
 def shell(name: str):
     """Interactive shell
+
     Args:
         name (str): shell name(i.e. `zsh`)
     """
-    pass
 
 
 def run(commands: str):
     """Execute command
+
     Args:
         commands (str): command to run
     """
-    pass
 
 
-def git_config(name: Optional[str] = None,
-               email: Optional[str] = None, editor: Optional[str] = None):
+def git_config(
+    name: Optional[str] = None,
+    email: Optional[str] = None,
+    editor: Optional[str] = None,
+):
     """Setup git config
+
     Args:
         name (optional, str): User name
         email (optional, str): User email
         editor (optional, str): Editor for git operations
     """
-    pass

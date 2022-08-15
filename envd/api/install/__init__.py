@@ -17,37 +17,60 @@ from typing import List, Optional
 
 def system_packages(name: List[str]):
     """Install package by system-level package manager(apt on Ubuntu)
+
+    Args:
+        name (str): apt package name list
     """
-    pass
 
 
-def python_packages(name: List[str]):
+def python_packages(name: List[str], requirements: str):
     """Install python package by pip
-    """
-    pass
 
-def conda_packages(name: List[str]):
+    Args:
+        name (List[str]): package name list
+        requirements: (str): requirements file path
+    """
+
+
+def conda_packages(name: List[str], channel: List[str], env_file: str):
     """Install python package by Conda
 
     Args:
-        name (List[str]): List of package names with optional version assignment, 
+        name (List[str]): List of package names with optional version assignment,
             such as ['pytorch', 'tensorflow==1.13.0']
+        channel (List[str]): additional channels
+        env_file (str): conda env file path
     """
+
 
 def r_packages(name: List[str]):
     """Install R packages by R package manager
+
+    Args:
+        name (List[str]): package name list
     """
-    pass
+
 
 def cuda(version: str, cudnn: Optional[str] = None):
     """Install CUDA dependency
+
     Args:
-      version (str): CUDA version, such as '11.6'
-      cudnn (optional, str): CUDNN version, such as '6'
+        version (str): CUDA version, such as '11.6'
+        cudnn (optional, str): CUDNN version, such as '6'
     """
+
 
 def vscode_extensions(name: List[str]):
     """Install VS Code extensions
+
     Args:
-      name (list of str): extension names, such as ['ms-python.python']
+        name (List[str]): extension names, such as ['ms-python.python']
+    """
+
+
+def julia_packages(name: List[str]):
+    """Install Julia packages
+
+    Args:
+        name (List(str)): List of Julia packages
     """
