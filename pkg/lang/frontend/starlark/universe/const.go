@@ -19,5 +19,4 @@ const (
 	ruleShell     = "shell"
 	ruleRun       = "run"
 	ruleGitConfig = "git_config"
-	ruleExpose    = "expose"
 )

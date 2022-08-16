@@ -15,6 +15,7 @@
 package runtime
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -33,6 +34,7 @@ var Module = &starlarkstruct.Module{
 	Members: starlark.StringDict{
 		"command": starlark.NewBuiltin(ruleCommand, ruleFuncCommand),
 		"daemon":  starlark.NewBuiltin(ruleDaemon, ruleFuncDaemon),
+		"expose":  starlark.NewBuiltin(ruleExpose, ruleFuncExpose),
 	},
 }
 
@@ -89,4 +91,31 @@ func ruleFuncDaemon(thread *starlark.Thread, _ *starlark.Builtin,
 		ir.RuntimeDaemon(commandList)
 	}
 	return starlark.None, nil
+}
+
+func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		envdPort    starlark.Int
+		hostPort    = starlark.MakeInt(0)
+		serviceName = starlark.String("")
+	)
+
+	if err := starlark.UnpackArgs(ruleExpose,
+		args, kwargs, "envd_port", &envdPort, "host_port?", &hostPort, "service?", &serviceName); err != nil {
+		return nil, err
+	}
+	envdPortInt, ok := envdPort.Int64()
+	if !ok && envdPortInt < 0 && envdPortInt > 65536 {
+		return nil, errors.New("envd_port must be a positive integer less than 65536")
+	}
+	hostPortInt, ok := hostPort.Int64()
+	if !ok && hostPortInt < 0 && hostPortInt > 65536 {
+		return nil, errors.New("envd_port must be a positive integer less than 65536")
+	}
+	serviceNameStr := serviceName.GoString()
+
+	logger.Debugf("rule `%s` is invoked, envd_port=%d, host_port=%d, service=%s", ruleExpose, envdPortInt, hostPortInt, serviceNameStr)
+	err := ir.Expose(int(envdPortInt), int(hostPortInt), serviceNameStr)
+	return starlark.None, err
 }

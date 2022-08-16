@@ -15,8 +15,6 @@
 package universe
 
 import (
-	"errors"
-
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 
@@ -34,7 +32,6 @@ func RegisterenvdRules() {
 	starlark.Universe[ruleShell] = starlark.NewBuiltin(ruleShell, ruleFuncShell)
 	starlark.Universe[ruleRun] = starlark.NewBuiltin(ruleRun, ruleFuncRun)
 	starlark.Universe[ruleGitConfig] = starlark.NewBuiltin(ruleGitConfig, ruleFuncGitConfig)
-	starlark.Universe[ruleExpose] = starlark.NewBuiltin(ruleExpose, ruleFuncExpose)
 }
 
 func RegisterBuildContext(buildContextDir string) {
@@ -98,33 +95,6 @@ func ruleFuncShell(thread *starlark.Thread, _ *starlark.Builtin,
 	logger.Debugf("rule `%s` is invoked, shell=%s", ruleShell, shellStr)
 
 	err := ir.Shell(shellStr)
-	return starlark.None, err
-}
-
-func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
-	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var (
-		envdPort    starlark.Int
-		hostPort    = starlark.MakeInt(0)
-		serviceName = starlark.String("")
-	)
-
-	if err := starlark.UnpackArgs(ruleExpose,
-		args, kwargs, "envd_port", &envdPort, "host_port?", &hostPort, "service?", &serviceName); err != nil {
-		return nil, err
-	}
-	envdPortInt, ok := envdPort.Int64()
-	if !ok && envdPortInt < 0 && envdPortInt > 65536 {
-		return nil, errors.New("envd_port must be a positive integer less than 65536")
-	}
-	hostPortInt, ok := hostPort.Int64()
-	if !ok && hostPortInt < 0 && hostPortInt > 65536 {
-		return nil, errors.New("envd_port must be a positive integer less than 65536")
-	}
-	serviceNameStr := serviceName.GoString()
-
-	logger.Debugf("rule `%s` is invoked, envd_port=%d, host_port=%d, service=%s", ruleExpose, envdPortInt, hostPortInt, serviceNameStr)
-	err := ir.Expose(int(envdPortInt), int(hostPortInt), serviceNameStr)
 	return starlark.None, err
 }
 
