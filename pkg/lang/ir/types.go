@@ -98,8 +98,8 @@ type GitConfig struct {
 }
 
 type ExposeItem struct {
-	EnvdPort    uint64
-	HostPort    uint64
+	EnvdPort    int
+	HostPort    int
 	ServiceName string
 }
 

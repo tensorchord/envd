@@ -113,18 +113,18 @@ func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
 		args, kwargs, "envd_port", &envdPort, "host_port?", &hostPort, "service?", &serviceName); err != nil {
 		return nil, err
 	}
-	envdPortInt, ok := envdPort.Uint64()
-	if !ok || envdPortInt > 65536 {
+	envdPortInt, ok := envdPort.Int64()
+	if !ok && envdPortInt < 0 && envdPortInt > 65536 {
 		return nil, errors.New("envd_port must be a positive integer less than 65536")
 	}
-	hostPortInt, ok := hostPort.Uint64()
-	if !ok || hostPortInt > 65536 {
+	hostPortInt, ok := hostPort.Int64()
+	if !ok && hostPortInt < 0 && hostPortInt > 65536 {
 		return nil, errors.New("envd_port must be a positive integer less than 65536")
 	}
 	serviceNameStr := serviceName.GoString()
 
 	logger.Debugf("rule `%s` is invoked, envd_port=%d, host_port=%d, service=%s", ruleExpose, envdPortInt, hostPortInt, serviceNameStr)
-	err := ir.Expose(envdPortInt, hostPortInt, serviceNameStr)
+	err := ir.Expose(int(envdPortInt), int(hostPortInt), serviceNameStr)
 	return starlark.None, err
 }
 

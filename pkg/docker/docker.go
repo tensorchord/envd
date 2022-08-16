@@ -508,6 +508,26 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		config.ExposedPorts[natPort] = struct{}{}
 	}
 
+	if g.ExposeConfig != nil && len(g.ExposeConfig.ExposeItems) > 0 {
+		for _, item := range g.ExposeConfig.ExposeItems {
+			var err error
+			if item.HostPort == 0 {
+				item.HostPort, err = netutil.GetFreePort()
+				if err != nil {
+					return "", "", errors.Wrap(err, "failed to get a free port")
+				}
+			}
+			natPort := nat.Port(fmt.Sprintf("%d/tcp", item.EnvdPort))
+			hostConfig.PortBindings[natPort] = []nat.PortBinding{
+				{
+					HostIP:   localhost,
+					HostPort: strconv.Itoa(item.HostPort),
+				},
+			}
+			config.ExposedPorts[natPort] = struct{}{}
+		}
+	}
+
 	if gpuEnabled {
 		logger.Debug("GPU is enabled.")
 		hostConfig.DeviceRequests = deviceRequests(numGPUs)

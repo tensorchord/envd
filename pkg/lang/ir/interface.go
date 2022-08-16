@@ -155,7 +155,7 @@ func Git(name, email, editor string) error {
 	return nil
 }
 
-func Expose(envdPort, hostPort uint64, serviceName string) error {
+func Expose(envdPort, hostPort int, serviceName string) error {
 	if DefaultGraph.ExposeConfig == nil {
 		DefaultGraph.ExposeConfig = &ExposeConfig{
 			ExposeItems: make([]ExposeItem, 0),
