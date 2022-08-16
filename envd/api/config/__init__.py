@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Config functions
+
+::: tip
+Note that the documentation is automatically generated from [envd/api](https://github.com/tensorchord/envd/tree/main/envd/api) folder
+in [tensorchord/envd](https://github.com/tensorchord/envd/tree/main/envd/api) repo.
+Please update the python file there instead of directly editing file inside envd-docs repo.
+:::
+"""
+
 from typing import Optional, List
 
 
