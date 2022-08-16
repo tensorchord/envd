@@ -116,6 +116,6 @@ func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
 	serviceNameStr := serviceName.GoString()
 
 	logger.Debugf("rule `%s` is invoked, envd_port=%d, host_port=%d, service=%s", ruleExpose, envdPortInt, hostPortInt, serviceNameStr)
-	err := ir.Expose(int(envdPortInt), int(hostPortInt), serviceNameStr)
+	err := ir.RuntimeExpose(int(envdPortInt), int(hostPortInt), serviceNameStr)
 	return starlark.None, err
 }
