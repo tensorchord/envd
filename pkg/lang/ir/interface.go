@@ -214,6 +214,6 @@ func RuntimeCommands(commands map[string]string) {
 	}
 }
 
-func RuntimeDaemon(commands []string) {
+func RuntimeDaemon(commands [][]string) {
 	DefaultGraph.RuntimeDaemon = append(DefaultGraph.RuntimeDaemon, commands...)
 }

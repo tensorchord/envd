@@ -1,6 +1,8 @@
 def jupyter_lab():
     install.python_packages(["jupyterlab"])
-    runtime.daemon(commands=["jupyter-lab"])
+    runtime.daemon(commands=[
+        ["jupyter-lab", "--port", "8080"],
+    ])
 
 
 def build():

@@ -70,10 +70,19 @@ func ruleFuncDaemon(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	commandList := []string{}
+	commandList := [][]string{}
 	if commands != nil {
 		for i := 0; i < commands.Len(); i++ {
-			commandList = append(commandList, commands.Index(i).(starlark.String).GoString())
+			args, ok := commands.Index(i).(*starlark.List)
+			if !ok {
+				logger.Warnf("cannot parse %s into a list of string", commands.Index(i).String())
+				continue
+			}
+			argList := []string{}
+			for j := 0; j < args.Len(); j++ {
+				argList = append(argList, args.Index(j).(starlark.String).GoString())
+			}
+			commandList = append(commandList, argList)
 		}
 
 		logger.Debugf("rule `%s` is invoked, commands=%v", ruleDaemon, commandList)
