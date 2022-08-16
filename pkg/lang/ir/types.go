@@ -61,6 +61,7 @@ type Graph struct {
 	*GitConfig
 	*CondaConfig
 	*RStudioServerConfig
+	*ExposeConfig
 
 	Writer      compileui.Writer
 	CachePrefix string
@@ -94,6 +95,16 @@ type GitConfig struct {
 	Name   string
 	Email  string
 	Editor string
+}
+
+type ExposeItem struct {
+	EnvdPort    uint64
+	HostPort    uint64
+	ServiceName string
+}
+
+type ExposeConfig struct {
+	ExposeItems []ExposeItem
 }
 
 type JupyterConfig struct {

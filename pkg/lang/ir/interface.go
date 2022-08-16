@@ -155,6 +155,20 @@ func Git(name, email, editor string) error {
 	return nil
 }
 
+func Expose(envdPort, hostPort uint64, serviceName string) error {
+	if DefaultGraph.ExposeConfig == nil {
+		DefaultGraph.ExposeConfig = &ExposeConfig{
+			ExposeItems: make([]ExposeItem, 0),
+		}
+	}
+	DefaultGraph.ExposeConfig.ExposeItems = append(DefaultGraph.ExposeConfig.ExposeItems, ExposeItem{
+		EnvdPort:    envdPort,
+		HostPort:    hostPort,
+		ServiceName: serviceName,
+	})
+	return nil
+}
+
 func CondaChannel(channel string) error {
 	if channel == "" {
 		return errors.New("channel is required")
