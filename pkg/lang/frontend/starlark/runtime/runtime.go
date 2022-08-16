@@ -32,6 +32,7 @@ var Module = &starlarkstruct.Module{
 	Name: "runtime",
 	Members: starlark.StringDict{
 		"command": starlark.NewBuiltin(ruleCommand, ruleFuncCommand),
+		"daemon":  starlark.NewBuiltin(ruleDaemon, ruleFuncDaemon),
 	},
 }
 
@@ -58,5 +59,34 @@ func ruleFuncCommand(thread *starlark.Thread, _ *starlark.Builtin,
 		ruleCommand, commandsMap)
 
 	ir.RuntimeCommands(commandsMap)
+	return starlark.None, nil
+}
+
+func ruleFuncDaemon(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var commands *starlark.List
+
+	if err := starlark.UnpackArgs(ruleDaemon, args, kwargs, "commands", &commands); err != nil {
+		return nil, err
+	}
+
+	commandList := [][]string{}
+	if commands != nil {
+		for i := 0; i < commands.Len(); i++ {
+			args, ok := commands.Index(i).(*starlark.List)
+			if !ok {
+				logger.Warnf("cannot parse %s into a list of string", commands.Index(i).String())
+				continue
+			}
+			argList := []string{}
+			for j := 0; j < args.Len(); j++ {
+				argList = append(argList, args.Index(j).(starlark.String).GoString())
+			}
+			commandList = append(commandList, argList)
+		}
+
+		logger.Debugf("rule `%s` is invoked, commands=%v", ruleDaemon, commandList)
+		ir.RuntimeDaemon(commandList)
+	}
 	return starlark.None, nil
 }

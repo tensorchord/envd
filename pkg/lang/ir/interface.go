@@ -213,3 +213,7 @@ func RuntimeCommands(commands map[string]string) {
 		DefaultGraph.RuntimeCommands[k] = v
 	}
 }
+
+func RuntimeDaemon(commands [][]string) {
+	DefaultGraph.RuntimeDaemon = append(DefaultGraph.RuntimeDaemon, commands...)
+}

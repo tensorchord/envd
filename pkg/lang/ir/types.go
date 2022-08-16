@@ -55,6 +55,7 @@ type Graph struct {
 	Mount           []MountInfo
 	Entrypoint      []string
 	RuntimeCommands map[string]string
+	RuntimeDaemon   [][]string
 
 	*JupyterConfig
 	*GitConfig

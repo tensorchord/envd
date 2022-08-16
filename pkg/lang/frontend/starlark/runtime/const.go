@@ -16,4 +16,5 @@ package runtime
 
 const (
 	ruleCommand = "runtime.command"
+	ruleDaemon  = "runtime.daemon"
 )

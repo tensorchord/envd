@@ -177,14 +177,18 @@ wait -n`
 
 	// Generate jupyter and rstudio server commands.
 	var customCmd strings.Builder
+	workingDir := filepath.Join("/home/envd", filepath.Base(buildContextDir))
+	if g.RuntimeDaemon != nil {
+		for _, command := range g.RuntimeDaemon {
+			customCmd.WriteString(fmt.Sprintf("%s -c %s &\n", g.Shell, strings.Join(command, " ")))
+		}
+	}
 	if g.JupyterConfig != nil {
-		workingDir := filepath.Join("/home/envd", filepath.Base(buildContextDir))
 		jupyterCmd := g.generateJupyterCommand(workingDir)
 		customCmd.WriteString(strings.Join(jupyterCmd, " "))
 		customCmd.WriteString("\n")
 	}
 	if g.RStudioServerConfig != nil {
-		workingDir := filepath.Join("/home/envd", filepath.Base(buildContextDir))
 		rstudioCmd := g.generateRStudioCommand(workingDir)
 		customCmd.WriteString(strings.Join(rstudioCmd, " "))
 		customCmd.WriteString("\n")
