@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Global functions"""
+"""Global functions
+
+Note that the documentation is automatically generated from https://github.com/tensorchord/envd/tree/main/envd/api.
+Please update the python file thehre instead of directly editing file inside envd-docs repo.
+"""
 
 from typing import Optional
 
