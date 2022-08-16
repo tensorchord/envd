@@ -14,8 +14,11 @@
 
 """Install functions
 
-Note that the documentation is automatically generated from https://github.com/tensorchord/envd/tree/main/envd/api.
-Please update the python file thehre instead of directly editing file inside envd-docs repo.
+::: tip
+Note that the documentation is automatically generated from [envd/api](https://github.com/tensorchord/envd/tree/main/envd/api) folder
+in [tensorchord/envd](https://github.com/tensorchord/envd/tree/main/envd/api) repo.
+Please update the python file there instead of directly editing file inside envd-docs repo.
+:::
 """
 
 from typing import List, Optional
