@@ -19,7 +19,9 @@ In the future, we should also keep the possibility for remote or cloud access.
     - wsl access from the windows
 
 ## API
+
+```python
+expose(envd_port=<LPORT>, host_port=<RPORT>, svc=<SERVICE_NAME>)
 ```
-expose(local_port=<LPORT>, host_port=<RPORT>, svc=<SERVICE_NAME>)
-```
+
 It will bind the host port to the local port.
