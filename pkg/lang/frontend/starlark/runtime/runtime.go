@@ -106,12 +106,12 @@ func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 	envdPortInt, ok := envdPort.Int64()
-	if !ok && envdPortInt < 0 && envdPortInt > 65536 {
-		return nil, errors.New("envd_port must be a positive integer less than 65536")
+	if !ok || envdPortInt < 1 || envdPortInt > 65535 {
+		return nil, errors.New("envd_port must be a positive integer less than 65535")
 	}
 	hostPortInt, ok := hostPort.Int64()
-	if !ok && hostPortInt < 0 && hostPortInt > 65536 {
-		return nil, errors.New("envd_port must be a positive integer less than 65536")
+	if !ok || hostPortInt < 1 || hostPortInt > 65535 {
+		return nil, errors.New("envd_port must be a positive integer less than 65535")
 	}
 	serviceNameStr := serviceName.GoString()
 
