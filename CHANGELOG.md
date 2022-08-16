@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.2.0-alpha.15 (2022-08-16)
+
+ * [00e8df2](https://github.com/tensorchord/envd/commit/00e8df22ba285685b11d217fdcb4cd7a52e32ba5) built: :hammer: keep v prefix in DOCKER_IMAGE_TAG env (#781)
+ * [2f82fa5](https://github.com/tensorchord/envd/commit/2f82fa5ab884671ba2a5058d38d205cbd20bce1f) proposal: daemon process (#769)
+ * [d06b878](https://github.com/tensorchord/envd/commit/d06b8786e2963f4bf5cc92b90fdcc80621a4bd5e) doc: update python api doc (#759)
+ * [ce2e8b2](https://github.com/tensorchord/envd/commit/ce2e8b2b4e755b52892d9b3597489daae19f1dad) fix: Remove empty token arg (#772)
+ * [8ab89b9](https://github.com/tensorchord/envd/commit/8ab89b967caa104ad839a83d7d9ece186eb80918) chore(deps): bump github.com/urfave/cli/v2 from 2.11.1 to 2.11.2 (#775)
+ * [3a6b127](https://github.com/tensorchord/envd/commit/3a6b12772b956eb31b6ccc6c31e62efbc3feb6e3) chore(deps): bump pypa/cibuildwheel from 2.8.1 to 2.9.0 (#774)
+ * [ec8cae1](https://github.com/tensorchord/envd/commit/ec8cae17b26de61bbb73026540db56505cffb2a8) fix: remove unnecessary if statement (#773)
+
+### Contributors
+
+ * Ce Gao
+ * Keming
+ * Wei Zhang
+ * Zhizhen He
+ * dependabot[bot]
+
 ## v0.2.0-alpha.14 (2022-08-12)
 
  * [b9f0af8](https://github.com/tensorchord/envd/commit/b9f0af8056129fe6c5a2e590cd428463186cac0e) fix: -path and -file bug (#766)
