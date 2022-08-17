@@ -19,10 +19,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/cockroachdb/errors"
+
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/data"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
@@ -40,14 +43,32 @@ var Module = &starlarkstruct.Module{
 
 func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var source, destination starlark.String
+	var source starlark.Value
+	var destination starlark.String
 
 	if err := starlark.UnpackArgs(ruleMount, args, kwargs,
 		"src?", &source, "dest?", &destination); err != nil {
 		return nil, err
 	}
 
-	sourceStr := source.GoString()
+	var sourceStr string
+	var err error
+
+	if v, ok := source.(*data.DataSourceValue); ok {
+		err = v.Init()
+		if err != nil {
+			return starlark.None, err
+		}
+		sourceStr, err = v.GetHostDir()
+		if err != nil {
+			return starlark.None, err
+		}
+	} else if vs, ok := source.(starlark.String); ok {
+		sourceStr = vs.GoString()
+	} else {
+		return starlark.None, errors.New("invalid data source")
+	}
+
 	destinationStr := destination.GoString()
 
 	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s",
