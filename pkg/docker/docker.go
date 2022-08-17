@@ -108,7 +108,7 @@ please visit https://docs.docker.com/engine/install/linux-postinstall/ for more 
 // Normalize the name accord the spec of docker, It may support normalize imagea and container in the future.
 func NormalizeNamed(s string) (string, error) {
 	if ok := anchoredIdentifierRegexp.MatchString(s); ok {
-		return "", fmt.Errorf("invalid repository name (%s), cannot specify 64-byte hexadecimal strings, please rename it", s)
+		return "", errors.Newf("invalid repository name (%s), cannot specify 64-byte hexadecimal strings, please rename it", s)
 	}
 	var remoteName string
 	var tagSep int
