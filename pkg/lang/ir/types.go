@@ -56,6 +56,7 @@ type Graph struct {
 	Entrypoint      []string
 	RuntimeCommands map[string]string
 	RuntimeDaemon   [][]string
+	RuntimeEnviron  map[string]string
 
 	*JupyterConfig
 	*GitConfig

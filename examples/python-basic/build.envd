@@ -15,4 +15,5 @@ def build():
     runtime.command(commands={
         "test": "ls /",
     })
+    runtime.environ(env={"ENVD_MODE": "DEV"})
     jupyter_lab()

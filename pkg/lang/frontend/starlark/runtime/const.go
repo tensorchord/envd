@@ -18,4 +18,5 @@ const (
 	ruleCommand = "runtime.command"
 	ruleExpose  = "runtime.expose"
 	ruleDaemon  = "runtime.daemon"
+	ruleEnviron = "runtime.environ"
 )
