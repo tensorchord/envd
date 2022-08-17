@@ -16,6 +16,7 @@ package ir
 
 import (
 	"github.com/cockroachdb/errors"
+
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/lang/ir/parser"
 )
