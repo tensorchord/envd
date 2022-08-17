@@ -15,7 +15,6 @@
 package ir
 
 import (
-	"fmt"
 	"os/user"
 	"regexp"
 	"strconv"
@@ -43,7 +42,7 @@ func parseLanguage(l string) (string, *string, error) {
 	case "python", "r", "julia":
 		return language, &version, nil
 	default:
-		return "", nil, fmt.Errorf("language %s is not supported", language)
+		return "", nil, errors.Newf("language %s is not supported", language)
 	}
 }
 

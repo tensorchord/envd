@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/util/osutil"
@@ -236,7 +237,7 @@ func (config *sshConfig) writeToFilepath(p string) error {
 	var mode os.FileMode
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return fmt.Errorf("failed to get info on %s: %w", p, err)
+			return errors.Newf("failed to get info on %s: %w", p, err)
 		}
 
 		// default for sshconfig
@@ -248,7 +249,7 @@ func (config *sshConfig) writeToFilepath(p string) error {
 	dir := filepath.Dir(p)
 	temp, err := os.CreateTemp(dir, "")
 	if err != nil {
-		return fmt.Errorf("failed to create temporary config file: %w", err)
+		return errors.Newf("failed to create temporary config file: %w", err)
 	}
 
 	defer os.Remove(temp.Name())
@@ -262,15 +263,15 @@ func (config *sshConfig) writeToFilepath(p string) error {
 	}
 
 	if err := os.Chmod(temp.Name(), mode); err != nil {
-		return fmt.Errorf("failed to set permissions to %s: %w", temp.Name(), err)
+		return errors.Newf("failed to set permissions to %s: %w", temp.Name(), err)
 	}
 
 	if _, err := getConfig(temp.Name()); err != nil {
-		return fmt.Errorf("new config is not valid: %w", err)
+		return errors.Newf("new config is not valid: %w", err)
 	}
 
 	if err := os.Rename(temp.Name(), p); err != nil {
-		return fmt.Errorf("failed to move %s to %s: %w", temp.Name(), p, err)
+		return errors.Newf("failed to move %s to %s: %w", temp.Name(), p, err)
 	}
 
 	return nil
@@ -459,17 +460,17 @@ func GetPort(name string) (int, error) {
 	hostname := buildHostname(name)
 	i, found := findHost(cfg, hostname)
 	if !found {
-		return 0, fmt.Errorf("development container not found")
+		return 0, errors.Newf("development container not found")
 	}
 
 	param := cfg.hosts[i].getParam(portKeyword)
 	if param == nil {
-		return 0, fmt.Errorf("port not found")
+		return 0, errors.Newf("port not found")
 	}
 
 	port, err := strconv.Atoi(param.value())
 	if err != nil {
-		return 0, fmt.Errorf("invalid port: %s", param.value())
+		return 0, errors.Newf("invalid port: %s", param.value())
 	}
 
 	return port, nil
@@ -523,14 +524,14 @@ func getConfig(path string) (*sshConfig, error) {
 			}, nil
 		}
 
-		return nil, fmt.Errorf("can't open %s: %w", path, err)
+		return nil, errors.Newf("can't open %s: %w", path, err)
 	}
 
 	defer f.Close()
 
 	cfg, err := parse(f)
 	if err != nil {
-		return nil, fmt.Errorf("fail to decode %s: %w", path, err)
+		return nil, errors.Newf("fail to decode %s: %w", path, err)
 	}
 
 	return cfg, nil
@@ -538,7 +539,7 @@ func getConfig(path string) (*sshConfig, error) {
 
 func save(cfg *sshConfig, path string) error {
 	if err := cfg.writeToFilepath(path); err != nil {
-		return fmt.Errorf("fail to update SSH config file %s: %w", path, err)
+		return errors.Newf("fail to update SSH config file %s: %w", path, err)
 	}
 
 	return nil
