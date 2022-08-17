@@ -15,8 +15,6 @@
 package runtime
 
 import (
-	"fmt"
-
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
