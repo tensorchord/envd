@@ -16,14 +16,14 @@
 package sshd
 
 import (
-	"fmt"
 	"os/exec"
 
+	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 )
 
 var (
-	errNoShell = fmt.Errorf("failed to find any shell in the PATH")
+	errNoShell = errors.Newf("failed to find any shell in the PATH")
 )
 
 // GetShell returns the shell in $PATH.

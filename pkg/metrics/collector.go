@@ -16,7 +16,8 @@ package metrics
 
 import (
 	"context"
-	"fmt"
+
+	"github.com/cockroachdb/errors"
 
 	"github.com/tensorchord/envd/pkg/docker"
 )
@@ -27,8 +28,8 @@ type Collector interface {
 }
 
 func GetCollector(name string, handle interface{}) (Collector, error) {
-	ErrUnknownCollector := fmt.Errorf("unknown collector: %s", name)
-	ErrUnknownHandle := fmt.Errorf("unknown handler: %s", name)
+	ErrUnknownCollector := errors.Newf("unknown collector: %s", name)
+	ErrUnknownHandle := errors.Newf("unknown handler: %s", name)
 	switch name {
 	case "docker":
 		client, ok := handle.(docker.Client)
