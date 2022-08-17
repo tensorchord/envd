@@ -16,8 +16,9 @@ package builder
 
 import (
 	"context"
-	"errors"
 	"os"
+
+	"github.com/cockroachdb/errors"
 
 	"github.com/golang/mock/gomock"
 	"github.com/moby/buildkit/client"
