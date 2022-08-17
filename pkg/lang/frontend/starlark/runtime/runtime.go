@@ -35,6 +35,7 @@ var Module = &starlarkstruct.Module{
 		"command": starlark.NewBuiltin(ruleCommand, ruleFuncCommand),
 		"daemon":  starlark.NewBuiltin(ruleDaemon, ruleFuncDaemon),
 		"expose":  starlark.NewBuiltin(ruleExpose, ruleFuncExpose),
+		"environ": starlark.NewBuiltin(ruleEnviron, ruleFuncEnviron),
 	},
 }
 
@@ -118,4 +119,26 @@ func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
 	logger.Debugf("rule `%s` is invoked, envd_port=%d, host_port=%d, service=%s", ruleExpose, envdPortInt, hostPortInt, serviceNameStr)
 	err := ir.RuntimeExpose(int(envdPortInt), int(hostPortInt), serviceNameStr)
 	return starlark.None, err
+}
+
+func ruleFuncEnviron(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var env starlark.IterableMapping
+
+	if err := starlark.UnpackArgs(ruleCommand, args, kwargs, "env", &env); err != nil {
+		return nil, err
+	}
+
+	envMap := make(map[string]string)
+	for _, tuple := range env.Items() {
+		if len(tuple) != 2 {
+			return nil, fmt.Errorf("invalid env (%s)", tuple.String())
+		}
+
+		envMap[tuple[0].(starlark.String).GoString()] = tuple[1].(starlark.String).GoString()
+	}
+
+	logger.Debugf("rule `%s` is invoked, env: %v", ruleEnviron, envMap)
+	ir.RuntimeEnviron(envMap)
+	return starlark.None, nil
 }

@@ -35,14 +35,14 @@ const (
 	defaultFunc = "build"
 )
 
-func ImageConfigStr(labels map[string]string,
-	ports map[string]struct{}, entrypoint []string) (string, error) {
+func ImageConfigStr(labels map[string]string, ports map[string]struct{},
+	entrypoint []string, env []string) (string, error) {
 	pl := platforms.Normalize(platforms.DefaultSpec())
 	img := v1.Image{
 		Config: v1.ImageConfig{
 			Labels:       labels,
 			WorkingDir:   "/",
-			Env:          []string{"PATH=" + DefaultPathEnv(pl.OS)},
+			Env:          append(env, "PATH="+DefaultPathEnv(pl.OS)),
 			ExposedPorts: ports,
 			Entrypoint:   entrypoint,
 		},

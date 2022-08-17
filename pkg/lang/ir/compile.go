@@ -50,6 +50,7 @@ func NewGraph() *Graph {
 		SystemPackages:  []string{},
 		Exec:            []string{},
 		RuntimeCommands: make(map[string]string),
+		RuntimeEnviron:  make(map[string]string),
 		Shell:           shellBASH,
 	}
 }
@@ -95,6 +96,10 @@ func ExposedPorts() (map[string]struct{}, error) {
 
 func CompileEntrypoint(buildContextDir string) ([]string, error) {
 	return DefaultGraph.GetEntrypoint(buildContextDir)
+}
+
+func CompileEnviron() []string {
+	return DefaultGraph.EnvString()
 }
 
 func (g Graph) GPUEnabled() bool {
@@ -147,6 +152,14 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 	}
 
 	return ports, nil
+}
+
+func (g Graph) EnvString() []string {
+	var envs []string
+	for k, v := range g.RuntimeEnviron {
+		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
+	}
+	return envs
 }
 
 func (g Graph) DefaultCacheImporter() (*string, error) {

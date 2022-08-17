@@ -61,3 +61,16 @@ def daemon(commands: List[List[str]]):
     ])
     ```
     """
+
+
+def environ(env: Dict[str, str]):
+    """Add runtime environments
+
+    Args:
+        env (Dict[str, str]): environment name to value
+
+    Example usage:
+    ```
+    runtime.environ(env={"ENVD_MODE": "DEV"})
+    ```
+    """

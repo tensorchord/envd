@@ -231,3 +231,9 @@ func RuntimeExpose(envdPort, hostPort int, serviceName string) error {
 	})
 	return nil
 }
+
+func RuntimeEnviron(env map[string]string) {
+	for k, v := range env {
+		DefaultGraph.RuntimeEnviron[k] = v
+	}
+}
