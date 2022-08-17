@@ -78,8 +78,7 @@ func ruleFuncDaemon(thread *starlark.Thread, _ *starlark.Builtin,
 		for i := 0; i < commands.Len(); i++ {
 			args, ok := commands.Index(i).(*starlark.List)
 			if !ok {
-				logger.Warnf("cannot parse %s into a list of string", commands.Index(i).String())
-				continue
+				return nil, fmt.Errorf("invalid daemon commands (%s)", commands.Index(i).String())
 			}
 			argList := []string{}
 			for j := 0; j < args.Len(); j++ {
