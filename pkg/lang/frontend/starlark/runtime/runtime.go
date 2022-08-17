@@ -15,9 +15,9 @@
 package runtime
 
 import (
-	"errors"
 	"fmt"
 
+	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -51,7 +51,7 @@ func ruleFuncCommand(thread *starlark.Thread, _ *starlark.Builtin,
 	commandsMap := make(map[string]string)
 	for _, tuple := range commands.Items() {
 		if len(tuple) != 2 {
-			return nil, fmt.Errorf("invalid command in %s", ruleCommand)
+			return nil, errors.Newf("invalid command in %s", ruleCommand)
 		}
 
 		commandsMap[tuple[0].(starlark.String).GoString()] =
@@ -131,7 +131,7 @@ func ruleFuncEnviron(thread *starlark.Thread, _ *starlark.Builtin,
 	envMap := make(map[string]string)
 	for _, tuple := range env.Items() {
 		if len(tuple) != 2 {
-			return nil, fmt.Errorf("invalid env (%s)", tuple.String())
+			return nil, errors.Newf("invalid env (%s)", tuple.String())
 		}
 
 		envMap[tuple[0].(starlark.String).GoString()] = tuple[1].(starlark.String).GoString()
