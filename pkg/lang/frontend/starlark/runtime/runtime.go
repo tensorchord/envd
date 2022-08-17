@@ -78,7 +78,7 @@ func ruleFuncDaemon(thread *starlark.Thread, _ *starlark.Builtin,
 		for i := 0; i < commands.Len(); i++ {
 			args, ok := commands.Index(i).(*starlark.List)
 			if !ok {
-				return nil, fmt.Errorf("invalid daemon commands (%s)", commands.Index(i).String())
+				return nil, errors.Newf("invalid daemon commands (%s)", commands.Index(i).String())
 			}
 			argList := []string{}
 			for j := 0; j < args.Len(); j++ {
