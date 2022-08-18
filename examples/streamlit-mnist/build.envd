@@ -1,0 +1,34 @@
+def build():
+    base(os="ubuntu20.04", language="python3")
+    install.vscode_extensions([
+        "ms-python.python",
+    ])
+
+    # Install packages.
+    config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
+
+    configure_mnist()
+    # Configure streamlit with exposed port.
+    configure_streamlit(8501)
+    # Configure jupyter notebooks.
+    config.jupyter()
+    # Configure zsh.
+    shell("zsh")
+
+def configure_streamlit(port):
+    install.python_packages([
+        "streamlit",
+        "streamlit_drawable_canvas",
+    ])
+    runtime.expose(envd_port=port, host_port=port, service="streamlit")
+
+def configure_mnist():
+    install.system_packages([
+        "libgl1",
+    ])
+    install.python_packages([
+        "tensorflow",
+        "numpy",
+        "opencv-python",
+        "matplotlib",
+    ])
