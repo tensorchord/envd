@@ -57,12 +57,12 @@ type Graph struct {
 	RuntimeCommands map[string]string
 	RuntimeDaemon   [][]string
 	RuntimeEnviron  map[string]string
+	RuntimeExpose   *ExposeConfig
 
 	*JupyterConfig
 	*GitConfig
 	*CondaConfig
 	*RStudioServerConfig
-	*ExposeConfig
 
 	Writer      compileui.Writer
 	CachePrefix string
