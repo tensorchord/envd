@@ -55,7 +55,7 @@ def daemon(commands: List[List[str]]):
 
     Example usage:
     ```
-    runtime.daemon([
+    runtime.daemon(commands=[
         ["jupyter-lab", "--port", "8080"],
         ["python3", "serving.py", ">>serving.log", "2>&1"],
     ])
