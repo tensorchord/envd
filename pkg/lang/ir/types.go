@@ -50,14 +50,10 @@ type Graph struct {
 
 	VSCodePlugins []vscode.Plugin
 
-	Exec            []string
-	Copy            []CopyInfo
-	Mount           []MountInfo
-	Entrypoint      []string
-	RuntimeCommands map[string]string
-	RuntimeDaemon   [][]string
-	RuntimeEnviron  map[string]string
-	RuntimeExpose   *ExposeConfig
+	Exec       []string
+	Copy       []CopyInfo
+	Mount      []MountInfo
+	Entrypoint []string
 
 	*JupyterConfig
 	*GitConfig
@@ -66,6 +62,16 @@ type Graph struct {
 
 	Writer      compileui.Writer
 	CachePrefix string
+
+	RuntimeGraph
+}
+
+// The results during runtime should be maintained here
+type RuntimeGraph struct {
+	RuntimeCommands map[string]string
+	RuntimeDaemon   [][]string
+	RuntimeEnviron  map[string]string
+	RuntimeExpose   *ExposeConfig
 }
 
 type CopyInfo struct {
