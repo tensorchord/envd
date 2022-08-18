@@ -197,7 +197,7 @@ wait -n`
 	workingDir := filepath.Join("/home/envd", filepath.Base(buildContextDir))
 	if g.RuntimeDaemon != nil {
 		for _, command := range g.RuntimeDaemon {
-			customCmd.WriteString(fmt.Sprintf("%s -c %s &\n", g.Shell, strings.Join(command, " ")))
+			customCmd.WriteString(fmt.Sprintf("%s &\n", strings.Join(command, " ")))
 		}
 	}
 	if g.JupyterConfig != nil {
