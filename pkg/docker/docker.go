@@ -557,7 +557,7 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		// Hack to check if the port is already allocated.
 		if strings.Contains(errCause.Error(), "port is already allocated") {
 			logrus.Debugf("failed to allocate the port: %s", err)
-			return "", "", errors.New("jupyter port is already allocated in the host")
+			return "", "", errors.New("port is already allocated in the host")
 		}
 		return "", "", errors.Wrap(err, "failed to run the container")
 	}
