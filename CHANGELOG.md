@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.2.0-alpha.16 (2022-08-19)
+
+ * [4440e22](https://github.com/tensorchord/envd/commit/4440e2246108a221585853088a766a563b2c7aad) fix: add missing expose func exposed port to oci manifest (#797)
+ * [3a97375](https://github.com/tensorchord/envd/commit/3a97375383a2d135cab06665aae67f04230666e1) feat(examples): Add a streamlit mnist example (#795)
+ * [7bf801b](https://github.com/tensorchord/envd/commit/7bf801bad5c5947a80e576ceb3b4bae0307fddeb) feat(example): Add streamlit hello and remove bash -c in entrypoint (#794)
+ * [8e17307](https://github.com/tensorchord/envd/commit/8e173075d56cadc1485f7c526c1d59c00926c69e) built: :hammer: use latest tag when not version found for cache (#793)
+ * [8225eab](https://github.com/tensorchord/envd/commit/8225eab40d1a4b37b1a6d82d300399d76cfd1320) fix: use cockroachdb errors (#790)
+ * [7d293d7](https://github.com/tensorchord/envd/commit/7d293d7974cae516e7d5a9f8d514acea04a0ff13) fix: panic if daemon command is invalid (#788)
+ * [4d48767](https://github.com/tensorchord/envd/commit/4d48767ce033a3d60fac74d810ea546f741bc174) feat: add runtime environments (#787)
+ * [248fca3](https://github.com/tensorchord/envd/commit/248fca34fa67f6fd134e1c55eefdd931aa5d8939) doc: daemon and expose (#786)
+ * [e30866f](https://github.com/tensorchord/envd/commit/e30866f07c1249c5a586558a22a18741b07e063d) feat(lang): implement expose func (#780)
+ * [c49863e](https://github.com/tensorchord/envd/commit/c49863e1787b6b18c08d49035ec00e79e0020822) feat(data): Add support for managed dataset and provide shortcut for common framework (#751)
+ * [7c2fed6](https://github.com/tensorchord/envd/commit/7c2fed6df565e55883456b934116314109c3837d) feat(lang): add daemon function to run daemon process in the container (#777)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * Keming
+ * Wei Zhang
+ * nullday
+
 ## v0.2.0-alpha.15 (2022-08-16)
 
  * [00e8df2](https://github.com/tensorchord/envd/commit/00e8df22ba285685b11d217fdcb4cd7a52e32ba5) built: :hammer: keep v prefix in DOCKER_IMAGE_TAG env (#781)
