@@ -63,7 +63,9 @@ func GetGitTagFromVersion() string {
 	if gitTag != "" {
 		return gitTag
 	}
-	return ""
+	// Empty version tag only appears in dev built.
+	// Set to `latest` if so.
+	return "latest"
 }
 
 // SetGitTagForE2ETest sets the gitTag for test purpose.
