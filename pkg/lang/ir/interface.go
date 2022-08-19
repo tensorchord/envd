@@ -219,12 +219,7 @@ func RuntimeDaemon(commands [][]string) {
 }
 
 func RuntimeExpose(envdPort, hostPort int, serviceName string) error {
-	if DefaultGraph.RuntimeExpose == nil {
-		DefaultGraph.RuntimeExpose = &ExposeConfig{
-			ExposeItems: make([]ExposeItem, 0),
-		}
-	}
-	DefaultGraph.RuntimeExpose.ExposeItems = append(DefaultGraph.RuntimeExpose.ExposeItems, ExposeItem{
+	DefaultGraph.RuntimeExpose = append(DefaultGraph.RuntimeExpose, ExposeItem{
 		EnvdPort:    envdPort,
 		HostPort:    hostPort,
 		ServiceName: serviceName,

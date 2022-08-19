@@ -154,8 +154,8 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 		ports[fmt.Sprintf("%d/tcp", config.RStudioServerPortInContainer)] = struct{}{}
 	}
 
-	if g.RuntimeExpose != nil && len(g.RuntimeExpose.ExposeItems) > 0 {
-		for _, item := range g.RuntimeExpose.ExposeItems {
+	if g.RuntimeExpose != nil && len(g.RuntimeExpose) > 0 {
+		for _, item := range g.RuntimeExpose {
 			ports[fmt.Sprintf("%d/tcp", item.EnvdPort)] = struct{}{}
 		}
 	}

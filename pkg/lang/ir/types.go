@@ -71,7 +71,7 @@ type RuntimeGraph struct {
 	RuntimeCommands map[string]string
 	RuntimeDaemon   [][]string
 	RuntimeEnviron  map[string]string
-	RuntimeExpose   *ExposeConfig
+	RuntimeExpose   []ExposeItem
 }
 
 type CopyInfo struct {
@@ -108,10 +108,6 @@ type ExposeItem struct {
 	EnvdPort    int
 	HostPort    int
 	ServiceName string
-}
-
-type ExposeConfig struct {
-	ExposeItems []ExposeItem
 }
 
 type JupyterConfig struct {
