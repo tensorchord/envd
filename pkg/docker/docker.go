@@ -508,8 +508,8 @@ func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext st
 		config.ExposedPorts[natPort] = struct{}{}
 	}
 
-	if g.ExposeConfig != nil && len(g.ExposeConfig.ExposeItems) > 0 {
-		for _, item := range g.ExposeConfig.ExposeItems {
+	if len(g.RuntimeExpose) > 0 {
+		for _, item := range g.RuntimeExpose {
 			var err error
 			if item.HostPort == 0 {
 				item.HostPort, err = netutil.GetFreePort()

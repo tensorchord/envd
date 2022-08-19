@@ -50,22 +50,28 @@ type Graph struct {
 
 	VSCodePlugins []vscode.Plugin
 
-	Exec            []string
-	Copy            []CopyInfo
-	Mount           []MountInfo
-	Entrypoint      []string
-	RuntimeCommands map[string]string
-	RuntimeDaemon   [][]string
-	RuntimeEnviron  map[string]string
+	Exec       []string
+	Copy       []CopyInfo
+	Mount      []MountInfo
+	Entrypoint []string
 
 	*JupyterConfig
 	*GitConfig
 	*CondaConfig
 	*RStudioServerConfig
-	*ExposeConfig
 
 	Writer      compileui.Writer
 	CachePrefix string
+
+	RuntimeGraph
+}
+
+// The results during runtime should be maintained here
+type RuntimeGraph struct {
+	RuntimeCommands map[string]string
+	RuntimeDaemon   [][]string
+	RuntimeEnviron  map[string]string
+	RuntimeExpose   []ExposeItem
 }
 
 type CopyInfo struct {
@@ -102,10 +108,6 @@ type ExposeItem struct {
 	EnvdPort    int
 	HostPort    int
 	ServiceName string
-}
-
-type ExposeConfig struct {
-	ExposeItems []ExposeItem
 }
 
 type JupyterConfig struct {

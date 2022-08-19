@@ -35,6 +35,10 @@ import (
 )
 
 func NewGraph() *Graph {
+	runtimeGraph := RuntimeGraph{
+		RuntimeCommands: make(map[string]string),
+		RuntimeEnviron:  make(map[string]string),
+	}
 	return &Graph{
 		OS: osDefault,
 		Language: Language{
@@ -44,14 +48,13 @@ func NewGraph() *Graph {
 		CUDNN:   nil,
 		NumGPUs: -1,
 
-		PyPIPackages:    []string{},
-		RPackages:       []string{},
-		JuliaPackages:   []string{},
-		SystemPackages:  []string{},
-		Exec:            []string{},
-		RuntimeCommands: make(map[string]string),
-		RuntimeEnviron:  make(map[string]string),
-		Shell:           shellBASH,
+		PyPIPackages:   []string{},
+		RPackages:      []string{},
+		JuliaPackages:  []string{},
+		SystemPackages: []string{},
+		Exec:           []string{},
+		Shell:          shellBASH,
+		RuntimeGraph:   runtimeGraph,
 	}
 }
 
@@ -149,6 +152,12 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 	}
 	if g.RStudioServerConfig != nil {
 		ports[fmt.Sprintf("%d/tcp", config.RStudioServerPortInContainer)] = struct{}{}
+	}
+
+	if g.RuntimeExpose != nil && len(g.RuntimeExpose) > 0 {
+		for _, item := range g.RuntimeExpose {
+			ports[fmt.Sprintf("%d/tcp", item.EnvdPort)] = struct{}{}
+		}
 	}
 
 	return ports, nil
