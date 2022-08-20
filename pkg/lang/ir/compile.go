@@ -173,14 +173,10 @@ func (g Graph) EnvString() []string {
 
 func (g Graph) DefaultCacheImporter() (*string, error) {
 	// The base remote cache should work for all languages.
-	v := version.GetGitTagFromVersion()
-	if v == "" {
-		v = "latest"
-	}
 	res := fmt.Sprintf(
 		"type=registry,ref=docker.io/%s/python-cache:envd-%s",
 		viper.GetString(flag.FlagDockerOrganization),
-		v)
+		version.GetVersionForImageTag())
 	return &res, nil
 }
 

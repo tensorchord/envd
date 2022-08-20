@@ -58,12 +58,14 @@ func (v Version) String() string {
 	return v.Version
 }
 
-// GetGitTagFromVersion gets the git tag.
-func GetGitTagFromVersion() string {
+// GetVersionForImageTag gets the version for an image tag.
+func GetVersionForImageTag() string {
 	if gitTag != "" {
 		return gitTag
 	}
-	return ""
+	// Empty version tag only appears in dev built.
+	// Set to `latest` if so.
+	return "latest"
 }
 
 // SetGitTagForE2ETest sets the gitTag for test purpose.
