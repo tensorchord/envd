@@ -58,8 +58,8 @@ func (v Version) String() string {
 	return v.Version
 }
 
-// GetGitTagFromVersion gets the git tag.
-func GetGitTagFromVersion() string {
+// GetVersionForImageTag gets the version for an image tag.
+func GetVersionForImageTag() string {
 	if gitTag != "" {
 		return gitTag
 	}

@@ -121,7 +121,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 
 	var base llb.State
 	org := viper.GetString(flag.FlagDockerOrganization)
-	v := version.GetGitTagFromVersion()
+	v := version.GetVersionForImageTag()
 	// Do not update user permission in the base image.
 	if g.Image != nil {
 		logger.WithField("image", *g.Image).Debugf("using custom base image")
