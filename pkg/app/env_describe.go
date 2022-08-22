@@ -15,6 +15,7 @@
 package app
 
 import (
+	"io"
 	"os"
 
 	"github.com/cockroachdb/errors"
@@ -57,13 +58,13 @@ func getEnvironmentDescriptions(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to list port bindings")
 	}
 
-	renderDependencies(dep)
-	renderPortBindings(ports)
+	renderDependencies(os.Stdout, dep)
+	renderPortBindings(os.Stdout, ports)
 	return nil
 }
 
-func createTable(headers []string) *tablewriter.Table {
-	table := tablewriter.NewWriter(os.Stderr)
+func createTable(w io.Writer, headers []string) *tablewriter.Table {
+	table := tablewriter.NewWriter(w)
 	table.SetHeader(headers)
 
 	table.SetAutoWrapText(false)
@@ -81,11 +82,11 @@ func createTable(headers []string) *tablewriter.Table {
 	return table
 }
 
-func renderPortBindings(ports []types.PortBinding) {
+func renderPortBindings(w io.Writer, ports []types.PortBinding) {
 	if ports == nil {
 		return
 	}
-	table := createTable([]string{"Container Port", "Protocol", "Host IP", "Host Port"})
+	table := createTable(w, []string{"Container Port", "Protocol", "Host IP", "Host Port"})
 	for _, port := range ports {
 		row := make([]string, 4)
 		row[0] = port.Port
@@ -97,11 +98,11 @@ func renderPortBindings(ports []types.PortBinding) {
 	table.Render()
 }
 
-func renderDependencies(dep *types.Dependency) {
+func renderDependencies(w io.Writer, dep *types.Dependency) {
 	if dep == nil {
 		return
 	}
-	table := createTable([]string{"Dependencies", "Type"})
+	table := createTable(w, []string{"Dependencies", "Type"})
 	for _, p := range dep.PyPIPackages {
 		envRow := make([]string, 2)
 		envRow[0] = p
