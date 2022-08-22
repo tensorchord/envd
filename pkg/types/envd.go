@@ -71,6 +71,13 @@ type Dependency struct {
 	PyPIPackages []string `json:"pypi_packages,omitempty"`
 }
 
+type PortBinding struct {
+	Port     string
+	Protocol string
+	HostIP   string
+	HostPort string
+}
+
 func NewImage(image types.ImageSummary) (*EnvdImage, error) {
 	img := EnvdImage{
 		ImageSummary: image,
@@ -133,6 +140,24 @@ func NewDependencyFromContainerJSON(ctr types.ContainerJSON) (*Dependency, error
 
 func NewDependencyFromImage(img types.ImageSummary) (*Dependency, error) {
 	return newDependencyFromLabels(img.Labels)
+}
+
+func NewPortBindingFromContainerJSON(ctr types.ContainerJSON) []PortBinding {
+	config := ctr.HostConfig.PortBindings
+	var ports []PortBinding
+	for port, bindings := range config {
+		if len(bindings) <= 0 {
+			continue
+		}
+		binding := bindings[len(bindings)-1]
+		ports = append(ports, PortBinding{
+			Port:     port.Port(),
+			Protocol: port.Proto(),
+			HostIP:   binding.HostIP,
+			HostPort: binding.HostPort,
+		})
+	}
+	return ports
 }
 
 func GetImageName(image EnvdImage) string {

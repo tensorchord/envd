@@ -15,8 +15,6 @@
 package app
 
 import (
-	"os"
-
 	"github.com/cockroachdb/errors"
 	"github.com/urfave/cli/v2"
 
@@ -50,6 +48,6 @@ func getImageDependency(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to list dependencies")
 	}
-	renderDependencies(dep, os.Stdout)
+	renderDependencies(dep)
 	return nil
 }

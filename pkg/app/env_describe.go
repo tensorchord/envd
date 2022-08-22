@@ -15,7 +15,6 @@
 package app
 
 import (
-	"io"
 	"os"
 
 	"github.com/cockroachdb/errors"
@@ -29,19 +28,19 @@ import (
 var CommandDescribeEnvironment = &cli.Command{
 	Name:    "describe",
 	Aliases: []string{"d"},
-	Usage:   "Show details about environments, including dependencies",
+	Usage:   "Show details about environments, including dependencies and port binding",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    "env",
-			Usage:   "Specify the envd environment to use",
-			Aliases: []string{"e"},
+			Name:     "env",
+			Usage:    "Specify the envd environment to use",
+			Aliases:  []string{"e"},
 			Required: true,
 		},
 	},
-	Action: getEnvironmentDependency,
+	Action: getEnvironmentDescriptions,
 }
 
-func getEnvironmentDependency(clicontext *cli.Context) error {
+func getEnvironmentDescriptions(clicontext *cli.Context) error {
 	envName := clicontext.String("env")
 	envdEngine, err := envd.New(clicontext.Context)
 	if err != nil {
@@ -52,13 +51,20 @@ func getEnvironmentDependency(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to list dependencies")
 	}
-	renderDependencies(dep, os.Stdout)
+
+	ports, err := envdEngine.ListEnvPortBinding(clicontext.Context, envName)
+	if err != nil {
+		return errors.Wrap(err, "failed to list port bindings")
+	}
+
+	renderDependencies(dep)
+	renderPortBindings(ports)
 	return nil
 }
 
-func renderDependencies(dep *types.Dependency, w io.Writer) {
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"Dependency", "Type"})
+func createTable(headers []string) *tablewriter.Table {
+	table := tablewriter.NewWriter(os.Stderr)
+	table.SetHeader(headers)
 
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
@@ -68,13 +74,34 @@ func renderDependencies(dep *types.Dependency, w io.Writer) {
 	table.SetColumnSeparator("")
 	table.SetRowSeparator("")
 	table.SetHeaderLine(false)
-	table.SetBorder(false)
+	table.SetBorder(true)
 	table.SetTablePadding("\t") // pad with tabs
 	table.SetNoWhiteSpace(true)
 
+	return table
+}
+
+func renderPortBindings(ports []types.PortBinding) {
+	if ports == nil {
+		return
+	}
+	table := createTable([]string{"Container Port", "Protocol", "Host IP", "Host Port"})
+	for _, port := range ports {
+		row := make([]string, 4)
+		row[0] = port.Port
+		row[1] = port.Protocol
+		row[2] = port.HostIP
+		row[3] = port.HostPort
+		table.Append(row)
+	}
+	table.Render()
+}
+
+func renderDependencies(dep *types.Dependency) {
 	if dep == nil {
 		return
 	}
+	table := createTable([]string{"Dependencies", "Type"})
 	for _, p := range dep.PyPIPackages {
 		envRow := make([]string, 2)
 		envRow[0] = p
