@@ -32,6 +32,7 @@ type Engine interface {
 	ResumeEnvironment(ctx context.Context, env string) (string, error)
 	ListEnvironment(ctx context.Context) ([]types.EnvdEnvironment, error)
 	ListEnvDependency(ctx context.Context, env string) (*types.Dependency, error)
+	ListEnvPortBinding(ctx context.Context, env string) ([]types.PortBinding, error)
 	GetInfo(ctx context.Context) (*types.EnvdInfo, error)
 }
 
@@ -140,6 +141,16 @@ func (e generalEngine) ListEnvDependency(
 		return nil, errors.Wrap(err, "failed to create dependency from the container")
 	}
 	return dep, nil
+}
+
+func (e generalEngine) ListEnvPortBinding(ctx context.Context, env string) ([]types.PortBinding, error) {
+	logrus.WithField("env", env).Debug("getting env port bindings")
+	ctr, err := e.dockerCli.GetContainer(ctx, env)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get container")
+	}
+	ports := types.NewPortBindingFromContainerJSON(ctr)
+	return ports, nil
 }
 
 func (e generalEngine) GetInfo(ctx context.Context) (*types.EnvdInfo, error) {

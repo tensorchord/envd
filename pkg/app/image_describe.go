@@ -50,6 +50,6 @@ func getImageDependency(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to list dependencies")
 	}
-	renderDependencies(dep, os.Stdout)
+	renderDependencies(os.Stdout, dep)
 	return nil
 }
