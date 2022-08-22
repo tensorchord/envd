@@ -17,6 +17,7 @@ package e2e
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 var _ = Describe("e2e quickstart", Ordered, func() {
@@ -31,5 +32,8 @@ var _ = Describe("e2e quickstart", Ordered, func() {
 		Expect(res).To(Equal("[2 3 4]"))
 	})
 	AfterEach(e.DestroyContainer())
-	AfterAll(e.RemoveImage())
+	AfterAll(func() {
+		e.RemoveImage()()
+		ir.DefaultGraph = ir.NewGraph()
+	})
 })
