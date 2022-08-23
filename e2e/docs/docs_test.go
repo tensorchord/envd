@@ -16,6 +16,7 @@ package docs
 
 import (
 	"fmt"
+	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -23,14 +24,14 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 )
 
-var _ = FDescribe("check examples in documentation", func() {
+var _ = Describe("check examples in documentation", func() {
 	buildContext := "doctest"
 	// env := "up-test"
 	baseArgs := []string{
 		"envd.test", "--debug",
 	}
 
-	BeforeAll(func() {
+	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
 		envdApp := app.New()
 		err := envdApp.Run(append(baseArgs, "bootstrap"))
@@ -43,7 +44,7 @@ var _ = FDescribe("check examples in documentation", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	Context("check envd envs details", func() {
+	It("can check envd envs details", func() {
 		buildContext := "testdata/minimal"
 		args := append(baseArgs, []string{
 			"up", "--path", buildContext, "--detach", "--force",
@@ -81,3 +82,8 @@ var _ = FDescribe("check examples in documentation", func() {
 		})
 	}
 })
+
+func TestMain(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "envd documentation example test suite")
+}
