@@ -23,7 +23,6 @@ import (
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 var _ = Describe("up command", Ordered, func() {
@@ -47,6 +46,7 @@ var _ = Describe("up command", Ordered, func() {
 			args := append(baseArgs, []string{
 				"up", "--path", buildContext, "--detach", "--force",
 			}...)
+			ResetEnvdApp()
 			envdApp := app.New()
 			err := envdApp.Run(args)
 			Expect(err).NotTo(HaveOccurred())
@@ -64,9 +64,5 @@ var _ = Describe("up command", Ordered, func() {
 			err = envdApp.Run(destroyArgs)
 			Expect(err).NotTo(HaveOccurred())
 		})
-	})
-	AfterAll(func() {
-		// Cleanup graph.
-		ir.DefaultGraph = ir.NewGraph()
 	})
 })

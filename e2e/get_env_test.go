@@ -35,6 +35,7 @@ var _ = Describe("get env command", func() {
 	When("given the right arguments", func() {
 		It("should get the environments successfully", func() {
 			envdApp := app.New()
+			ResetEnvdApp()
 			err := envdApp.Run(args)
 			Expect(err).NotTo(HaveOccurred())
 		})

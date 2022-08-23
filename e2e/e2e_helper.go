@@ -24,7 +24,12 @@ import (
 
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 )
+
+func ResetEnvdApp() {
+	ir.DefaultGraph = ir.NewGraph()
+}
 
 func (e *Example) BuildImage(force bool) func() {
 	return func() {
@@ -36,6 +41,7 @@ func (e *Example) BuildImage(force bool) func() {
 		if force {
 			args = append(args, "--force")
 		}
+		ResetEnvdApp()
 		err := e.app.Run(args)
 		if err != nil {
 			panic(err)
@@ -89,6 +95,7 @@ func (e *Example) Exec(cmd string) (string, error) {
 	buffer := new(bytes.Buffer)
 	e.app.Writer = buffer
 
+	ResetEnvdApp()
 	err := e.app.Run(args)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to start `run` command")
@@ -105,6 +112,7 @@ func (e *Example) ExecRuntimeCommand(cmd string) (string, error) {
 	buffer := new(bytes.Buffer)
 	e.app.Writer = buffer
 
+	ResetEnvdApp()
 	err := e.app.Run(args)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to start `run` command")
@@ -118,6 +126,7 @@ func (e *Example) RunContainer() func() {
 		args := []string{
 			"envd.test", "--debug", "up", "--path", buildContext, "--tag", e.Tag, "--detach", "--force",
 		}
+		ResetEnvdApp()
 		err := e.app.Run(args)
 		if err != nil {
 			panic(err)
