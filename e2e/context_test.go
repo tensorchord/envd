@@ -71,6 +71,7 @@ var _ = Describe("home context", func() {
 			It("should be able to build image with TCP context", func() {
 				args := []string{"envd.test", "--debug", "build", "--path", buildContext}
 				envdApp := app.New()
+				ResetEnvdApp()
 				err := envdApp.Run(args)
 				Expect(err).NotTo(HaveOccurred())
 			})
