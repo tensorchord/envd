@@ -138,7 +138,7 @@ func ruleFuncInclude(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 	module := &starlarkstruct.Module{
-		Name: gitRepo,
+		Name:    gitRepo,
 		Members: globals,
 	}
 	return module, nil

@@ -39,7 +39,7 @@ type Interpreter interface {
 
 type entry struct {
 	globals starlark.StringDict
-	err error
+	err     error
 }
 
 // generalInterpreter is the interpreter implementation for Starlark.
@@ -48,7 +48,7 @@ type generalInterpreter struct {
 	*starlark.Thread
 	predeclared     starlark.StringDict
 	buildContextDir string
-	cache map[string]*entry
+	cache           map[string]*entry
 }
 
 func NewInterpreter(buildContextDir string) Interpreter {
@@ -65,7 +65,7 @@ func NewInterpreter(buildContextDir string) Interpreter {
 			"data":    data.Module,
 		},
 		buildContextDir: buildContextDir,
-		cache: make(map[string]*entry),
+		cache:           make(map[string]*entry),
 	}
 }
 
