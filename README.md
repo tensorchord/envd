@@ -215,7 +215,7 @@ envd-quick-start        http://localhost:42779   envd-quick-start.envd   /home/g
 
 ## Roadmap 🗂️
 
-Please checkout [ROADMAP](https://envd.tensorchord.ai/docs/community/roadmap).
+Please checkout [ROADMAP](https://envd.tensorchord.ai/community/roadmap.html).
 
 ## Contribute 🚀
 
@@ -235,7 +235,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="http://blog.duanfei.org"><img src="https://avatars.githubusercontent.com/u/16186646?v=4?s=70" width="70px;" alt=""/><br /><sub><b> Friends A.</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=shaonianche" title="Documentation">📖</a></td>
+    <td align="center"><a href="http://blog.duanfei.org"><img src="https://avatars.githubusercontent.com/u/16186646?v=4?s=70" width="70px;" alt=""/><br /><sub><b> Friends A.</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=shaonianche" title="Documentation">📖</a> <a href="#design-shaonianche" title="Design">🎨</a></td>
     <td align="center"><a href="https://github.com/aaronzs"><img src="https://avatars.githubusercontent.com/u/1827365?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Aaron Sun</b></sub></a><br /><a href="#userTesting-aaronzs" title="User Testing">📓</a> <a href="https://github.com/tensorchord/envd/commits?author=aaronzs" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/popfido"><img src="https://avatars.githubusercontent.com/u/3928409?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Aka.Fido</b></sub></a><br /><a href="#platform-popfido" title="Packaging/porting to new platform">📦</a> <a href="https://github.com/tensorchord/envd/commits?author=popfido" title="Documentation">📖</a> <a href="https://github.com/tensorchord/envd/commits?author=popfido" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/sunby"><img src="https://avatars.githubusercontent.com/u/9817127?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Bingyi Sun</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=sunby" title="Code">💻</a></td>
