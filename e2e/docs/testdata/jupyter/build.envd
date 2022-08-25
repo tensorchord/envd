@@ -4,3 +4,4 @@ def build():
         "numpy",
     ])
     shell("zsh")
+    config.jupyter(token="")
