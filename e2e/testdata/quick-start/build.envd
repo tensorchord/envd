@@ -4,5 +4,3 @@ def build():
         "numpy",
     ])
     shell("zsh")
-
-
