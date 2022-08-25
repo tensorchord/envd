@@ -21,6 +21,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/tensorchord/envd/e2e"
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/home"
 )
@@ -34,6 +35,7 @@ var _ = Describe("check examples in documentation", func() {
 
 	BeforeEach(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
+		e2e.ResetEnvdApp()
 		envdApp := app.New()
 		err := envdApp.Run(append(baseArgs, "bootstrap"))
 		Expect(err).NotTo(HaveOccurred())
@@ -50,6 +52,7 @@ var _ = Describe("check examples in documentation", func() {
 		args := append(baseArgs, []string{
 			"up", "--path", buildContext, "--detach", "--force",
 		}...)
+		e2e.ResetEnvdApp()
 		envdApp := app.New()
 		err := envdApp.Run(args)
 		Expect(err).NotTo(HaveOccurred())
@@ -71,6 +74,7 @@ var _ = Describe("check examples in documentation", func() {
 			args := append(baseArgs, []string{
 				"up", "--path", "testdata/getting_started", "-f", "build.envd", "--detach", "--force",
 			}...)
+			e2e.ResetEnvdApp()
 			envdApp := app.New()
 			err := envdApp.Run(args)
 			Expect(err).NotTo(HaveOccurred())
@@ -82,6 +86,7 @@ var _ = Describe("check examples in documentation", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 	}
+
 })
 
 func TestMain(t *testing.T) {
