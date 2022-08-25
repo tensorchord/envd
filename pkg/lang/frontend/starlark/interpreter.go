@@ -19,6 +19,7 @@ import (
 	"hash/fnv"
 	"io/ioutil"
 	"strconv"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
@@ -45,7 +46,6 @@ type entry struct {
 // generalInterpreter is the interpreter implementation for Starlark.
 // Please refer to https://github.com/google/starlark-go
 type generalInterpreter struct {
-	*starlark.Thread
 	predeclared     starlark.StringDict
 	buildContextDir string
 	cache           map[string]*entry
@@ -92,7 +92,9 @@ func (s *generalInterpreter) exec(thread *starlark.Thread, module string) (starl
 
 	s.cache[module] = nil
 	// TODO: find the data
-	var data string
+	var data interface{}
+	if strings.HasPrefix(module, "git@") {
+	}
 	globals, err := starlark.ExecFile(thread, module, data, s.predeclared)
 	e = &entry{globals, err}
 	return globals, err
@@ -134,7 +136,7 @@ func (s generalInterpreter) ExecFile(filename string, funcname string) (interfac
 		if globals.Has(funcname) {
 			buildVar := globals[funcname]
 			if fn, ok := buildVar.(*starlark.Function); ok {
-				_, err := starlark.Call(s.Thread, fn, nil, nil)
+				_, err := starlark.Call(thread, fn, nil, nil)
 				if err != nil {
 					return nil, errors.Wrapf(err, "Exception when exec %s func", funcname)
 				}
@@ -150,5 +152,6 @@ func (s generalInterpreter) ExecFile(filename string, funcname string) (interfac
 }
 
 func (s generalInterpreter) Eval(script string) (interface{}, error) {
-	return starlark.ExecFile(s.Thread, "", script, s.predeclared)
+	thread := s.NewThread(script)
+	return starlark.ExecFile(thread, "", script, s.predeclared)
 }
