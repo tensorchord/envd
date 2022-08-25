@@ -215,7 +215,7 @@ envd-quick-start        http://localhost:42779   envd-quick-start.envd   /home/g
 
 ## Roadmap 🗂️
 
-Please checkout [ROADMAP](https://envd.tensorchord.ai/docs/community/roadmap).
+Please checkout [ROADMAP](https://envd.tensorchord.ai/community/roadmap.html).
 
 ## Contribute 🚀
 
