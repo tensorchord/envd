@@ -22,7 +22,6 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	"go.starlark.net/repl"
 	"go.starlark.net/starlark"
 
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/config"
@@ -38,21 +37,26 @@ type Interpreter interface {
 	ExecFile(filename string, funcname string) (interface{}, error)
 }
 
+type entry struct {
+	globals starlark.StringDict
+	err error
+}
+
 // generalInterpreter is the interpreter implementation for Starlark.
 // Please refer to https://github.com/google/starlark-go
 type generalInterpreter struct {
 	*starlark.Thread
 	predeclared     starlark.StringDict
 	buildContextDir string
+	cache map[string]*entry
 }
 
 func NewInterpreter(buildContextDir string) Interpreter {
 	// Register envd rules and built-in variables to Starlark.
-	universe.RegisterenvdRules()
+	universe.RegisterEnvdRules()
 	universe.RegisterBuildContext(buildContextDir)
 
 	return &generalInterpreter{
-		Thread: &starlark.Thread{Load: repl.MakeLoad()},
 		predeclared: starlark.StringDict{
 			"install": install.Module,
 			"config":  config.Module,
@@ -61,7 +65,37 @@ func NewInterpreter(buildContextDir string) Interpreter {
 			"data":    data.Module,
 		},
 		buildContextDir: buildContextDir,
+		cache: make(map[string]*entry),
 	}
+}
+
+func (s *generalInterpreter) NewThread(module string) *starlark.Thread {
+	thread := &starlark.Thread{
+		Name: module,
+		Load: s.load,
+	}
+	return thread
+}
+
+func (s *generalInterpreter) load(thread *starlark.Thread, module string) (starlark.StringDict, error) {
+	return s.exec(thread, module)
+}
+
+func (s *generalInterpreter) exec(thread *starlark.Thread, module string) (starlark.StringDict, error) {
+	e, ok := s.cache[module]
+	if e != nil {
+		return e.globals, e.err
+	}
+	if ok {
+		return nil, errors.Newf("Detect cycling import during parsing %s", module)
+	}
+
+	s.cache[module] = nil
+	// TODO: find the data
+	var data string
+	globals, err := starlark.ExecFile(thread, module, data, s.predeclared)
+	e = &entry{globals, err}
+	return globals, err
 }
 
 func GetEnvdProgramHash(filename string) (string, error) {
@@ -90,8 +124,8 @@ func GetEnvdProgramHash(filename string) (string, error) {
 
 func (s generalInterpreter) ExecFile(filename string, funcname string) (interface{}, error) {
 	logrus.WithField("filename", filename).Debug("interprete the file")
-	var src interface{}
-	globals, err := starlark.ExecFile(s.Thread, filename, src, s.predeclared)
+	thread := s.NewThread(filename)
+	globals, err := s.exec(thread, filename)
 	if err != nil {
 		return nil, err
 	}

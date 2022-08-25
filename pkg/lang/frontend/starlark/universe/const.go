@@ -19,4 +19,5 @@ const (
 	ruleShell     = "shell"
 	ruleRun       = "run"
 	ruleGitConfig = "git_config"
+	ruleInclude = "include"
 )
