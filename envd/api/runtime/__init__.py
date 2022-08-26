@@ -37,6 +37,8 @@ def command(commands: Dict[str, str]):
         "run": "python server.py --batch 1 --host 0.0.0.0 --port 8000",
     })
     ```
+
+    You can run `envd run --command train` to train the model.
     """
 
 
