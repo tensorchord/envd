@@ -15,8 +15,11 @@
 package universe
 
 import (
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
+	"go.starlark.net/starlarkstruct"
 
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/builtin"
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -26,12 +29,13 @@ var (
 	logger = logrus.WithField("frontend", "starlark")
 )
 
-// RegisterenvdRules registers built-in envd rules into the global namespace.
-func RegisterenvdRules() {
+// RegisterEnvdRules registers built-in envd rules into the global namespace.
+func RegisterEnvdRules() {
 	starlark.Universe[ruleBase] = starlark.NewBuiltin(ruleBase, ruleFuncBase)
 	starlark.Universe[ruleShell] = starlark.NewBuiltin(ruleShell, ruleFuncShell)
 	starlark.Universe[ruleRun] = starlark.NewBuiltin(ruleRun, ruleFuncRun)
 	starlark.Universe[ruleGitConfig] = starlark.NewBuiltin(ruleGitConfig, ruleFuncGitConfig)
+	starlark.Universe[ruleInclude] = starlark.NewBuiltin(ruleInclude, ruleFuncInclude)
 }
 
 func RegisterBuildContext(buildContextDir string) {
@@ -116,4 +120,26 @@ func ruleFuncGitConfig(thread *starlark.Thread, _ *starlark.Builtin,
 
 	err := ir.Git(nameStr, emailStr, editorStr)
 	return starlark.None, err
+}
+
+func ruleFuncInclude(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var gitRepo string
+
+	if err := starlark.UnpackArgs(ruleInclude,
+		args, kwargs, "git?", &gitRepo); err != nil {
+		return nil, err
+	}
+
+	logger.Debugf("rule `%s` is invoked, git=%s", ruleInclude, gitRepo)
+
+	globals, err := thread.Load(thread, fmt.Sprintf("%s%s", GitPrefix, gitRepo))
+	if err != nil {
+		return nil, err
+	}
+	module := &starlarkstruct.Module{
+		Name:    gitRepo,
+		Members: globals,
+	}
+	return module, nil
 }

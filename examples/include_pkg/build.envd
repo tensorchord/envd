@@ -1,0 +1,6 @@
+envdlib = include("https://github.com/kemingy/envdlib")
+
+
+def build():
+    base(os="ubuntu20.04", language="python")
+    envdlib.tensorboard(8888)

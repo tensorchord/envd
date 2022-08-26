@@ -22,12 +22,14 @@ import (
 	"strings"
 
 	"github.com/cockroachdb/errors"
+	"github.com/go-git/go-git/v5"
 	"github.com/sirupsen/logrus"
 )
 
 var (
-	DefaultConfigDir string
-	DefaultCacheDir  string
+	DefaultConfigDir  string
+	DefaultCacheDir   string
+	DefaultEnvdLibDir string
 )
 
 func init() {
@@ -37,6 +39,7 @@ func init() {
 	}
 	DefaultConfigDir = filepath.Join(home, ".config", "envd")
 	DefaultCacheDir = filepath.Join(home, ".cache", "envd")
+	DefaultEnvdLibDir = filepath.Join(DefaultCacheDir, "envdlib")
 }
 
 // FileExists returns true if the file exists
@@ -138,4 +141,43 @@ func validateAndJoin(dir, file string) (string, error) {
 		return "", errors.Wrap(err, "failed to create the dir")
 	}
 	return filepath.Join(dir, file), nil
+}
+
+// DownloadOrUpdateGitRepo downloads (if not exist) or update (if exist)
+func DownloadOrUpdateGitRepo(url string) (path string, err error) {
+	logger := logrus.WithField("git", url)
+	path = filepath.Join(DefaultEnvdLibDir, strings.ReplaceAll(url, "/", "_"))
+	var repo *git.Repository
+	exist, err := DirExists(path)
+	if err != nil {
+		return
+	}
+	if !exist {
+		logger.Debugf("clone repo to %s", path)
+		// check https://github.com/go-git/go-git/issues/305
+		_, err = git.PlainClone(path, false, &git.CloneOptions{
+			URL: url,
+		})
+		if err != nil {
+			return
+		}
+	} else {
+		logger.Debugf("repo already exists in %s", path)
+		repo, err = git.PlainOpen(path)
+		if err != nil {
+			return
+		}
+		var wt *git.Worktree
+		wt, err = repo.Worktree()
+		if err != nil {
+			return
+		}
+		logger.Debug("try to pull latest")
+		err = wt.Pull(&git.PullOptions{})
+		if err != nil && errors.Is(err, git.NoErrAlreadyUpToDate) {
+			return
+		}
+	}
+
+	return path, nil
 }
