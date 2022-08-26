@@ -37,7 +37,7 @@ def shell(name: str):
     """Interactive shell
 
     Args:
-        name (str): shell name(i.e. `zsh`)
+        name (str): shell name(i.e. `zsh`, `bash`)
     """
 
 
@@ -45,7 +45,12 @@ def run(commands: str):
     """Execute command
 
     Args:
-        commands (str): command to run
+        commands (str): command to run during the building process
+
+    Example:
+    ```
+    run(commands=["conda install -y -c conda-forge exa"])
+    ```
     """
 
 
@@ -60,4 +65,29 @@ def git_config(
         name (optional, str): User name
         email (optional, str): User email
         editor (optional, str): Editor for git operations
+
+    Example usage:
+    ```
+    git_config(name="My Name", email="my@email.com", editor="vim")
+    ```
+    """
+
+
+def include(git: str):
+    """Import from another git repo
+
+    This will pull the git repo and execute all the `envd` files. The return value will be a module
+    contains all the variables/functions defined (expect those has `_` prefix).
+
+    Args:
+        git (str): git URL
+
+    Example usage:
+    ```
+    envd = include("https://github.com/tensorchord/envdlib")
+
+    def build():
+        base(os="ubuntu20.04", language="python")
+        envd.tensorboard(8000)
+    ```
     """

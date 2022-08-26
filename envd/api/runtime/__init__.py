@@ -25,10 +25,18 @@ from typing import Dict, Optional, List
 
 
 def command(commands: Dict[str, str]):
-    """Execute commands
+    """Execute commands during runtime
 
     Args:
         commands (Dict[str, str]): map name to command, similar to Makefile
+
+    Example usage:
+    ```
+    runtime.command(commands={
+        "train": "python train.py --epoch 20 --notify me@tensorchord.ai",
+        "run": "python server.py --batch 1 --host 0.0.0.0 --port 8000",
+    })
+    ```
     """
 
 
