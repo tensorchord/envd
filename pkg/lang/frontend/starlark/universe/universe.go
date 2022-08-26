@@ -133,7 +133,7 @@ func ruleFuncInclude(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked, git=%s", ruleInclude, gitRepo)
 
-	globals, err := thread.Load(thread, fmt.Sprintf("git@%s", gitRepo))
+	globals, err := thread.Load(thread, fmt.Sprintf("%s%s", GitPrefix, gitRepo))
 	if err != nil {
 		return nil, err
 	}

@@ -17,7 +17,9 @@ package starlark
 import (
 	"bytes"
 	"hash/fnv"
+	"io/fs"
 	"io/ioutil"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -31,6 +33,7 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/io"
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/runtime"
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/universe"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 type Interpreter interface {
@@ -91,37 +94,52 @@ func (s *generalInterpreter) exec(thread *starlark.Thread, module string) (starl
 	}
 
 	s.cache[module] = nil
-	// TODO: find the data
-	var data interface{}
-	if strings.HasPrefix(module, "git@") {
+
+	if !strings.HasPrefix(module, universe.GitPrefix) {
+		var data interface{}
+		globals, err := starlark.ExecFile(thread, module, data, s.predeclared)
+		e = &entry{globals, err}
+	} else {
+		// exec remote git repo
+		url := module[len(universe.GitPrefix):]
+		path, err := fileutil.DownloadOrUpdateGitRepo(url)
+		if err != nil {
+			return nil, err
+		}
+		globals, err := s.loadGitModule(thread, path)
+		e = &entry{globals, err}
 	}
-	globals, err := starlark.ExecFile(thread, module, data, s.predeclared)
-	e = &entry{globals, err}
-	return globals, err
+
+	return e.globals, e.err
 }
 
-func GetEnvdProgramHash(filename string) (string, error) {
-	envdSrc, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return "", err
-	}
-	// No Check builtin or predeclared for now
-	funcAlwaysHas := func(x string) bool {
-		return true
-	}
-	_, prog, err := starlark.SourceProgram(filename, envdSrc, funcAlwaysHas)
-	if err != nil {
-		return "", err
-	}
-	buf := new(bytes.Buffer)
-	err = prog.Write(buf)
-	if err != nil {
-		return "", err
-	}
-	h := fnv.New64a()
-	h.Write(buf.Bytes())
-	hashsum := h.Sum64()
-	return strconv.FormatUint(hashsum, 16), nil
+func (s *generalInterpreter) loadGitModule(thread *starlark.Thread, path string) (globals starlark.StringDict, err error) {
+	var src interface{}
+	globals = starlark.StringDict{}
+	logger := logrus.WithField("file", thread.Name)
+	logger.Debugf("load git module from: %s", path)
+	err = filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || !strings.HasSuffix(d.Name(), ".envd") {
+			return nil
+		}
+		dict, err := starlark.ExecFile(thread, path, src, s.predeclared)
+		if err != nil {
+			return err
+		}
+		for key, val := range dict {
+			if _, exist := globals[key]; exist {
+				return errors.Newf("found duplicated object name: %s in %s", key, path)
+			}
+			if !strings.HasPrefix(key, "_") {
+				globals[key] = val
+			}
+		}
+		return nil
+	})
+	return
 }
 
 func (s generalInterpreter) ExecFile(filename string, funcname string) (interface{}, error) {
@@ -154,4 +172,28 @@ func (s generalInterpreter) ExecFile(filename string, funcname string) (interfac
 func (s generalInterpreter) Eval(script string) (interface{}, error) {
 	thread := s.NewThread(script)
 	return starlark.ExecFile(thread, "", script, s.predeclared)
+}
+
+func GetEnvdProgramHash(filename string) (string, error) {
+	envdSrc, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+	// No Check builtin or predeclared for now
+	funcAlwaysHas := func(x string) bool {
+		return true
+	}
+	_, prog, err := starlark.SourceProgram(filename, envdSrc, funcAlwaysHas)
+	if err != nil {
+		return "", err
+	}
+	buf := new(bytes.Buffer)
+	err = prog.Write(buf)
+	if err != nil {
+		return "", err
+	}
+	h := fnv.New64a()
+	h.Write(buf.Bytes())
+	hashsum := h.Sum64()
+	return strconv.FormatUint(hashsum, 16), nil
 }

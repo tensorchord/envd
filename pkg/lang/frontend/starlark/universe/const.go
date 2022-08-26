@@ -20,4 +20,6 @@ const (
 	ruleRun       = "run"
 	ruleGitConfig = "git_config"
 	ruleInclude   = "include"
+
+	GitPrefix = "git@"
 )
