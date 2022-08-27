@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.2.0-alpha.17 (2022-08-26)
+
+ * [82fbc87](https://github.com/tensorchord/envd/commit/82fbc87ade5637fe7db8e2c0087a1555206dc1b1) doc: add include, refine others (#817)
+ * [630ada1](https://github.com/tensorchord/envd/commit/630ada172bdf876c3b749329fdbe284c108051f2) feat(lang): support include other git repo for envd functions/variables (#808)
+ * [5c4971b](https://github.com/tensorchord/envd/commit/5c4971b2f5fa6b32c2c247e18cf6c6a178d28f57) feat(CLI): envd env describe expose info (#801)
+ * [c85766c](https://github.com/tensorchord/envd/commit/c85766cf618d55723d26427f65a385747646593d) fix: set to latest if git tag is empty (#798)
+
+### Contributors
+
+ * Keming
+ * Zhizhen He
+
 ## v0.2.0-alpha.16 (2022-08-19)
 
  * [4440e22](https://github.com/tensorchord/envd/commit/4440e2246108a221585853088a766a563b2c7aad) fix: add missing expose func exposed port to oci manifest (#797)
