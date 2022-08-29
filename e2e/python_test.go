@@ -18,7 +18,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 )
 
-var _ = Describe("runtime", Ordered, func() {
+var _ = Describe("python", Ordered, func() {
 	It("Should build packages successfully", func() {
 		exampleName := "python/packages"
 		testcase := "e2e"
