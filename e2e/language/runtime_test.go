@@ -24,7 +24,7 @@ import (
 var _ = Describe("runtime", Ordered, func() {
 	exampleName := "runtime"
 	testcase := "e2e"
-	e := e2e.NewExample(exampleName, testcase)
+	e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
 	BeforeAll(e.BuildImage(true))
 	BeforeEach(e.RunContainer())
 	It("execute runtime command `numpy`", func() {

@@ -16,6 +16,7 @@ package language
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -23,6 +24,11 @@ import (
 
 	"github.com/tensorchord/envd/pkg/version"
 )
+
+func buildContextDirWithName(name string) string {
+	basePath := "language/testdata"
+	return filepath.Join(basePath, name)
+}
 
 func init() {
 	version.SetGitTagForE2ETest(os.Getenv("GIT_LATEST_TAG"))

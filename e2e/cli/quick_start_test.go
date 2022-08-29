@@ -17,13 +17,14 @@ package cli
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"github.com/tensorchord/envd/e2e"
 )
 
 var _ = Describe("e2e quickstart", Ordered, func() {
 	exampleName := "quick-start"
 	testcase := "e2e"
-	e := e2e.NewExample(exampleName, testcase)
+	e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
 	BeforeAll(e.BuildImage(true))
 	BeforeEach(e.RunContainer())
 	It("execute python demo.py", func() {
