@@ -181,7 +181,7 @@ e2e-test:
 		-X $(ROOT)/pkg/version.developmentFlag=true" \
 		-race -v -timeout 20m -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./e2e
 
-doc-test:
+e2e-doc-test:
 	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
 		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
 		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
