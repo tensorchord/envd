@@ -60,8 +60,11 @@ type Graph struct {
 	*CondaConfig
 	*RStudioServerConfig
 
-	Writer      compileui.Writer
-	CachePrefix string
+	Writer compileui.Writer
+	// EnvironmentName is the base name of the environment.
+	// It is the BaseDir(BuildContextDir)
+	// e.g. mnist, streamlit-mnist
+	EnvironmentName string
 
 	RuntimeGraph
 }

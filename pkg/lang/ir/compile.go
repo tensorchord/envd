@@ -68,13 +68,13 @@ func NumGPUs() int {
 	return DefaultGraph.NumGPUs
 }
 
-func Compile(ctx context.Context, cachePrefix string, pub string) (*llb.Definition, error) {
+func Compile(ctx context.Context, envName string, pub string) (*llb.Definition, error) {
 	w, err := compileui.New(ctx, os.Stdout, "auto")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
 	}
 	DefaultGraph.Writer = w
-	DefaultGraph.CachePrefix = cachePrefix
+	DefaultGraph.EnvironmentName = envName
 	DefaultGraph.PublicKeyPath = pub
 
 	uid, gid, err := getUIDGID()

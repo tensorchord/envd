@@ -12,22 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ir
+package e2e
 
 import (
-	"fmt"
-
-	"github.com/sirupsen/logrus"
+	. "github.com/onsi/ginkgo/v2"
 )
 
-func (g Graph) CacheID(filename string) string {
-	gpu := g.CUDA != nil || g.CUDNN != nil
-	var cacheID string
-	if gpu {
-		cacheID = fmt.Sprintf("%s/%s-gpu", filename, g.EnvironmentName)
-	} else {
-		cacheID = fmt.Sprintf("%s/%s-cpu", filename, g.EnvironmentName)
-	}
-	logrus.Debugf("apt/pypi calculated cacheID: %s", cacheID)
-	return cacheID
-}
+var _ = Describe("runtime", Ordered, func() {
+	exampleName := "run"
+	testcase := "e2e"
+	e := NewExample(exampleName, testcase)
+	BeforeAll(e.BuildImage(true))
+	e.RunContainer()
+	AfterEach(e.DestroyContainer())
+	AfterAll(e.RemoveImage())
+})

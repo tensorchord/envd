@@ -176,7 +176,8 @@ func (b generalBuilder) Interpret() error {
 }
 
 func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
-	def, err := ir.Compile(ctx, filepath.Base(b.BuildContextDir), b.PubKeyPath)
+	envName := filepath.Base(b.BuildContextDir)
+	def, err := ir.Compile(ctx, envName, b.PubKeyPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}
