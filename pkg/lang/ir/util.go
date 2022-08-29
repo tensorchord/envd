@@ -16,11 +16,16 @@ package ir
 
 import (
 	"os/user"
+	"path/filepath"
 	"regexp"
 	"strconv"
 
 	"github.com/cockroachdb/errors"
 )
+
+func (g Graph) getWorkingDir() string {
+	return filepath.Join("/home/envd", g.EnvironmentName)
+}
 
 func parseLanguage(l string) (string, *string, error) {
 	var language, version string

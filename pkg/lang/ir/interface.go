@@ -37,16 +37,13 @@ func Base(os, language, image string) error {
 	return nil
 }
 
-func PyPIPackage(deps []string, requirementsFile *string) error {
+func PyPIPackage(deps []string, requirementsFile string) error {
 	DefaultGraph.PyPIPackages = append(DefaultGraph.PyPIPackages, deps...)
 
-	if requirementsFile != nil {
-		parsed, err := parser.ParsePythonRequirements(*requirementsFile)
-		if err != nil {
-			return err
-		}
-		DefaultGraph.PyPIPackages = append(DefaultGraph.PyPIPackages, parsed...)
+	if requirementsFile != "" {
+		DefaultGraph.RequirementsFile = &requirementsFile
 	}
+
 	return nil
 }
 

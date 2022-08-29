@@ -55,10 +55,23 @@ func (g Graph) compileRun(root llb.State) llb.State {
 		return root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.Exec[0]))).Root()
 	}
 
-	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.Exec[0])))
-	for _, c := range g.Exec[1:] {
-		run = run.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", c)))
+	var sb strings.Builder
+	sb.WriteString("set -euo pipefail\n")
+	for _, c := range g.Exec {
+		sb.WriteString(c + "\n")
 	}
+
+	cmdStr := fmt.Sprintf("bash -c '%s'", sb.String())
+	logrus.WithField("command", cmdStr).Debug("compile run command")
+	workingDir := g.getWorkingDir()
+	run := root.Dir(workingDir).
+		Run(llb.Shlex(cmdStr))
+	// Mount the build context into the build process.
+	// TODO(gaocegege): Maybe we should make it readonly,
+	// but these cases then cannot be supported:
+	// run(commands=["git clone xx.git"])
+	run.AddMount(workingDir, llb.Local(flag.FlagBuildContext))
+
 	return run.Root()
 }
 
