@@ -118,7 +118,36 @@ jobs:
       - name: e2e test
         run: make e2e-test
         env:
-          GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}          
+          GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-coverage-out
+          path: e2e-coverage.out
+  e2e-doc:
+    name: e2e-doc
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Cache Go modules
+        uses: actions/cache@preview
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag    
       - name: e2e doc test
         run: make doc-test
         env:
@@ -126,8 +155,8 @@ jobs:
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
-          name: e2e-coverage-out
-          path: e2e-coverage.out
+          name: e2e-doc-coverage-out
+          path: e2e-doc-coverage.out
   build:
     name: build
     strategy:
