@@ -67,7 +67,7 @@ func (g Graph) compileRun(root llb.State) llb.State {
 	run := root.Dir(workingDir).
 		Run(llb.Shlex(cmdStr))
 	// Mount the build context into the build process.
-	// TODO(gaocegege): Maybe we should make it readonly, '
+	// TODO(gaocegege): Maybe we should make it readonly,
 	// but these cases then cannot be supported:
 	// run(commands=["git clone xx.git"])
 	run.AddMount(workingDir, llb.Local(flag.FlagBuildContext))
