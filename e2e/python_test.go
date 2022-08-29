@@ -23,27 +23,27 @@ var _ = Describe("python", Ordered, func() {
 		exampleName := "python/packages"
 		testcase := "e2e"
 		e := NewExample(exampleName, testcase)
-		e.BuildImage(true)
-		e.RunContainer()
-		e.DestroyContainer()
-		e.RemoveImage()
+		e.BuildImage(true)()
+		e.RunContainer()()
+		e.DestroyContainer()()
+		e.RemoveImage()()
 	})
 	It("Should build requirements successfully", func() {
 		exampleName := "python/requirements"
 		testcase := "e2e"
 		e := NewExample(exampleName, testcase)
-		e.BuildImage(true)
-		e.RunContainer()
-		e.DestroyContainer()
-		e.RemoveImage()
+		e.BuildImage(true)()
+		e.RunContainer()()
+		e.DestroyContainer()()
+		e.RemoveImage()()
 	})
 	It("Should build hybrid successfully", func() {
 		exampleName := "python/hybrid"
 		testcase := "e2e"
 		e := NewExample(exampleName, testcase)
-		e.BuildImage(true)
-		e.RunContainer()
-		e.DestroyContainer()
-		e.RemoveImage()
+		e.BuildImage(true)()
+		e.RunContainer()()
+		e.DestroyContainer()()
+		e.RemoveImage()()
 	})
 })
