@@ -118,6 +118,10 @@ jobs:
       - name: e2e test
         run: make e2e-test
         env:
+          GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}          
+      - name: e2e doc test
+        run: make doc-test
+        env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
