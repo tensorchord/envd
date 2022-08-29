@@ -12,24 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package e2e
+package language
 
 import (
+	"os"
+	"testing"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/tensorchord/envd/pkg/version"
 )
 
-var _ = Describe("runtime", Ordered, func() {
-	exampleName := "runtime"
-	testcase := "e2e"
-	e := NewExample(exampleName, testcase)
-	BeforeAll(e.BuildImage(true))
-	BeforeEach(e.RunContainer())
-	It("execute runtime command `numpy`", func() {
-		res, err := e.ExecRuntimeCommand("numpy")
-		Expect(err).To(BeNil())
-		Expect(res).To(Equal("[2 3 4]"))
-	})
-	AfterEach(e.DestroyContainer())
-	AfterAll(e.RemoveImage())
-})
+func init() {
+	version.SetGitTagForE2ETest(os.Getenv("GIT_LATEST_TAG"))
+}
+
+func TestMain(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "envd language Suite")
+}

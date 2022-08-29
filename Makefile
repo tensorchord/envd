@@ -181,6 +181,25 @@ e2e-test:
 		-X $(ROOT)/pkg/version.developmentFlag=true" \
 		-race -v -timeout 20m -coverpkg=./pkg/app -coverprofile=e2e-coverage.out ./e2e
 
+
+e2e-cli-test:
+	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
+		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
+		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
+		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
+		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
+		-X $(ROOT)/pkg/version.developmentFlag=true" \
+		-race -v -timeout 20m -coverpkg=./pkg/app -coverprofile=e2e-cli-coverage.out ./e2e/cli
+
+e2e-lang-test:
+	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
+		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
+		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
+		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
+		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
+		-X $(ROOT)/pkg/version.developmentFlag=true" \
+		-race -v -timeout 20m -coverpkg=./pkg/app -coverprofile=e2e-lang-coverage.out ./e2e/language
+
 e2e-doc-test:
 	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
 		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package e2e
+package cli
 
 import (
 	"context"
@@ -20,6 +20,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/tensorchord/envd/e2e"
 )
 
 func appendSomeToFile(path string) {
@@ -41,10 +42,10 @@ var _ = Describe("bytecode hash cache target", func() {
 	exampleName := "quick-start"
 	It("add some blank to build.envd", func() {
 		testcase := "add-blank"
-		e := NewExample(exampleName, testcase)
+		e := e2e.NewExample(exampleName, testcase)
 		ctx := context.TODO()
 		e.BuildImage(false)()
-		dockerClient := GetDockerClient(ctx)
+		dockerClient := e2e.GetDockerClient(ctx)
 		imageSum, err := dockerClient.GetImage(ctx, e.Tag)
 		Expect(err).NotTo(HaveOccurred())
 		oldCreated := imageSum.Created

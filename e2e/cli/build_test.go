@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package e2e
+package cli
 
 import (
 	"context"
@@ -20,6 +20,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/tensorchord/envd/e2e"
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
@@ -31,7 +32,7 @@ var _ = Describe("build command", Ordered, func() {
 	When("given the right arguments", func() {
 		It("should build successfully", func() {
 			envdApp := app.New()
-			ResetEnvdApp()
+			e2e.ResetEnvdApp()
 			err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 			Expect(err).NotTo(HaveOccurred())
 			cli, err := docker.NewClient(context.TODO())
@@ -50,7 +51,7 @@ var _ = Describe("build command", Ordered, func() {
 	When("given the custom image", func() {
 		It("should build successfully", func() {
 			envdApp := app.New()
-			ResetEnvdApp()
+			e2e.ResetEnvdApp()
 			err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 			Expect(err).NotTo(HaveOccurred())
 			cli, err := docker.NewClient(context.TODO())
@@ -69,7 +70,7 @@ var _ = Describe("build command", Ordered, func() {
 	AfterAll(func() {
 		Expect(home.Initialize()).NotTo(HaveOccurred())
 		envdApp := app.New()
-		ResetEnvdApp()
+		e2e.ResetEnvdApp()
 		err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 		Expect(err).NotTo(HaveOccurred())
 		cli, err := docker.NewClient(context.TODO())
