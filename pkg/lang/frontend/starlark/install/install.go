@@ -59,19 +59,12 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		}
 	}
 
-	var path *string = nil
 	requirementsFileStr := requirementsFile.GoString()
-	if requirementsFileStr != "" {
-		buildContextDir := starlark.Universe[builtin.BuildContextDir]
-		buildContextDirStr := buildContextDir.(starlark.String).GoString()
-		buf := filepath.Join(buildContextDirStr, requirementsFileStr)
-		path = &buf
-	}
 
 	logger.Debugf("rule `%s` is invoked, name=%v, requirements=%s",
 		rulePyPIPackage, nameList, requirementsFileStr)
 
-	err := ir.PyPIPackage(nameList, path)
+	err := ir.PyPIPackage(nameList, requirementsFileStr)
 	return starlark.None, err
 }
 

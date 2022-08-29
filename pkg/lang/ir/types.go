@@ -43,10 +43,11 @@ type Graph struct {
 
 	PublicKeyPath string
 
-	PyPIPackages   []string
-	RPackages      []string
-	JuliaPackages  []string
-	SystemPackages []string
+	PyPIPackages     []string
+	RequirementsFile *string
+	RPackages        []string
+	JuliaPackages    []string
+	SystemPackages   []string
 
 	VSCodePlugins []vscode.Plugin
 

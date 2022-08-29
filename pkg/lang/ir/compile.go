@@ -39,10 +39,12 @@ func NewGraph() *Graph {
 		RuntimeCommands: make(map[string]string),
 		RuntimeEnviron:  make(map[string]string),
 	}
+	langVersion := languageVersionDefault
 	return &Graph{
 		OS: osDefault,
 		Language: Language{
-			Name: languageDefault,
+			Name:    languageDefault,
+			Version: &langVersion,
 		},
 		CUDA:    nil,
 		CUDNN:   nil,
@@ -86,7 +88,11 @@ func Compile(ctx context.Context, envName string, pub string) (*llb.Definition, 
 		return nil, errors.Wrap(err, "failed to compile")
 	}
 	// TODO(gaocegege): Support multi platform.
-	return state.Marshal(ctx, llb.LinuxAmd64)
+	def, err := state.Marshal(ctx, llb.LinuxAmd64)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to marshal the llb definition")
+	}
+	return def, nil
 }
 
 func Labels() (map[string]string, error) {
