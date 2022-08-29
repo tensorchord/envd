@@ -35,9 +35,9 @@ func ResetEnvdApp() {
 func (e *Example) BuildImage(force bool) func() {
 	return func() {
 		logrus.Infof("building %s image in %s", e.Name, e.BuildContextPath)
-		buildContext := "testdata/" + e.Name
 		args := []string{
-			"envd.test", "--debug", "build", "--path", buildContext, "--tag", e.Tag,
+			"envd.test", "--debug", "build",
+			"--path", e.BuildContextPath, "--tag", e.Tag,
 		}
 		if force {
 			args = append(args, "--force")

@@ -26,7 +26,7 @@ import (
 )
 
 func buildContextDirWithName(name string) string {
-	basePath := "language/testdata"
+	basePath := "testdata"
 	return filepath.Join(basePath, name)
 }
 
