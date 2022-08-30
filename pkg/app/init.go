@@ -94,11 +94,11 @@ func NewPythonEnv(dir string) (*pythonEnv, error) {
 		if err != nil {
 			return err
 		}
-		if d.Name() == "requirements.txt" {
+		if d.Name() == "requirements.txt" && len(requirements) <= 0 {
 			requirements = relPath
 			return nil
 		}
-		if isCondaEnvFile(d.Name()) {
+		if isCondaEnvFile(d.Name()) && len(condaEnv) <= 0 {
 			condaEnv = relPath
 		}
 		return nil
