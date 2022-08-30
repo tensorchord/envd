@@ -111,7 +111,7 @@ func NewPythonEnv(dir string) (*pythonEnv, error) {
 		requirements:  requirements,
 		condaEnv:      condaEnv,
 		indent:        "    ",
-		notebook:      true,
+		notebook:      false,
 	}, nil
 }
 

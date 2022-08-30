@@ -15,7 +15,6 @@
 package cli
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -51,21 +50,25 @@ var _ = Describe("init project", Ordered, func() {
 		Expect(exist).To(BeTrue())
 	})
 
-	// Describe("run init env", Ordered, func() {
-	// 	e := e2e.NewExample(path, "init_test")
-	// 	fmt.Printf(">># (%s-%s)(%s)\n", e.Name, e.BuildContextPath, path)
-	// 	BeforeAll(e.BuildImage(true))
-	// 	BeforeEach(e.RunContainer())
-	// 	It("exec install command: via", func() {
-	// 		_, err := e.Exec("via --help")
-	// 		Expect(err).To(Succeed())
-	// 	})
-	// 	AfterEach(e.DestroyContainer())
-	// 	AfterAll(e.RemoveImage())
-	// })
+	Describe("run init env", Ordered, func() {
+		var e *e2e.Example
+		BeforeAll(func() {
+			// have to use `path` inside ginkgo closure
+			e = e2e.NewExample(path, "init_test")
+			e.RunContainer()()
+		})
+		It("exec installed command inside container", func() {
+			_, err := e.Exec("via --help")
+			Expect(err).To(Succeed())
+		})
+		AfterAll(func() {
+			e.DestroyContainer()()
+			e.RemoveImage()()
+		})
+
+	})
 
 	AfterAll(func() {
-		e2e.ResetEnvdApp()
 		os.RemoveAll(path)
 	})
 })
