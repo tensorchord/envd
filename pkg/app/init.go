@@ -51,6 +51,12 @@ var CommandInit = &cli.Command{
 			Aliases:  []string{"f"},
 			Required: false,
 		},
+		&cli.PathFlag{
+			Name:    "path",
+			Usage:   "Path to the directory containing the build.envd",
+			Aliases: []string{"p"},
+			Value:   ".",
+		},
 	},
 	Action: initCommand,
 }
@@ -74,22 +80,26 @@ type pythonEnv struct {
 	notebook      bool
 }
 
-func NewPythonEnv() (*pythonEnv, error) {
+func NewPythonEnv(dir string) (*pythonEnv, error) {
 	requirements := ""
 	condaEnv := ""
-	err := filepath.WalkDir(".", func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if d.IsDir() {
 			return nil
 		}
+		relPath, err := filepath.Rel(dir, path)
+		if err != nil {
+			return err
+		}
 		if d.Name() == "requirements.txt" {
-			requirements = path
+			requirements = relPath
 			return nil
 		}
 		if isCondaEnvFile(d.Name()) {
-			condaEnv = path
+			condaEnv = relPath
 		}
 		return nil
 	})
@@ -134,8 +144,8 @@ func isCondaEnvFile(file string) bool {
 	return false
 }
 
-func initPythonEnv() ([]byte, error) {
-	env, err := NewPythonEnv()
+func initPythonEnv(dir string) ([]byte, error) {
+	env, err := NewPythonEnv(dir)
 	if err != nil {
 		return nil, err
 	}
@@ -144,12 +154,17 @@ func initPythonEnv() ([]byte, error) {
 
 func initCommand(clicontext *cli.Context) error {
 	lang := strings.ToLower(clicontext.String("lang"))
+	buildContext, err := filepath.Abs(clicontext.Path("path"))
 	force := clicontext.Bool("force")
+	if err != nil {
+		return err
+	}
 	if !isValidLang(lang) {
 		return errors.Errorf("invalid language (%s)", lang)
 	}
 
-	exists, err := fileutil.FileExists("build.envd")
+	filePath := filepath.Join(buildContext, "build.envd")
+	exists, err := fileutil.FileExists(filePath)
 	if err != nil {
 		return err
 	}
@@ -159,14 +174,14 @@ func initCommand(clicontext *cli.Context) error {
 
 	var buildEnvdContent []byte
 	if lang == "python" {
-		buildEnvdContent, err = initPythonEnv()
+		buildEnvdContent, err = initPythonEnv(buildContext)
 	} else {
 		buildEnvdContent, err = templatef.ReadFile("template/" + lang + ".envd")
 	}
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile("build.envd", buildEnvdContent, 0644)
+	err = ioutil.WriteFile(filePath, buildEnvdContent, 0644)
 	if err != nil {
 		return errors.Wrapf(err, "Failed to create build.envd")
 	}
