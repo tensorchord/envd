@@ -12,32 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package e2e
+package cli
 
 import (
+	"os"
+	"path/filepath"
+	"testing"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/tensorchord/envd/pkg/app"
-	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/version"
 )
 
-var _ = Describe("get env command", func() {
-	args := []string{
-		"envd.test", "--debug", "envs", "list",
-	}
-	BeforeEach(func() {
-		Expect(home.Initialize()).NotTo(HaveOccurred())
-		envdApp := app.New()
-		err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
-		Expect(err).NotTo(HaveOccurred())
-	})
-	When("given the right arguments", func() {
-		It("should get the environments successfully", func() {
-			envdApp := app.New()
-			ResetEnvdApp()
-			err := envdApp.Run(args)
-			Expect(err).NotTo(HaveOccurred())
-		})
-	})
-})
+func buildContextDirWithName(name string) string {
+	basePath := "testdata"
+	return filepath.Join(basePath, name)
+}
+
+func init() {
+	version.SetGitTagForE2ETest(os.Getenv("GIT_LATEST_TAG"))
+}
+
+func TestMain(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "envd cli Suite")
+}

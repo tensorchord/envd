@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package e2e
+package cli
 
 import (
 	"os/exec"
@@ -20,6 +20,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/tensorchord/envd/e2e"
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
@@ -71,7 +72,7 @@ var _ = Describe("home context", func() {
 			It("should be able to build image with TCP context", func() {
 				args := []string{"envd.test", "--debug", "build", "--path", buildContext}
 				envdApp := app.New()
-				ResetEnvdApp()
+				e2e.ResetEnvdApp()
 				err := envdApp.Run(args)
 				Expect(err).NotTo(HaveOccurred())
 			})

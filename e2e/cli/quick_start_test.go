@@ -12,23 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package e2e
+package cli
 
 import (
-	"os"
-	"testing"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/tensorchord/envd/pkg/version"
+	"github.com/tensorchord/envd/e2e"
 )
 
-func init() {
-	version.SetGitTagForE2ETest(os.Getenv("GIT_LATEST_TAG"))
-}
-
-func TestMain(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "envd Suite")
-}
+var _ = Describe("e2e quickstart", Ordered, func() {
+	exampleName := "quick-start"
+	testcase := "e2e"
+	e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
+	BeforeAll(e.BuildImage(true))
+	BeforeEach(e.RunContainer())
+	It("execute python demo.py", func() {
+		res, err := e.Exec("python demo.py")
+		Expect(err).To(BeNil())
+		Expect(res).To(Equal("[2 3 4]"))
+	})
+	AfterEach(e.DestroyContainer())
+	AfterAll(e.RemoveImage())
+})

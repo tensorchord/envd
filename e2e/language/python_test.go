@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package e2e
+package language
 
 import (
 	. "github.com/onsi/ginkgo/v2"
+
+	"github.com/tensorchord/envd/e2e"
 )
 
 var _ = Describe("python", Ordered, func() {
 	It("Should build packages successfully", func() {
 		exampleName := "python/packages"
 		testcase := "e2e"
-		e := NewExample(exampleName, testcase)
+		e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()
@@ -31,7 +33,7 @@ var _ = Describe("python", Ordered, func() {
 	It("Should build requirements successfully", func() {
 		exampleName := "python/requirements"
 		testcase := "e2e"
-		e := NewExample(exampleName, testcase)
+		e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()
@@ -40,7 +42,7 @@ var _ = Describe("python", Ordered, func() {
 	It("Should build hybrid successfully", func() {
 		exampleName := "python/hybrid"
 		testcase := "e2e"
-		e := NewExample(exampleName, testcase)
+		e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()

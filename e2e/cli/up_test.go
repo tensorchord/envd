@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package e2e
+package cli
 
 import (
 	"context"
@@ -20,6 +20,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/tensorchord/envd/e2e"
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
@@ -46,7 +47,7 @@ var _ = Describe("up command", Ordered, func() {
 			args := append(baseArgs, []string{
 				"up", "--path", buildContext, "--detach", "--force",
 			}...)
-			ResetEnvdApp()
+			e2e.ResetEnvdApp()
 			envdApp := app.New()
 			err := envdApp.Run(args)
 			Expect(err).NotTo(HaveOccurred())

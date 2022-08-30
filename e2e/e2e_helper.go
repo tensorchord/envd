@@ -17,6 +17,7 @@ package e2e
 import (
 	"bytes"
 	"context"
+	"path/filepath"
 	"strings"
 
 	"github.com/cockroachdb/errors"
@@ -33,10 +34,10 @@ func ResetEnvdApp() {
 
 func (e *Example) BuildImage(force bool) func() {
 	return func() {
-		logrus.Info("building quick-start image")
-		buildContext := "testdata/" + e.Name
+		logrus.Infof("building %s image in %s", e.Name, e.BuildContextPath)
 		args := []string{
-			"envd.test", "--debug", "build", "--path", buildContext, "--tag", e.Tag,
+			"envd.test", "--debug", "build",
+			"--path", e.BuildContextPath, "--tag", e.Tag,
 		}
 		if force {
 			args = append(args, "--force")
@@ -72,18 +73,23 @@ func GetDockerClient(ctx context.Context) docker.Client {
 }
 
 type Example struct {
+	Tag              string
+	BuildContextPath string
+	// Name is the filepath.Base(BuildContextPath).
 	Name string
-	Tag  string
-	app  *app.EnvdApp
+
+	app *app.EnvdApp
 }
 
-func NewExample(name string, testcaseAbbr string) *Example {
+func NewExample(path string, testcaseAbbr string) *Example {
+	name := filepath.Base(path)
 	tag := name + ":" + testcaseAbbr
 	app := app.New()
 	return &Example{
-		Name: name,
-		Tag:  tag,
-		app:  &app,
+		Tag:              tag,
+		Name:             name,
+		BuildContextPath: path,
+		app:              &app,
 	}
 }
 
@@ -104,9 +110,9 @@ func (e *Example) Exec(cmd string) (string, error) {
 }
 
 func (e *Example) ExecRuntimeCommand(cmd string) (string, error) {
-	buildContext := "testdata/" + e.Name
+	buildContext := e.BuildContextPath
 	args := []string{
-		"envd.test", "run", "-p", buildContext, "--command", cmd,
+		"envd.test", "--debug", "run", "-p", buildContext, "--command", cmd,
 	}
 
 	buffer := new(bytes.Buffer)
@@ -122,7 +128,7 @@ func (e *Example) ExecRuntimeCommand(cmd string) (string, error) {
 
 func (e *Example) RunContainer() func() {
 	return func() {
-		buildContext := "testdata/" + e.Name
+		buildContext := e.BuildContextPath
 		args := []string{
 			"envd.test", "--debug", "up", "--path", buildContext, "--tag", e.Tag, "--detach", "--force",
 		}
@@ -136,7 +142,7 @@ func (e *Example) RunContainer() func() {
 
 func (e *Example) DestroyContainer() func() {
 	return func() {
-		buildContext := "testdata/" + e.Name
+		buildContext := e.BuildContextPath
 		args := []string{
 			"envd.test", "--debug", "destroy", "--path", buildContext,
 		}
