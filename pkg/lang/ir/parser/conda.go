@@ -24,6 +24,7 @@ type CondaEnv struct {
 	EnvName       string
 	CondaPackages []string
 	PipPackages   []string
+	Channels      []string
 }
 
 func ParseCondaEnvYaml(condaEnvFile string) (*CondaEnv, error) {
@@ -34,6 +35,8 @@ func ParseCondaEnvYaml(condaEnvFile string) (*CondaEnv, error) {
 		return nil, errors.Wrapf(err, "failed to read the Conda Env File %s", condaEnvFile)
 	}
 	env.EnvName = config.GetString("name")
+	env.Channels = config.GetStringSlice("channels")
+
 	for _, dependencies := range config.Get("dependencies").([]interface{}) {
 		switch dep := dependencies.(type) {
 		case string:
