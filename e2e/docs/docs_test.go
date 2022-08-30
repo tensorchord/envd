@@ -57,7 +57,7 @@ var _ = Describe("check examples in documentation", func() {
 		err := envdApp.Run(args)
 		Expect(err).NotTo(HaveOccurred())
 
-		err = envdApp.Run([]string{"envd.test", "--debug", "envs", "describe"})
+		err = envdApp.Run([]string{"envd.test", "--debug", "envs", "describe", "--env", "minimal"})
 		Expect(err).NotTo(HaveOccurred())
 
 		destroyArgs := append(baseArgs, []string{
