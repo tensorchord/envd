@@ -15,8 +15,12 @@
 package app
 
 import (
+	"bytes"
 	"embed"
+	"fmt"
+	"io/fs"
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 
 	"github.com/cockroachdb/errors"
@@ -38,13 +42,20 @@ var CommandInit = &cli.Command{
 			Name:     "lang",
 			Usage:    "language usage. Support Python, R, Julia",
 			Aliases:  []string{"l"},
-			Required: true,
+			Required: false,
+			Value:    "python",
 		},
 		&cli.BoolFlag{
 			Name:     "force",
 			Usage:    "overwrite the build.envd if existed",
 			Aliases:  []string{"f"},
 			Required: false,
+		},
+		&cli.PathFlag{
+			Name:    "path",
+			Usage:   "Path to the directory containing the build.envd",
+			Aliases: []string{"p"},
+			Value:   ".",
 		},
 	},
 	Action: initCommand,
@@ -61,14 +72,99 @@ func isValidLang(lang string) bool {
 	return false
 }
 
+type pythonEnv struct {
+	pythonVersion string
+	requirements  string
+	condaEnv      string
+	indent        string
+	notebook      bool
+}
+
+func NewPythonEnv(dir string) (*pythonEnv, error) {
+	requirements := ""
+	condaEnv := ""
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		relPath, err := filepath.Rel(dir, path)
+		if err != nil {
+			return err
+		}
+		if d.Name() == "requirements.txt" && len(requirements) <= 0 {
+			requirements = relPath
+			return nil
+		}
+		if isCondaEnvFile(d.Name()) && len(condaEnv) <= 0 {
+			condaEnv = relPath
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pythonEnv{
+		pythonVersion: "python", // use the default one
+		requirements:  requirements,
+		condaEnv:      condaEnv,
+		indent:        "    ",
+		notebook:      false,
+	}, nil
+}
+
+func (pe *pythonEnv) generate() []byte {
+	var buf bytes.Buffer
+	buf.WriteString("def build():\n")
+	buf.WriteString(fmt.Sprintf("%sbase(os=\"ubuntu20.04\", language=\"%s\")\n", pe.indent, pe.pythonVersion))
+	if len(pe.requirements) > 0 {
+		buf.WriteString(fmt.Sprintf("%sinstall.python_packages(requirements=\"%s\")\n", pe.indent, pe.requirements))
+	}
+	if len(pe.condaEnv) > 0 {
+		buf.WriteString(fmt.Sprintf("%sinstall.conda_packages(env_file=\"%s\")\n", pe.indent, pe.condaEnv))
+	}
+	if pe.notebook {
+		buf.WriteString(fmt.Sprintf("%sconfig.jupyter()\n", pe.indent))
+	}
+	return buf.Bytes()
+}
+
+// naive check
+func isCondaEnvFile(file string) bool {
+	switch file {
+	case
+		"environment.yml",
+		"environment.yaml",
+		"env.yml",
+		"env.yaml":
+		return true
+	}
+	return false
+}
+
+func initPythonEnv(dir string) ([]byte, error) {
+	env, err := NewPythonEnv(dir)
+	if err != nil {
+		return nil, err
+	}
+	return env.generate(), nil
+}
+
 func initCommand(clicontext *cli.Context) error {
 	lang := strings.ToLower(clicontext.String("lang"))
+	buildContext, err := filepath.Abs(clicontext.Path("path"))
 	force := clicontext.Bool("force")
+	if err != nil {
+		return err
+	}
 	if !isValidLang(lang) {
-		return errors.Errorf("invalid language %s", lang)
+		return errors.Errorf("invalid language (%s)", lang)
 	}
 
-	exists, err := fileutil.FileExists("build.envd")
+	filePath := filepath.Join(buildContext, "build.envd")
+	exists, err := fileutil.FileExists(filePath)
 	if err != nil {
 		return err
 	}
@@ -76,11 +172,16 @@ func initCommand(clicontext *cli.Context) error {
 		return errors.Errorf("build.envd already exists, use --force to overwrite it")
 	}
 
-	buildEnvdContent, err := templatef.ReadFile("template/" + lang + ".envd")
+	var buildEnvdContent []byte
+	if lang == "python" {
+		buildEnvdContent, err = initPythonEnv(buildContext)
+	} else {
+		buildEnvdContent, err = templatef.ReadFile("template/" + lang + ".envd")
+	}
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile("build.envd", buildEnvdContent, 0644)
+	err = ioutil.WriteFile(filePath, buildEnvdContent, 0644)
 	if err != nil {
 		return errors.Wrapf(err, "Failed to create build.envd")
 	}
