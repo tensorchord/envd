@@ -35,10 +35,10 @@ var CommandInit = &cli.Command{
 	Usage:    "Initializes the current directory with the build.envd file",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     "lang",
-			Usage:    "language usage. Support Python, R, Julia",
-			Aliases:  []string{"l"},
-			Required: true,
+			Name:    "lang",
+			Usage:   "language usage (python, r, julia)",
+			Aliases: []string{"l"},
+			Value:   "python",
 		},
 		&cli.BoolFlag{
 			Name:     "force",
