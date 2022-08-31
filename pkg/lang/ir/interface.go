@@ -179,6 +179,8 @@ func CondaPackage(deps []string, channel []string, envFile *string) error {
 		}
 		DefaultGraph.CondaConfig.CondaPackages = append(DefaultGraph.CondaConfig.CondaPackages, parsed.CondaPackages...)
 		DefaultGraph.PyPIPackages = append(DefaultGraph.PyPIPackages, parsed.PipPackages...)
+		DefaultGraph.CondaConfig.AdditionalChannels = append(
+			DefaultGraph.CondaConfig.AdditionalChannels, parsed.Channels...)
 	}
 	if len(channel) != 0 {
 		DefaultGraph.CondaConfig.AdditionalChannels = append(
