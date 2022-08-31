@@ -15,6 +15,7 @@
 package install
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/sirupsen/logrus"
@@ -207,6 +208,10 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 		buildContextDirStr := buildContextDir.(starlark.String).GoString()
 		buf := filepath.Join(buildContextDirStr, envFileStr)
 		path = &buf
+
+		if (len(nameList) != 0) || (len(channelList) != 0) {
+			return nil, fmt.Errorf("env_file and name/channel are mutually exclusive")
+		}
 	}
 
 	logger.Debugf("rule `%s` is invoked, name=%v, channel=%v, env_file=%s", ruleConda, nameList, channelList, envFileStr)

@@ -97,9 +97,10 @@ type Language struct {
 }
 
 type CondaConfig struct {
-	CondaPackages      []string
-	AdditionalChannels []string
-	CondaChannel       *string
+	CondaPackages       []string
+	AdditionalChannels  []string
+	CondaChannel        *string
+	CondaEnvFileContent []byte
 }
 
 type GitConfig struct {

@@ -15,9 +15,12 @@
 package parser
 
 import (
+	"io/ioutil"
+
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 type CondaEnv struct {
@@ -27,6 +30,20 @@ type CondaEnv struct {
 	Channels      []string
 }
 
+func RewriteEnvNameInYaml(condaEnvFile string) ([]byte, error) {
+	data, err := ioutil.ReadFile(condaEnvFile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to read the Conda Env File %s", condaEnvFile)
+	}
+	m := make(map[interface{}]interface{})
+	err = yaml.Unmarshal(data, m)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to parse the Conda Env File %s", condaEnvFile)
+	}
+	m["name"] = "envd"
+	return yaml.Marshal(m)
+}
+
 func ParseCondaEnvYaml(condaEnvFile string) (*CondaEnv, error) {
 	env := &CondaEnv{}
 	config := viper.New()
@@ -34,6 +51,7 @@ func ParseCondaEnvYaml(condaEnvFile string) (*CondaEnv, error) {
 	if err := config.ReadInConfig(); err != nil {
 		return nil, errors.Wrapf(err, "failed to read the Conda Env File %s", condaEnvFile)
 	}
+
 	env.EnvName = config.GetString("name")
 	env.Channels = config.GetStringSlice("channels")
 

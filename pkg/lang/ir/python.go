@@ -139,9 +139,9 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		logrus.WithField("command", cmd).
 			Debug("Configure pip install statements")
 		root = llb.User("envd")(root)
-		run := root.Dir("/tmp").
+		run := root.
 			Run(llb.Shlex(sb.String()), llb.WithCustomNamef("pip install %s",
-				strings.Join(g.PyPIPackages, " ")))
+				strings.Join(g.PyPIPackages, " ")), llb.WithProxy(llb.ProxyEnv{}))
 		// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 		run.AddMount(cacheDir, cache,
 			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))

@@ -173,14 +173,11 @@ func CondaPackage(deps []string, channel []string, envFile *string) error {
 		DefaultGraph.CondaConfig.CondaPackages, deps...)
 
 	if envFile != nil {
-		parsed, err := parser.ParseCondaEnvYaml(*envFile)
+		yamlContent, err := parser.RewriteEnvNameInYaml(*envFile)
 		if err != nil {
 			return err
 		}
-		DefaultGraph.CondaConfig.CondaPackages = append(DefaultGraph.CondaConfig.CondaPackages, parsed.CondaPackages...)
-		DefaultGraph.PyPIPackages = append(DefaultGraph.PyPIPackages, parsed.PipPackages...)
-		DefaultGraph.CondaConfig.AdditionalChannels = append(
-			DefaultGraph.CondaConfig.AdditionalChannels, parsed.Channels...)
+		DefaultGraph.CondaConfig.CondaEnvFileContent = yamlContent
 	}
 	if len(channel) != 0 {
 		DefaultGraph.CondaConfig.AdditionalChannels = append(

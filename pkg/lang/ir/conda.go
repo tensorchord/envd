@@ -27,6 +27,7 @@ import (
 const (
 	condarc             = "/home/envd/.condarc"
 	condaVersionDefault = "py39_4.11.0"
+	condaTempFile       = "/tmp/envd_conda_env.yaml"
 )
 
 var (
@@ -50,7 +51,8 @@ func (g Graph) compileCondaChannel(root llb.State) llb.State {
 }
 
 func (g Graph) compileCondaPackages(root llb.State) llb.State {
-	if !g.CondaEnabled() || len(g.CondaConfig.CondaPackages) == 0 {
+	if !g.CondaEnabled() {
+		logrus.Debug("Conda packages not enabled")
 		return root
 	}
 
@@ -60,24 +62,32 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 		0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
 		llb.WithCustomName("[internal] setting conda cache mount permissions"))
 
+	root = llb.User("envd")(root)
 	// Compose the package install command.
 	var sb strings.Builder
-	if len(g.CondaConfig.AdditionalChannels) == 0 {
-		sb.WriteString("/opt/conda/bin/conda install -n envd")
-
+	logrus.Debugf("conda packages: %s", g.CondaConfig.CondaPackages)
+	logrus.Debugf("conda env file content: %s", g.CondaConfig.CondaEnvFileContent)
+	if len(g.CondaConfig.CondaEnvFileContent) != 0 {
+		logrus.Debugf("using custom conda environment file content: %s", g.CondaConfig.CondaEnvFileContent)
+		root = root.File(llb.Mkfile(condaTempFile, 0644,
+			g.CondaConfig.CondaEnvFileContent, llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomName("[internal] create conda env file"))
+		sb.WriteString(fmt.Sprintf("/opt/conda/bin/conda env update -n envd --file %s", condaTempFile))
 	} else {
-		sb.WriteString("/opt/conda/bin/conda install -n envd")
-		for _, channel := range g.CondaConfig.AdditionalChannels {
-			sb.WriteString(fmt.Sprintf(" -c %s", channel))
+		if len(g.CondaConfig.AdditionalChannels) == 0 {
+			sb.WriteString("/opt/conda/bin/conda install -n envd")
+		} else {
+			sb.WriteString("/opt/conda/bin/conda install -n envd")
+			for _, channel := range g.CondaConfig.AdditionalChannels {
+				sb.WriteString(fmt.Sprintf(" -c %s", channel))
+			}
+		}
+
+		for _, pkg := range g.CondaConfig.CondaPackages {
+			sb.WriteString(fmt.Sprintf(" %s", pkg))
 		}
 	}
-
-	for _, pkg := range g.CondaConfig.CondaPackages {
-		sb.WriteString(fmt.Sprintf(" %s", pkg))
-	}
-
 	cmd := sb.String()
-	root = llb.User("envd")(root)
 
 	run := root.
 		Run(llb.Shlex(cmd), llb.WithCustomNamef("conda install %s",
