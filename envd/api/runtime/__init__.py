@@ -48,8 +48,8 @@ def expose(envd_port: str, host_port: Optional[str], service: Optional[str]):
 
     Args:
         envd_port (str): port in `envd` container
-        host_port (Optional[str]): port in the host, if not provided, `envd` will
-            randomly choose a free port
+        host_port (Optional[str]): port in the host, if not provided or
+            `host_port=0`, `envd` will randomly choose a free port
         service (Optional[str]): service name
     """
 
