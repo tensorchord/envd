@@ -95,7 +95,7 @@ func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
 		envdPort    starlark.Int
-		hostPort    = starlark.MakeInt(0)
+		hostPort    = starlark.MakeInt(0) // 0 means envd can randomly choose a free port
 		serviceName = starlark.String("")
 	)
 
@@ -108,8 +108,8 @@ func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, errors.New("envd_port must be a positive integer less than 65535")
 	}
 	hostPortInt, ok := hostPort.Int64()
-	if !ok || hostPortInt < 1 || hostPortInt > 65535 {
-		return nil, errors.New("envd_port must be a positive integer less than 65535")
+	if !ok || hostPortInt < 0 || hostPortInt > 65535 {
+		return nil, errors.New("host_port must be a positive integer less than 65535")
 	}
 	serviceNameStr := serviceName.GoString()
 
