@@ -37,8 +37,9 @@ func Base(os, language, image string) error {
 	return nil
 }
 
-func PyPIPackage(deps []string, requirementsFile string) error {
+func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {
 	DefaultGraph.PyPIPackages = append(DefaultGraph.PyPIPackages, deps...)
+	DefaultGraph.PythonWheels = append(DefaultGraph.PythonWheels, wheels...)
 
 	if requirementsFile != "" {
 		DefaultGraph.RequirementsFile = &requirementsFile

@@ -115,7 +115,7 @@ func (g Graph) compileAlternative(root llb.State) llb.State {
 }
 
 func (g Graph) compilePyPIPackages(root llb.State) llb.State {
-	if len(g.PyPIPackages) == 0 && g.RequirementsFile == nil {
+	if len(g.PyPIPackages) == 0 && g.RequirementsFile == nil && len(g.PythonWheels) == 0 {
 		return root
 	}
 
@@ -158,13 +158,24 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 			Debug("Configure pip install requirements statements")
 		root = root.Dir(g.getWorkingDir())
 		run := root.
-			Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s",
-				strings.Join(g.PyPIPackages, " ")))
+			Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s", *g.RequirementsFile))
 		run.AddMount(cacheDir, cache,
 			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))
 		run.AddMount(g.getWorkingDir(),
 			llb.Local(flag.FlagBuildContext), llb.Readonly)
 		root = run.Root()
+	}
+
+	if len(g.PythonWheels) > 0 {
+		root = root.Dir(g.getWorkingDir())
+		cmdTemplate := "/opt/conda/envs/envd/bin/python -m pip install %s"
+		for _, wheel := range g.PythonWheels {
+			run := root.Run(llb.Shlex(fmt.Sprintf(cmdTemplate, wheel)), llb.WithCustomNamef("pip install %s", wheel))
+			run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext), llb.Readonly)
+			run.AddMount(cacheDir, cache,
+				llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))
+			root = run.Root()
+		}
 	}
 	return root
 }
