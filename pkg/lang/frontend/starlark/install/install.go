@@ -63,7 +63,7 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 	requirementsFileStr := requirementsFile.GoString()
 
 	localWheels := []string{}
-	if wheels != nil{
+	if wheels != nil {
 		for i := 0; i < wheels.Len(); i++ {
 			localWheels = append(localWheels, wheels.Index(i).(starlark.String).GoString())
 		}
