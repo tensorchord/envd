@@ -45,6 +45,7 @@ type Graph struct {
 
 	PyPIPackages     []string
 	RequirementsFile *string
+	PythonWheels     []string
 	RPackages        []string
 	JuliaPackages    []string
 	SystemPackages   []string

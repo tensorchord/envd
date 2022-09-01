@@ -28,6 +28,7 @@ import (
 
 const (
 	pythonVersionDefault = "3.9"
+	containerWheelPath = "/tmp/envd_wheel/"
 )
 
 func (g Graph) getAppropriatePythonVersion() (string, error) {
@@ -164,6 +165,24 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))
 		run.AddMount(g.getWorkingDir(),
 			llb.Local(flag.FlagBuildContext), llb.Readonly)
+		root = run.Root()
+	}
+
+	if len(g.PythonWheels) > 0 {
+		for _, wheel := range g.PythonWheels {
+			root = root.File(llb.Copy(
+				llb.Local(flag.FlagBuildContext), wheel, containerWheelPath,
+				llb.WithUIDGID(g.uid, g.gid)))
+		}
+		wheels := []string{}
+		for _, whl := range g.PythonWheels {
+			wheels = append(wheels, filepath.Base(whl))
+		}
+		cmd := fmt.Sprintf("/opt/conda/envs/envd/bin/python -m pip install %s", strings.Join(wheels, " "))
+		run := root.Dir(containerWheelPath).Run(llb.Shlex(cmd),
+			llb.WithCustomNamef("pip install wheels: %s", strings.Join(wheels, " ")))
+		run.AddMount(cacheDir, cache,
+			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))
 		root = run.Root()
 	}
 	return root
