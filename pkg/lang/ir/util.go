@@ -15,12 +15,14 @@
 package ir
 
 import (
+	b64 "encoding/base64"
 	"os/user"
 	"path/filepath"
 	"regexp"
 	"strconv"
 
 	"github.com/cockroachdb/errors"
+	"github.com/vmihailenco/msgpack/v5"
 )
 
 func (g Graph) getWorkingDir() string {
@@ -66,4 +68,27 @@ func getUIDGID() (int, int, error) {
 		return 0, 0, errors.Wrap(err, "failed to get gid")
 	}
 	return uid, gid, nil
+}
+
+func (rg *RuntimeGraph) DumpRuntimeGraph() (string, error) {
+	b, err := msgpack.Marshal(rg)
+	if err != nil {
+		return "", nil
+	}
+	runtimeGraphCode := b64.StdEncoding.EncodeToString(b)
+	return runtimeGraphCode, nil
+}
+
+func (rg *RuntimeGraph) LoadRuntimeGraph(code string) error {
+	b, err := b64.StdEncoding.DecodeString(code)
+	if err != nil {
+		return err
+	}
+	var newrg *RuntimeGraph
+	msgpack.Unmarshal(b, newrg)
+	rg.RuntimeCommands = newrg.RuntimeCommands
+	rg.RuntimeDaemon = newrg.RuntimeDaemon
+	rg.RuntimeEnviron = newrg.RuntimeEnviron
+	rg.RuntimeExpose = newrg.RuntimeExpose
+	return nil
 }

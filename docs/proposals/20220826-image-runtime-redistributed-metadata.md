@@ -1,4 +1,4 @@
-# Add Runtime Configuration To Image For Envd Image Redistribution
+# Add Runtime Configuration to Image for Envd Image Redistribution
 Authors:
 - [nullday](https://github.com/aseaday)
 
