@@ -28,7 +28,7 @@ envd (`ɪnˈvdɪ`) is a **machine learning development environment** for data sc
 🔁 **Repeatable builds & reproducible results** - You can reproduce the same dev environment on your laptop, public cloud VMs, or Docker containers, without any change in setup.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/5100735/187817038-66280925-0bba-4c5e-9256-a16e486c25e4.svg" width="600"/>
+  <img src="https://user-images.githubusercontent.com/5100735/187891206-b32160f1-5f65-415e-869a-d314763d6f4b.svg" width="700"/>
 </p>
 
 ## Why use `envd`?
