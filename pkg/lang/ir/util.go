@@ -85,7 +85,10 @@ func (rg *RuntimeGraph) LoadRuntimeGraph(code string) error {
 		return err
 	}
 	var newrg *RuntimeGraph
-	msgpack.Unmarshal(b, newrg)
+	err = msgpack.Unmarshal(b, newrg)
+	if err != nil {
+		return err
+	}
 	rg.RuntimeCommands = newrg.RuntimeCommands
 	rg.RuntimeDaemon = newrg.RuntimeDaemon
 	rg.RuntimeEnviron = newrg.RuntimeEnviron
