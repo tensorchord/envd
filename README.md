@@ -1,6 +1,6 @@
 <div align="center">
 <h1>envd</h1>
-<p>Development environment for data science and AI/ML</p>
+<p>Docker alternative for AI/ML applications</p>
 </div>
 
 <p align=center>
@@ -13,19 +13,17 @@
 <a href='https://coveralls.io/github/tensorchord/envd?branch=main'><img src='https://coveralls.io/repos/github/tensorchord/envd/badge.svg?branch=main' alt='Coverage Status' /></a>
 </p>
 
-> **⚠️ envd is still under heavy development, and subject to change. it is not feature-complete or production-ready. Please contact us in [discord](https://discord.gg/KqswhpVgdU) if there is any problem.**
+> **⚠️ envd is still under heavy development, and subject to change. it is not feature-complete or production-ready.**
 
-envd (`ɪnˈvdɪ`) is a **machine learning development environment** for data science and AI/ML engineering teams.
+envd (`ɪnˈvdɪ`) provides an alternative to Docker for AI/ML applications.
 
-🐍 **No Docker** - Focus on writing Python/R/Julia code, we will take care of Docker and development environment setup.
+🐍 **Escape Dockerfile Hell** - Developing with Python, saving time on writing Dockerfiles, bash scripts, and Kubernetes YAML manifests
 
-🖨️ **Built-in Jupyter/VSCode** - First-class support for Jupyter and VSCode remote extension.
+⏱️ **Save time** - Build the environment up to **7x faster**.
 
-⏱️ **Save time** - Better cache management to save your time, keep the focus on the model, instead of dependencies.
+☁️ **Local & cloud** - `envd` images are OCI compatible, integrate with Docker and Kubernetes seamlessly.
 
-☁️ **Local & cloud** - `envd` integrates seamlessly with Docker so that you can easily share, version, and publish `envd` environments with Docker Hub or any other OCI image registries.
-
-🔁 **Repeatable builds & reproducible results** - You can reproduce the same dev environment on your laptop, public cloud VMs, or Docker containers, without any change in setup.
+🔁 **Repeatable builds & reproducible results** - You can reproduce the same environment on your laptop, public cloud VMs, or Docker containers, without any change in setup.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/5100735/187891206-b32160f1-5f65-415e-869a-d314763d6f4b.svg" width="700"/>
@@ -33,13 +31,11 @@ envd (`ɪnˈvdɪ`) is a **machine learning development environment** for data sc
 
 ## Why use `envd`?
 
-It is still too difficult to configure development environments and reproduce results in AI/ML applications.
+Environments built with `envd` provide the following features out-of-the-box:
 
-`envd` is a **machine learning development environment** for data science and AI/ML engineering teams. Environments built with `envd` provide the following features out-of-the-box:
+🐍 **Life is short, use Python[^1]**
 
-🐍 **Life is short, use Python[^1]/R/Julia**
-
-Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. `envd` builds are isolated and clean. You can write simple instructions in Python/R/Julia, instead of Bash / Makefile / Dockerfile / ...
+Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. `envd` builds are isolated and clean. You can develop with Python, save time on writing Bash / Makefile / Dockerfile / ...
 
 ![envd](./docs/images/envd.png)
 
