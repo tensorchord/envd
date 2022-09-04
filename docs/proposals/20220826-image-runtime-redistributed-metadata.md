@@ -44,7 +44,6 @@ type RuntimeGraph struct {
 }
 ```
 
-- *RuntimeCommands* will not be added to the runtime label because it is one-time only
 - *RuntimeEnviron* is completely in accordance with the OCI defined configuration `Env`. So we don't need to add it to the runtime label.
 - *RuntimeDaemon* and *RuntimeExpose* will be added to the runtime label and we also should update the config the OCI configuration's Entrypoint and ExposedPort accordingly.
 
