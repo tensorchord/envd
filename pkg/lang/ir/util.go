@@ -70,7 +70,7 @@ func getUIDGID() (int, int, error) {
 	return uid, gid, nil
 }
 
-func (rg *RuntimeGraph) DumpRuntimeGraph() (string, error) {
+func (rg *RuntimeGraph) Dump() (string, error) {
 	b, err := msgpack.Marshal(rg)
 	if err != nil {
 		return "", nil
@@ -79,7 +79,7 @@ func (rg *RuntimeGraph) DumpRuntimeGraph() (string, error) {
 	return runtimeGraphCode, nil
 }
 
-func (rg *RuntimeGraph) LoadRuntimeGraph(code string) error {
+func (rg *RuntimeGraph) Load(code string) error {
 	b, err := b64.StdEncoding.DecodeString(code)
 	if err != nil {
 		return err
