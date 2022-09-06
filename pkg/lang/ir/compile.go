@@ -140,6 +140,11 @@ func (g Graph) Labels() (map[string]string, error) {
 		}
 	}
 	labels[types.ImageLabelVendor] = types.ImageVendorEnvd
+	code, err := g.RuntimeGraph.Dump()
+	if err != nil {
+		return labels, err
+	}
+	labels[types.RuntimeGraphCode] = code
 
 	return labels, nil
 }
