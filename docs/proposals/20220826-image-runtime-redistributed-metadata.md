@@ -52,8 +52,3 @@ we use the following labels:
 - ai.tensorchord.envd.runtimeGraph.version
 - ai.tensorchord.envd.runtimeGraph.Daemon
 - ai.tensorchord.envd.runtimeGraph.Expose
-
-
-#### Why msgpack
-
-MessagePack is supported by over 50 programming languages and environments. And it will be shorter than JSON.
