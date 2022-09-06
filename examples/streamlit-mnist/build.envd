@@ -27,7 +27,7 @@ def configure_streamlit(port):
 
 def configure_mnist():
     # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
-    install.system_packages([
+    install.apt_packages([
         "libgl1",
     ])
     install.python_packages([

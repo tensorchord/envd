@@ -24,8 +24,8 @@ Please update the python file there instead of directly editing file inside envd
 from typing import List, Optional
 
 
-def system_packages(name: List[str]):
-    """Install package by system-level package manager(apt on Ubuntu)
+def apt_packages(name: List[str]):
+    """Install package by system-level package manager (apt on Ubuntu)
 
     Args:
         name (str): apt package name list

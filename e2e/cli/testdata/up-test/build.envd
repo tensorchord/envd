@@ -3,7 +3,7 @@ def build():
     install.python_packages(name = [
         "via",
     ])
-    install.system_packages(name = ["screenfetch"])
+    install.apt_packages(name = ["screenfetch"])
     shell("zsh")
     config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
     # git_config(name="envd", email="envd@envd", editor="vim")

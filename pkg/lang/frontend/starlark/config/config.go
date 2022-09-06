@@ -92,20 +92,19 @@ func ruleFuncJupyter(thread *starlark.Thread, _ *starlark.Builtin,
 
 func ruleFuncPyPIIndex(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var mode, url, extraURL starlark.String
+	var url, extraURL starlark.String
 
 	if err := starlark.UnpackArgs(rulePyPIIndex, args, kwargs,
-		"mode?", &mode, "url?", &url, "extra_url?", &extraURL); err != nil {
+		"url?", &url, "extra_url?", &extraURL); err != nil {
 		return nil, err
 	}
 
-	modeStr := mode.GoString()
 	indexStr := url.GoString()
 	extraIndexStr := extraURL.GoString()
 
-	logger.Debugf("rule `%s` is invoked, mode=%s, index=%s, extraIndex=%s",
-		rulePyPIIndex, modeStr, indexStr, extraIndexStr)
-	if err := ir.PyPIIndex(modeStr, indexStr, extraIndexStr); err != nil {
+	logger.Debugf("rule `%s` is invoked, index=%s, extraIndex=%s",
+		rulePyPIIndex, indexStr, extraIndexStr)
+	if err := ir.PyPIIndex(indexStr, extraIndexStr); err != nil {
 		return nil, err
 	}
 
@@ -150,19 +149,17 @@ func ruleFuncJuliaPackageServer(thread *starlark.Thread, _ *starlark.Builtin,
 
 func ruleFuncUbuntuAptSource(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var mode, source starlark.String
+	var source starlark.String
 
 	if err := starlark.UnpackArgs(ruleUbuntuAptSource, args, kwargs,
-		"mode?", &mode, "source?", &source); err != nil {
+		"source?", &source); err != nil {
 		return nil, err
 	}
 
-	modeStr := mode.GoString()
 	sourceStr := source.GoString()
 
-	logger.Debugf("rule `%s` is invoked, mode=%s, source=%s",
-		ruleUbuntuAptSource, modeStr, sourceStr)
-	if err := ir.UbuntuAPT(modeStr, sourceStr); err != nil {
+	logger.Debugf("rule `%s` is invoked, source=%s", ruleUbuntuAptSource, sourceStr)
+	if err := ir.UbuntuAPT(sourceStr); err != nil {
 		return nil, err
 	}
 

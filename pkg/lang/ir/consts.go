@@ -18,7 +18,6 @@ const (
 	osDefault              = "ubuntu20.04"
 	languageDefault        = "python"
 	languageVersionDefault = "3"
-	pypiIndexModeAuto      = "auto"
 
 	// used inside the container
 	defaultConfigDir   = "/home/envd/.config"
