@@ -15,14 +15,13 @@
 package ir
 
 import (
-	b64 "encoding/base64"
+	"encoding/json"
 	"os/user"
 	"path/filepath"
 	"regexp"
 	"strconv"
 
 	"github.com/cockroachdb/errors"
-	"github.com/vmihailenco/msgpack/v5"
 )
 
 func (g Graph) getWorkingDir() string {
@@ -71,21 +70,17 @@ func getUIDGID() (int, int, error) {
 }
 
 func (rg *RuntimeGraph) Dump() (string, error) {
-	b, err := msgpack.Marshal(rg)
+	b, err := json.Marshal(rg)
 	if err != nil {
 		return "", nil
 	}
-	runtimeGraphCode := b64.StdEncoding.EncodeToString(b)
+	runtimeGraphCode := string(b)
 	return runtimeGraphCode, nil
 }
 
-func (rg *RuntimeGraph) Load(code string) error {
-	b, err := b64.StdEncoding.DecodeString(code)
-	if err != nil {
-		return err
-	}
+func (rg *RuntimeGraph) Load(code []byte) error {
 	var newrg *RuntimeGraph
-	err = msgpack.Unmarshal(b, newrg)
+	err := json.Unmarshal(code, newrg)
 	if err != nil {
 		return err
 	}
