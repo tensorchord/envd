@@ -43,10 +43,10 @@ Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML 
 
 ⏱️ **6x faster build**
 
-`envd` adopts a multi-level cache mechanism to accelerate the building process. For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before. It saves plenty of time, especially when you update the environment by trial and error.
+`envd` adopts a multi-level cache mechanism to accelerate the building process. For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before. It saves plenty of time, especially when you update the environment by trial and error.[^2]
 
 <p align=center>
-  <img src="https://user-images.githubusercontent.com/5100735/188545967-aa5d2be1-7c0a-4dae-ac22-39939314c7d4.svg" width="65%"/>
+  <img src="https://user-images.githubusercontent.com/5100735/188601795-8c37f5a3-b13b-422b-816f-8a0c51f1f8b1.svg" width="65%"/>
 </p>
 
 [^2]: Docker without [buildkit](https://github.com/moby/buildkit)
@@ -55,11 +55,8 @@ Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML 
 
 <table>
 <tr>
-<td> Local development simplifies the debugging, but...  </td> <td>
-
-Setup local & cloud native environment with envd
-
-</td>
+<td>Local development simplifies the debugging, but...</td> 
+<td>Setup local & cloud native environment with envd</td>
 </tr>
 <tr>
 <td>
