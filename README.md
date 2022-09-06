@@ -26,7 +26,7 @@ envd (`ɪnˈvdɪ`) provides an alternative to Docker for AI/ML applications.
 🔁 **Repeatable builds & reproducible results** - You can reproduce the same environment on your laptop, public cloud VMs, or Docker containers, without any change in setup.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/5100735/187891206-b32160f1-5f65-415e-869a-d314763d6f4b.svg" width="700"/>
+  <img src="https://user-images.githubusercontent.com/5100735/187891206-b32160f1-5f65-415e-869a-d314763d6f4b.svg" width="75%"/>
 </p>
 
 ## Why use `envd`?
@@ -45,49 +45,45 @@ Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML 
 
 `envd` adopts a multi-level cache mechanism to accelerate the building process. For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before. It saves plenty of time, especially when you update the environment by trial and error.
 
-<table>
-<tr>
-<td> envd </td> <td>
-
-Docker[^2]
-
-</td>
-</tr>
-<tr>
-<td>
-
-```diff
-$ envd build
-=> pip install tensorflow       5s
-+ => Using cached tensorflow-...-.whl (511.7 MB)
-```
-
-</td>
-<td>
-
-```diff
-$ docker build
-=> pip install tensorflow      278s
-- => Downloading tensorflow-...-.whl (511.7 MB)
-```
-
-</td>
-</tr>
-</table>
+<p align=center>
+  <img src="https://user-images.githubusercontent.com/5100735/188545967-aa5d2be1-7c0a-4dae-ac22-39939314c7d4.svg" width="75%"/>
+</p>
 
 [^2]: Docker without [buildkit](https://github.com/moby/buildkit)
 
 ☁️ **Local & cloud native**
 
-`envd` integrates seamlessly with Docker, you can share, version, and publish `envd` environments with Docker Hub or any other OCI image registries. The `envd` environments can be run on Docker or Kubernetes.
+Use the remote machine or Kubernetes as a full-featured development environment.
+
+<table>
+<tr>
+<td> Local development simplifies the debugging, but...  </td> <td>
+
+Setup local & cloud native environment with envd
+
+</td>
+</tr>
+<tr>
+<td>
+
+- ❌ Can be complex to setup. When they break, you often need to run the whole setup.
+- ❌ Resource intensive because of the constraints to your CPU, moemory and local GPU.
+- ❌ Cannot be reproducible. Because not everyone has an identical setup.
+
+</td>
+<td>
+
+- ✅ AI infrastructure as code, reproduce the environment painlessly.
+- ✅ Separate your development environment to avoid impacting your local configuration.
+- ✅ Use larger or more specialized hardware.
+
+</td>
+</tr>
+</table>
 
 🔁 **Repeatable builds & reproducible results**
 
 You can reproduce the same dev environment, on your laptop, public cloud VMs, or Docker containers, without any change in setup. You can also collaborate with your colleagues without "let me configure the environment in your machine".
-
-🖨️ **Seamless experience of Jupyter/VSCode**
-
-`envd` provides first-class support for Jupyter and VSCode remote extension. You benefit without sacrificing any developer experience.
 
 ## Who should use envd?
 
