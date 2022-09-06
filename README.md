@@ -170,7 +170,7 @@ $ cd envd-quick-start && envd up
  => => exporting manifest sha256:7dbe9494d2a7a39af16d514b997a5a8f08b637f  0.0s
  => => exporting config sha256:1da06b907d53cf8a7312c138c3221e590dedc2717  0.0s
  => => sending tarball                                                    0.4s
-envd-quick-start on  b via Py v3.9.13 via 🅒 envd 
+envd-quick-start via Py v3.9.13 via 🅒 envd 
 ⬢ [envd]❯ # You are in the container-based environment!
 ```
 
