@@ -12,7 +12,7 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.5.0
 	github.com/gizak/termui/v3 v3.1.0
-	github.com/gliderlabs/ssh v0.3.4
+	github.com/gliderlabs/ssh v0.3.5
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
@@ -32,9 +32,9 @@ require (
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
 	github.com/urfave/cli/v2 v2.14.0
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
+	golang.org/x/crypto v0.0.0-20220826181053-bd7e27e6170d
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 )
 
@@ -108,8 +108,8 @@ require (
 	go.opentelemetry.io/otel/sdk v1.4.1 // indirect
 	go.opentelemetry.io/otel/trace v1.4.1 // indirect
 	go.opentelemetry.io/proto/otlp v0.12.0 // indirect
-	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
+	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20220519153652-3a47de7e79bd // indirect
 	google.golang.org/grpc v1.46.2 // indirect
