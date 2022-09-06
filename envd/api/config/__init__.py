@@ -24,7 +24,7 @@ Please update the python file there instead of directly editing file inside envd
 from typing import Optional, List
 
 
-def apt_source(mode: Optional[str], source: Optional[str]):
+def apt_source(source: Optional[str]):
     """Configure apt sources
 
     Example usage:
@@ -43,7 +43,6 @@ def apt_source(mode: Optional[str], source: Optional[str]):
     ```
 
     Args:
-        mode (str, optional): This argument is not supported currently
         source (str, optional): The apt source configuration
     """
 
@@ -57,11 +56,10 @@ def jupyter(token: str, port: int):
     """
 
 
-def pip_index(mode: str, url: str, extra_url: str):
+def pip_index(url: str, extra_url: str):
     """Configure pypi index mirror
 
     Args:
-        mode (str): NOT supported yet
         url (str): PyPI index URL (i.e. https://mirror.sjtu.edu.cn/pypi/web/simple)
         extra_url (str): PyPI extra index URL. `url` and `extra_url` will be
             treated equally, see https://github.com/pypa/pip/issues/8606
