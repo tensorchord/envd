@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.2.0-alpha.18 (2022-09-06)
+
+ * [c0ba31a](https://github.com/tensorchord/envd/commit/c0ba31adc231d09600892f9445320df8eb84947b) chore(deps): bump github.com/onsi/gomega from 1.20.1 to 1.20.2 (#846)
+ * [13bc9a6](https://github.com/tensorchord/envd/commit/13bc9a61c4255215661c724fb7c54f2b81642a21) chore(deps): bump github.com/urfave/cli/v2 from 2.11.2 to 2.14.0 (#845)
+ * [11966f8](https://github.com/tensorchord/envd/commit/11966f8c0f997f57c45979d7857cac48ad1d1e5b) chore(deps): bump github.com/docker/go-units from 0.4.0 to 0.5.0 (#848)
+ * [7ba3b3f](https://github.com/tensorchord/envd/commit/7ba3b3fa6b716efd3398a7cb3e533e915129717d) feat(cli): add msg when detach from container (#841)
+ * [7fc9f34](https://github.com/tensorchord/envd/commit/7fc9f34d333b22013e847fd2c2312d18fb861068) fix: Update demo (#840)
+ * [190ee76](https://github.com/tensorchord/envd/commit/190ee7635f0d9bbdee6c8b53d53a72dd8ca4e619) feat(lang): install.python_packages(local_wheels=[]) (#838)
+ * [977dd47](https://github.com/tensorchord/envd/commit/977dd4725df2c16887546a48b6e3fa202a7617e2) fix: Update demo (#839)
+ * [5e7c182](https://github.com/tensorchord/envd/commit/5e7c1826465511449edf6457428037cfe3afbc7e) bug: fix channels when use conda install with yaml file (#831)
+ * [be02a70](https://github.com/tensorchord/envd/commit/be02a7007d65ce1227bfc61dba59de33f79c295b) fix(lang): expose host port (#832)
+ * [404de31](https://github.com/tensorchord/envd/commit/404de3101cece0497084412433cf877f66cf5ee2) feat(lang): init py env by generating the bulid.envd (#827)
+ * [36b1231](https://github.com/tensorchord/envd/commit/36b123142385d20fb7f7c1106c15c02f79ed4742) bug: fix permission issue when pip install from git repo (#829)
+ * [1dcada4](https://github.com/tensorchord/envd/commit/1dcada4403d0c0bf8e916fc67b62c174f66df3d3) feat(build): Mount local build context into the run command (#822)
+ * [f70a11c](https://github.com/tensorchord/envd/commit/f70a11c5f251b8ed0f0f42cd422b4b93efabd4a7) chore(deps): bump github.com/onsi/gomega from 1.20.0 to 1.20.1 (#821)
+ * [3b440c6](https://github.com/tensorchord/envd/commit/3b440c60c59ee65444a92aa91e295be9be2125b0) chore(deps): bump github.com/moby/buildkit from 0.10.3 to 0.10.4 (#820)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * Keming
+ * dependabot[bot]
+
 ## v0.2.0-alpha.17 (2022-08-26)
 
  * [82fbc87](https://github.com/tensorchord/envd/commit/82fbc87ade5637fe7db8e2c0087a1555206dc1b1) doc: add include, refine others (#817)
