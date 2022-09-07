@@ -37,7 +37,7 @@ Environments built with `envd` provide the following features out-of-the-box:
 
 Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. `envd` builds are isolated and clean. You can develop with Python, save time on writing Bash / Makefile / Dockerfile / ...
 
-![envd](./docs/images/envd.png)
+![envd](https://user-images.githubusercontent.com/5100735/188789196-032bba9b-966a-4bbd-880e-581e3021ac95.png)
 
 [^1]: The build language is [starlark](https://docs.bazel.build/versions/main/skylark/language.html), which is a dialect of Python.
 
