@@ -84,7 +84,7 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 		envdCmd.WriteString(fmt.Sprintf("/opt/conda/bin/conda env update -n envd --file %s\n", g.CondaConfig.CondaEnvFileName))
 
 		// Execute the command to write yaml file and conda env using envd user
-		sb.WriteString(fmt.Sprintf("sudo -i -u envd bash << EOF\n%s\nEOF\n", envdCmd.String()))
+		sb.WriteString(fmt.Sprintf("sudo -i -u envd bash << EOF\nset -euo pipefail\n%s\nEOF\n", envdCmd.String()))
 		sb.WriteString("'")
 		cmd := sb.String()
 
