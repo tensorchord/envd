@@ -28,6 +28,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -49,7 +50,7 @@ func (g Graph) compileRun(root llb.State) llb.State {
 	if len(g.Exec) == 0 {
 		return root
 	}
-	root = root.AddEnv("PATH", "$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/conda/bin:/usr/local/julia/bin:/opt/conda/envs/envd/bin")
+	root = root.AddEnv("PATH", types.DefaultPathEnvUnix)
 	logrus.Debugf("compile run: %s", strings.Join(g.Exec, " "))
 	if len(g.Exec) == 1 {
 		return root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.Exec[0]))).Root()

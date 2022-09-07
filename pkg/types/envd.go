@@ -18,7 +18,18 @@ import (
 	"encoding/json"
 
 	"github.com/docker/docker/api/types"
+	"github.com/moby/buildkit/util/system"
 )
+
+// DefaultPathEnvUnix is unix style list of directories to search for
+// executables. Each directory is separated from the next by a colon
+// ':' character .
+const DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/usr/local/julia/bin:" + system.DefaultPathEnvUnix
+
+// DefaultPathEnvWindows is windows style list of directories to search for
+// executables. Each directory is separated from the next by a colon
+// ';' character .
+const DefaultPathEnvWindows = system.DefaultPathEnvWindows
 
 type EnvdImage struct {
 	types.ImageSummary
