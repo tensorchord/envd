@@ -17,17 +17,19 @@ package ir
 import (
 	_ "embed"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/envd/pkg/flag"
 )
 
 const (
 	condarc             = "/home/envd/.condarc"
 	condaVersionDefault = "py39_4.11.0"
-	condaTempFile       = "/tmp/envd_conda_env.yaml"
+	condaTempFile       = "patch.envd_conda_env.yaml"
 )
 
 var (
@@ -36,7 +38,14 @@ var (
 )
 
 func (g Graph) CondaEnabled() bool {
-	return g.CondaConfig != nil
+	if g.CondaConfig == nil {
+		return false
+	} else {
+		if g.CondaConfig.CondaPackages == nil && len(g.CondaConfig.CondaEnvFileContent) == 0 {
+			return false
+		}
+	}
+	return true
 }
 
 func (g Graph) compileCondaChannel(root llb.State) llb.State {
@@ -65,14 +74,28 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 	root = llb.User("envd")(root)
 	// Compose the package install command.
 	var sb strings.Builder
-	logrus.Debugf("conda packages: %s", g.CondaConfig.CondaPackages)
-	logrus.Debugf("conda env file content: %s", g.CondaConfig.CondaEnvFileContent)
+	var run llb.ExecState
 	if len(g.CondaConfig.CondaEnvFileContent) != 0 {
 		logrus.Debugf("using custom conda environment file content: %s", g.CondaConfig.CondaEnvFileContent)
-		root = root.File(llb.Mkfile(condaTempFile, 0644,
-			g.CondaConfig.CondaEnvFileContent, llb.WithUIDGID(g.uid, g.gid)),
-			llb.WithCustomName("[internal] create conda env file"))
+		sb.WriteString("bash -c '")
+		sb.WriteString("set -euo pipefail\n")
+		sb.WriteString(fmt.Sprintf("cat << EOF > %s \n%s\nEOF\n", filepath.Join(g.getWorkingDir(), condaTempFile),
+			g.CondaConfig.CondaEnvFileContent))
 		sb.WriteString(fmt.Sprintf("/opt/conda/bin/conda env update -n envd --file %s", condaTempFile))
+		sb.WriteString("'")
+		cmd := sb.String()
+		logrus.Debugf("conda env update command: %s", cmd)
+
+		run = root.User("root").Dir(g.getWorkingDir()).
+			Run(llb.Shlex(cmd),
+				llb.WithCustomNamef("conda install from file %s", condaTempFile))
+
+		run.AddMount(cacheDir, cache,
+			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared),
+			llb.SourcePath("/cache-conda"))
+		run.AddMount(g.getWorkingDir(),
+			llb.Local(flag.FlagBuildContext))
+
 	} else {
 		if len(g.CondaConfig.AdditionalChannels) == 0 {
 			sb.WriteString("/opt/conda/bin/conda install -n envd")
@@ -86,14 +109,15 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 		for _, pkg := range g.CondaConfig.CondaPackages {
 			sb.WriteString(fmt.Sprintf(" %s", pkg))
 		}
-	}
-	cmd := sb.String()
 
-	run := root.
-		Run(llb.Shlex(cmd), llb.WithCustomNamef("conda install %s",
-			strings.Join(g.CondaPackages, " ")))
-	run.AddMount(cacheDir, cache,
-		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
+		cmd := sb.String()
+
+		run = root.
+			Run(llb.Shlex(cmd), llb.WithCustomNamef("conda install %s",
+				strings.Join(g.CondaPackages, " ")))
+		run.AddMount(cacheDir, cache,
+			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
+	}
 	return run.Root()
 }
 

@@ -1,0 +1,3 @@
+def build():
+    base(os="ubuntu20.04", language="python3")
+    install.conda_packages(env_file = "env.yaml")
