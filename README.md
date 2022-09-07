@@ -1,5 +1,5 @@
 <div align="center">
-<h1>envd</h1>
+<h1><img src='https://user-images.githubusercontent.com/5100735/188788542-269d1049-6b19-4c9d-82c2-5fb828ebdc6d.png' width='60%'></h1>
 <p>Docker alternative for AI/ML applications</p>
 </div>
 
@@ -19,7 +19,7 @@ envd (`ɪnˈvdɪ`) provides an alternative to Docker for AI/ML applications.
 
 🐍 **Escape Dockerfile Hell** - Developing with Python, saving time on writing Dockerfiles, bash scripts, and Kubernetes YAML manifests
 
-⏱️ **Save time** - Build the environment up to **6x faster**.
+⏱️ **Save you plenty of time** - Build the environment up to **6x faster**.
 
 ☁️ **Local & cloud** - `envd` images are OCI compatible, integrate with Docker and Kubernetes seamlessly.
 
