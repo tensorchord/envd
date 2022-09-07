@@ -87,7 +87,14 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 		cmd := sb.String()
 		logrus.Debugf("conda env update command: %s", cmd)
 
-		run = root.User("root").Dir(g.getWorkingDir()).
+		root = root.User("root")
+		if g.CondaConfig.CondaChannel != nil {
+			root = root.
+				File(llb.Mkfile(condarc,
+					0644, []byte(*g.CondaChannel)))
+		}
+		run = root.
+			Dir(g.getWorkingDir()).
 			Run(llb.Shlex(cmd),
 				llb.WithCustomNamef("conda install from file %s", condaTempFile))
 
