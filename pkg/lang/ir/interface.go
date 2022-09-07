@@ -18,7 +18,6 @@ import (
 	"github.com/cockroachdb/errors"
 
 	"github.com/tensorchord/envd/pkg/editor/vscode"
-	"github.com/tensorchord/envd/pkg/lang/ir/parser"
 )
 
 func Base(os, language, image string) error {
@@ -165,20 +164,15 @@ func CondaChannel(channel string) error {
 	return nil
 }
 
-func CondaPackage(deps []string, channel []string, envFile *string) error {
+func CondaPackage(deps []string, channel []string, envFile string) error {
 	if !DefaultGraph.CondaEnabled() {
 		DefaultGraph.CondaConfig = &CondaConfig{}
 	}
 	DefaultGraph.CondaConfig.CondaPackages = append(
 		DefaultGraph.CondaConfig.CondaPackages, deps...)
 
-	if envFile != nil {
-		yamlContent, err := parser.RewriteEnvNameInYaml(*envFile)
-		if err != nil {
-			return err
-		}
-		DefaultGraph.CondaConfig.CondaEnvFileContent = yamlContent
-	}
+	DefaultGraph.CondaConfig.CondaEnvFileName = envFile
+
 	if len(channel) != 0 {
 		DefaultGraph.CondaConfig.AdditionalChannels = append(
 			DefaultGraph.CondaConfig.AdditionalChannels, channel...)

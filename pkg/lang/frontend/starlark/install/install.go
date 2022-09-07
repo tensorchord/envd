@@ -16,13 +16,11 @@ package install
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 
-	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/builtin"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
@@ -201,13 +199,8 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 			channelList = append(channelList, channel.Index(i).(starlark.String).GoString())
 		}
 	}
-	var path *string = nil
 	envFileStr := envFile.GoString()
 	if envFileStr != "" {
-		buildContextDir := starlark.Universe[builtin.BuildContextDir]
-		buildContextDirStr := buildContextDir.(starlark.String).GoString()
-		buf := filepath.Join(buildContextDirStr, envFileStr)
-		path = &buf
 
 		if (len(nameList) != 0) || (len(channelList) != 0) {
 			return nil, fmt.Errorf("env_file and name/channel are mutually exclusive")
@@ -215,7 +208,7 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	logger.Debugf("rule `%s` is invoked, name=%v, channel=%v, env_file=%s", ruleConda, nameList, channelList, envFileStr)
-	if err := ir.CondaPackage(nameList, channelList, path); err != nil {
+	if err := ir.CondaPackage(nameList, channelList, envFileStr); err != nil {
 		return starlark.None, err
 	}
 

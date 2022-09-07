@@ -17,7 +17,6 @@ package ir
 import (
 	_ "embed"
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	"github.com/cockroachdb/errors"
@@ -30,7 +29,6 @@ import (
 const (
 	condarc             = "/home/envd/.condarc"
 	condaVersionDefault = "py39_4.11.0"
-	condaTempFile       = "patch.envd_conda_env.yaml"
 )
 
 var (
@@ -42,7 +40,7 @@ func (g Graph) CondaEnabled() bool {
 	if g.CondaConfig == nil {
 		return false
 	} else {
-		if g.CondaConfig.CondaPackages == nil && len(g.CondaConfig.CondaEnvFileContent) == 0 {
+		if g.CondaConfig.CondaPackages == nil && len(g.CondaConfig.CondaEnvFileName) == 0 {
 			return false
 		}
 	}
@@ -76,27 +74,24 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 	// Compose the package install command.
 	var sb strings.Builder
 	var run llb.ExecState
-	if len(g.CondaConfig.CondaEnvFileContent) != 0 {
-		logrus.Debugf("using custom conda environment file content: %s", g.CondaConfig.CondaEnvFileContent)
+	if len(g.CondaConfig.CondaEnvFileName) != 0 {
+		logrus.Debugf("using custom conda environment file content: %s", g.CondaConfig.CondaEnvFileName)
 		sb.WriteString("bash -c '")
 		sb.WriteString("set -euo pipefail\n")
-		sb.WriteString(fmt.Sprintf("cat << EOF > %s \n%s\nEOF\n", filepath.Join(g.getWorkingDir(), condaTempFile),
-			g.CondaConfig.CondaEnvFileContent))
-		sb.WriteString(fmt.Sprintf("/opt/conda/bin/conda env update -n envd --file %s", condaTempFile))
+		sb.WriteString(fmt.Sprintf("chown -R envd:envd %s\n", g.getWorkingDir())) // Change mount dir permission
+		envdCmd := strings.Builder{}
+		envdCmd.WriteString(fmt.Sprintf("cd %s\n", g.getWorkingDir()))
+		envdCmd.WriteString(fmt.Sprintf("/opt/conda/bin/conda env update -n envd --file %s\n", g.CondaConfig.CondaEnvFileName))
+
+		// Execute the command to write yaml file and conda env using envd user
+		sb.WriteString(fmt.Sprintf("sudo -i -u envd bash << EOF\n%s\nEOF\n", envdCmd.String()))
 		sb.WriteString("'")
 		cmd := sb.String()
-		logrus.Debugf("conda env update command: %s", cmd)
 
-		root = root.User("root")
-		if g.CondaConfig.CondaChannel != nil {
-			root = root.
-				File(llb.Mkfile(condarc,
-					0644, []byte(*g.CondaChannel)))
-		}
-		run = root.
+		run = root.User("root").
 			Dir(g.getWorkingDir()).
 			Run(llb.Shlex(cmd),
-				llb.WithCustomNamef("conda install from file %s", condaTempFile))
+				llb.WithCustomNamef("conda install from file %s", g.CondaConfig.CondaEnvFileName))
 
 		run.AddMount(cacheDir, cache,
 			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared),
