@@ -1,6 +1,6 @@
 <div align="center">
-<h1>envd</h1>
-<p>Development environment for data science and AI/ML</p>
+<h1><img src='https://user-images.githubusercontent.com/5100735/188788542-269d1049-6b19-4c9d-82c2-5fb828ebdc6d.png' width='60%'></h1>
+<p>Development environment for machine learning</p>
 </div>
 
 <p align=center>
@@ -13,85 +13,72 @@
 <a href='https://coveralls.io/github/tensorchord/envd?branch=main'><img src='https://coveralls.io/repos/github/tensorchord/envd/badge.svg?branch=main' alt='Coverage Status' /></a>
 </p>
 
-> **⚠️ envd is still under heavy development, and subject to change. it is not feature-complete or production-ready. Please contact us in [discord](https://discord.gg/KqswhpVgdU) if there is any problem.**
+> **⚠️ envd is still under heavy development, and subject to change. it is not feature-complete or production-ready.**
 
-envd (`ɪnˈvdɪ`) is a **machine learning development environment** for data science and AI/ML engineering teams.
+envd (`ɪnˈvdɪ`) provides an alternative to Docker for AI/ML applications.
 
-🐍 **No Docker** - Focus on writing Python/R/Julia code, we will take care of Docker and development environment setup.
+🐍 **Escape Dockerfile Hell** - Develop with Python, save time on writing Dockerfiles, bash scripts, and Kubernetes YAML manifests
 
-🖨️ **Built-in Jupyter/VSCode** - First-class support for Jupyter and VSCode remote extension.
+⏱️ **Save you plenty of time** - Build the environment up to **6x faster**.
 
-⏱️ **Save time** - Better cache management to save your time, keep the focus on the model, instead of dependencies.
+☁️ **Local & cloud** - `envd` images are OCI compatible, integrate with Docker and Kubernetes seamlessly.
 
-☁️ **Local & cloud** - `envd` integrates seamlessly with Docker so that you can easily share, version, and publish `envd` environments with Docker Hub or any other OCI image registries.
-
-🔁 **Repeatable builds & reproducible results** - You can reproduce the same dev environment on your laptop, public cloud VMs, or Docker containers, without any change in setup.
+🔁 **Repeatable builds & reproducible results** - You can reproduce the same environment on your laptop, public cloud VMs, or Docker containers, without any changes in setup.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/5100735/187891206-b32160f1-5f65-415e-869a-d314763d6f4b.svg" width="700"/>
+  <img src="https://user-images.githubusercontent.com/5100735/189058399-3865a039-9459-4e74-83dd-3ee2ecadfef5.svg" width="75%"/>
 </p>
 
 ## Why use `envd`?
 
-It is still too difficult to configure development environments and reproduce results in AI/ML applications.
+Environments built with `envd` provide the following features out-of-the-box:
 
-`envd` is a **machine learning development environment** for data science and AI/ML engineering teams. Environments built with `envd` provide the following features out-of-the-box:
+🐍 **Life is short, use Python[^1]**
 
-🐍 **Life is short, use Python[^1]/R/Julia**
+Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. `envd` builds are isolated and clean. You can develop with Python, save time on writing Bash / Makefile / Dockerfile / ...
 
-Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. `envd` builds are isolated and clean. You can write simple instructions in Python/R/Julia, instead of Bash / Makefile / Dockerfile / ...
-
-![envd](./docs/images/envd.png)
+![envd](https://user-images.githubusercontent.com/5100735/188821980-dcbd9069-b504-436a-9ffd-05ac5543a6d1.png)
 
 [^1]: The build language is [starlark](https://docs.bazel.build/versions/main/skylark/language.html), which is a dialect of Python.
 
-⏱️ **Save you plenty of time**
+⏱️ **6x faster build**
 
-`envd` adopts a multi-level cache mechanism to accelerate the building process. For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before. It saves plenty of time, especially when you update the environment by trial and error.
+`envd` adopts a multi-level cache mechanism to accelerate the building process. For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before. It saves plenty of time, especially when you update the environment by trial and error.[^2]
 
-<table>
-<tr>
-<td> envd </td> <td>
-
-Docker[^2]
-
-</td>
-</tr>
-<tr>
-<td>
-
-```diff
-$ envd build
-=> pip install tensorflow       5s
-+ => Using cached tensorflow-...-.whl (511.7 MB)
-```
-
-</td>
-<td>
-
-```diff
-$ docker build
-=> pip install tensorflow      278s
-- => Downloading tensorflow-...-.whl (511.7 MB)
-```
-
-</td>
-</tr>
-</table>
+<p align=center>
+  <img src="https://user-images.githubusercontent.com/5100735/188601795-8c37f5a3-b13b-422b-816f-8a0c51f1f8b1.svg" width="65%"/>
+</p>
 
 [^2]: Docker without [buildkit](https://github.com/moby/buildkit)
 
 ☁️ **Local & cloud native**
 
-`envd` integrates seamlessly with Docker, you can share, version, and publish `envd` environments with Docker Hub or any other OCI image registries. The `envd` environments can be run on Docker or Kubernetes.
+<table>
+<tr>
+<td>Local development simplifies the debugging, but...</td> 
+<td>Setup local & cloud native environment with envd</td>
+</tr>
+<tr>
+<td>
 
-🔁 **Repeatable builds & reproducible results**
+❌ Complex to setup. When they break, you often need to run the whole setup.
 
-You can reproduce the same dev environment, on your laptop, public cloud VMs, or Docker containers, without any change in setup. You can also collaborate with your colleagues without "let me configure the environment in your machine".
+❌ Resource intensive because of the constraints to your CPU, moemory and local GPU.
 
-🖨️ **Seamless experience of Jupyter/VSCode**
+❌ Not reproducible. Because not everyone has an identical setup.
 
-`envd` provides first-class support for Jupyter and VSCode remote extension. You benefit without sacrificing any developer experience.
+</td>
+<td>
+
+✅ AI infrastructure as code, reproduce the environment painlessly.
+
+✅ Separate your environment to avoid impacting your local configuration.
+
+✅ Use larger or more specialized hardware.
+
+</td>
+</tr>
+</table>
 
 ## Who should use envd?
 
@@ -109,17 +96,7 @@ We’re focused on helping data scientists and teams that develop AI/ML models. 
 
 [**Set up a time to chat!**](https://forms.gle/9HDBHX5Y3fzuDCDAA)
 
-<!-- ---
-
-Before envd             |  After envd
-:-------------------------:|:-------------------------:
-![](./docs/images/before.svg)  |  ![](./docs/images/after.svg) -->
-
-## Documentation 📝
-
-See [envd documentation](https://envd.tensorchord.ai/guide/getting-started).
-
-## Getting Started
+## Getting Started 🚀
 
 ### Requirements
 
@@ -153,6 +130,8 @@ The build manifest `build.envd` looks like:
 ```python title=build.envd
 def build():
     base(os="ubuntu20.04", language="python3")
+    # Configure the pip index if needed.
+    # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
     install.python_packages(name = [
         "numpy",
     ])
@@ -191,7 +170,8 @@ $ cd envd-quick-start && envd up
  => => exporting manifest sha256:7dbe9494d2a7a39af16d514b997a5a8f08b637f  0.0s
  => => exporting config sha256:1da06b907d53cf8a7312c138c3221e590dedc2717  0.0s
  => => sending tarball                                                    0.4s
-(envd) ➜  demo git:(master) ✗ # You are in the container-based environment!
+envd-quick-start via Py v3.9.13 via 🅒 envd 
+⬢ [envd]❯ # You are in the container-based environment!
 ```
 
 ### Set up Jupyter notebook
@@ -201,6 +181,8 @@ Please edit the `build.envd` to enable jupyter notebook:
 ```python title=build.envd
 def build():
     base(os="ubuntu20.04", language="python3")
+    # Configure the pip index if needed.
+    # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
     install.python_packages(name = [
         "numpy",
     ])
@@ -217,11 +199,15 @@ NAME                    JUPYTER                 SSH TARGET              CONTEXT 
 envd-quick-start        http://localhost:42779   envd-quick-start.envd   /home/gaocegege/code/envd-quick-start   envd-quick-start:dev    false   <none>  <none>  Up 54 seconds   bd3f6a729e94
 ```
 
+## More on documentation 📝
+
+See [envd documentation](https://envd.tensorchord.ai/guide/getting-started.html).
+
 ## Roadmap 🗂️
 
 Please checkout [ROADMAP](https://envd.tensorchord.ai/community/roadmap.html).
 
-## Contribute 🚀
+## Contribute 😊
 
 We welcome all kinds of contributions from the open-source community, individuals, and partners.
 
