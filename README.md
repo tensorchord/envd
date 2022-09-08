@@ -61,7 +61,7 @@ Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML 
 <tr>
 <td>
 
-❌ Can be complex to setup. When they break, you often need to run the whole setup.
+❌ Complex to setup. When they break, you often need to run the whole setup.
 
 ❌ Resource intensive because of the constraints to your CPU, moemory and local GPU.
 
