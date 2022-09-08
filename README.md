@@ -26,7 +26,7 @@ envd (`ɪnˈvdɪ`) provides an alternative to Docker for AI/ML applications.
 🔁 **Repeatable builds & reproducible results** - You can reproduce the same environment on your laptop, public cloud VMs, or Docker containers, without any change in setup.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/5100735/187891206-b32160f1-5f65-415e-869a-d314763d6f4b.svg" width="75%"/>
+  <img src="https://user-images.githubusercontent.com/5100735/189038209-9d400aff-c816-4cfc-a68f-1b6c481806ae.svg" width="75%"/>
 </p>
 
 ## Why use `envd`?
