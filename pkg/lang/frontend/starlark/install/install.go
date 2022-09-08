@@ -32,7 +32,7 @@ var Module = &starlarkstruct.Module{
 	Members: starlark.StringDict{
 		"python_packages":   starlark.NewBuiltin(rulePyPIPackage, ruleFuncPyPIPackage),
 		"r_packages":        starlark.NewBuiltin(ruleRPackage, ruleFuncRPackage),
-		"system_packages":   starlark.NewBuiltin(ruleSystemPackage, ruleFuncSystemPackage),
+		"apt_packages":      starlark.NewBuiltin(ruleSystemPackage, ruleFuncSystemPackage),
 		"cuda":              starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
 		"vscode_extensions": starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
 		"conda_packages":    starlark.NewBuiltin(ruleConda, ruleFuncConda),
@@ -44,9 +44,10 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var name *starlark.List
 	var requirementsFile starlark.String
+	var wheels *starlark.List
 
 	if err := starlark.UnpackArgs(rulePyPIPackage, args, kwargs,
-		"name?", &name, "requirements?", &requirementsFile); err != nil {
+		"name?", &name, "requirements?", &requirementsFile, "local_wheels?", &wheels); err != nil {
 		return nil, err
 	}
 
@@ -59,10 +60,17 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 
 	requirementsFileStr := requirementsFile.GoString()
 
-	logger.Debugf("rule `%s` is invoked, name=%v, requirements=%s",
-		rulePyPIPackage, nameList, requirementsFileStr)
+	localWheels := []string{}
+	if wheels != nil {
+		for i := 0; i < wheels.Len(); i++ {
+			localWheels = append(localWheels, wheels.Index(i).(starlark.String).GoString())
+		}
+	}
 
-	err := ir.PyPIPackage(nameList, requirementsFileStr)
+	logger.Debugf("rule `%s` is invoked, name=%v, requirements=%s, local_wheels=%s",
+		rulePyPIPackage, nameList, requirementsFileStr, localWheels)
+
+	err := ir.PyPIPackage(nameList, requirementsFileStr, localWheels)
 	return starlark.None, err
 }
 

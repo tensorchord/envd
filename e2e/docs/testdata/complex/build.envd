@@ -20,7 +20,7 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe mu
     ])
     install.cuda(version="11.6", cudnn="8")
     shell("zsh")
-    install.system_packages(name = [
+    install.apt_packages(name = [
         "htop"
     ])
     git_config(name="Ce Gao", email="cegao@tensorchord.ai", editor="vim")

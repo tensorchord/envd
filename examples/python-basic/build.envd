@@ -11,7 +11,7 @@ def build():
     install.python_packages([
         "via",
     ])
-    io.copy(src="./build.envd", dest="/")
+    io.copy(host_path="./build.envd", envd_path="/")
     runtime.command(commands={
         "test": "ls /",
     })

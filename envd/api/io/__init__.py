@@ -22,19 +22,19 @@ Please update the python file there instead of directly editing file inside envd
 """
 
 
-def copy(src: str, dest: str):
-    """Copy from host `src` to container `dest` (build time)
+def copy(host_path: str, envd_path: str):
+    """Copy from host path to container path (build time)
 
     Args:
-        src (str): source path
-        dest (str): destination path
+        host_path (str): source path in the host machine
+        envd_path (str): destination path in the envd container
     """
 
 
-def mount(src: str, dest: str):
-    """Mount from host `src` to container `dest` (runtime)
+def mount(host_path: str, envd_path: str):
+    """Mount from host path to container path (runtime)
 
     Args:
-        src (str): source path
-        dest (str): destination path
+        host_path (str): source path in the host machine
+        envd_path (str): destination path in the envd container
     """

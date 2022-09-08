@@ -28,6 +28,8 @@ import (
 	gatewayclient "github.com/moby/buildkit/frontend/gateway/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
+
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 const (
@@ -60,21 +62,11 @@ func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 	return string(data), nil
 }
 
-// DefaultPathEnvUnix is unix style list of directories to search for
-// executables. Each directory is separated from the next by a colon
-// ':' character .
-const DefaultPathEnvUnix = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/conda/bin:/opt/conda/envs/envd/bin/:/usr/local/julia/bin"
-
-// DefaultPathEnvWindows is windows style list of directories to search for
-// executables. Each directory is separated from the next by a colon
-// ';' character .
-const DefaultPathEnvWindows = "c:\\Windows\\System32;c:\\Windows"
-
 func DefaultPathEnv(os string) string {
 	if os == "windows" {
-		return DefaultPathEnvWindows
+		return types.DefaultPathEnvWindows
 	}
-	return DefaultPathEnvUnix
+	return types.DefaultPathEnvUnix
 }
 
 func parseImportCacheCSV(s string) (gatewayclient.CacheOptionsEntry, error) {

@@ -47,7 +47,7 @@ func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 	var destination starlark.String
 
 	if err := starlark.UnpackArgs(ruleMount, args, kwargs,
-		"src?", &source, "dest?", &destination); err != nil {
+		"host_path?", &source, "envd_path?", &destination); err != nil {
 		return nil, err
 	}
 
@@ -99,7 +99,7 @@ func ruleFuncCopy(thread *starlark.Thread, _ *starlark.Builtin,
 	var source, destination starlark.String
 
 	if err := starlark.UnpackArgs(ruleCopy, args, kwargs,
-		"src?", &source, "dest?", &destination); err != nil {
+		"host_path?", &source, "envd_path?", &destination); err != nil {
 		return nil, err
 	}
 

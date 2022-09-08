@@ -24,20 +24,22 @@ Please update the python file there instead of directly editing file inside envd
 from typing import List, Optional
 
 
-def system_packages(name: List[str]):
-    """Install package by system-level package manager(apt on Ubuntu)
+def apt_packages(name: List[str]):
+    """Install package by system-level package manager (apt on Ubuntu)
 
     Args:
         name (str): apt package name list
     """
 
 
-def python_packages(name: List[str], requirements: str):
+def python_packages(name: List[str], requirements: str, local_wheels: List[str]):
     """Install python package by pip
 
     Args:
         name (List[str]): package name list
-        requirements: (str): requirements file path
+        requirements (str): requirements file path
+        local_wheels (List[str]): local wheels
+            (wheel files should be placed under the current directory)
     """
 
 
