@@ -17,7 +17,7 @@
 
 envd (`ɪnˈvdɪ`) provides an alternative to Docker for AI/ML applications.
 
-🐍 **Escape Dockerfile Hell** - Developing with Python, saving time on writing Dockerfiles, bash scripts, and Kubernetes YAML manifests
+🐍 **Escape Dockerfile Hell** - Develop with Python, save time on writing Dockerfiles, bash scripts, and Kubernetes YAML manifests
 
 ⏱️ **Save you plenty of time** - Build the environment up to **6x faster**.
 
