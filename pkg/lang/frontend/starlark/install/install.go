@@ -15,7 +15,7 @@
 package install
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
@@ -203,7 +203,7 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	if envFileStr != "" {
 
 		if (len(nameList) != 0) || (len(channelList) != 0) {
-			return nil, fmt.Errorf("env_file and name/channel are mutually exclusive")
+			return nil, errors.New("env_file and name/channel are mutually exclusive")
 		}
 	}
 
