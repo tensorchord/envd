@@ -65,7 +65,7 @@ Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML 
 
 ❌ Resource intensive because of the constraints to your CPU, moemory and local GPU.
 
-❌ Cannot be reproducible. Because not everyone has an identical setup.
+❌ Not reproducible. Because not everyone has an identical setup.
 
 </td>
 <td>
