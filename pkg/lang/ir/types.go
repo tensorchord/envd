@@ -101,6 +101,7 @@ type CondaConfig struct {
 	CondaPackages      []string
 	AdditionalChannels []string
 	CondaChannel       *string
+	CondaEnvFileName   string
 }
 
 type GitConfig struct {

@@ -139,7 +139,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		logrus.WithField("command", cmd).
 			Debug("Configure pip install statements")
 		root = llb.User("envd")(root)
-		run := root.Dir("/tmp").
+		run := root.
 			Run(llb.Shlex(sb.String()), llb.WithCustomNamef("pip install %s",
 				strings.Join(g.PyPIPackages, " ")))
 		// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
@@ -151,18 +151,27 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 	if g.RequirementsFile != nil {
 		// Compose the package install command.
 		var sb strings.Builder
-		sb.WriteString("/opt/conda/envs/envd/bin/python -m pip install -r ")
-		sb.WriteString(*g.RequirementsFile)
+		sb.WriteString("bash -c '")
+		sb.WriteString("set -euo pipefail\n")
+		sb.WriteString(fmt.Sprintf("chown -R envd:envd %s\n", g.getWorkingDir())) // Change mount dir permission
+		envdCmd := strings.Builder{}
+		envdCmd.WriteString(fmt.Sprintf("cd %s\n", g.getWorkingDir()))
+		envdCmd.WriteString(fmt.Sprintf("/opt/conda/envs/envd/bin/python -m pip install -r  %s\n", *g.RequirementsFile))
+
+		// Execute the command to write yaml file and conda env using envd user
+		sb.WriteString(fmt.Sprintf("sudo -i -u envd bash << EOF\n%s\nEOF\n", envdCmd.String()))
+		sb.WriteString("'")
 		cmd := sb.String()
+
 		logrus.WithField("command", cmd).
 			Debug("Configure pip install requirements statements")
-		root = root.Dir(g.getWorkingDir())
+		root = root.User("root").Dir(g.getWorkingDir())
 		run := root.
 			Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s", *g.RequirementsFile))
 		run.AddMount(cacheDir, cache,
 			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))
 		run.AddMount(g.getWorkingDir(),
-			llb.Local(flag.FlagBuildContext), llb.Readonly)
+			llb.Local(flag.FlagBuildContext))
 		root = run.Root()
 	}
 
