@@ -15,8 +15,7 @@
 package install
 
 import (
-	"errors"
-
+	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
