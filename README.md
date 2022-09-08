@@ -23,7 +23,7 @@ envd (`ɪnˈvdɪ`) provides an alternative to Docker for AI/ML applications.
 
 ☁️ **Local & cloud** - `envd` images are OCI compatible, integrate with Docker and Kubernetes seamlessly.
 
-🔁 **Repeatable builds & reproducible results** - You can reproduce the same environment on your laptop, public cloud VMs, or Docker containers, without any change in setup.
+🔁 **Repeatable builds & reproducible results** - You can reproduce the same environment on your laptop, public cloud VMs, or Docker containers, without any changes in setup.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/5100735/189058399-3865a039-9459-4e74-83dd-3ee2ecadfef5.svg" width="75%"/>
