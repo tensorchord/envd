@@ -24,12 +24,13 @@ Please update the python file there instead of directly editing file inside envd
 from typing import Optional
 
 
-def base(os: str, language: str):
+def base(os: str, language: str, image: Optional[str]):
     """Set base image
 
     Args:
-        os (str): The operating system(i.e. `ubuntu20.04`)
-        language (str): The programing language dependency(i.e. `python3.8`)
+        os (str): The operating system (i.e. `ubuntu20.04`)
+        language (str): The programing language dependency (i.e. `python3.8`)
+        image (Optional[str]): Custom image (i.e. `python:3.9-slim`)
     """
 
 
@@ -37,7 +38,7 @@ def shell(name: str):
     """Interactive shell
 
     Args:
-        name (str): shell name(i.e. `zsh`, `bash`)
+        name (str): shell name (i.e. `zsh`, `bash`)
     """
 
 

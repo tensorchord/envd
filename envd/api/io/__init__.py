@@ -22,6 +22,9 @@ Please update the python file there instead of directly editing file inside envd
 """
 
 
+from typing import Optional
+
+
 def copy(host_path: str, envd_path: str):
     """Copy from host path to container path (build time)
 
@@ -37,4 +40,14 @@ def mount(host_path: str, envd_path: str):
     Args:
         host_path (str): source path in the host machine
         envd_path (str): destination path in the envd container
+    """
+
+
+def http(url: str, checksum: Optional[str], filename: Optional[str]):
+    """Download file with HTTP to `/home/envd/extra_source`
+
+    Args:
+        url (str): URL
+        checksum (Optional[str]): checksum for the downloaded file
+        filename (Optional[str]): rewrite the filename
     """
