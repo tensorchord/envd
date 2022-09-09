@@ -26,6 +26,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/util/errorutil"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -44,10 +45,11 @@ func handleErr(err error) {
 	}
 
 	if viper.GetBool(flag.FlagDebug) {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "error: %+v\n", err)
 	}
 
-	rootCause := errors.Cause(err)
+	// rootCause := errors.Cause(err)
+	traceErr := errorutil.NewTraceError(err, 2)
 	var evalErr *starlark.EvalError
 	var syntaxErr *syntax.Error
 	if ok := errors.As(err, &evalErr); ok {
@@ -55,7 +57,7 @@ func handleErr(err error) {
 	} else if ok := errors.As(err, &syntaxErr); ok {
 		fmt.Fprintln(os.Stderr, syntaxErr)
 	} else {
-		fmt.Fprintf(os.Stderr, "error: %v\n", rootCause)
+		fmt.Fprintf(os.Stderr, "error: %v\n", traceErr)
 	}
 	os.Exit(1)
 }
