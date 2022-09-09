@@ -29,12 +29,3 @@ def copy(host_path: str, envd_path: str):
         host_path (str): source path in the host machine
         envd_path (str): destination path in the envd container
     """
-
-
-def mount(host_path: str, envd_path: str):
-    """Mount from host path to container path (runtime)
-
-    Args:
-        host_path (str): source path in the host machine
-        envd_path (str): destination path in the envd container
-    """

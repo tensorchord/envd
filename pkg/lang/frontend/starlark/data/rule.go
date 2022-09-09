@@ -50,5 +50,5 @@ func ruleValueEnvdManagedDataSource(thread *starlark.Thread, _ *starlark.Builtin
 	logger.Debugf("rule `%s` is invoked, name=%s",
 		ruleEnvdManagedDataSource, name)
 
-	return NewDataSourceValue(envddata.NewEnvdManagedDataSource(name.String())), nil
+	return NewDataSourceValue(envddata.NewEnvdManagedDataSource(name.GoString())), nil
 }
