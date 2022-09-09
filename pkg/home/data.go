@@ -33,7 +33,7 @@ func (m *generalManager) InitDataDir(name string) (string, error) {
 		return newDataDir, nil
 	}
 
-	err := os.Mkdir(newDataDir, 0777) // Avoid UID/GID issues
+	err := os.MkdirAll(newDataDir, 0777) // Avoid UID/GID issues
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create data dir")
 	}
