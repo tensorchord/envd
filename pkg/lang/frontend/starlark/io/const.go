@@ -17,4 +17,5 @@ package io
 const (
 	ruleCopy  = "io.copy"
 	ruleMount = "io.mount"
+	ruleHTTP  = "io.http"
 )

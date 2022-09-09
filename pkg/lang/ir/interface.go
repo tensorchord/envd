@@ -16,6 +16,7 @@ package ir
 
 import (
 	"github.com/cockroachdb/errors"
+	"github.com/opencontainers/go-digest"
 
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 )
@@ -183,6 +184,22 @@ func Mount(src, dest string) {
 		Source:      src,
 		Destination: dest,
 	})
+}
+
+func HTTP(url, checksome, filename string) error {
+	info := HTTPInfo{
+		URL: url,
+		Filename: filename,
+	}
+	if len(checksome) > 0 {
+		d, err := digest.Parse(checksome)
+		if err != nil {
+			return err
+		}
+		info.Checksum = d
+	}
+	DefaultGraph.HTTP = append(DefaultGraph.HTTP, info)
+	return nil
 }
 
 func Entrypoint(args []string) {

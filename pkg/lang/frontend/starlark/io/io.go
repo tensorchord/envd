@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/cockroachdb/errors"
-
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
@@ -38,6 +37,7 @@ var Module = &starlarkstruct.Module{
 	Members: starlark.StringDict{
 		"copy":  starlark.NewBuiltin(ruleCopy, ruleFuncCopy),
 		"mount": starlark.NewBuiltin(ruleMount, ruleFuncMount),
+		"http":  starlark.NewBuiltin(ruleHTTP, ruleFuncHTTP),
 	},
 }
 
@@ -71,7 +71,7 @@ func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 
 	destinationStr := destination.GoString()
 
-	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s",
+	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s\n",
 		ruleMount, sourceStr, destinationStr)
 
 	// Expand source directory based on host user
@@ -106,9 +106,25 @@ func ruleFuncCopy(thread *starlark.Thread, _ *starlark.Builtin,
 	sourceStr := source.GoString()
 	destinationStr := destination.GoString()
 
-	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s",
+	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s\n",
 		ruleCopy, sourceStr, destinationStr)
 	ir.Copy(sourceStr, destinationStr)
 
+	return starlark.None, nil
+}
+
+func ruleFuncHTTP(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var url, checksum, filename string
+	if err := starlark.UnpackArgs(ruleHTTP, args, kwargs,
+		"url", &url, "checksum?", &checksum, "filename?", &filename); err != nil {
+		return nil, err
+	}
+
+	logger.Debugf("rule `%s` is invoked, ruleHTTP, url=%s, checksum=%s, filename=%s\n",
+		url, checksum, filename)
+	if err := ir.HTTP(url, checksum, filename); err != nil {
+		return nil, err
+	}
 	return starlark.None, nil
 }

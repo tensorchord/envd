@@ -251,7 +251,11 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get the base image")
 	}
-	aptStage := g.compileUbuntuAPT(base)
+	source, err := g.compileExtraSource(base)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get extra sources")
+	}
+	aptStage := g.compileUbuntuAPT(source)
 	var merged llb.State
 	// Use custom logic when image is specified.
 	if g.Image != nil {
