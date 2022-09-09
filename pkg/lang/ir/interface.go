@@ -188,7 +188,7 @@ func Mount(src, dest string) {
 
 func HTTP(url, checksome, filename string) error {
 	info := HTTPInfo{
-		URL: url,
+		URL:      url,
 		Filename: filename,
 	}
 	if len(checksome) > 0 {
