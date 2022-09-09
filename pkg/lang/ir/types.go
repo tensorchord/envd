@@ -16,6 +16,7 @@ package ir
 
 import (
 	"github.com/opencontainers/go-digest"
+
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 )

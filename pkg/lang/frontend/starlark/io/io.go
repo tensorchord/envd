@@ -122,7 +122,7 @@ func ruleFuncHTTP(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	logger.Debugf("rule `%s` is invoked, ruleHTTP, url=%s, checksum=%s, filename=%s\n",
-		ruleHTTP ,url, checksum, filename)
+		ruleHTTP, url, checksum, filename)
 	if err := ir.HTTP(url, checksum, filename); err != nil {
 		return nil, err
 	}
