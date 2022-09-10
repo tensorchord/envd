@@ -44,7 +44,7 @@ func main() {
 	}
 
 	app := cli.NewApp()
-	app.Name = "envd-ssh"
+	app.Name = "envd-sshd"
 	app.Usage = "ssh server for envd"
 	app.Version = version.GetVersion().String()
 	app.Flags = []cli.Flag{

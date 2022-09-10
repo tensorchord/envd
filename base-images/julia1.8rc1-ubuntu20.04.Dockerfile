@@ -29,7 +29,7 @@ RUN apt-get update && \
     # prompt
     && curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
 
-COPY --from=envd /usr/bin/envd-ssh /var/envd/bin/envd-ssh
+COPY --from=envd /usr/bin/envd-sshd /var/envd/bin/envd-sshd
 
 ENV JULIA_PATH /usr/local/julia
 ENV PATH $JULIA_PATH/bin:$PATH
