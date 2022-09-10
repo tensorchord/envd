@@ -68,6 +68,8 @@ type Options struct {
 	// ImportCache is the option to import cache.
 	// e.g. type=registry,ref=docker.io/username/image
 	ImportCache string
+	// UseHTTPProxy uses HTTPS_PROXY/HTTP_PROXY/NO_PROXY in the build process.
+	UseHTTPProxy bool
 }
 
 type generalBuilder struct {
@@ -269,6 +271,13 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 					},
 					Session: attachable,
 				}
+				if b.UseHTTPProxy {
+					solveOpt.FrontendAttrs = map[string]string{
+						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
+						"build-arg:HTTP_PROXY":  os.Getenv("HTTP_PROXY"),
+						"build-arg:NO_PROXY":    os.Getenv("NO_PROXY"),
+					}
+				}
 				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
 					err = errors.Wrap(err, "failed to solve LLB")
@@ -303,6 +312,13 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 						flag.FlagBuildContext: b.BuildContextDir,
 					},
 					Session: attachable,
+				}
+				if b.UseHTTPProxy {
+					solveOpt.FrontendAttrs = map[string]string{
+						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
+						"build-arg:HTTP_PROXY":  os.Getenv("HTTP_PROXY"),
+						"build-arg:NO_PROXY":    os.Getenv("NO_PROXY"),
+					}
 				}
 				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
