@@ -186,13 +186,13 @@ func Mount(src, dest string) {
 	})
 }
 
-func HTTP(url, checksome, filename string) error {
+func HTTP(url, checksum, filename string) error {
 	info := HTTPInfo{
 		URL:      url,
 		Filename: filename,
 	}
-	if len(checksome) > 0 {
-		d, err := digest.Parse(checksome)
+	if len(checksum) > 0 {
+		d, err := digest.Parse(checksum)
 		if err != nil {
 			return err
 		}
