@@ -81,7 +81,7 @@ def tensorboard(envd_port=6006, envd_dir="/home/envd/logs",
 ```
 </details>
 
-⏱️ **Build up to 6x faster**
+⏱️ **Builtkit native, build up to 6x faster**
 
 [Buildkit](https://github.com/moby/buildkit) supports parallel builds and software cache (e.g. pip index cache and apt cache). You can enjoy the benefits without knowledge of it.
 
