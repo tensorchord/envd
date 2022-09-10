@@ -1,6 +1,6 @@
 <div align="center">
 <h1><img src='https://user-images.githubusercontent.com/5100735/188788542-269d1049-6b19-4c9d-82c2-5fb828ebdc6d.png' width='60%'></h1>
-<p>Development environment for machine learning</p>
+<p>Development environment for AI/ML</p>
 </div>
 
 <p align=center>
@@ -13,17 +13,15 @@
 <a href='https://coveralls.io/github/tensorchord/envd?branch=main'><img src='https://coveralls.io/repos/github/tensorchord/envd/badge.svg?branch=main' alt='Coverage Status' /></a>
 </p>
 
-> **⚠️ envd is still under heavy development, and subject to change. it is not feature-complete or production-ready.**
+## What is envd?
 
-envd (`ɪnˈvdɪ`) provides an alternative to Docker for AI/ML applications.
+envd (`ɪnˈvdɪ`) is a command-line tool that helps you create the container-based development environment for AI/ML.
 
-🐍 **Escape Dockerfile Hell** - Develop with Python, save time on writing Dockerfiles, bash scripts, and Kubernetes YAML manifests
+Development environments are full of python and system dependencies, CUDA, BASH scripts, Dockerfiles, SSH configurations, Kubernetes YAMLs, and many other clunky things that are always breaking. envd is to solve the problem:
 
-⏱️ **Save you plenty of time** - Build the environment up to **6x faster**.
-
-☁️ **Local & cloud** - `envd` images are OCI compatible, integrate with Docker and Kubernetes seamlessly.
-
-🔁 **Repeatable builds & reproducible results** - You can reproduce the same environment on your laptop, public cloud VMs, or Docker containers, without any changes in setup.
+1. Declare the list of dependencies (CUDA, python packages, your favorite IDE, and so on) in `build.envd`
+1. Simply run `envd up`.
+1. Develop in the isolated environment.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/5100735/189058399-3865a039-9459-4e74-83dd-3ee2ecadfef5.svg" width="75%"/>
@@ -33,52 +31,88 @@ envd (`ɪnˈvdɪ`) provides an alternative to Docker for AI/ML applications.
 
 Environments built with `envd` provide the following features out-of-the-box:
 
-🐍 **Life is short, use Python[^1]**
+❤️ **Knowledge reuse in your team**
 
-Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. `envd` builds are isolated and clean. You can develop with Python, save time on writing Bash / Makefile / Dockerfile / ...
+`envd` build functions can be reused. Use `include` function to import any git repositories. No more copy/paste Dockerfile instructions, let's reuse them.
 
-![envd](https://user-images.githubusercontent.com/5100735/188821980-dcbd9069-b504-436a-9ffd-05ac5543a6d1.png)
+```python
+envdlib = include("https://github.com/tensorchord/envdlib")
 
-[^1]: The build language is [starlark](https://docs.bazel.build/versions/main/skylark/language.html), which is a dialect of Python.
+def build():
+    base(os="ubuntu20.04", language="python")
+    envdlib.tensorboard(8888)
+```
 
-⏱️ **6x faster build**
+<details>
+  <summary><code>envdlib.tensorboard</code> is defined in <a href="https://github.com/tensorchord/envdlib/blob/main/src/monitoring.envd">github.com/tensorchord/envdlib</a></summary>
+  
+```python
+def tensorboard(envd_port=6006, envd_dir="/home/envd/logs",
+        host_port=0, host_dir="/var/log/tensorboard"):
+    """Configure TensorBoard.
 
-`envd` adopts a multi-level cache mechanism to accelerate the building process. For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before. It saves plenty of time, especially when you update the environment by trial and error.[^2]
+    Make sure you have permission for `host_dir`
+
+    Args:
+        envd_port (Optional[int]): port used by envd container
+        envd_dir (Optional[str]): log storage mount path in the envd container
+        host_port (Optional[int]): port used by the host, if not specified or equals to 0,
+            envd will randomly choose a free port
+        host_dir (Optional[str]): log storage mount path in the host
+    """
+    install.python_packages(["tensorboard"])
+    runtime.mount(host_path=host_dir, envd_path=envd_dir)
+    runtime.daemon(
+        commands=[
+            [
+                "tensorboard",
+                "--logdir",
+                "/home/envd/logs",
+                "--port",
+                str(envd_port),
+                "--host",
+                "0.0.0.0",
+                ">>tensorboard.log",
+                "2>&1",
+            ],
+        ]
+    )
+    runtime.expose(envd_port=envd_port, host_port=host_port, service="tensorboard")
+```
+</details>
+
+⏱️ **Builtkit native, build up to 6x faster**
+
+[Buildkit](https://github.com/moby/buildkit) supports parallel builds and software cache (e.g. pip index cache and apt cache). You can enjoy the benefits without knowledge of it.
+
+For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before.
 
 <p align=center>
   <img src="https://user-images.githubusercontent.com/5100735/188601795-8c37f5a3-b13b-422b-816f-8a0c51f1f8b1.svg" width="65%"/>
 </p>
 
-[^2]: Docker without [buildkit](https://github.com/moby/buildkit)
+🐍 **One configuration to rule them all**
 
-☁️ **Local & cloud native**
+Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. You just need one configuration file `build.envd`[^1], it works both for local Docker and Kubernetes clusters in the cloud.
 
-<table>
-<tr>
-<td>Local development simplifies the debugging, but...</td> 
-<td>Setup local & cloud native environment with envd</td>
-</tr>
-<tr>
-<td>
+![envd](https://user-images.githubusercontent.com/5100735/188821980-dcbd9069-b504-436a-9ffd-05ac5543a6d1.png)
 
-❌ Complex to setup. When they break, you often need to run the whole setup.
+[^1]: The build language is [starlark](https://docs.bazel.build/versions/main/skylark/language.html), which is a dialect of Python.
 
-❌ Resource intensive because of the constraints to your CPU, moemory and local GPU.
+✍️ **Don't sacrifice your developer experience**
 
-❌ Not reproducible. Because not everyone has an identical setup.
+SSH is configured for the created environment. You can use vscode-remote, jupyter, pycharm or other IDEs that you love. Besides this, declare the IDE extensions you want, let `envd` take care of them.
 
-</td>
-<td>
+```python
+def build():
+    install.vscode_extensions([
+        "ms-python.python",
+    ])
+```
 
-✅ AI infrastructure as code, reproduce the environment painlessly.
+☁️ **No polluted environment**
 
-✅ Separate your environment to avoid impacting your local configuration.
-
-✅ Use larger or more specialized hardware.
-
-</td>
-</tr>
-</table>
+Are you working on multiple projects, all of which need different versions of CUDA? `envd` helps you create isolated and clean environments. 
 
 ## Who should use envd?
 
