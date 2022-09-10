@@ -28,6 +28,10 @@ func (g Graph) getWorkingDir() string {
 	return filepath.Join("/home/envd", g.EnvironmentName)
 }
 
+func (g Graph) getExtraSourceDir() string {
+	return "/home/envd/extra_source"
+}
+
 func parseLanguage(l string) (string, *string, error) {
 	var language, version string
 	if l == "" {

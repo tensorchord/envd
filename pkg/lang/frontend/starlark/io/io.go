@@ -30,6 +30,7 @@ var Module = &starlarkstruct.Module{
 	Name: "io",
 	Members: starlark.StringDict{
 		"copy": starlark.NewBuiltin(ruleCopy, ruleFuncCopy),
+		"http": starlark.NewBuiltin(ruleHTTP, ruleFuncHTTP),
 	},
 }
 
@@ -45,9 +46,25 @@ func ruleFuncCopy(thread *starlark.Thread, _ *starlark.Builtin,
 	sourceStr := source.GoString()
 	destinationStr := destination.GoString()
 
-	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s",
+	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s\n",
 		ruleCopy, sourceStr, destinationStr)
 	ir.Copy(sourceStr, destinationStr)
 
+	return starlark.None, nil
+}
+
+func ruleFuncHTTP(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var url, checksum, filename string
+	if err := starlark.UnpackArgs(ruleHTTP, args, kwargs,
+		"url", &url, "checksum?", &checksum, "filename?", &filename); err != nil {
+		return nil, err
+	}
+
+	logger.Debugf("rule `%s` is invoked, ruleHTTP, url=%s, checksum=%s, filename=%s\n",
+		ruleHTTP, url, checksum, filename)
+	if err := ir.HTTP(url, checksum, filename); err != nil {
+		return nil, err
+	}
 	return starlark.None, nil
 }

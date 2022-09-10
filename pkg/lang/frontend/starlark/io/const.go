@@ -16,4 +16,5 @@ package io
 
 const (
 	ruleCopy = "io.copy"
+	ruleHTTP = "io.http"
 )

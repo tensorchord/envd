@@ -1,10 +1,3 @@
-def jupyter_lab():
-    install.python_packages(["jupyterlab"])
-    runtime.daemon(commands=[
-        ["jupyter-lab", "--port", "8080"],
-    ])
-
-
 def build():
     base(os="ubuntu20.04", language="python")
     #config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
@@ -16,4 +9,3 @@ def build():
         "test": "ls /",
     })
     runtime.environ(env={"ENVD_MODE": "DEV"})
-    jupyter_lab()

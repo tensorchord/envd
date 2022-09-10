@@ -123,6 +123,26 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
+func (g *Graph) compileExtraSource(root llb.State) (llb.State, error) {
+	if len(g.HTTP) == 0 {
+		return root, nil
+	}
+	inputs := []llb.State{}
+	for _, httpInfo := range g.HTTP {
+		src := llb.HTTP(
+			httpInfo.URL,
+			llb.Checksum(httpInfo.Checksum),
+			llb.Filename(httpInfo.Filename),
+			llb.Chown(g.uid, g.gid),
+		)
+		inputs = append(inputs, llb.Scratch().File(
+			llb.Copy(src, "/", g.getExtraSourceDir(), &llb.CopyInfo{CreateDestPath: true}),
+		))
+	}
+	inputs = append(inputs, root)
+	return llb.Merge(inputs, llb.WithCustomName("[internal] build source layers")), nil
+}
+
 func (g *Graph) compileBase() (llb.State, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"os":       g.OS,
