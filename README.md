@@ -81,6 +81,24 @@ def tensorboard(envd_port=6006, envd_dir="/home/envd/logs",
 ```
 </details>
 
+⏱️ **Build up to 6x faster**
+
+[Buildkit](https://github.com/moby/buildkit) supports parallel builds and software cache (e.g. pip index cache and apt cache). You can enjoy the benefits without knowledge of it.
+
+For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before.
+
+<p align=center>
+  <img src="https://user-images.githubusercontent.com/5100735/188601795-8c37f5a3-b13b-422b-816f-8a0c51f1f8b1.svg" width="65%"/>
+</p>
+
+🐍 **One configuration to rule them all**
+
+Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. You just need one configuration file `build.envd`[^1], it works both for local Docker and Kubernetes clusters in the cloud.
+
+![envd](https://user-images.githubusercontent.com/5100735/188821980-dcbd9069-b504-436a-9ffd-05ac5543a6d1.png)
+
+[^1]: The build language is [starlark](https://docs.bazel.build/versions/main/skylark/language.html), which is a dialect of Python.
+
 ✍️ **Don't sacrifice your developer experience**
 
 SSH is configured for the created environment. You can use vscode-remote, jupyter, pycharm or other IDEs that you love. Besides this, declare the IDE extensions you want, let `envd` take care of them.
@@ -92,27 +110,9 @@ def build():
     ])
 ```
 
-⏱️ **Build up to 6x faster**
-
-[Buildkit](https://github.com/moby/buildkit) supports parallel builds and software cache (e.g. pip index cache and apt cache). You can enjoy the benefits without knowledge of it.
-
-For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before.
-
-<p align=center>
-  <img src="https://user-images.githubusercontent.com/5100735/188601795-8c37f5a3-b13b-422b-816f-8a0c51f1f8b1.svg" width="65%"/>
-</p>
-
 ☁️ **No polluted environment**
 
 Development environments created by `envd` are isolated and clean. Are you working on multiple projects, all of which need different versions of CUDA? `envd` helps you create isolated and clean environments. 
-
-🐍 **One configuration to rule them all**
-
-Development environments are full of Dockerfiles, bash scripts, Kubernetes YAML manifests, and many other clunky files that are always breaking. You just need one configuration file `build.envd`[^1], it works both for local Docker and Kubernetes clusters in the cloud.
-
-![envd](https://user-images.githubusercontent.com/5100735/188821980-dcbd9069-b504-436a-9ffd-05ac5543a6d1.png)
-
-[^1]: The build language is [starlark](https://docs.bazel.build/versions/main/skylark/language.html), which is a dialect of Python.
 
 ## Who should use envd?
 
