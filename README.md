@@ -1,6 +1,6 @@
 <div align="center">
 <h1><img src='https://user-images.githubusercontent.com/5100735/188788542-269d1049-6b19-4c9d-82c2-5fb828ebdc6d.png' width='60%'></h1>
-<p>Reproducible development environment for AI/ML</p>
+<p>Development environment for AI/ML</p>
 </div>
 
 <p align=center>
