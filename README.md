@@ -21,7 +21,7 @@ Development environments are full of python and system dependencies, CUDA, BASH 
 
 1. Declare the list of dependencies (CUDA, python packages, your favorite IDE, and so on) in `build.envd`
 1. Simply run `envd up`.
-1. Develop in the environment.
+1. Develop in the isolated environment.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/5100735/189058399-3865a039-9459-4e74-83dd-3ee2ecadfef5.svg" width="75%"/>
@@ -112,7 +112,7 @@ def build():
 
 ☁️ **No polluted environment**
 
-Development environments created by `envd` are isolated and clean. Are you working on multiple projects, all of which need different versions of CUDA? `envd` helps you create isolated and clean environments. 
+Are you working on multiple projects, all of which need different versions of CUDA? `envd` helps you create isolated and clean environments. 
 
 ## Who should use envd?
 
