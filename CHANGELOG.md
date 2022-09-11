@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.2.0-alpha.20 (2022-09-11)
+
+ * [b38c5de](https://github.com/tensorchord/envd/commit/b38c5de82aac50fe085cd48d2111f7f5d241b6d7) chore(CLI): test new release for envd-sshd (#866)
+ * [49d79fb](https://github.com/tensorchord/envd/commit/49d79fb17bee4a2baaeadd500607cba7d8426b28) fix: Update readme (#865)
+ * [d7995a7](https://github.com/tensorchord/envd/commit/d7995a7171cbe48a65aad3e3b56077ffee9a625a) feat(lang): io.http download files to extra_source (#858)
+ * [0d3b42f](https://github.com/tensorchord/envd/commit/0d3b42fe4f33241742986030a45431a5f068dc75) feat: Support HTTP PROXY (#857)
+
+### Contributors
+
+ * Ce Gao
+ * Keming
+ * Yuedong Wu
+
 ## v0.2.0-alpha.19 (2022-09-09)
 
  * [a0fbaa0](https://github.com/tensorchord/envd/commit/a0fbaa09fee056549b1d6fcd796f5b711268de2b) refact: io.mount => runtime.mount (#861)
