@@ -204,7 +204,7 @@ func (g Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
 	}
 
 	template := `set -e
-/var/envd/bin/envd-ssh --authorized-keys %s --port %d --shell %s &
+/var/envd/bin/envd-sshd --authorized-keys %s --port %d --shell %s &
 %s
 wait -n`
 

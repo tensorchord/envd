@@ -24,9 +24,9 @@ builds:
     goos:
       - linux
       - darwin
-    id: envd-ssh
-    main: ./cmd/envd-ssh
-    binary: envd-ssh
+    id: envd-sshd
+    main: ./cmd/envd-sshd
+    binary: envd-sshd
     ldflags:
       - -s -w
       - -X github.com/tensorchord/envd/pkg/version.version={{ .Version }}
@@ -44,10 +44,10 @@ archives:
       windows: Windows
       386: i386
       amd64: x86_64
-  - id: envd-ssh
+  - id: envd-sshd
     format: binary
     builds:
-      - envd-ssh
+      - envd-sshd
     replacements:
       darwin: Darwin
       linux: Linux
@@ -69,27 +69,27 @@ changelog:
       - '^chore:'
 dockers:
 - image_templates:
-  - "ghcr.io/tensorchord/envd-ssh-from-scratch:{{ .Version }}-amd64"
+  - "ghcr.io/tensorchord/envd-sshd-from-scratch:{{ .Version }}-amd64"
   use: buildx
-  dockerfile: .goreleaser/envd-ssh.Dockerfile
+  dockerfile: .goreleaser/envd-sshd.Dockerfile
   ids:
-  - envd-ssh
+  - envd-sshd
   build_flag_templates:
   - "--platform=linux/amd64"
 - image_templates:
-  - "ghcr.io/tensorchord/envd-ssh-from-scratch:{{ .Version }}-arm64v8"
+  - "ghcr.io/tensorchord/envd-sshd-from-scratch:{{ .Version }}-arm64v8"
   use: buildx
   goarch: arm64
   ids:
-  - envd-ssh
-  dockerfile: .goreleaser/envd-ssh.Dockerfile
+  - envd-sshd
+  dockerfile: .goreleaser/envd-sshd.Dockerfile
   build_flag_templates:
   - "--platform=linux/arm64/v8"
 docker_manifests:
-- name_template: ghcr.io/tensorchord/envd-ssh-from-scratch:{{ .Version }}
+- name_template: ghcr.io/tensorchord/envd-sshd-from-scratch:{{ .Version }}
   image_templates:
-  - ghcr.io/tensorchord/envd-ssh-from-scratch:{{ .Version }}-amd64
-  - ghcr.io/tensorchord/envd-ssh-from-scratch:{{ .Version }}-arm64v8
+  - ghcr.io/tensorchord/envd-sshd-from-scratch:{{ .Version }}-amd64
+  - ghcr.io/tensorchord/envd-sshd-from-scratch:{{ .Version }}-arm64v8
 brews:
   - name: envd
     ids:
