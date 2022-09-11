@@ -29,7 +29,7 @@
 ROOT := github.com/tensorchord/envd
 
 # Target binaries. You can build multiple binaries for a single project.
-TARGETS := envd envd-ssh
+TARGETS := envd envd-sshd
 
 # Container image prefix and suffix added to targets.
 # The final built images are:
