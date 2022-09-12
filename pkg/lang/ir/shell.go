@@ -23,6 +23,7 @@ import (
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/shell"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 const (
@@ -62,21 +63,21 @@ func (g *Graph) compilePrompt(root llb.State) llb.State {
 		File(llb.Mkfile(starshipConfigPath, 0644, []byte(starshipConfig), llb.WithUIDGID(g.uid, g.gid)),
 			llb.WithCustomName("[internal] setting prompt config"))
 
-	run := config.Run(llb.Shlex(`bash -c 'echo "eval \"\$(starship init bash)\"" >> /home/envd/.bashrc'`),
+	run := config.Run(llb.Shlex(fmt.Sprintf(`bash -c 'echo "eval \"\$(starship init bash)\"" >> %s'`, fileutil.EnvdHomeDir(".bashrc"))),
 		llb.WithCustomName("[internal] setting prompt config")).Root()
 
 	if g.Shell == shellZSH {
 		run = run.Run(
-			llb.Shlex(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> /home/envd/.zshrc'`),
+			llb.Shlex(fmt.Sprintf(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> %s'`, fileutil.EnvdHomeDir(".zshrc"))),
 			llb.WithCustomName("[internal] setting prompt config")).Root()
 	}
 	return run
 }
 
 func (g Graph) compileZSH(root llb.State) (llb.State, error) {
-	installPath := "/home/envd/install.sh"
-	zshrcPath := "/home/envd/.zshrc"
-	ohMyZSHPath := "/home/envd/.oh-my-zsh"
+	installPath := fileutil.EnvdHomeDir("install.sh")
+	zshrcPath := fileutil.EnvdHomeDir(".zshrc")
+	ohMyZSHPath := fileutil.EnvdHomeDir(".oh-my-zsh")
 	m := shell.NewManager()
 	g.Writer.LogZSH(compileui.ActionStart, false)
 	if cached, err := m.DownloadOrCache(); err != nil {

@@ -26,6 +26,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/data"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var (
@@ -188,11 +189,11 @@ func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 		sourceStr = filepath.Join(dir, sourceStr[2:])
 	}
 	// Expand dest directory based on container user envd
-	dir = "/home/envd/"
+	dir = fileutil.EnvdHomeDir()
 	if destinationStr == "~" {
 		destinationStr = dir
 	} else if strings.HasPrefix(destinationStr, "~/") {
-		destinationStr = filepath.Join(dir, destinationStr[2:])
+		destinationStr = fileutil.EnvdHomeDir(destinationStr[2:])
 	}
 	ir.Mount(sourceStr, destinationStr)
 

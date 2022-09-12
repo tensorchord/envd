@@ -14,24 +14,28 @@
 
 package ir
 
+import "github.com/tensorchord/envd/pkg/util/fileutil"
+
 const (
 	osDefault              = "ubuntu20.04"
 	languageDefault        = "python"
 	languageVersionDefault = "3"
 
-	// used inside the container
-	defaultConfigDir   = "/home/envd/.config"
-	starshipConfigPath = "/home/envd/.config/starship.toml"
-
 	aptSourceFilePath = "/etc/apt/sources.list"
 	pypiIndexFilePath = "/etc/pip.conf"
 
 	pypiConfigTemplate = `
-[global]
-index-url=%s
-%s
-
-[install]
+	[global]
+	index-url=%s
+	%s
+	
+	[install]
 src = /tmp
 `
+)
+
+var (
+	// used inside the container
+	defaultConfigDir   = fileutil.EnvdHomeDir(".config")
+	starshipConfigPath = fileutil.EnvdHomeDir(".config/starship.toml")
 )

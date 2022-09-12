@@ -24,6 +24,7 @@ import (
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 func (g Graph) compileVSCode() (*llb.State, error) {
@@ -44,7 +45,7 @@ func (g Graph) compileVSCode() (*llb.State, error) {
 		}
 		ext := llb.Scratch().File(llb.Copy(llb.Local(flag.FlagCacheDir),
 			vscodeClient.PluginPath(p),
-			"/home/envd/.vscode-server/extensions/"+p.String(),
+			fileutil.EnvdHomeDir(".vscode-server", "extensions", p.String()),
 			&llb.CopyInfo{
 				CreateDestPath: true,
 			}, llb.WithUIDGID(g.uid, g.gid)),
