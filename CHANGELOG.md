@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.2.0-alpha.21 (2022-09-12)
+
+ * [ddf3bdc](https://github.com/tensorchord/envd/commit/ddf3bdc8dd859683d7539d3c7f226b82cece40e7) chore(deps): bump actions/setup-go from 2 to 3 (#873)
+ * [7220958](https://github.com/tensorchord/envd/commit/72209583b941c4eb87b282004f7c8a1ae57410ae) chore(deps): bump actions/checkout from 2 to 3 (#872)
+ * [f1b3fe5](https://github.com/tensorchord/envd/commit/f1b3fe5029091cffc0a1022b665d585132c5a8d8) chore(CLI): test new release for envd-sshd (#866)
+
+### Contributors
+
+ * Yuedong Wu
+ * dependabot[bot]
+
 ## v0.2.0-alpha.20 (2022-09-11)
 
  * [b38c5de](https://github.com/tensorchord/envd/commit/b38c5de82aac50fe085cd48d2111f7f5d241b6d7) chore(CLI): test new release for envd-sshd (#866)
