@@ -35,7 +35,7 @@
 # or:
 #   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 #
-set -e
+set -euo pipefail
 
 # Make sure important variables exist if not already defined
 #
