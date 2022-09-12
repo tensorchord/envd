@@ -25,11 +25,11 @@ const (
 	pypiIndexFilePath = "/etc/pip.conf"
 
 	pypiConfigTemplate = `
-	[global]
-	index-url=%s
-	%s
-	
-	[install]
+[global]
+index-url=%s
+%s
+
+[install]
 src = /tmp
 `
 )
