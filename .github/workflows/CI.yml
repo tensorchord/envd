@@ -68,7 +68,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.18
       - name: Cache Go modules
@@ -101,7 +101,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.18
       - name: Cache Go modules
@@ -134,7 +134,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.18
       - name: Cache Go modules
@@ -167,7 +167,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.18
       - name: Cache Go modules
@@ -200,7 +200,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.18
       - name: Cache Go modules
@@ -226,7 +226,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.18
       - name: Install bins
