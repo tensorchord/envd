@@ -24,6 +24,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 const (
@@ -119,7 +120,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		return root
 	}
 
-	cacheDir := "/home/envd/.cache"
+	cacheDir := fileutil.EnvdHomeDir(".cache")
 	// Create the cache directory to the container. see issue #582
 	root = g.CompileCacheDir(root, cacheDir)
 

@@ -31,6 +31,7 @@ import (
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -210,7 +211,7 @@ wait -n`
 
 	// Generate jupyter and rstudio server commands.
 	var customCmd strings.Builder
-	workingDir := filepath.Join("/home/envd", filepath.Base(buildContextDir))
+	workingDir := fileutil.EnvdHomeDir(filepath.Base(buildContextDir))
 	if g.RuntimeDaemon != nil {
 		for _, command := range g.RuntimeDaemon {
 			customCmd.WriteString(fmt.Sprintf("%s &\n", strings.Join(command, " ")))
