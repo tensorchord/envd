@@ -111,6 +111,7 @@ type CondaConfig struct {
 	AdditionalChannels []string
 	CondaChannel       *string
 	CondaEnvFileName   string
+	UseMiniConda       bool
 }
 
 type GitConfig struct {

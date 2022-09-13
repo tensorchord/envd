@@ -34,6 +34,7 @@ func Base(os, language, image string) error {
 	if image != "" {
 		DefaultGraph.Image = &image
 	}
+	if useConda
 	return nil
 }
 

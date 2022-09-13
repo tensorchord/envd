@@ -29,10 +29,12 @@ import (
 
 const (
 	condaVersionDefault = "py39_4.11.0"
+	installMambaBash    = "curl micro.mamba.pm/install.sh | bash"
 )
 
 var (
 	condarc = fileutil.EnvdHomeDir(".condarc")
+	mambarc = fileutil.EnvdHomeDir(".mambarc")
 	//go:embed install-conda.sh
 	installCondaBash string
 )
