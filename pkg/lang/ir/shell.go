@@ -39,7 +39,7 @@ symbol = "sudo "
 symbol = "Py "
 
 [status]
-map_symbol = true
+format = '[\[$status:$common_meaning$signal_name\]]($style) '
 disabled = false
 `
 )
