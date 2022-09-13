@@ -88,7 +88,7 @@ def tensorboard(envd_port=6006, envd_dir="/home/envd/logs",
 For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before.
 
 <p align=center>
-  <img src="https://user-images.githubusercontent.com/5100735/188601795-8c37f5a3-b13b-422b-816f-8a0c51f1f8b1.svg" width="65%"/>
+  <img src="https://user-images.githubusercontent.com/5100735/189928628-543f4851-87b7-462b-b811-372cbf46ff25.svg" width="65%"/>
 </p>
 
 🐍 **One configuration to rule them all**
