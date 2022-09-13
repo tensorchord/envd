@@ -249,7 +249,7 @@ func (c generalClient) Attach() error {
 	logrus.Debugf("executing command over ssh: '%s'", cmd)
 	err = session.Run(cmd)
 	if err == nil {
-		logrus.Infof("Detached successfully. You can attach to the container with command `ssh %s`\n",
+		logrus.Infof("Detached successfully. You can attach to the container with command `ssh %s.envd`\n",
 			ir.DefaultGraph.EnvironmentName)
 		return nil
 	}
