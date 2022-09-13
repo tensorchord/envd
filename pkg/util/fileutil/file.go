@@ -183,5 +183,5 @@ func DownloadOrUpdateGitRepo(url string) (path string, err error) {
 }
 
 func EnvdHomeDir(path ...string) string {
-	return filepath.Join(append([]string{"/home", "envd"}, path...)...)
+	return filepath.Join(append([]string{"/", "home", "envd"}, path...)...)
 }
