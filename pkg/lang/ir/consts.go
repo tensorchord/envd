@@ -37,5 +37,5 @@ src = /tmp
 var (
 	// used inside the container
 	defaultConfigDir   = fileutil.EnvdHomeDir(".config")
-	starshipConfigPath = fileutil.EnvdHomeDir(".config/starship.toml")
+	starshipConfigPath = fileutil.EnvdHomeDir(".config", "starship.toml")
 )
