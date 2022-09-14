@@ -102,7 +102,10 @@ func (rg *RuntimeGraph) Load(code []byte) error {
 
 func GetDefaultGraphHash() string {
 	var b bytes.Buffer
-	gob.NewEncoder(&b).Encode(*DefaultGraph)
+	err := gob.NewEncoder(&b).Encode(*DefaultGraph)
+	if err != nil {
+		return ""
+	}
 	data := b.Bytes()
 	hashD := md5.Sum(data)
 	return hex.EncodeToString(hashD[:])
