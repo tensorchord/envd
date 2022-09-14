@@ -15,6 +15,10 @@
 package ir
 
 import (
+	"bytes"
+	"crypto/md5"
+	"encoding/gob"
+	"encoding/hex"
 	"encoding/json"
 	"os/user"
 	"regexp"
@@ -94,4 +98,12 @@ func (rg *RuntimeGraph) Load(code []byte) error {
 	rg.RuntimeEnviron = newrg.RuntimeEnviron
 	rg.RuntimeExpose = newrg.RuntimeExpose
 	return nil
+}
+
+func GetDefaultGraphHash() string {
+	var b bytes.Buffer
+	gob.NewEncoder(&b).Encode(*DefaultGraph)
+	data := b.Bytes()
+	hashD := md5.Sum(data)
+	return hex.EncodeToString(hashD[:])
 }

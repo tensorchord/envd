@@ -114,10 +114,7 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 		return nil, errors.New("only one output type is supported")
 	}
 
-	manifestHash, err := starlark.GetEnvdProgramHash(opt.ManifestFilePath)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to compile manifest file")
-	}
+	manifestHash := ir.GetDefaultGraphHash()
 
 	b := &generalBuilder{
 		Options:          opt,
