@@ -21,12 +21,12 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
+	"go.starlark.net/resolve"
 	"go.starlark.net/starlark"
 	"go.starlark.net/syntax"
 
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/flag"
-	"github.com/tensorchord/envd/pkg/util/errorutil"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -48,16 +48,18 @@ func handleErr(err error) {
 		fmt.Fprintf(os.Stderr, "error: %+v\n", err)
 	}
 
-	// rootCause := errors.Cause(err)
-	traceErr := errorutil.NewTraceError(err, 2)
+	// traceErr := errorutil.NewTraceError(err, 1)
 	var evalErr *starlark.EvalError
 	var syntaxErr *syntax.Error
+	var resolveErr resolve.ErrorList
 	if ok := errors.As(err, &evalErr); ok {
 		fmt.Fprintln(os.Stderr, evalErr.Backtrace())
 	} else if ok := errors.As(err, &syntaxErr); ok {
 		fmt.Fprintln(os.Stderr, syntaxErr)
+	} else if ok := errors.As(err, &resolveErr); ok {
+		fmt.Fprintf(os.Stderr, "%+v\n", resolveErr)
 	} else {
-		fmt.Fprintf(os.Stderr, "error: %v\n", traceErr)
+		fmt.Fprintf(os.Stderr, "error: %v\n", errors.Cause(err))
 	}
 	os.Exit(1)
 }

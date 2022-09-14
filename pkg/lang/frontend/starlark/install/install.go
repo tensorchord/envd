@@ -54,7 +54,11 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 	nameList := []string{}
 	if name != nil {
 		for i := 0; i < name.Len(); i++ {
-			nameList = append(nameList, name.Index(i).(starlark.String).GoString())
+			str, ok := starlark.AsString(name.Index(i))
+			if !ok {
+				return nil, errors.New("Conversion failed, not String type")
+			}
+			nameList = append(nameList, str)
 		}
 	}
 
