@@ -31,6 +31,7 @@ import (
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -203,14 +204,14 @@ func (g Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
 		"-c",
 	}
 
-	template := `set -e
-/var/envd/bin/envd-ssh --authorized-keys %s --port %d --shell %s &
+	template := `set -euo pipefail
+/var/envd/bin/envd-sshd --authorized-keys %s --port %d --shell %s &
 %s
 wait -n`
 
 	// Generate jupyter and rstudio server commands.
 	var customCmd strings.Builder
-	workingDir := filepath.Join("/home/envd", filepath.Base(buildContextDir))
+	workingDir := fileutil.EnvdHomeDir(filepath.Base(buildContextDir))
 	if g.RuntimeDaemon != nil {
 		for _, command := range g.RuntimeDaemon {
 			customCmd.WriteString(fmt.Sprintf("%s &\n", strings.Join(command, " ")))
@@ -251,7 +252,11 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get the base image")
 	}
-	aptStage := g.compileUbuntuAPT(base)
+	source, err := g.compileExtraSource(base)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get extra sources")
+	}
+	aptStage := g.compileUbuntuAPT(source)
 	var merged llb.State
 	// Use custom logic when image is specified.
 	if g.Image != nil {

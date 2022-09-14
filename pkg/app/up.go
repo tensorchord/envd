@@ -63,6 +63,12 @@ var CommandUp = &cli.Command{
 			Aliases: []string{"f"},
 			Value:   "build.envd:build",
 		},
+		&cli.BoolFlag{
+			Name:    "use-proxy",
+			Usage:   "Use HTTPS_PROXY/HTTP_PROXY/NO_PROXY in the build process",
+			Aliases: []string{"proxy"},
+			Value:   false,
+		},
 		&cli.PathFlag{
 			Name:    "private-key",
 			Usage:   "Path to the private key",

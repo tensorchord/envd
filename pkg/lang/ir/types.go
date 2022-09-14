@@ -15,6 +15,8 @@
 package ir
 
 import (
+	"github.com/opencontainers/go-digest"
+
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 )
@@ -55,6 +57,7 @@ type Graph struct {
 	Exec       []string
 	Copy       []CopyInfo
 	Mount      []MountInfo
+	HTTP       []HTTPInfo
 	Entrypoint []string
 
 	*JupyterConfig
@@ -87,6 +90,12 @@ type CopyInfo struct {
 type MountInfo struct {
 	Source      string
 	Destination string
+}
+
+type HTTPInfo struct {
+	URL      string
+	Checksum digest.Digest
+	Filename string
 }
 
 type RStudioServerConfig struct {

@@ -18,6 +18,8 @@ import (
 	"fmt"
 
 	"github.com/moby/buildkit/client/llb"
+
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 const (
@@ -36,7 +38,7 @@ func (g *Graph) compileGit(root llb.State) (llb.State, error) {
 		return root, nil
 	}
 	content := fmt.Sprintf(templateGitConfig, g.GitConfig.Email, g.GitConfig.Name, g.GitConfig.Editor)
-	installPath := "/home/envd/.gitconfig"
+	installPath := fileutil.EnvdHomeDir(".gitignore")
 	gitStage := root.File(llb.Mkfile(installPath,
 		0644, []byte(content), llb.WithUIDGID(g.uid, g.gid)))
 	return gitStage, nil

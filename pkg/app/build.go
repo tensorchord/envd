@@ -53,6 +53,12 @@ To build and push the image to a registry:
 			Aliases: []string{"f"},
 			Value:   "build.envd:build",
 		},
+		&cli.BoolFlag{
+			Name:    "use-proxy",
+			Usage:   "Use HTTPS_PROXY/HTTP_PROXY/NO_PROXY in the build process",
+			Aliases: []string{"proxy"},
+			Value:   false,
+		},
 		&cli.PathFlag{
 			Name:    "path",
 			Usage:   "Path to the directory containing the build.envd",
@@ -170,9 +176,10 @@ func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
 	if err != nil {
 		return builder.Options{}, err
 	}
-	output := ""
+	output := clicontext.String("output")
 	exportCache := clicontext.String("export-cache")
 	importCache := clicontext.String("import-cache")
+	useProxy := clicontext.Bool("use-proxy")
 
 	opt := builder.Options{
 		ManifestFilePath: manifest,
@@ -185,6 +192,7 @@ func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
 		ProgressMode:     "auto",
 		ExportCache:      exportCache,
 		ImportCache:      importCache,
+		UseHTTPProxy:     useProxy,
 	}
 
 	debug := clicontext.Bool("debug")

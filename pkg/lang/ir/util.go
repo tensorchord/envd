@@ -17,15 +17,20 @@ package ir
 import (
 	"encoding/json"
 	"os/user"
-	"path/filepath"
 	"regexp"
 	"strconv"
 
 	"github.com/cockroachdb/errors"
+
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 func (g Graph) getWorkingDir() string {
-	return filepath.Join("/home/envd", g.EnvironmentName)
+	return fileutil.EnvdHomeDir(g.EnvironmentName)
+}
+
+func (g Graph) getExtraSourceDir() string {
+	return fileutil.EnvdHomeDir("extra_source")
 }
 
 func parseLanguage(l string) (string, *string, error) {

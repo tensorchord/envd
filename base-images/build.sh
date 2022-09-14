@@ -24,27 +24,27 @@ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
-    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
+    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-sshd-from-scratch \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-envd-${DOCKER_IMAGE_TAG} \
     -f python${PYTHON_VERSION}-${ENVD_OS}.Dockerfile .
 docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
-    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
+    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-sshd-from-scratch \
     --pull --push --platform linux/x86_64,linux/arm64 \
-    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-cuda11.6-cudnn8-envd-${DOCKER_IMAGE_TAG} \
-    -f python${PYTHON_VERSION}-${ENVD_OS}-cuda11.6.Dockerfile .
+    -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-cuda11.2-cudnn8-envd-${DOCKER_IMAGE_TAG} \
+    -f python${PYTHON_VERSION}-${ENVD_OS}-cuda11.2.Dockerfile .
 
 # TODO(gaocegege): Support linux/arm64
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
-    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
+    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-sshd-from-scratch \
     -t ${DOCKER_HUB_ORG}/r-base:${RLANG_VERSION}-envd-${DOCKER_IMAGE_TAG} \
     --pull --push --platform linux/x86_64 \
     -f r${RLANG_VERSION}.Dockerfile .
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
-    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-ssh-from-scratch \
+    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-sshd-from-scratch \
     -t ${DOCKER_HUB_ORG}/julia:${JULIA_VERSION}-${ENVD_OS}-envd-${DOCKER_IMAGE_TAG} \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -f julia${JULIA_VERSION}-${ENVD_OS}.Dockerfile .

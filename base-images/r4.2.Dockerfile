@@ -43,4 +43,4 @@ RUN set -x && \
     dpkg -i "$DOWNLOAD_FILE" && \
     rm ${DOWNLOAD_FILE} && rm -f /var/lib/rstudio-server/secure-cookie-key
 
-COPY --from=envd /usr/bin/envd-ssh /var/envd/bin/envd-ssh
+COPY --from=envd /usr/bin/envd-sshd /var/envd/bin/envd-sshd

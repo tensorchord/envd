@@ -1,5 +1,45 @@
 # Changelog
 
+## v0.2.0-alpha.21 (2022-09-12)
+
+ * [ddf3bdc](https://github.com/tensorchord/envd/commit/ddf3bdc8dd859683d7539d3c7f226b82cece40e7) chore(deps): bump actions/setup-go from 2 to 3 (#873)
+ * [7220958](https://github.com/tensorchord/envd/commit/72209583b941c4eb87b282004f7c8a1ae57410ae) chore(deps): bump actions/checkout from 2 to 3 (#872)
+ * [f1b3fe5](https://github.com/tensorchord/envd/commit/f1b3fe5029091cffc0a1022b665d585132c5a8d8) chore(CLI): test new release for envd-sshd (#866)
+
+### Contributors
+
+ * Yuedong Wu
+ * dependabot[bot]
+
+## v0.2.0-alpha.20 (2022-09-11)
+
+ * [b38c5de](https://github.com/tensorchord/envd/commit/b38c5de82aac50fe085cd48d2111f7f5d241b6d7) chore(CLI): test new release for envd-sshd (#866)
+ * [49d79fb](https://github.com/tensorchord/envd/commit/49d79fb17bee4a2baaeadd500607cba7d8426b28) fix: Update readme (#865)
+ * [d7995a7](https://github.com/tensorchord/envd/commit/d7995a7171cbe48a65aad3e3b56077ffee9a625a) feat(lang): io.http download files to extra_source (#858)
+ * [0d3b42f](https://github.com/tensorchord/envd/commit/0d3b42fe4f33241742986030a45431a5f068dc75) feat: Support HTTP PROXY (#857)
+
+### Contributors
+
+ * Ce Gao
+ * Keming
+ * Yuedong Wu
+
+## v0.2.0-alpha.19 (2022-09-09)
+
+ * [a0fbaa0](https://github.com/tensorchord/envd/commit/a0fbaa09fee056549b1d6fcd796f5b711268de2b) refact: io.mount => runtime.mount (#861)
+ * [1e5e24d](https://github.com/tensorchord/envd/commit/1e5e24d1f872311a81b193443be36eaed22cc11e) bug: fix conda install with env file (#837)
+ * [ecb9e26](https://github.com/tensorchord/envd/commit/ecb9e2626e65b5e1f647d7385142c10677f2d7eb) refact: unify the path env (#855)
+ * [8056fda](https://github.com/tensorchord/envd/commit/8056fda28febfe6cbe64502159b302b670970517) feat: add runtime graph to image label (#815)
+ * [6ad1d4c](https://github.com/tensorchord/envd/commit/6ad1d4ca2085317850e9726910bc3024b743439e) refact: apt_source, io, config mode (#853)
+ * [07e2dc0](https://github.com/tensorchord/envd/commit/07e2dc0e6d4d7f3be2debf79389a792964e727b1) chore(deps): bump github.com/gliderlabs/ssh from 0.3.4 to 0.3.5 (#849)
+
+### Contributors
+
+ * Jinjing Zhou
+ * Keming
+ * dependabot[bot]
+ * nullday
+
 ## v0.2.0-alpha.18 (2022-09-06)
 
  * [c0ba31a](https://github.com/tensorchord/envd/commit/c0ba31adc231d09600892f9445320df8eb84947b) chore(deps): bump github.com/onsi/gomega from 1.20.1 to 1.20.2 (#846)

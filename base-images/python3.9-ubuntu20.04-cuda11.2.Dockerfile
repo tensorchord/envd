@@ -1,12 +1,13 @@
+ARG IMAGE_NAME
 ARG ENVD_VERSION
 ARG ENVD_SSH_IMAGE
-FROM ubuntu:20.04 as base
+FROM ${IMAGE_NAME}:11.6.1-cudnn8-devel-ubuntu20.04 as base
+
+FROM ${ENVD_SSH_IMAGE}:${ENVD_VERSION} AS envd
 
 FROM base as base-amd64
 
 FROM base as base-arm64
-
-FROM ${ENVD_SSH_IMAGE}:${ENVD_VERSION} AS envd
 
 FROM base-${TARGETARCH}
 
@@ -15,7 +16,6 @@ ARG TARGETARCH
 LABEL maintainer "envd-maintainers <envd-maintainers@tensorchord.ai>"
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV PATH="/usr/bin:${PATH}"
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 

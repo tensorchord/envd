@@ -175,9 +175,13 @@ func DownloadOrUpdateGitRepo(url string) (path string, err error) {
 		logger.Debug("try to pull latest")
 		err = wt.Pull(&git.PullOptions{})
 		if err != nil && errors.Is(err, git.NoErrAlreadyUpToDate) {
-			return
+			return path, nil
 		}
 	}
 
 	return path, nil
+}
+
+func EnvdHomeDir(path ...string) string {
+	return filepath.Join(append([]string{"/", "home", "envd"}, path...)...)
 }
