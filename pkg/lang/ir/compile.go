@@ -204,7 +204,7 @@ func (g Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
 		"-c",
 	}
 
-	template := `set -e
+	template := `set -euo pipefail
 /var/envd/bin/envd-sshd --authorized-keys %s --port %d --shell %s &
 %s
 wait -n`

@@ -175,7 +175,7 @@ func DownloadOrUpdateGitRepo(url string) (path string, err error) {
 		logger.Debug("try to pull latest")
 		err = wt.Pull(&git.PullOptions{})
 		if err != nil && errors.Is(err, git.NoErrAlreadyUpToDate) {
-			return
+			return path, nil
 		}
 	}
 
