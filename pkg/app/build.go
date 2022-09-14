@@ -176,7 +176,7 @@ func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
 	if err != nil {
 		return builder.Options{}, err
 	}
-	output := ""
+	output := clicontext.String("output")
 	exportCache := clicontext.String("export-cache")
 	importCache := clicontext.String("import-cache")
 	useProxy := clicontext.Bool("use-proxy")

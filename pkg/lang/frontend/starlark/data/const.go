@@ -16,6 +16,6 @@ package data
 
 const (
 	ruleEnvdManagedDataSource = "data.envd"
-	huggingFaceDatasetPath    = "~/.cache/huggingface/datasets"
+	huggingFaceDatasetPath    = "~/.cache/huggingface"
 	dglFaceDatasetPath        = "~/.dgl"
 )
