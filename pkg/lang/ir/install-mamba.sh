@@ -1,0 +1,13 @@
+set -euo pipefail && \
+ARCH="$(uname -m)" && \
+if [[ "${ARCH}" == "aarch64" ]]; then \
+    ARCH="aarch64"; \
+elif [[ "${ARCH}" == "ppc64le" ]]; then \
+    ARCH="ppc64le"; \
+else \
+    ARCH="64"; \
+fi && \
+mkdir -p ${MAMBA_BIN_DIR} && \
+curl -Ls https://micro.mamba.pm/api/micromamba/linux-${ARCH}/latest | tar -xvj -C ${MAMBA_BIN_DIR} --strip-components=1 bin/micromamba && \
+ln -s ${MAMBA_BIN_DIR}/micromamba ${MAMBA_BIN_DIR}/conda && \
+echo -e "channels:\n  - conda-forge" > ${MAMBA_ROOT_PREFIX}/.condarc

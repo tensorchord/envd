@@ -34,7 +34,6 @@ func Base(os, language, image string) error {
 	if image != "" {
 		DefaultGraph.Image = &image
 	}
-	if useConda
 	return nil
 }
 
@@ -144,16 +143,13 @@ func Git(name, email, editor string) error {
 	return nil
 }
 
-func CondaChannel(channel string) error {
-	if channel == "" {
-		return errors.New("channel is required")
-	}
-
+func CondaChannel(channel string, useConda bool) error {
 	if !DefaultGraph.CondaEnabled() {
 		DefaultGraph.CondaConfig = &CondaConfig{}
 	}
 
 	DefaultGraph.CondaConfig.CondaChannel = &channel
+	DefaultGraph.CondaConfig.UseMiniConda = useConda
 	return nil
 }
 
