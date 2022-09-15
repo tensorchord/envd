@@ -181,7 +181,7 @@ func ruleFuncCondaChannel(thread *starlark.Thread, _ *starlark.Builtin,
 	var useMamba bool
 
 	if err := starlark.UnpackArgs(ruleCondaChannel, args, kwargs,
-		"channel?", &channel, "use_conda?", &useMamba); err != nil {
+		"channel?", &channel, "use_mamba?", &useMamba); err != nil {
 		return nil, err
 	}
 
