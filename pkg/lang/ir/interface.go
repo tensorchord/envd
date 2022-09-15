@@ -143,16 +143,13 @@ func Git(name, email, editor string) error {
 	return nil
 }
 
-func CondaChannel(channel string) error {
-	if channel == "" {
-		return errors.New("channel is required")
-	}
-
+func CondaChannel(channel string, useMamba bool) error {
 	if !DefaultGraph.CondaEnabled() {
 		DefaultGraph.CondaConfig = &CondaConfig{}
 	}
 
 	DefaultGraph.CondaConfig.CondaChannel = &channel
+	DefaultGraph.CondaConfig.UseMicroMamba = useMamba
 	return nil
 }
 

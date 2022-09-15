@@ -177,18 +177,17 @@ func ruleFuncRStudioServer(thread *starlark.Thread, _ *starlark.Builtin,
 
 func ruleFuncCondaChannel(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var channel starlark.String
+	var channel string
+	var useMamba bool
 
 	if err := starlark.UnpackArgs(ruleCondaChannel, args, kwargs,
-		"channel?", &channel); err != nil {
+		"channel?", &channel, "use_mamba?", &useMamba); err != nil {
 		return nil, err
 	}
 
-	channelStr := channel.GoString()
-
-	logger.Debugf("rule `%s` is invoked, channel=%s",
-		ruleCondaChannel, channelStr)
-	if err := ir.CondaChannel(channelStr); err != nil {
+	logger.Debugf("rule `%s` is invoked, channel=%s, use_mamba=%t\n",
+		ruleCondaChannel, channel, useMamba)
+	if err := ir.CondaChannel(channel, useMamba); err != nil {
 		return nil, err
 	}
 
