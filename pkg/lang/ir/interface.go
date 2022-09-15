@@ -143,13 +143,13 @@ func Git(name, email, editor string) error {
 	return nil
 }
 
-func CondaChannel(channel string, useConda bool) error {
+func CondaChannel(channel string, useMamba bool) error {
 	if !DefaultGraph.CondaEnabled() {
 		DefaultGraph.CondaConfig = &CondaConfig{}
 	}
 
 	DefaultGraph.CondaConfig.CondaChannel = &channel
-	DefaultGraph.CondaConfig.UseMiniConda = useConda
+	DefaultGraph.CondaConfig.UseMicroMamba = useMamba
 	return nil
 }
 

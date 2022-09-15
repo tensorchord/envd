@@ -17,6 +17,7 @@ package ir
 import (
 	_ "embed"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/cockroachdb/errors"
@@ -29,8 +30,8 @@ import (
 
 const (
 	condaVersionDefault = "py39_4.11.0"
-	mambaRootPrefix     = "/opt/conda"
-	mambaBinDir         = "/opt/conda/bin"
+	condaRootPrefix     = "/opt/conda"
+	condaBinDir         = "/opt/conda/bin"
 )
 
 var (
@@ -65,19 +66,26 @@ func (g Graph) compileCondaChannel(root llb.State) llb.State {
 	return root
 }
 
-func (g Graph) condaCommandPath() string {
-	if g.CondaConfig != nil && g.CondaConfig.UseMiniConda {
-		return "/opt/conda/bin/conda"
+func (g Graph) microMambaEnabled() bool {
+	if g.CondaConfig != nil && g.CondaConfig.UseMicroMamba {
+		return true
 	}
-	return "/opt/conda/bin/micromamba"
+	return false
+}
+
+func (g Graph) condaCommandPath() string {
+	if g.microMambaEnabled() {
+		return filepath.Join(condaBinDir, "micromamba")
+	}
+	return filepath.Join(condaBinDir, "conda")
 }
 
 func (g Graph) condaInitShell(shell string) string {
 	path := g.condaCommandPath()
-	if strings.HasSuffix(path, "conda") {
-		return fmt.Sprintf("%s init %s", path, shell)
+	if g.microMambaEnabled() {
+		return fmt.Sprintf("%s shell init -p %s -s %s", path, condaRootPrefix, shell)
 	}
-	return fmt.Sprintf("%s shell init -p %s -s %s", path, mambaRootPrefix, shell)
+	return fmt.Sprintf("%s init %s", path, shell)
 }
 
 func (g Graph) compileCondaPackages(root llb.State) llb.State {
@@ -86,7 +94,7 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 		return root
 	}
 
-	cacheDir := "/opt/conda/pkgs"
+	cacheDir := filepath.Join(condaRootPrefix, "pkgs")
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 	cache := root.File(llb.Mkdir("/cache-conda",
 		0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
@@ -149,7 +157,7 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	root = llb.User("envd")(root)
 
-	cacheDir := "/opt/conda/pkgs"
+	cacheDir := filepath.Join(condaRootPrefix, "pkgs")
 	// Create the cache directory to the container. see issue #582
 	root = g.CompileCacheDir(root, cacheDir)
 
@@ -183,31 +191,31 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	case shellBASH:
 		run = run.Run(
 			llb.Shlex(
-				fmt.Sprintf(`bash -c 'echo "%s activate envd" >> %s'`,
-					g.condaCommandPath(), fileutil.EnvdHomeDir(".bashrc"))),
+				fmt.Sprintf(`bash -c 'echo "source %s/activate envd" >> %s'`,
+					condaBinDir, fileutil.EnvdHomeDir(".bashrc"))),
 			llb.WithCustomName("[internal] add conda environment to bashrc"))
 	case shellZSH:
 		run = run.Run(
 			llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.condaInitShell(g.Shell))),
 			llb.WithCustomNamef("[internal] initialize conda %s environment", g.Shell)).Run(
-			llb.Shlex(fmt.Sprintf(`bash -c 'echo "%s activate envd" >> %s'`, g.condaCommandPath(), fileutil.EnvdHomeDir(".zshrc"))),
+			llb.Shlex(fmt.Sprintf(`bash -c 'echo "source %s/activate envd" >> %s'`, condaBinDir, fileutil.EnvdHomeDir(".zshrc"))),
 			llb.WithCustomName("[internal] add conda environment to zshrc"))
 	}
 	return run.Root(), nil
 }
 
 func (g Graph) installConda(root llb.State) (llb.State, error) {
-	if g.CondaConfig != nil && g.CondaConfig.UseMiniConda {
-		run := root.AddEnv("CONDA_VERSION", condaVersionDefault).
-			File(llb.Mkdir("/opt/conda", 0755, llb.WithParents(true)),
-				llb.WithCustomName("[internal] create conda directory")).
-			Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installCondaBash)),
-				llb.WithCustomName("[internal] install conda"))
+	if g.microMambaEnabled() {
+		run := root.AddEnv("MAMBA_BIN_DIR", condaBinDir).
+			AddEnv("MAMBA_ROOT_PREFIX", condaRootPrefix).
+			Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installMambaBash)),
+				llb.WithCustomName("[internal] install micro mamba"))
 		return run.Root(), nil
 	}
-	run := root.AddEnv("MAMBA_BIN_DIR", mambaBinDir).
-		AddEnv("MAMBA_ROOT_PREFIX", mambaRootPrefix).
-		Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installMambaBash)),
-			llb.WithCustomName("[internal] install micro mamba"))
+	run := root.AddEnv("CONDA_VERSION", condaVersionDefault).
+		File(llb.Mkdir(condaRootPrefix, 0755, llb.WithParents(true)),
+			llb.WithCustomName("[internal] create conda directory")).
+		Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installCondaBash)),
+			llb.WithCustomName("[internal] install conda"))
 	return run.Root(), nil
 }
