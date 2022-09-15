@@ -280,7 +280,8 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 				}
 				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
-					err = errors.Wrap(err, "failed to solve LLB")
+					err = errors.Wrap(err, "Buildkit error")
+					logrus.Errorf("%+v", err)
 					return err
 				}
 				b.logger.Debug("llb def is solved successfully")
