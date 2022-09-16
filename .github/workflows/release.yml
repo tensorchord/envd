@@ -10,6 +10,8 @@ on:
     - '.goreleaser/'
     - '.goreleaser.yaml'
 
+permissions: write-all
+
 jobs:
   goreleaser:
     if: github.repository == 'tensorchord/envd'
