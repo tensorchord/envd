@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1 (2022-09-16)
+
+
+### Contributors
+
+
 ## v0.2.0-alpha.22 (2022-09-16)
 
  * [4707bfe](https://github.com/tensorchord/envd/commit/4707bfeaea030a48c5601bffb87ff034e4d1b413)  fix: Fix jupyter in root (#900)
