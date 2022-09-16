@@ -69,7 +69,9 @@ $ envd up
 
 ### Implementation details/Notes/Constraints
 
-![](../images/proposals/k8s.png)
+#### envd API server
+
+
 
 #### envd contexts
 
