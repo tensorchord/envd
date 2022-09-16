@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.2.0-alpha.22 (2022-09-16)
+
+ * [4707bfe](https://github.com/tensorchord/envd/commit/4707bfeaea030a48c5601bffb87ff034e4d1b413)  fix: Fix jupyter in root (#900)
+ * [71fb1ce](https://github.com/tensorchord/envd/commit/71fb1ce154ba7335de6d40e38f63d65012706c86) feat: support micromamba as an alternative to miniconda (#891)
+ * [bab012c](https://github.com/tensorchord/envd/commit/bab012c5209092632d84d6cfb0c8b78fc2946523) fix: typo for git config file (#888)
+ * [128f866](https://github.com/tensorchord/envd/commit/128f866f4f030cf2b10af87fe32078329e0519d8) fix(CLI): Fix build output argument and huggingface integration (#886)
+ * [2e8b5d5](https://github.com/tensorchord/envd/commit/2e8b5d5d4756b5c02c6d3e846b5be093fd6394b1) fix: include update repo (#885)
+ * [eb2cdd1](https://github.com/tensorchord/envd/commit/eb2cdd1a65321a1530f59190cd40560e6c31d5a3) bug: Fix detach instruction message (#882)
+ * [8a02b26](https://github.com/tensorchord/envd/commit/8a02b264ac16318c5d54660ca883414ef7a15cad) refact: add envd home path func (#880)
+ * [63daa5e](https://github.com/tensorchord/envd/commit/63daa5e870e5ea24c3f6e881e4932da2334688dc) chore(deps): bump github.com/spf13/viper from 1.12.0 to 1.13.0 (#875)
+ * [aa53bdb](https://github.com/tensorchord/envd/commit/aa53bdb478645863dae60ca37f1ebdbc7a564c56) chore(deps): bump github.com/urfave/cli/v2 from 2.14.0 to 2.16.2 (#874)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * Keming
+ * dependabot[bot]
+
 ## v0.2.0-alpha.21 (2022-09-12)
 
  * [ddf3bdc](https://github.com/tensorchord/envd/commit/ddf3bdc8dd859683d7539d3c7f226b82cece40e7) chore(deps): bump actions/setup-go from 2 to 3 (#873)
