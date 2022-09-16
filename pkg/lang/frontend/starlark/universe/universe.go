@@ -45,21 +45,18 @@ func RegisterBuildContext(buildContextDir string) {
 
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var os, language, image starlark.String
+	var os, language, image string
+	var useConda bool
 
 	if err := starlark.UnpackArgs(ruleBase, args, kwargs,
-		"os?", &os, "language?", &language, "image?", &image); err != nil {
+		"os?", &os, "language?", &language, "image?", &image, "use_conda?", &useConda); err != nil {
 		return nil, err
 	}
 
-	osStr := os.GoString()
-	langStr := language.GoString()
-	imageStr := image.GoString()
+	logger.Debugf("rule `%s` is invoked, os=%s, language=%s, image=%s\n",
+		ruleBase, os, language, image)
 
-	logger.Debugf("rule `%s` is invoked, os=%s, language=%s, image=%s",
-		ruleBase, osStr, langStr, imageStr)
-
-	err := ir.Base(osStr, langStr, imageStr)
+	err := ir.Base(os, language, image)
 	return starlark.None, err
 }
 

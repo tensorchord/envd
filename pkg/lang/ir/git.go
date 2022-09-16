@@ -38,7 +38,7 @@ func (g *Graph) compileGit(root llb.State) (llb.State, error) {
 		return root, nil
 	}
 	content := fmt.Sprintf(templateGitConfig, g.GitConfig.Email, g.GitConfig.Name, g.GitConfig.Editor)
-	installPath := fileutil.EnvdHomeDir(".gitignore")
+	installPath := fileutil.EnvdHomeDir(".gitconfig")
 	gitStage := root.File(llb.Mkfile(installPath,
 		0644, []byte(content), llb.WithUIDGID(g.uid, g.gid)))
 	return gitStage, nil
