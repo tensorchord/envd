@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.2 (2022-09-16)
+
+ * [6721a88](https://github.com/tensorchord/envd/commit/6721a88aa1e2a97bfd3060e3168ab15b61f25609) chore(goreleaser): Skip homebrew (#909)
+
+### Contributors
+
+ * Ce Gao
+
 ## v0.2.1 (2022-09-16)
 
 
