@@ -20,7 +20,7 @@ import (
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 
-	starlarkutils "github.com/tensorchord/envd/pkg/lang/frontend/starlark/starlark_utils"
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/starlarkutils"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
