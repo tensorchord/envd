@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.3 (2022-09-16)
+
+ * [c3c0b4e](https://github.com/tensorchord/envd/commit/c3c0b4e33ab696c3863632d0d4179f8211813fcb) fix: Use macos 11 (#912)
+
+### Contributors
+
+ * Ce Gao
+
 ## v0.2.2 (2022-09-16)
 
  * [6721a88](https://github.com/tensorchord/envd/commit/6721a88aa1e2a97bfd3060e3168ab15b61f25609) chore(goreleaser): Skip homebrew (#909)
