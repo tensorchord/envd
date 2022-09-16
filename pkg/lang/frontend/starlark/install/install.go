@@ -100,7 +100,6 @@ func ruleFuncJulia(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList := []string{}
 	nameList, err := starlarkutils.ToStringSlice(name)
 	if err != nil {
 		return nil, err
