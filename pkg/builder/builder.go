@@ -16,6 +16,7 @@ package builder
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -71,6 +72,15 @@ type Options struct {
 	// UseHTTPProxy uses HTTPS_PROXY/HTTP_PROXY/NO_PROXY in the build process.
 	UseHTTPProxy bool
 }
+
+type BuildkitdErr struct {
+	err error
+}
+
+func (e *BuildkitdErr) Error() string {
+	return e.err.Error()
+}
+func (e *BuildkitdErr) Format(s fmt.State, verb rune) { errors.FormatError(e, s, verb) }
 
 type generalBuilder struct {
 	Options
@@ -280,7 +290,7 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 				}
 				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
-					err = errors.Wrap(err, "Buildkit error")
+					err = errors.Wrap(&BuildkitdErr{err: err}, "Buildkit error")
 					logrus.Errorf("%+v", err)
 					return err
 				}

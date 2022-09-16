@@ -48,7 +48,6 @@ func handleErr(err error) {
 		fmt.Fprintf(os.Stderr, "error: %+v\n", err)
 	}
 
-	// traceErr := errorutil.NewTraceError(err, 1)
 	var evalErr *starlark.EvalError
 	var syntaxErr *syntax.Error
 	var resolveErr resolve.ErrorList
