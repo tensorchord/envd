@@ -86,6 +86,10 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 		"--port", strconv.Itoa(config.JupyterPortInContainer),
 	}
 
+	if g.uid == 0 {
+		cmd = append(cmd, "--allow-root")
+	}
+
 	return cmd
 }
 
