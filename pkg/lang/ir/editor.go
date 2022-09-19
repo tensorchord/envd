@@ -85,9 +85,6 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 		"--NotebookApp.token", g.JupyterConfig.Token,
 		"--port", strconv.Itoa(config.JupyterPortInContainer),
 	}
-	if g.uid == 0 {
-		cmd = append(cmd, "--allow-root")
-	}
 
 	if g.uid == 0 {
 		cmd = append(cmd, "--allow-root")
