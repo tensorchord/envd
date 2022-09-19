@@ -21,6 +21,7 @@ import (
 	"go.starlark.net/starlarkstruct"
 
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/util/starlarkutil"
 )
 
 var (
@@ -51,26 +52,22 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList := []string{}
-	if name != nil {
-		for i := 0; i < name.Len(); i++ {
-			nameList = append(nameList, name.Index(i).(starlark.String).GoString())
-		}
+	nameList, err := starlarkutil.ToStringSlice(name)
+	if err != nil {
+		return nil, err
 	}
 
 	requirementsFileStr := requirementsFile.GoString()
 
-	localWheels := []string{}
-	if wheels != nil {
-		for i := 0; i < wheels.Len(); i++ {
-			localWheels = append(localWheels, wheels.Index(i).(starlark.String).GoString())
-		}
+	localWheels, err := starlarkutil.ToStringSlice(wheels)
+	if err != nil {
+		return nil, err
 	}
 
 	logger.Debugf("rule `%s` is invoked, name=%v, requirements=%s, local_wheels=%s",
 		rulePyPIPackage, nameList, requirementsFileStr, localWheels)
 
-	err := ir.PyPIPackage(nameList, requirementsFileStr, localWheels)
+	err = ir.PyPIPackage(nameList, requirementsFileStr, localWheels)
 	return starlark.None, err
 }
 
@@ -83,11 +80,9 @@ func ruleFuncRPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList := []string{}
-	if name != nil {
-		for i := 0; i < name.Len(); i++ {
-			nameList = append(nameList, name.Index(i).(starlark.String).GoString())
-		}
+	nameList, err := starlarkutil.ToStringSlice(name)
+	if err != nil {
+		return nil, err
 	}
 
 	logger.Debugf("rule `%s` is invoked, name=%v", ruleRPackage, nameList)
@@ -105,13 +100,10 @@ func ruleFuncJulia(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList := []string{}
-	if name != nil {
-		for i := 0; i < name.Len(); i++ {
-			nameList = append(nameList, name.Index(i).(starlark.String).GoString())
-		}
+	nameList, err := starlarkutil.ToStringSlice(name)
+	if err != nil {
+		return nil, err
 	}
-
 	logger.Debugf("rule `%s` is invoked, name=%v", ruleJulia, nameList)
 	ir.JuliaPackage(nameList)
 
@@ -127,11 +119,9 @@ func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList := []string{}
-	if name != nil {
-		for i := 0; i < name.Len(); i++ {
-			nameList = append(nameList, name.Index(i).(starlark.String).GoString())
-		}
+	nameList, err := starlarkutil.ToStringSlice(name)
+	if err != nil {
+		return nil, err
 	}
 
 	logger.Debugf("rule `%s` is invoked, name=%v", ruleSystemPackage, nameList)
@@ -168,11 +158,9 @@ func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	pluginList := []string{}
-	if plugins != nil {
-		for i := 0; i < plugins.Len(); i++ {
-			pluginList = append(pluginList, plugins.Index(i).(starlark.String).GoString())
-		}
+	pluginList, err := starlarkutil.ToStringSlice(plugins)
+	if err != nil {
+		return nil, err
 	}
 
 	logger.Debugf("rule `%s` is invoked, plugins=%v", ruleVSCode, pluginList)
@@ -193,19 +181,16 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList := []string{}
-	if name != nil {
-		for i := 0; i < name.Len(); i++ {
-			nameList = append(nameList, name.Index(i).(starlark.String).GoString())
-		}
+	nameList, err := starlarkutil.ToStringSlice(name)
+	if err != nil {
+		return nil, err
 	}
 
-	channelList := []string{}
-	if channel != nil {
-		for i := 0; i < channel.Len(); i++ {
-			channelList = append(channelList, channel.Index(i).(starlark.String).GoString())
-		}
+	channelList, err := starlarkutil.ToStringSlice(channel)
+	if err != nil {
+		return nil, err
 	}
+
 	envFileStr := envFile.GoString()
 	if envFileStr != "" {
 
