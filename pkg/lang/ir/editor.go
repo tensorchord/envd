@@ -89,6 +89,10 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 		cmd = append(cmd, "--allow-root")
 	}
 
+	if g.uid == 0 {
+		cmd = append(cmd, "--allow-root")
+	}
+
 	return cmd
 }
 

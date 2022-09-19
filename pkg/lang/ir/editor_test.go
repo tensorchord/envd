@@ -30,6 +30,7 @@ func TestGenerateCommand(t *testing.T) {
 					Token: "",
 					Port:  8888,
 				},
+				uid: 1000,
 			},
 			dir: "test",
 			expected: []string{
@@ -43,11 +44,26 @@ func TestGenerateCommand(t *testing.T) {
 					Token: "test",
 					Port:  8888,
 				},
+				uid: 1000,
 			},
 			dir: "test",
 			expected: []string{
 				"python3", "-m", "notebook", "--ip", "0.0.0.0", "--notebook-dir", "test",
 				"--NotebookApp.token", "test", "--port", "8888",
+			},
+		},
+		{
+			graph: Graph{
+				JupyterConfig: &JupyterConfig{
+					Token: "test",
+					Port:  8888,
+				},
+				uid: 0,
+			},
+			dir: "test",
+			expected: []string{
+				"python3", "-m", "notebook", "--ip", "0.0.0.0", "--notebook-dir", "test",
+				"--NotebookApp.token", "test", "--port", "8888", "--allow-root",
 			},
 		},
 		{

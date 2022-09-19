@@ -54,7 +54,7 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        os: [macos-10.15, ubuntu-20.04]
+        os: [macos-11, ubuntu-20.04]
     steps:
     - uses: actions/checkout@v3
     - name: Get gobin
@@ -75,7 +75,7 @@ jobs:
         mv dist/envd_darwin_amd64_v1/envd bin/envd
         chmod +x bin/envd
     - name: Build wheels
-      uses: pypa/cibuildwheel@v2.9.0
+      uses: pypa/cibuildwheel@v2.10.1
       env:
         CIBW_ARCHS: auto64
     - name: Build source distribution
