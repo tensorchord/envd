@@ -22,8 +22,8 @@ import (
 	"go.starlark.net/starlarkstruct"
 
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/builtin"
-	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/starlarkutils"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/util/starlarkutil"
 )
 
 var (
@@ -69,7 +69,7 @@ func ruleFuncRun(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	goCommands, err := starlarkutils.ToStringSlice(commands)
+	goCommands, err := starlarkutil.ToStringSlice(commands)
 	if err != nil {
 		return nil, err
 	}

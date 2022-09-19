@@ -20,8 +20,8 @@ import (
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 
-	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/starlarkutils"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/util/starlarkutil"
 )
 
 var (
@@ -52,14 +52,14 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList, err := starlarkutils.ToStringSlice(name)
+	nameList, err := starlarkutil.ToStringSlice(name)
 	if err != nil {
 		return nil, err
 	}
 
 	requirementsFileStr := requirementsFile.GoString()
 
-	localWheels, err := starlarkutils.ToStringSlice(wheels)
+	localWheels, err := starlarkutil.ToStringSlice(wheels)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func ruleFuncRPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList, err := starlarkutils.ToStringSlice(name)
+	nameList, err := starlarkutil.ToStringSlice(name)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func ruleFuncJulia(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList, err := starlarkutils.ToStringSlice(name)
+	nameList, err := starlarkutil.ToStringSlice(name)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList, err := starlarkutils.ToStringSlice(name)
+	nameList, err := starlarkutil.ToStringSlice(name)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func ruleFuncVSCode(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	pluginList, err := starlarkutils.ToStringSlice(plugins)
+	pluginList, err := starlarkutil.ToStringSlice(plugins)
 	if err != nil {
 		return nil, err
 	}
@@ -181,12 +181,12 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	nameList, err := starlarkutils.ToStringSlice(name)
+	nameList, err := starlarkutil.ToStringSlice(name)
 	if err != nil {
 		return nil, err
 	}
 
-	channelList, err := starlarkutils.ToStringSlice(channel)
+	channelList, err := starlarkutil.ToStringSlice(channel)
 	if err != nil {
 		return nil, err
 	}

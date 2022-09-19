@@ -20,8 +20,8 @@ import (
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 
-	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/starlarkutils"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/util/starlarkutil"
 )
 
 var (
@@ -203,7 +203,7 @@ func ruleFuncEntrypoint(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	argList, err := starlarkutils.ToStringSlice(argv)
+	argList, err := starlarkutil.ToStringSlice(argv)
 	if err != nil {
 		return nil, err
 	}
