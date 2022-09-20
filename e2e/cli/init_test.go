@@ -60,8 +60,8 @@ var _ = Describe("init project", Ordered, func() {
 		It("exec installed command inside container", func() {
 			_, err := e.Exec("via --help")
 			Expect(err).To(Succeed())
+			e.DestroyContainer()
 		})
-		AfterAll(e.DestroyContainer())
 	})
 
 	AfterAll(func() {
