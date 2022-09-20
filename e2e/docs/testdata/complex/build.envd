@@ -18,7 +18,7 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe mu
     install.python_packages(name = [
         "numpy",
     ])
-    install.cuda(version="11.6", cudnn="8")
+    install.cuda(version="11.2", cudnn="8")
     shell("zsh")
     install.apt_packages(name = [
         "htop"

@@ -65,7 +65,7 @@ var _ = Describe("check examples in documentation", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	up_tests := []string{"testdata/minimal", "testdata/getting_started", "testdata/jupyter", "testsdata/complex"}
+	up_tests := []string{"testdata/minimal", "testdata/getting_started", "testdata/jupyter", "testdata/complex"}
 
 	for _, v := range up_tests {
 		It(fmt.Sprintf("can up %s environment", v), func() {
