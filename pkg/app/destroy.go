@@ -111,7 +111,7 @@ func getContainerTag(clicontext *cli.Context, name string) ([]string, error) {
 		return tags, err
 	}
 	for _, img := range images {
-		for _, tag :=  range img.ImageSummary.RepoTags {
+		for _, tag := range img.ImageSummary.RepoTags {
 			if strings.HasPrefix(tag, fmt.Sprintf("%s:", name)) {
 				tags = append(tags, tag)
 			}
