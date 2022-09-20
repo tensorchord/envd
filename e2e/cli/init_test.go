@@ -62,7 +62,6 @@ var _ = Describe("init project", Ordered, func() {
 			Expect(err).To(Succeed())
 		})
 		AfterAll(e.DestroyContainer())
-
 	})
 
 	AfterAll(func() {
