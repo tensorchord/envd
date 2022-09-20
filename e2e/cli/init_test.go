@@ -61,10 +61,7 @@ var _ = Describe("init project", Ordered, func() {
 			_, err := e.Exec("via --help")
 			Expect(err).To(Succeed())
 		})
-		AfterAll(func() {
-			e.DestroyContainer()()
-			e.RemoveImage()()
-		})
+		AfterAll(e.DestroyContainer())
 
 	})
 

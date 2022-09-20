@@ -33,5 +33,4 @@ var _ = Describe("e2e quickstart", Ordered, func() {
 		Expect(res).To(Equal("[2 3 4]"))
 	})
 	AfterEach(e.DestroyContainer())
-	AfterAll(e.RemoveImage())
 })

@@ -56,6 +56,6 @@ var _ = Describe("bytecode hash cache target", func() {
 		Expect(err).NotTo(HaveOccurred())
 		newCreated := imageSum.Created
 		Expect(oldCreated).To(Equal(newCreated))
-		e.RemoveImage()()
+		e.DestroyContainer()()
 	})
 })

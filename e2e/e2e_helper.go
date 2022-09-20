@@ -50,20 +50,6 @@ func (e *Example) BuildImage(force bool) func() {
 	}
 }
 
-func (e *Example) RemoveImage() func() {
-	return func() {
-		ctx := context.TODO()
-		dockerClient, err := docker.NewClient(ctx)
-		if err != nil {
-			panic(err)
-		}
-		err = dockerClient.RemoveImage(ctx, e.Tag)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
-
 func GetDockerClient(ctx context.Context) docker.Client {
 	dockerClient, err := docker.NewClient(ctx)
 	if err != nil {
