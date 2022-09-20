@@ -77,15 +77,18 @@ func destroy(clicontext *cli.Context) error {
 	if ctrName, err := dockerClient.Destroy(clicontext.Context, ctrName); err != nil {
 		return errors.Wrapf(err, "failed to destroy the environment: %s", ctrName)
 	} else if ctrName != "" {
-		logrus.Infof("%s is destroyed", ctrName)
+		logrus.Infof("container(%s) is destroyed", ctrName)
 	}
 
-	tag, err := getContainerTag(clicontext, ctrName)
+	tags, err := getContainerTag(clicontext, ctrName)
 	if err != nil {
 		return err
-	} else if len(tag) > 0 {
-		if err := dockerClient.RemoveImage(clicontext.Context, tag); err != nil {
-			return errors.Errorf("remove image %s failed: %w", tag, err)
+	} else {
+		for _, tag := range tags {
+			if err := dockerClient.RemoveImage(clicontext.Context, tag); err != nil {
+				return errors.Errorf("remove image %s failed: %w", tag, err)
+			}
+			logrus.Infof("image(%s) is destroyed", tag)
 		}
 	}
 
@@ -96,22 +99,26 @@ func destroy(clicontext *cli.Context) error {
 	return nil
 }
 
-func getContainerTag(clicontext *cli.Context, name string) (string, error) {
+func getContainerTag(clicontext *cli.Context, name string) ([]string, error) {
+	tags := []string{}
 	envdEngine, err := envd.New(clicontext.Context)
 	if err != nil {
-		return "", err
+		return tags, err
 	}
 	// check the images instead of running containers because `envd build` also produce images
 	images, err := envdEngine.ListImage(clicontext.Context)
 	if err != nil {
-		return "", err
+		return tags, err
 	}
 	for _, img := range images {
-		tags := img.ImageSummary.RepoTags
-		if len(tags) > 0 && strings.HasPrefix(tags[0], fmt.Sprintf("%s:", name)) {
-			return tags[0], nil
+		for _, tag :=  range img.ImageSummary.RepoTags {
+			if strings.HasPrefix(tag, fmt.Sprintf("%s:", name)) {
+				tags = append(tags, tag)
+			}
 		}
 	}
-	logrus.Infof("cannot find the image of %s", name)
-	return "", nil
+	if len(tags) == 0 {
+		logrus.Infof("cannot find the image of %s", name)
+	}
+	return tags, nil
 }

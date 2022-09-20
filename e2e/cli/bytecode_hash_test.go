@@ -43,7 +43,7 @@ var _ = Describe("bytecode hash cache target", func() {
 	exampleName := "quick-start"
 	It("add some blank to build.envd", func() {
 		testcase := "add-blank"
-		e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
+		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		ctx := context.TODO()
 		e.BuildImage(false)()
 		dockerClient := e2e.GetDockerClient(ctx)

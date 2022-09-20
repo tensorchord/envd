@@ -20,13 +20,8 @@ import (
 	"github.com/tensorchord/envd/e2e"
 )
 
-var _ = Describe("check GPU examples in documentation", func() {
-	name := "complex"
-	testCase := "e2e-doc"
-	e := e2e.NewExample(buildContextDirWithName(name), testCase)
-	It("should be able to build the GPU example", func() {
-		e2e.ResetEnvdApp()
-		e.BuildImage(true)
-	})
-	AfterEach(e.RemoveImage())
+var _ = Describe("check GPU examples in documentation", Ordered, func() {
+	e := e2e.NewExample(e2e.BuildContextDirWithName("complex"), "e2e-doc")
+	It("should be able to build the GPU example", e.BuildImage(true))
+	AfterAll(e.RemoveImage())
 })
