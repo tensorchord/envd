@@ -171,7 +171,7 @@ func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
 		logrus.Debug("tag not specified, using default")
 		tag = fmt.Sprintf("%s:%s", filepath.Base(buildContext), "dev")
 	}
-	// The current container engine is only Docker. It should be expaned to support other container engines.
+	// The current container engine is only Docker. It should be expanded to support other container engines.
 	tag, err = docker.NormalizeNamed(tag)
 	if err != nil {
 		return builder.Options{}, err

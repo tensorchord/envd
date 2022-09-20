@@ -22,6 +22,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/envd"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
 
@@ -70,15 +71,40 @@ func destroy(clicontext *cli.Context) error {
 		}
 		ctrName = filepath.Base(buildContext)
 	}
+
+	tag, err := getContainerTag(clicontext, ctrName)
+	if err != nil {
+		return err
+	}
+
 	if ctrName, err := dockerClient.Destroy(clicontext.Context, ctrName); err != nil {
 		return errors.Wrapf(err, "failed to destroy the environment: %s", ctrName)
 	} else if ctrName != "" {
 		logrus.Infof("%s is destroyed", ctrName)
 	}
-
+	if err := dockerClient.RemoveImage(clicontext.Context, tag); err != nil {
+		return errors.Wrapf(err, "failed to remove the image: %s", tag)
+	}
 	if err = sshconfig.RemoveEntry(ctrName); err != nil {
 		logrus.Infof("failed to remove entry %s from your SSH config file: %s", ctrName, err)
 		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}
 	return nil
+}
+
+func getContainerTag(clicontext *cli.Context, name string) (string, error) {
+	envdEngine, err := envd.New(clicontext.Context)
+	if err != nil {
+		return "", err
+	}
+	envs, err := envdEngine.ListEnvironment(clicontext.Context)
+	if err != nil {
+		return "", err
+	}
+	for _, env := range envs {
+		if env.Name == name {
+			return env.Container.Image, nil
+		}
+	}
+	return "", errors.Newf("cannot find the image of %s", name)
 }
