@@ -28,7 +28,6 @@ var _ = Describe("python", Ordered, func() {
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()
-		e.RemoveImage()()
 	})
 	It("Should build requirements successfully", func() {
 		exampleName := "python/requirements"
@@ -37,7 +36,6 @@ var _ = Describe("python", Ordered, func() {
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()
-		e.RemoveImage()()
 	})
 	It("Should build hybrid successfully", func() {
 		exampleName := "python/hybrid"
@@ -46,7 +44,6 @@ var _ = Describe("python", Ordered, func() {
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()
-		e.RemoveImage()()
 	})
 
 	It("Should build conda with channel successfully", func() {
@@ -56,6 +53,5 @@ var _ = Describe("python", Ordered, func() {
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()
-		e.RemoveImage()()
 	})
 })

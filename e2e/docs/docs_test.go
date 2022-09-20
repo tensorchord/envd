@@ -27,8 +27,6 @@ import (
 )
 
 var _ = Describe("check examples in documentation", func() {
-	buildContext := "doctest"
-	// env := "up-test"
 	baseArgs := []string{
 		"envd.test", "--debug",
 	}
@@ -67,12 +65,12 @@ var _ = Describe("check examples in documentation", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	up_tests := []string{"testdata/minimal", "testdata/getting_started", "testdata/jupyter", "testsdata/complex"}
+	up_tests := []string{"testdata/minimal", "testdata/getting_started", "testdata/jupyter", "testdata/complex"}
 
 	for _, v := range up_tests {
 		It(fmt.Sprintf("can up %s environment", v), func() {
 			args := append(baseArgs, []string{
-				"up", "--path", "testdata/getting_started", "-f", "build.envd", "--detach", "--force",
+				"up", "--path", v, "-f", "build.envd", "--detach", "--force",
 			}...)
 			e2e.ResetEnvdApp()
 			envdApp := app.New()
@@ -80,7 +78,7 @@ var _ = Describe("check examples in documentation", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			destroyArgs := append(baseArgs, []string{
-				"destroy", "--path", buildContext,
+				"destroy", "--path", v,
 			}...)
 			err = envdApp.Run(destroyArgs)
 			Expect(err).NotTo(HaveOccurred())

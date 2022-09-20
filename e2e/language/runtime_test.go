@@ -33,5 +33,4 @@ var _ = Describe("runtime", Ordered, func() {
 		Expect(res).To(Equal("[2 3 4]"))
 	})
 	AfterEach(e.DestroyContainer())
-	AfterAll(e.RemoveImage())
 })
