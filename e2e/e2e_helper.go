@@ -28,6 +28,10 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
+func BuildContextDirWithName(name string) string {
+	return filepath.Join("testdata", name)
+}
+
 func ResetEnvdApp() {
 	ir.DefaultGraph = ir.NewGraph()
 }

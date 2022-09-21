@@ -24,7 +24,7 @@ import (
 var _ = Describe("e2e quickstart", Ordered, func() {
 	exampleName := "quick-start"
 	testcase := "e2e"
-	e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
+	e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 	BeforeAll(e.BuildImage(true))
 	BeforeEach(e.RunContainer())
 	It("execute python demo.py", func() {

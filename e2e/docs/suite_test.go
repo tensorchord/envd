@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package language
+package docs
 
 import (
 	"os"
@@ -30,5 +30,5 @@ func init() {
 
 func TestMain(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "envd language Suite")
+	RunSpecs(t, "envd cli Suite")
 }
