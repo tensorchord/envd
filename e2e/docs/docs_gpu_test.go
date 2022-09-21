@@ -12,34 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ir
+package docs
 
 import (
-	"fmt"
+	. "github.com/onsi/ginkgo/v2"
 
-	"github.com/moby/buildkit/client/llb"
-
-	"github.com/tensorchord/envd/pkg/util/fileutil"
+	"github.com/tensorchord/envd/e2e"
 )
 
-const (
-	templateGitConfig = `
-[user]
-	email = %s
-	name = %s
-[core]
-	editor = %s
-
-`
-)
-
-func (g *Graph) compileGit(root llb.State) (llb.State, error) {
-	if g.GitConfig == nil {
-		return root, nil
-	}
-	content := fmt.Sprintf(templateGitConfig, g.GitConfig.Email, g.GitConfig.Name, g.GitConfig.Editor)
-	installPath := fileutil.EnvdHomeDir(".gitconfig")
-	gitStage := root.File(llb.Mkfile(installPath,
-		0644, []byte(content), llb.WithUIDGID(g.uid, g.gid)))
-	return gitStage, nil
-}
+var _ = Describe("check GPU examples in documentation", Ordered, func() {
+	e := e2e.NewExample(e2e.BuildContextDirWithName("complex"), "e2e-doc")
+	It("should be able to build the GPU example", e.BuildImage(true))
+	AfterAll(e.DestroyContainer())
+})

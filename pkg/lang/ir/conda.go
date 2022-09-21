@@ -135,26 +135,26 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 	// 		llb.Local(flag.FlagBuildContext))
 
 	// } else {
-		if len(g.CondaConfig.AdditionalChannels) == 0 {
-			sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
-		} else {
-			sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
-			for _, channel := range g.CondaConfig.AdditionalChannels {
-				sb.WriteString(fmt.Sprintf(" -c %s", channel))
-			}
+	if len(g.CondaConfig.AdditionalChannels) == 0 {
+		sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
+	} else {
+		sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
+		for _, channel := range g.CondaConfig.AdditionalChannels {
+			sb.WriteString(fmt.Sprintf(" -c %s", channel))
 		}
+	}
 
-		for _, pkg := range g.CondaConfig.CondaPackages {
-			sb.WriteString(fmt.Sprintf(" %s", pkg))
-		}
+	for _, pkg := range g.CondaConfig.CondaPackages {
+		sb.WriteString(fmt.Sprintf(" %s", pkg))
+	}
 
-		cmd := sb.String()
+	cmd := sb.String()
 
-		run = root.
-			Run(llb.Shlex(cmd), llb.WithCustomNamef("conda install %s",
-				strings.Join(g.CondaPackages, " ")))
-		run.AddMount(cacheDir, cache,
-			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
+	run = root.
+		Run(llb.Shlex(cmd), llb.WithCustomNamef("conda install %s",
+			strings.Join(g.CondaPackages, " ")))
+	run.AddMount(cacheDir, cache,
+		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
 	// }
 	return run.Root()
 }

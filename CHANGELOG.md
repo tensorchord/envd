@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.2.3 (2022-09-16)
+
+ * [c3c0b4e](https://github.com/tensorchord/envd/commit/c3c0b4e33ab696c3863632d0d4179f8211813fcb) fix: Use macos 11 (#912)
+
+### Contributors
+
+ * Ce Gao
+
+## v0.2.2 (2022-09-16)
+
+ * [6721a88](https://github.com/tensorchord/envd/commit/6721a88aa1e2a97bfd3060e3168ab15b61f25609) chore(goreleaser): Skip homebrew (#909)
+
+### Contributors
+
+ * Ce Gao
+
+## v0.2.1 (2022-09-16)
+
+
+### Contributors
+
+
+## v0.2.0-alpha.22 (2022-09-16)
+
+ * [4707bfe](https://github.com/tensorchord/envd/commit/4707bfeaea030a48c5601bffb87ff034e4d1b413)  fix: Fix jupyter in root (#900)
+ * [71fb1ce](https://github.com/tensorchord/envd/commit/71fb1ce154ba7335de6d40e38f63d65012706c86) feat: support micromamba as an alternative to miniconda (#891)
+ * [bab012c](https://github.com/tensorchord/envd/commit/bab012c5209092632d84d6cfb0c8b78fc2946523) fix: typo for git config file (#888)
+ * [128f866](https://github.com/tensorchord/envd/commit/128f866f4f030cf2b10af87fe32078329e0519d8) fix(CLI): Fix build output argument and huggingface integration (#886)
+ * [2e8b5d5](https://github.com/tensorchord/envd/commit/2e8b5d5d4756b5c02c6d3e846b5be093fd6394b1) fix: include update repo (#885)
+ * [eb2cdd1](https://github.com/tensorchord/envd/commit/eb2cdd1a65321a1530f59190cd40560e6c31d5a3) bug: Fix detach instruction message (#882)
+ * [8a02b26](https://github.com/tensorchord/envd/commit/8a02b264ac16318c5d54660ca883414ef7a15cad) refact: add envd home path func (#880)
+ * [63daa5e](https://github.com/tensorchord/envd/commit/63daa5e870e5ea24c3f6e881e4932da2334688dc) chore(deps): bump github.com/spf13/viper from 1.12.0 to 1.13.0 (#875)
+ * [aa53bdb](https://github.com/tensorchord/envd/commit/aa53bdb478645863dae60ca37f1ebdbc7a564c56) chore(deps): bump github.com/urfave/cli/v2 from 2.14.0 to 2.16.2 (#874)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * Keming
+ * dependabot[bot]
+
 ## v0.2.0-alpha.21 (2022-09-12)
 
  * [ddf3bdc](https://github.com/tensorchord/envd/commit/ddf3bdc8dd859683d7539d3c7f226b82cece40e7) chore(deps): bump actions/setup-go from 2 to 3 (#873)
@@ -326,6 +367,157 @@
 
 ## v0.2.0-alpha.1 (2022-06-25)
 
+
+### Contributors
+
+
+## v0.2.0 (2022-09-16)
+
+ * [4707bfe](https://github.com/tensorchord/envd/commit/4707bfeaea030a48c5601bffb87ff034e4d1b413)  fix: Fix jupyter in root (#900)
+ * [71fb1ce](https://github.com/tensorchord/envd/commit/71fb1ce154ba7335de6d40e38f63d65012706c86) feat: support micromamba as an alternative to miniconda (#891)
+ * [bab012c](https://github.com/tensorchord/envd/commit/bab012c5209092632d84d6cfb0c8b78fc2946523) fix: typo for git config file (#888)
+ * [128f866](https://github.com/tensorchord/envd/commit/128f866f4f030cf2b10af87fe32078329e0519d8) fix(CLI): Fix build output argument and huggingface integration (#886)
+ * [2e8b5d5](https://github.com/tensorchord/envd/commit/2e8b5d5d4756b5c02c6d3e846b5be093fd6394b1) fix: include update repo (#885)
+ * [eb2cdd1](https://github.com/tensorchord/envd/commit/eb2cdd1a65321a1530f59190cd40560e6c31d5a3) bug: Fix detach instruction message (#882)
+ * [8a02b26](https://github.com/tensorchord/envd/commit/8a02b264ac16318c5d54660ca883414ef7a15cad) refact: add envd home path func (#880)
+ * [63daa5e](https://github.com/tensorchord/envd/commit/63daa5e870e5ea24c3f6e881e4932da2334688dc) chore(deps): bump github.com/spf13/viper from 1.12.0 to 1.13.0 (#875)
+ * [aa53bdb](https://github.com/tensorchord/envd/commit/aa53bdb478645863dae60ca37f1ebdbc7a564c56) chore(deps): bump github.com/urfave/cli/v2 from 2.14.0 to 2.16.2 (#874)
+ * [ddf3bdc](https://github.com/tensorchord/envd/commit/ddf3bdc8dd859683d7539d3c7f226b82cece40e7) chore(deps): bump actions/setup-go from 2 to 3 (#873)
+ * [7220958](https://github.com/tensorchord/envd/commit/72209583b941c4eb87b282004f7c8a1ae57410ae) chore(deps): bump actions/checkout from 2 to 3 (#872)
+ * [f1b3fe5](https://github.com/tensorchord/envd/commit/f1b3fe5029091cffc0a1022b665d585132c5a8d8) chore(CLI): test new release for envd-sshd (#866)
+ * [49d79fb](https://github.com/tensorchord/envd/commit/49d79fb17bee4a2baaeadd500607cba7d8426b28) fix: Update readme (#865)
+ * [d7995a7](https://github.com/tensorchord/envd/commit/d7995a7171cbe48a65aad3e3b56077ffee9a625a) feat(lang): io.http download files to extra_source (#858)
+ * [0d3b42f](https://github.com/tensorchord/envd/commit/0d3b42fe4f33241742986030a45431a5f068dc75) feat: Support HTTP PROXY (#857)
+ * [a0fbaa0](https://github.com/tensorchord/envd/commit/a0fbaa09fee056549b1d6fcd796f5b711268de2b) refact: io.mount => runtime.mount (#861)
+ * [1e5e24d](https://github.com/tensorchord/envd/commit/1e5e24d1f872311a81b193443be36eaed22cc11e) bug: fix conda install with env file (#837)
+ * [ecb9e26](https://github.com/tensorchord/envd/commit/ecb9e2626e65b5e1f647d7385142c10677f2d7eb) refact: unify the path env (#855)
+ * [8056fda](https://github.com/tensorchord/envd/commit/8056fda28febfe6cbe64502159b302b670970517) feat: add runtime graph to image label (#815)
+ * [6ad1d4c](https://github.com/tensorchord/envd/commit/6ad1d4ca2085317850e9726910bc3024b743439e) refact: apt_source, io, config mode (#853)
+ * [07e2dc0](https://github.com/tensorchord/envd/commit/07e2dc0e6d4d7f3be2debf79389a792964e727b1) chore(deps): bump github.com/gliderlabs/ssh from 0.3.4 to 0.3.5 (#849)
+ * [c0ba31a](https://github.com/tensorchord/envd/commit/c0ba31adc231d09600892f9445320df8eb84947b) chore(deps): bump github.com/onsi/gomega from 1.20.1 to 1.20.2 (#846)
+ * [13bc9a6](https://github.com/tensorchord/envd/commit/13bc9a61c4255215661c724fb7c54f2b81642a21) chore(deps): bump github.com/urfave/cli/v2 from 2.11.2 to 2.14.0 (#845)
+ * [11966f8](https://github.com/tensorchord/envd/commit/11966f8c0f997f57c45979d7857cac48ad1d1e5b) chore(deps): bump github.com/docker/go-units from 0.4.0 to 0.5.0 (#848)
+ * [7ba3b3f](https://github.com/tensorchord/envd/commit/7ba3b3fa6b716efd3398a7cb3e533e915129717d) feat(cli): add msg when detach from container (#841)
+ * [7fc9f34](https://github.com/tensorchord/envd/commit/7fc9f34d333b22013e847fd2c2312d18fb861068) fix: Update demo (#840)
+ * [190ee76](https://github.com/tensorchord/envd/commit/190ee7635f0d9bbdee6c8b53d53a72dd8ca4e619) feat(lang): install.python_packages(local_wheels=[]) (#838)
+ * [977dd47](https://github.com/tensorchord/envd/commit/977dd4725df2c16887546a48b6e3fa202a7617e2) fix: Update demo (#839)
+ * [5e7c182](https://github.com/tensorchord/envd/commit/5e7c1826465511449edf6457428037cfe3afbc7e) bug: fix channels when use conda install with yaml file (#831)
+ * [be02a70](https://github.com/tensorchord/envd/commit/be02a7007d65ce1227bfc61dba59de33f79c295b) fix(lang): expose host port (#832)
+ * [404de31](https://github.com/tensorchord/envd/commit/404de3101cece0497084412433cf877f66cf5ee2) feat(lang): init py env by generating the bulid.envd (#827)
+ * [36b1231](https://github.com/tensorchord/envd/commit/36b123142385d20fb7f7c1106c15c02f79ed4742) bug: fix permission issue when pip install from git repo (#829)
+ * [1dcada4](https://github.com/tensorchord/envd/commit/1dcada4403d0c0bf8e916fc67b62c174f66df3d3) feat(build): Mount local build context into the run command (#822)
+ * [f70a11c](https://github.com/tensorchord/envd/commit/f70a11c5f251b8ed0f0f42cd422b4b93efabd4a7) chore(deps): bump github.com/onsi/gomega from 1.20.0 to 1.20.1 (#821)
+ * [3b440c6](https://github.com/tensorchord/envd/commit/3b440c60c59ee65444a92aa91e295be9be2125b0) chore(deps): bump github.com/moby/buildkit from 0.10.3 to 0.10.4 (#820)
+ * [82fbc87](https://github.com/tensorchord/envd/commit/82fbc87ade5637fe7db8e2c0087a1555206dc1b1) doc: add include, refine others (#817)
+ * [630ada1](https://github.com/tensorchord/envd/commit/630ada172bdf876c3b749329fdbe284c108051f2) feat(lang): support include other git repo for envd functions/variables (#808)
+ * [5c4971b](https://github.com/tensorchord/envd/commit/5c4971b2f5fa6b32c2c247e18cf6c6a178d28f57) feat(CLI): envd env describe expose info (#801)
+ * [c85766c](https://github.com/tensorchord/envd/commit/c85766cf618d55723d26427f65a385747646593d) fix: set to latest if git tag is empty (#798)
+ * [4440e22](https://github.com/tensorchord/envd/commit/4440e2246108a221585853088a766a563b2c7aad) fix: add missing expose func exposed port to oci manifest (#797)
+ * [3a97375](https://github.com/tensorchord/envd/commit/3a97375383a2d135cab06665aae67f04230666e1) feat(examples): Add a streamlit mnist example (#795)
+ * [7bf801b](https://github.com/tensorchord/envd/commit/7bf801bad5c5947a80e576ceb3b4bae0307fddeb) feat(example): Add streamlit hello and remove bash -c in entrypoint (#794)
+ * [8e17307](https://github.com/tensorchord/envd/commit/8e173075d56cadc1485f7c526c1d59c00926c69e) built: :hammer: use latest tag when not version found for cache (#793)
+ * [8225eab](https://github.com/tensorchord/envd/commit/8225eab40d1a4b37b1a6d82d300399d76cfd1320) fix: use cockroachdb errors (#790)
+ * [7d293d7](https://github.com/tensorchord/envd/commit/7d293d7974cae516e7d5a9f8d514acea04a0ff13) fix: panic if daemon command is invalid (#788)
+ * [4d48767](https://github.com/tensorchord/envd/commit/4d48767ce033a3d60fac74d810ea546f741bc174) feat: add runtime environments (#787)
+ * [248fca3](https://github.com/tensorchord/envd/commit/248fca34fa67f6fd134e1c55eefdd931aa5d8939) doc: daemon and expose (#786)
+ * [e30866f](https://github.com/tensorchord/envd/commit/e30866f07c1249c5a586558a22a18741b07e063d) feat(lang): implement expose func (#780)
+ * [c49863e](https://github.com/tensorchord/envd/commit/c49863e1787b6b18c08d49035ec00e79e0020822) feat(data): Add support for managed dataset and provide shortcut for common framework (#751)
+ * [7c2fed6](https://github.com/tensorchord/envd/commit/7c2fed6df565e55883456b934116314109c3837d) feat(lang): add daemon function to run daemon process in the container (#777)
+ * [00e8df2](https://github.com/tensorchord/envd/commit/00e8df22ba285685b11d217fdcb4cd7a52e32ba5) built: :hammer: keep v prefix in DOCKER_IMAGE_TAG env (#781)
+ * [2f82fa5](https://github.com/tensorchord/envd/commit/2f82fa5ab884671ba2a5058d38d205cbd20bce1f) proposal: daemon process (#769)
+ * [d06b878](https://github.com/tensorchord/envd/commit/d06b8786e2963f4bf5cc92b90fdcc80621a4bd5e) doc: update python api doc (#759)
+ * [ce2e8b2](https://github.com/tensorchord/envd/commit/ce2e8b2b4e755b52892d9b3597489daae19f1dad) fix: Remove empty token arg (#772)
+ * [8ab89b9](https://github.com/tensorchord/envd/commit/8ab89b967caa104ad839a83d7d9ece186eb80918) chore(deps): bump github.com/urfave/cli/v2 from 2.11.1 to 2.11.2 (#775)
+ * [3a6b127](https://github.com/tensorchord/envd/commit/3a6b12772b956eb31b6ccc6c31e62efbc3feb6e3) chore(deps): bump pypa/cibuildwheel from 2.8.1 to 2.9.0 (#774)
+ * [ec8cae1](https://github.com/tensorchord/envd/commit/ec8cae17b26de61bbb73026540db56505cffb2a8) fix: remove unnecessary if statement (#773)
+ * [b9f0af8](https://github.com/tensorchord/envd/commit/b9f0af8056129fe6c5a2e590cd428463186cac0e) fix: -path and -file bug (#766)
+ * [4a359f1](https://github.com/tensorchord/envd/commit/4a359f1eb608a0680a94379b4ac52756d605be9d) fix(release): :hammer: drop go build dep for homebrew (#768)
+ * [542c7cb](https://github.com/tensorchord/envd/commit/542c7cbc3f8b7658905b85e10ff47ea216b44f7e) Fix the color display in wezterm (#767)
+ * [590b4c0](https://github.com/tensorchord/envd/commit/590b4c04bffab550778a3fe911db3280ffb72b09) fix(CLI): 🔨  use latest version for local build (#763)
+ * [2342367](https://github.com/tensorchord/envd/commit/2342367d3edb6d6c240afffc6b2414b1e83f0413) fix(docs): :memo: fix contributing and dev links, clean tailing space (#764)
+ * [b4a8519](https://github.com/tensorchord/envd/commit/b4a851920092b66f97ed6af301472af183c986a8) fix: modify jupyter's authority from hash password to token string (#762)
+ * [1f0af98](https://github.com/tensorchord/envd/commit/1f0af9825eb6f1b8843feb7fbb9b12a10e1c902d) fix: use defined jupyter port (#757)
+ * [381b653](https://github.com/tensorchord/envd/commit/381b653b4dd428e5b68c1876bac74653ae2b3068) docs(README): update Documentations link to https://envd.tensorchord.… (#758)
+ * [ad4b9ec](https://github.com/tensorchord/envd/commit/ad4b9ec8894b08104a47defd0039fdb081b087e3) fix: do not expose ports for custom image (#754)
+ * [e77b7d6](https://github.com/tensorchord/envd/commit/e77b7d61cfaeec1d62a7119373a646a7907cb933) docs(README): Correct the cmd of get Jupyter Notebook endpoint (#756)
+ * [8675316](https://github.com/tensorchord/envd/commit/86753162812f07ad030a6aecbcaa7f57839aae54) fix: ParseFromStr, add unittest (#755)
+ * [382aa2d](https://github.com/tensorchord/envd/commit/382aa2db5a6bdd26d1a9f96f775cd749f9927f4e) bug(CLI): fix short alias confusion (#752)
+ * [7625cd2](https://github.com/tensorchord/envd/commit/7625cd28658ad02dd05f523446985152e8eb887b) feat: Avoid gid in base image cache (#749)
+ * [2e39182](https://github.com/tensorchord/envd/commit/2e39182582bf779e304fa6b7878c1428be938694) feat(CLI): :sparkles: add --force args for init to overwrite build.envd (#748)
+ * [d241898](https://github.com/tensorchord/envd/commit/d2418984c7e67cc1a5184fc2894e8439e58e97ef) docs(README): One obvious way to declare supported python version (#745)
+ * [b492e83](https://github.com/tensorchord/envd/commit/b492e838eb1a9bef6769806c2604d51fecfa2fff) add entrypoint in custom image (#739)
+ * [4df956b](https://github.com/tensorchord/envd/commit/4df956b14ec05ac4204d8891b6791f065205b5c5) The workaround to fix the label loss (#741)
+ * [dd609da](https://github.com/tensorchord/envd/commit/dd609da753b71331bfb48f997760890b47563ad4) feat: Enable build for all languages (#738)
+ * [ed998ce](https://github.com/tensorchord/envd/commit/ed998cede32a4cdaa996964c6ec7ef492b4802d6) feat(lang): Add a new func runtime.command (#736)
+ * [3c46efc](https://github.com/tensorchord/envd/commit/3c46efcf651af6d80010e93212ef8d2f0e26e8fa) fix: setup.py build (#735)
+ * [8bef795](https://github.com/tensorchord/envd/commit/8bef795c6acd581b68492df715d67c9ed32ccc49) feat(CLI): :recycle: refactor bootstrap command to show what's envd doing (#728)
+ * [8f19748](https://github.com/tensorchord/envd/commit/8f197483f9f59e0712bc0f54259331621fc05ad8) Bug: fix SIGSEGV of envd top (#726)
+ * [8c83cad](https://github.com/tensorchord/envd/commit/8c83cada88d3cb0fff0eb6c19aa880c6c163cf17) feat(base-image): Move conda to llb and cache it (#724)
+ * [5587c3f](https://github.com/tensorchord/envd/commit/5587c3fa6f70e465df5ba14f3cec2f99339f7bcb) feature: add envd top commands (#718)
+ * [f22b283](https://github.com/tensorchord/envd/commit/f22b28328c6bd1b59bd870ef6b3a49bf0281375f) bug: allow multiple run command and use bash -c  (#720)
+ * [da8feb7](https://github.com/tensorchord/envd/commit/da8feb77175448a4ce2bb2b0815a8a9f62c347b2) bug: fix notebook entry when setting conda channel (#719)
+ * [116271c](https://github.com/tensorchord/envd/commit/116271c93323de18eb33fc834c971c9ca7e85b12) example: add a dgl GAT example (#714)
+ * [84ffea3](https://github.com/tensorchord/envd/commit/84ffea335115d94162896123831ad5459521e2ca) feat(lang): Add proposal for expose (#568)
+ * [ace70e9](https://github.com/tensorchord/envd/commit/ace70e95f4bc54cf1d58585b62d1976344d79728) feat: support io.mount (#708)
+ * [a1e0395](https://github.com/tensorchord/envd/commit/a1e039595539d966916f59daacc0613b3b06bc28) feat(lang): Add default conda pkg cache (#705)
+ * [c515f3c](https://github.com/tensorchord/envd/commit/c515f3cf62b2450eb36dc659974fd8875cf56f48) feat(CLI): Add category and refine help text (#707)
+ * [54f412a](https://github.com/tensorchord/envd/commit/54f412a21eb47060439e3749c34d57bbfce26ba4) feat(CLI): Support run command (#701)
+ * [62bd2dc](https://github.com/tensorchord/envd/commit/62bd2dcf37be2c8b811b34ea6d05189250dbdd1f) bug: Fix version prefix (#696)
+ * [4dffb5d](https://github.com/tensorchord/envd/commit/4dffb5d94eaab981959fa56cfd7e5d540776f1c7) bug: Fix git tag version (#692)
+ * [6daa661](https://github.com/tensorchord/envd/commit/6daa661bdcbaf3bdcbad1e63e34039e54ffe088d) bug: Add release dependency (#689)
+ * [1f4b468](https://github.com/tensorchord/envd/commit/1f4b46864a03a449127ac540687571943e965102) bug: Use git version by default when build ssh (#688)
+ * [728a421](https://github.com/tensorchord/envd/commit/728a421840ba10c6ba78c836a22dc7af140d370d) feat: add starship as the prompt manager (#681)
+ * [6cbc53f](https://github.com/tensorchord/envd/commit/6cbc53f54c7b95c374dbc93a242e78f7be5dbd86) fix: Add environment variable PATH in run (#680)
+ * [cb8ed6b](https://github.com/tensorchord/envd/commit/cb8ed6b5c6ae0a4ea77eb853bfccb450137b6b19) feat(lang): Add io.copy (#675)
+ * [b3ee633](https://github.com/tensorchord/envd/commit/b3ee6334a54e7d89b3f2631631c112c1d5ecac6a) fix: Fix lint issues in conda env yaml feature PR (#679)
+ * [a796a12](https://github.com/tensorchord/envd/commit/a796a129d83e5c707bb9d0c1c32295208b136495) feat(lang): Support env.yaml in conda_packages (#674)
+ * [af3e78d](https://github.com/tensorchord/envd/commit/af3e78d6733f53f5d31eda045725c0af599aefa6) feature:  add label ai.tensorchord.envd.build.manifestBytecodeHash to image for cache robust (#661)
+ * [3044002](https://github.com/tensorchord/envd/commit/30440022266b908adbb790e59c6696b36bf92b28) chore(deps): bump github.com/onsi/gomega from 1.19.0 to 1.20.0 (#657)
+ * [400fd7f](https://github.com/tensorchord/envd/commit/400fd7f8af0a04d1d0aa5fd7f047fea59172a7ef) chore(deps): bump github.com/urfave/cli/v2 from 2.11.0 to 2.11.1 (#655)
+ * [30e8caf](https://github.com/tensorchord/envd/commit/30e8cafc80b04b1bfa6e4d9d2ba273928c8b3919) chore(deps): bump actions/upload-artifact from 2 to 3 (#654)
+ * [04360d6](https://github.com/tensorchord/envd/commit/04360d63ba984a1a58faaf300d0cee64269d442a) chore(deps): bump pypa/cibuildwheel from 2.8.0 to 2.8.1 (#653)
+ * [de6c59e](https://github.com/tensorchord/envd/commit/de6c59e730da4520bccc747bb941bb12ced913d7) chore(deps): bump github.com/sirupsen/logrus from 1.8.1 to 1.9.0 (#656)
+ * [62091a4](https://github.com/tensorchord/envd/commit/62091a460b5502d24fa57a04ad19cf273c832832) fix(build): Fix image config (#651)
+ * [4c1df28](https://github.com/tensorchord/envd/commit/4c1df286df7c3d5c4a99b4bbc5958f86d08e0738) fix: context create with 'use' (#652)
+ * [6f05072](https://github.com/tensorchord/envd/commit/6f05072f1f2a72b55d8e2bac468707219ceb30b4) feat(CLI): Support cache (#648)
+ * [42e7531](https://github.com/tensorchord/envd/commit/42e75312a84e590c4c3b1d2f9de4ec7a6a716bb3) remove xdg, use $HOME/.config and $HOME/.cache (#641)
+ * [67a1f34](https://github.com/tensorchord/envd/commit/67a1f340f45966161dbac2afb9083baeac948674) feat(lang): Remove conda from custom base image (#626)
+ * [890119d](https://github.com/tensorchord/envd/commit/890119d119e7becf9f39f392aa053ae1e70c77c0) fix: check manifest and image update in new gateway buildfunc (#624)
+ * [c8471db](https://github.com/tensorchord/envd/commit/c8471db20f0a7e48c2c8346b3ab88637445200f5) support buildkit TCP socket (#599)
+ * [ef8a90d](https://github.com/tensorchord/envd/commit/ef8a90df3bc1a3009381eb3fd10767f468fcefc2) feat: Refactor with Builder.Options (#615)
+ * [2a88ad1](https://github.com/tensorchord/envd/commit/2a88ad120b2a24b5095883a1e18de55189ff643f) chore(deps): bump github.com/urfave/cli/v2 from 2.10.3 to 2.11.0 (#610)
+ * [18abe90](https://github.com/tensorchord/envd/commit/18abe90072835534f75b392b5f1ef6dbbf0bbeb5) feat(builder): Abstract BuildFunc to use gateway client (#606)
+ * [178b8da](https://github.com/tensorchord/envd/commit/178b8dafdd4357688a911bfff103c397b08410a9) feat(WSL): Add ssh config entry to Windows ssh config if using WSL (#604)
+ * [ceb07f5](https://github.com/tensorchord/envd/commit/ceb07f5fc43ced6da9ada711eb8c127d14afa969) fix: set conda as the only python provider (#602)
+ * [f1dd546](https://github.com/tensorchord/envd/commit/f1dd546fe5598f11145a5a9c354a1e4878614ed3) fix: pre-create conda package cache directory (#600)
+ * [9b3fbe3](https://github.com/tensorchord/envd/commit/9b3fbe3c9c91c167196be3764de4f53b1a074489) feat(lang): Support image in base (#595)
+ * [b467279](https://github.com/tensorchord/envd/commit/b46727981968f8722feeff1023e0d85fa7bdc162) fix: Fix error handling issue (#597)
+ * [fa041a8](https://github.com/tensorchord/envd/commit/fa041a849dde7f61f82fa2afdf105e45efc888ef) fix: Pre-mkdir the .cache directory of user envd (#592)
+ * [54dfc52](https://github.com/tensorchord/envd/commit/54dfc52f4adc5cbce5de806dc6186e39adf21e0d) bug: fix missing function in example mnist (#589)
+ * [00249bb](https://github.com/tensorchord/envd/commit/00249bbd2330088dc584015353837917bd557503) Use DefaultText in up.go (#587)
+ * [302e449](https://github.com/tensorchord/envd/commit/302e4490992d5f74bf5a9e08293cfb42a89e0367) chore(deps): bump pypa/cibuildwheel from 2.7.0 to 2.8.0 (#583)
+ * [6cfc0f1](https://github.com/tensorchord/envd/commit/6cfc0f16224095605dd85fb38b9cf406fbb65118) feat: Support for build image update when exec build or up again (#570)
+ * [8f89e4b](https://github.com/tensorchord/envd/commit/8f89e4be3d154728824c67f13086eb727f545400) Fix: image tag normalized to docker spec (#573)
+ * [3fe3757](https://github.com/tensorchord/envd/commit/3fe375769487a4eaf224a6db1437c840002c7a15) fix: add -c for every single conda channel (#569)
+ * [49fa961](https://github.com/tensorchord/envd/commit/49fa961111492d9a0599e9697bf2361321e9417d) fix: add auto start buildkit container (#563)
+ * [4fa5ec7](https://github.com/tensorchord/envd/commit/4fa5ec7b520964a74009b397ae9755ae96193305) bug: Fix github action (#566)
+ * [93027bd](https://github.com/tensorchord/envd/commit/93027bd669ddfe052c9abcd2c2679f547389b1ff) fix: py cmd exit code (#564)
+ * [707d5e8](https://github.com/tensorchord/envd/commit/707d5e8ca880a7968ef0304fab5dd28fb05a1610) feat: replace IsCreated with Exists for Client interface from package docker (#558)
+ * [f71cd7f](https://github.com/tensorchord/envd/commit/f71cd7f4891fab5e1be588e9b991ab4942e02d57) feat(CLI): Unify CLI style about env and image (#550)
+ * [6e9e44d](https://github.com/tensorchord/envd/commit/6e9e44dfadf13c3899707beda09d92b4f907e24d) feat: Support specify build target (#497)
+ * [e443784](https://github.com/tensorchord/envd/commit/e44378470ddd029e3f2c94c93e00b0399e89b772) feat(lang): Support RStudio server (#503)
+ * [89eb6e8](https://github.com/tensorchord/envd/commit/89eb6e8b5bdf795f2f1b145b75b6d87745284d71) chore(deps): bump github.com/stretchr/testify from 1.7.5 to 1.8.0 (#540)
+ * [74b27e9](https://github.com/tensorchord/envd/commit/74b27e9d0039c2558b3ebd152260f0c163fc7d37) chore(deps): bump dependabot/fetch-metadata from 1.3.1 to 1.3.3 (#539)
+ * [dbac24d](https://github.com/tensorchord/envd/commit/dbac24d7931832d0fed12e931e544d31a557626d) feat(docker): Add entrypoint and ports in image config (#533)
+ * [60f85f5](https://github.com/tensorchord/envd/commit/60f85f53c62597bc47f9d4328bb071b9795e0474) fix(README): Update coverage (#536)
+ * [8276d7d](https://github.com/tensorchord/envd/commit/8276d7da92658a2d885a00c5039a87fb78cb2376) feat(CLI): Add push (#531)
+ * [956fd73](https://github.com/tensorchord/envd/commit/956fd730aa04f1dd3cf78f699a0068436ae1d2c2) feat: Add notice for users without permission to docker daemon (#535)
+ * [b987fc6](https://github.com/tensorchord/envd/commit/b987fc6841f62e4f9a29633682c6481aea6de227) fix: uid corrupted when run envd by root user (#522)
+ * [310b42d](https://github.com/tensorchord/envd/commit/310b42dd450c582fb421ac183cccd7f82446156b) fix: Add talk with us in README (#526)
+ * [04e8444](https://github.com/tensorchord/envd/commit/04e84440e2a7239edd4ff7d4f7e374edcb0d950e) Fix Julia multiple pkg installation bug (#521)
+ * [523fb40](https://github.com/tensorchord/envd/commit/523fb400742ed5b539f44232d9eedad8eaefd13c) feat(CLI): Support context (#512)
+ * [fde448a](https://github.com/tensorchord/envd/commit/fde448aff613306cb5ff3d763c06f05de12ec338) feat: add envd init (#514)
+ * [8722564](https://github.com/tensorchord/envd/commit/8722564b12f0c96c58fca5d912c7c9c2e57c77a6) enhancement(CLI): Use upper case in CLI description (#515)
  * [0ae8df9](https://github.com/tensorchord/envd/commit/0ae8df9e9eb4ec0c755920a7a3697cbab12b22e3) chore(deps): bump github.com/stretchr/testify from 1.7.2 to 1.7.5 (#505)
  * [1cd5a27](https://github.com/tensorchord/envd/commit/1cd5a27027dd696276fa75e1d52a02858b7e7de8) chore(deps): bump github.com/urfave/cli/v2 from 2.8.1 to 2.10.3 (#504)
  * [ca6435d](https://github.com/tensorchord/envd/commit/ca6435ddfd29f5be2e85a1039da50c4db2fea03f) feat(lang): Support julia (#495)
@@ -346,17 +538,29 @@
 
 ### Contributors
 
+ * Aaron Sun
  * Aka.Fido
+ * Bingyi Sun
  * Ce Gao
+ * Guangyang Li
  * Gui-Yue
  * Haiker Sun
  * Jinjing Zhou
+ * Keming
+ * Wei Zhang
  * Yuan Tang
  * Yuchen Cheng
+ * Yuedong Wu
+ * Yunchuan Zheng
+ * Zhenguo.Li
  * Zhenzhen Zhao
  * Zhizhen He
  * dependabot[bot]
  * kenwoodjw
+ * nullday
+ * wyq
+ * xing0821
+ * zhyon404
 
 ## v0.1.0-rc.2 (2022-06-18)
 

@@ -23,6 +23,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/builtin"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/util/starlarkutil"
 )
 
 var (
@@ -68,11 +69,9 @@ func ruleFuncRun(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	goCommands := []string{}
-	if commands != nil {
-		for i := 0; i < commands.Len(); i++ {
-			goCommands = append(goCommands, commands.Index(i).(starlark.String).GoString())
-		}
+	goCommands, err := starlarkutil.ToStringSlice(commands)
+	if err != nil {
+		return nil, err
 	}
 
 	logger.Debugf("rule `%s` is invoked, commands=%v", ruleRun, goCommands)

@@ -12,34 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ir
+package starlarkutil
 
 import (
-	"fmt"
+	"github.com/cockroachdb/errors"
 
-	"github.com/moby/buildkit/client/llb"
-
-	"github.com/tensorchord/envd/pkg/util/fileutil"
+	"go.starlark.net/starlark"
 )
 
-const (
-	templateGitConfig = `
-[user]
-	email = %s
-	name = %s
-[core]
-	editor = %s
-
-`
-)
-
-func (g *Graph) compileGit(root llb.State) (llb.State, error) {
-	if g.GitConfig == nil {
-		return root, nil
+func ToStringSlice(v *starlark.List) ([]string, error) {
+	if v == nil {
+		return []string{}, nil
 	}
-	content := fmt.Sprintf(templateGitConfig, g.GitConfig.Email, g.GitConfig.Name, g.GitConfig.Editor)
-	installPath := fileutil.EnvdHomeDir(".gitconfig")
-	gitStage := root.File(llb.Mkfile(installPath,
-		0644, []byte(content), llb.WithUIDGID(g.uid, g.gid)))
-	return gitStage, nil
+
+	s := []string{}
+	for i := 0; i < v.Len(); i++ {
+		str, ok := starlark.AsString(v.Index(i))
+		if !ok {
+			return nil, errors.Newf("Conversion failed, expect string type, but got %s as %s", v.Index(i), v.Index(i).Type())
+		}
+		s = append(s, str)
+	}
+
+	return s, nil
 }

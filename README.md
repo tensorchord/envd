@@ -1,5 +1,5 @@
 <div align="center">
-<h1><img src='https://user-images.githubusercontent.com/5100735/188788542-269d1049-6b19-4c9d-82c2-5fb828ebdc6d.png' width='60%'></h1>
+<h1><img src="https://user-images.githubusercontent.com/52693877/190860902-ac07b00d-4441-47d4-b1d4-beff74926134.gif" alt="this slowpoke moves"  /></h1>
 <p>Development environment for AI/ML</p>
 </div>
 
@@ -280,7 +280,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center"><a href="https://github.com/3AceShowHand"><img src="https://avatars.githubusercontent.com/u/7138436?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Ling Jin</b></sub></a><br /><a href="https://github.com/tensorchord/envd/issues?q=author%3A3AceShowHand" title="Bug reports">🐛</a> <a href="#infra-3AceShowHand" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
       <td align="center"><a href="http://manjusaka.itscoder.com"><img src="https://avatars.githubusercontent.com/u/7054676?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Manjusaka</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=Zheaoli" title="Code">💻</a></td>
-      <td align="center"><a href="https://github.com/lilylee1874"><img src="https://avatars.githubusercontent.com/u/52693877?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Nino</b></sub></a><br /><a href="#design-lilylee1874" title="Design">🎨</a></td>
+      <td align="center"><a href="https://github.com/lilylee1874"><img src="https://avatars.githubusercontent.com/u/52693877?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Nino</b></sub></a><br /><a href="#design-lilylee1874" title="Design">🎨</a> <a href="https://github.com/tensorchord/envd/commits?author=lilylee1874" title="Code">💻</a></td>
       <td align="center"><a href="http://phillipw.info"><img src="https://avatars.githubusercontent.com/u/34707116?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Pengyu Wang</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=cswpy" title="Documentation">📖</a></td>
       <td align="center"><a href="https://github.com/Sepush"><img src="https://avatars.githubusercontent.com/u/39197136?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Sepush</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=sepush" title="Documentation">📖</a></td>
       <td align="center"><a href="https://blog.thrimbda.com/"><img src="https://avatars.githubusercontent.com/u/15231162?v=4?s=70" width="70px;" alt=""/><br /><sub><b>Siyuan Wang</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=Thrimbda" title="Code">💻</a> <a href="#infra-Thrimbda" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#maintenance-Thrimbda" title="Maintenance">🚧</a></td>

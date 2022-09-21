@@ -21,6 +21,7 @@ import (
 	"go.starlark.net/starlarkstruct"
 
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/util/starlarkutil"
 )
 
 var (
@@ -202,11 +203,9 @@ func ruleFuncEntrypoint(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	argList := []string{}
-	if argv != nil {
-		for i := 0; i < argv.Len(); i++ {
-			argList = append(argList, argv.Index(i).(starlark.String).GoString())
-		}
+	argList, err := starlarkutil.ToStringSlice(argv)
+	if err != nil {
+		return nil, err
 	}
 
 	logger.Debugf("user defined entrypoints: {%s}\n", argList)

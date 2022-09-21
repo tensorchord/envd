@@ -24,7 +24,7 @@ import (
 var _ = Describe("runtime", Ordered, func() {
 	exampleName := "runtime"
 	testcase := "e2e"
-	e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
+	e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 	BeforeAll(e.BuildImage(true))
 	BeforeEach(e.RunContainer())
 	It("execute runtime command `numpy`", func() {
@@ -33,5 +33,4 @@ var _ = Describe("runtime", Ordered, func() {
 		Expect(res).To(Equal("[2 3 4]"))
 	})
 	AfterEach(e.DestroyContainer())
-	AfterAll(e.RemoveImage())
 })

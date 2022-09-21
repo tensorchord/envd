@@ -24,38 +24,34 @@ var _ = Describe("python", Ordered, func() {
 	It("Should build packages successfully", func() {
 		exampleName := "python/packages"
 		testcase := "e2e"
-		e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
+		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()
-		e.RemoveImage()()
 	})
 	It("Should build requirements successfully", func() {
 		exampleName := "python/requirements"
 		testcase := "e2e"
-		e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
+		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()
-		e.RemoveImage()()
 	})
 	It("Should build hybrid successfully", func() {
 		exampleName := "python/hybrid"
 		testcase := "e2e"
-		e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
+		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()
-		e.RemoveImage()()
 	})
 
 	It("Should build conda with channel successfully", func() {
 		exampleName := "python/conda"
 		testcase := "e2e"
-		e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
+		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
 		e.DestroyContainer()()
-		e.RemoveImage()()
 	})
 })
