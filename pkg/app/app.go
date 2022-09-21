@@ -67,6 +67,7 @@ func New() EnvdApp {
 		CommandEnvironment,
 		CommandImage,
 		CommandInit,
+		CommandLogin,
 		CommandPause,
 		CommandPrune,
 		CommandRun,
