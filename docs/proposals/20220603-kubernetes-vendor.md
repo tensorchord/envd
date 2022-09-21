@@ -33,6 +33,11 @@ We can provide native support for ease of use.
 - Pause and unpause environments on Kubernetes (Kubernetes does not support the primitives)
 - Manage envd images on Kubernetes
 
+## Terms
+
+- buildkit: https://github.com/moby/buildkit is the library behind `docker build`.
+- containerssh: https://containerssh.io/ is a ssh proxy server.
+
 ## Proposal
 
 ### User stories
