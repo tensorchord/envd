@@ -22,7 +22,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
@@ -33,12 +32,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	localhost = "127.0.0.1"
-)
-
 var (
-	interval                 = 1 * time.Second
 	anchoredIdentifierRegexp = regexp.MustCompile(`^([a-f0-9]{64})$`)
 )
 

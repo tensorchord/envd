@@ -21,6 +21,7 @@ import (
 	"github.com/cockroachdb/errors"
 	dockertypes "github.com/docker/docker/api/types"
 	"github.com/tensorchord/envd-server/client"
+
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/types"
 )

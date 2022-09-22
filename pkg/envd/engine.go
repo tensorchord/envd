@@ -19,6 +19,7 @@ import (
 	"time"
 
 	dockertypes "github.com/docker/docker/api/types"
+
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/types"
 )
