@@ -83,7 +83,7 @@ func (g Graph) condaCreateEnv(version string) string {
 	return fmt.Sprintf("%s create %s", cmd, env)
 }
 
-func (g Graph) compileCondaPackages(root llb.State) llb.State {
+func (g *Graph) compileCondaPackages(root llb.State) llb.State {
 	if len(g.CondaConfig.CondaPackages) == 0 {
 		logrus.Debug("Conda packages not enabled")
 		return root
