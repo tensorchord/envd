@@ -15,16 +15,19 @@
 package app
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 
 	"github.com/cockroachdb/errors"
-	"github.com/google/uuid"
-	"github.com/tensorchord/envd-server/api/types"
+	servertypes "github.com/tensorchord/envd-server/api/types"
 	"github.com/tensorchord/envd-server/client"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/config"
+	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -48,14 +51,28 @@ func login(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create the envd-server client")
 	}
-	req := types.AuthRequest{
-		PublicKey:     string(key),
-		IdentityToken: uuid.NewString(),
+	stringK := string(key)
+	it := GetMD5Hash(stringK)
+	req := servertypes.AuthRequest{
+		PublicKey:     stringK,
+		IdentityToken: it,
 	}
 	resp, err := cli.Auth(clicontext.Context, req)
 	if err != nil {
 		return errors.Wrap(err, "failed to get the response from envd-server client")
 	}
+	if err := home.GetManager().AuthCreate(types.AuthConfig{
+		Name:          resp.IdentityToken,
+		IdentityToken: resp.IdentityToken,
+	}, true); err != nil {
+		return errors.Wrap(err, "failed to create the auth config")
+	}
 	fmt.Println(resp.Status)
 	return nil
+}
+
+func GetMD5Hash(text string) string {
+	hasher := md5.New()
+	hasher.Write([]byte(text))
+	return hex.EncodeToString(hasher.Sum(nil))
 }

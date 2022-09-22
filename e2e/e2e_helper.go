@@ -70,7 +70,7 @@ func (e *Example) RemoveImage() func() {
 }
 
 func GetEngine(ctx context.Context) envd.Engine {
-	engine, err := envd.New(ctx)
+	engine, err := envd.New(ctx, "docker")
 	if err != nil {
 		panic(err)
 	}
