@@ -116,7 +116,7 @@ func run(clicontext *cli.Context) error {
 	}
 
 	// Check if the container is running.
-	engine, err := envd.New(clicontext.Context)
+	engine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return errors.Wrap(err, "failed to create the docker client")
 	}

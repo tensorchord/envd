@@ -52,13 +52,6 @@ func dockerFiltersWithName(name string) filters.Args {
 	return f
 }
 
-func dockerFiltersWithCacheLabel(name string, hash string) filters.Args {
-	f := filters.NewArgs()
-	f.Add("reference", name)
-	f.Add("label", fmt.Sprintf("%s=%s", types.ImageLabelCacheHash, hash))
-	return f
-}
-
 func (e dockerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) {
 	images, err := e.ImageList(ctx, dockertypes.ImageListOptions{
 		Filters: dockerFilters(false),
@@ -102,7 +95,6 @@ func (e dockerEngine) PauseEnvironment(ctx context.Context, env string) (string,
 	logger := logrus.WithFields(logrus.Fields{
 		"env": env,
 	})
-	logger = logrus.WithField("container", env)
 	logger.Debug("pausing environment")
 	err := e.ContainerPause(ctx, env)
 	if err != nil {
@@ -125,7 +117,6 @@ func (e dockerEngine) ResumeEnvironment(ctx context.Context, env string) (string
 	logger := logrus.WithFields(logrus.Fields{
 		"env": env,
 	})
-	logger = logrus.WithField("container", env)
 	logger.Debug("resuming environment")
 
 	err := e.ContainerUnpause(ctx, env)

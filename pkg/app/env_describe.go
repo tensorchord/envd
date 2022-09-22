@@ -43,7 +43,7 @@ var CommandDescribeEnvironment = &cli.Command{
 
 func getEnvironmentDescriptions(clicontext *cli.Context) error {
 	envName := clicontext.String("env")
-	envdEngine, err := envd.New(clicontext.Context)
+	envdEngine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return errors.Wrap(err, "failed to create envd engine")
 	}

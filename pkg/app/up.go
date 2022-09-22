@@ -177,7 +177,7 @@ func up(clicontext *cli.Context) error {
 }
 
 func StartEnvd(clicontext *cli.Context, buildOpt builder.Options, gpu bool, numGPUs int) (int, error) {
-	engine, err := envd.New(clicontext.Context)
+	engine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to create the docker client")
 	}

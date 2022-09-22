@@ -118,7 +118,7 @@ func (c *generalClient) maybeStart(ctx context.Context,
 		if err != nil {
 			return "", err
 		}
-		engine, err := envd.New(ctx)
+		engine, err := envd.New(ctx, "docker")
 		if err != nil {
 			return "", err
 		}
