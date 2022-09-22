@@ -16,30 +16,11 @@ package docker
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/docker/docker/api/types/filters"
 
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/types"
 )
-
-func labels(name string, g ir.Graph,
-	sshPortInHost, jupyterPortInHost, rstudioServerPortInHost int) map[string]string {
-	res := make(map[string]string)
-	res[types.ContainerLabelName] = name
-	res[types.ContainerLabelSSHPort] = strconv.Itoa(sshPortInHost)
-	if g.JupyterConfig != nil {
-		res[types.ContainerLabelJupyterAddr] =
-			fmt.Sprintf("http://localhost:%d", jupyterPortInHost)
-	}
-	if g.RStudioServerConfig != nil {
-		res[types.ContainerLabelRStudioServerAddr] =
-			fmt.Sprintf("http://localhost:%d", rstudioServerPortInHost)
-	}
-
-	return res
-}
 
 func dockerFilters(gpu bool) filters.Args {
 	f := filters.NewArgs()

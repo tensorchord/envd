@@ -16,10 +16,11 @@ package app
 
 import (
 	"github.com/cockroachdb/errors"
+	"github.com/urfave/cli/v2"
+
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
-	"github.com/urfave/cli/v2"
 )
 
 var CommandSSH = &cli.Command{
