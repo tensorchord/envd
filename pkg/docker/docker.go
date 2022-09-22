@@ -54,31 +54,14 @@ var (
 type Client interface {
 	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
-	// StartEnvd creates the container for the given tag and container name.
-	StartEnvd(ctx context.Context, tag, name, buildContext string,
-		gpuEnabled bool, numGPUs int, sshPort int, g ir.Graph, timeout time.Duration,
-		mountOptionsStr []string) (string, string, error)
 	StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error)
-	CleanEnvdIfExists(ctx context.Context, name string, force bool) error
-
-	IsRunning(ctx context.Context, name string) (bool, error)
-	Exists(ctx context.Context, name string) (bool, error)
-	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
 
 	Exec(ctx context.Context, cname string, cmd []string) error
 	Destroy(ctx context.Context, name string) (string, error)
 
-	ListContainer(ctx context.Context) ([]types.Container, error)
-	GetContainer(ctx context.Context, cname string) (types.ContainerJSON, error)
-	PauseContainer(ctx context.Context, name string) (string, error)
-	ResumeContainer(ctx context.Context, name string) (string, error)
-
-	ListImage(ctx context.Context) ([]types.ImageSummary, error)
-	GetImage(ctx context.Context, image string) (types.ImageSummary, error)
 	GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error)
 	RemoveImage(ctx context.Context, image string) error
 
-	GetInfo(ctx context.Context) (types.Info, error)
 	Stats(ctx context.Context, cname string, statChan chan<- *Stats, done <-chan bool) error
 
 	// GPUEnabled returns true if nvidia container runtime exists in docker daemon.
@@ -217,12 +200,6 @@ func (c generalClient) GetImageWithCacheHashLabel(ctx context.Context, image str
 		return types.ImageSummary{}, errors.Errorf("image with hash %s not found", hash)
 	}
 	return images[0], nil
-}
-
-func (c generalClient) ListContainer(ctx context.Context) ([]types.Container, error) {
-	return c.ContainerList(ctx, types.ContainerListOptions{
-		Filters: dockerFilters(false),
-	})
 }
 
 func (c generalClient) PauseContainer(ctx context.Context, name string) (string, error) {

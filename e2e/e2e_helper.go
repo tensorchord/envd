@@ -25,6 +25,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
@@ -68,12 +69,12 @@ func (e *Example) RemoveImage() func() {
 	}
 }
 
-func GetDockerClient(ctx context.Context) docker.Client {
-	dockerClient, err := docker.NewClient(ctx)
+func GetEngine(ctx context.Context) envd.Engine {
+	engine, err := envd.New(ctx)
 	if err != nil {
 		panic(err)
 	}
-	return dockerClient
+	return engine
 }
 
 type Example struct {

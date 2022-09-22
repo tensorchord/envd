@@ -30,6 +30,7 @@ import (
 	"github.com/tonistiigi/units"
 
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/types"
 )
@@ -117,8 +118,12 @@ func (c *generalClient) maybeStart(ctx context.Context,
 		if err != nil {
 			return "", err
 		}
+		engine, err := envd.New(ctx)
+		if err != nil {
+			return "", err
+		}
 
-		created, err := dockerClient.Exists(ctx, c.containerName)
+		created, err := engine.Exists(ctx, c.containerName)
 		if err != nil {
 			return "", err
 		}
@@ -129,12 +134,12 @@ func (c *generalClient) maybeStart(ctx context.Context,
 				ctx, c.image, c.containerName, c.mirror); err != nil {
 				return "", err
 			}
-			if err := dockerClient.WaitUntilRunning(
+			if err := engine.WaitUntilRunning(
 				ctx, c.containerName, runningTimeout); err != nil {
 				return "", err
 			}
 		}
-		running, _ := dockerClient.IsRunning(ctx, c.containerName)
+		running, _ := engine.IsRunning(ctx, c.containerName)
 		if created && !running {
 			c.logger.Warnf("start the created contrainer %s", c.containerName)
 			_, err := dockerClient.StartBuildkitd(ctx, c.image, c.containerName, c.mirror)
