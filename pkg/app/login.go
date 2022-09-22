@@ -34,6 +34,7 @@ import (
 var CommandLogin = &cli.Command{
 	Name:     "login",
 	Category: CategoryManagement,
+	Hidden:   true,
 	Usage:    "Login to the envd server.",
 	Action:   login,
 }
