@@ -607,6 +607,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/subosito/gotenv v1.4.1 h1:jyEFiXpy21Wm81FBN71l9VoMMV8H8jG+qIK3GCpY6Qs=
 github.com/subosito/gotenv v1.4.1/go.mod h1:ayKnFf/c6rvx/2iiLrJUk1e6plDbT3edrFNGqEflhK0=
 github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
+github.com/tensorchord/envd-server v0.0.2 h1:GJbRydV3xfo1TxUWGreoY3nECgUDOEpVTHdTPpAhH2g=
+github.com/tensorchord/envd-server v0.0.2/go.mod h1:GXzQ2sZX5zxRODSDW9Fcdp6VltEprgyVp7HSug2t7bM=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tonistiigi/fsutil v0.0.0-20220115021204-b19f7f9cb274 h1:wbyZxD6IPFp0sl5uscMOJRsz5UKGFiNiD16e+MVfKZY=
 github.com/tonistiigi/fsutil v0.0.0-20220115021204-b19f7f9cb274/go.mod h1:oPAfvw32vlUJSjyDcQ3Bu0nb2ON2B+G0dtVN/SZNJiA=
