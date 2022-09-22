@@ -22,7 +22,7 @@ import (
 
 // compileUserOwn chown related directories
 func (g *Graph) compileUserOwn(root llb.State) llb.State {
-	if g.uid == 0 {
+	if g.Image != nil || g.uid == 0 {
 		return root
 	}
 	run := root.Run()
@@ -35,6 +35,9 @@ func (g *Graph) compileUserOwn(root llb.State) llb.State {
 
 // compileUserGroup creates user `envd`
 func (g *Graph) compileUserGroup(root llb.State) llb.State {
+	if g.Image != nil {
+		return root
+	}
 	var res llb.ExecState
 	if g.uid == 0 {
 		res = root.
