@@ -139,7 +139,6 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		cmd := sb.String()
 		logrus.WithField("command", cmd).
 			Debug("Configure pip install statements")
-		root = llb.User("envd")(root)
 		run := root.
 			Run(llb.Shlex(sb.String()), llb.WithCustomNamef("pip install %s",
 				strings.Join(g.PyPIPackages, " ")))

@@ -144,19 +144,12 @@ func Git(name, email, editor string) error {
 }
 
 func CondaChannel(channel string, useMamba bool) error {
-	if !DefaultGraph.CondaEnabled() {
-		DefaultGraph.CondaConfig = &CondaConfig{}
-	}
-
 	DefaultGraph.CondaConfig.CondaChannel = &channel
 	DefaultGraph.CondaConfig.UseMicroMamba = useMamba
 	return nil
 }
 
 func CondaPackage(deps []string, channel []string, envFile string) error {
-	if !DefaultGraph.CondaEnabled() {
-		DefaultGraph.CondaConfig = &CondaConfig{}
-	}
 	DefaultGraph.CondaConfig.CondaPackages = append(
 		DefaultGraph.CondaConfig.CondaPackages, deps...)
 

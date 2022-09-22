@@ -33,13 +33,13 @@ const (
 `
 )
 
-func (g *Graph) compileGit(root llb.State) (llb.State, error) {
+func (g *Graph) compileGit(root llb.State) llb.State {
 	if g.GitConfig == nil {
-		return root, nil
+		return root
 	}
 	content := fmt.Sprintf(templateGitConfig, g.GitConfig.Email, g.GitConfig.Name, g.GitConfig.Editor)
 	installPath := fileutil.EnvdHomeDir(".gitconfig")
 	gitStage := root.File(llb.Mkfile(installPath,
 		0644, []byte(content), llb.WithUIDGID(g.uid, g.gid)))
-	return gitStage, nil
+	return gitStage
 }

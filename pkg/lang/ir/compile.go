@@ -41,6 +41,7 @@ func NewGraph() *Graph {
 		RuntimeEnviron:  make(map[string]string),
 	}
 	langVersion := languageVersionDefault
+	conda := &CondaConfig{}
 	return &Graph{
 		OS: osDefault,
 		Language: Language{
@@ -51,13 +52,15 @@ func NewGraph() *Graph {
 		CUDNN:   nil,
 		NumGPUs: -1,
 
-		PyPIPackages:   []string{},
-		RPackages:      []string{},
-		JuliaPackages:  []string{},
-		SystemPackages: []string{},
-		Exec:           []string{},
-		Shell:          shellBASH,
-		RuntimeGraph:   runtimeGraph,
+		PyPIPackages:    []string{},
+		RPackages:       []string{},
+		JuliaPackages:   []string{},
+		SystemPackages:  []string{},
+		Exec:            []string{},
+		UserDirectories: []string{"/usr/local/lib", "/home/envd"},
+		Shell:           shellBASH,
+		CondaConfig:     conda,
+		RuntimeGraph:    runtimeGraph,
 	}
 }
 
@@ -288,10 +291,8 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	copy := g.compileCopy(prompt)
 	// TODO(gaocegege): Support order-based exec.
 	run := g.compileRun(copy)
-	finalStage, err := g.compileGit(run)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile git")
-	}
+	git := g.compileGit(run)
+	finalStage := g.compileUserOwn(git)
 	g.Writer.Finish()
 	return finalStage, nil
 }

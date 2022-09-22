@@ -24,7 +24,7 @@ import (
 // DefaultPathEnvUnix is unix style list of directories to search for
 // executables. Each directory is separated from the next by a colon
 // ':' character .
-const DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/usr/local/julia/bin:" + system.DefaultPathEnvUnix
+const DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/home/envd/.local/bin:/usr/local/julia/bin:" + system.DefaultPathEnvUnix
 
 // DefaultPathEnvWindows is windows style list of directories to search for
 // executables. Each directory is separated from the next by a colon
