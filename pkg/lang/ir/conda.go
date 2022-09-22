@@ -44,17 +44,6 @@ var (
 	installMambaBash string
 )
 
-func (g Graph) CondaEnabled() bool {
-	if g.CondaConfig == nil {
-		return false
-	} else {
-		if g.CondaConfig.CondaPackages == nil && len(g.CondaConfig.CondaEnvFileName) == 0 {
-			return false
-		}
-	}
-	return true
-}
-
 func (g Graph) compileCondaChannel(root llb.State) llb.State {
 	if g.CondaConfig.CondaChannel != nil {
 		logrus.WithField("conda-channel", *g.CondaChannel).Debug("using custom conda channel")
@@ -84,15 +73,18 @@ func (g Graph) condaInitShell(shell string) string {
 func (g Graph) condaCreateEnv(version string) string {
 	cmd := fmt.Sprintf("bash -c \"%s", g.condaCommandPath())
 	env := fmt.Sprintf("-n envd python=%s\"", version)
-	// conda needs to use `conda env create` to create env from an env YAML file
-	if len(g.CondaConfig.CondaEnvFileName) > 0 && !g.CondaConfig.UseMicroMamba {
-		return fmt.Sprintf("%s env create %s", cmd, env)
+	if len(g.CondaConfig.CondaEnvFileName) > 0 {
+		env = fmt.Sprintf("--file %s ", g.CondaConfig.CondaEnvFileName) + env
+		// conda needs to use `conda env create` to create env from an env YAML file
+		if !g.CondaConfig.UseMicroMamba {
+			return fmt.Sprintf("%s env create %s", cmd, env)
+		}
 	}
 	return fmt.Sprintf("%s create %s", cmd, env)
 }
 
 func (g Graph) compileCondaPackages(root llb.State) llb.State {
-	if !g.CondaEnabled() {
+	if len(g.CondaConfig.CondaPackages) == 0 {
 		logrus.Debug("Conda packages not enabled")
 		return root
 	}
@@ -128,7 +120,6 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 			strings.Join(g.CondaPackages, " ")))
 	run.AddMount(cacheDir, cache,
 		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
-	// }
 	return run.Root()
 }
 
@@ -156,7 +147,7 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 
 	// Create a conda environment.
 	run = run.Dir(g.getWorkingDir()).Run(llb.Shlex(cmd),
-		llb.WithCustomName("[internal] create conda environment"))
+		llb.WithCustomNamef("[internal] create conda environment: %s", cmd))
 	run.AddMount(cacheDir, cache, llb.AsPersistentCacheDir(
 		g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
 	run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext))
