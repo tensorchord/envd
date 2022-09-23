@@ -43,7 +43,7 @@ func resume(clicontext *cli.Context) error {
 	if env == "" {
 		return errors.New("env is required")
 	}
-	envdEngine, err := envd.New(clicontext.Context)
+	envdEngine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return errors.Wrap(err, "failed to create envd engine")
 	}

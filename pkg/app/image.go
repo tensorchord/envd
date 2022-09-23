@@ -49,7 +49,7 @@ var CommandListImage = &cli.Command{
 }
 
 func getImage(clicontext *cli.Context) error {
-	envdEngine, err := envd.New(clicontext.Context)
+	envdEngine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return err
 	}
