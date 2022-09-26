@@ -152,7 +152,7 @@ func (g *Graph) preparePythonBase() llb.State {
 	// envd-sshd
 	sshd := base.File(llb.Copy(
 		llb.Image(types.EnvdSshdImage), "/usr/bin/envd-sshd", "/var/envd/bin/envd-sshd",
-		&llb.CopyInfo{CreateDestPath: true}))
+		&llb.CopyInfo{CreateDestPath: true}), llb.WithCustomName("[internal] add envd-sshd"))
 
 	// apt packages
 	var sb strings.Builder
@@ -169,7 +169,7 @@ func (g *Graph) preparePythonBase() llb.State {
 	cacheDir := "/var/cache/apt"
 	cacheLibDir := "/var/lib/apt"
 
-	run := sshd.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())), llb.WithCustomNamef(sb.String()))
+	run := sshd.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())), llb.WithCustomName("[internal] system packages"))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
 	run.AddMount(cacheLibDir, llb.Scratch(),

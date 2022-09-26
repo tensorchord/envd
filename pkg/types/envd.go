@@ -36,8 +36,7 @@ const DefaultPathEnvWindows = system.DefaultPathEnvWindows
 
 const PythonBaseImage = "ubuntu:20.04"
 
-var EnvdSshdImage = fmt.Sprintf(
-	"tensorchord/envd-sshd-from-scratch:%s", version.GetEnvdVersion())
+var EnvdSshdImage = fmt.Sprintf("tensorchord/envd-sshd-from-scratch:%s", version.GetEnvdVersion())
 
 var BaseEnvironment = []struct {
 	Name  string
