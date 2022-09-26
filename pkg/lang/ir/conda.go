@@ -92,8 +92,7 @@ func (g *Graph) compileCondaPackages(root llb.State) llb.State {
 	g.UserDirectories = append(g.UserDirectories, condaRootPrefix)
 	cacheDir := filepath.Join(condaRootPrefix, "pkgs")
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
-	cache := root.File(llb.Mkdir("/cache-conda",
-		0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
+	cacheMount := root.File(llb.Mkdir("/cache-conda", 0755, llb.WithParents(true)),
 		llb.WithCustomName("[internal] setting conda cache mount permissions"))
 
 	// Compose the package install command.
@@ -118,7 +117,7 @@ func (g *Graph) compileCondaPackages(root llb.State) llb.State {
 	run = root.
 		Run(llb.Shlex(cmd), llb.WithCustomNamef("conda install %s",
 			strings.Join(g.CondaPackages, " ")))
-	run.AddMount(cacheDir, cache,
+	run.AddMount(cacheDir, cacheMount,
 		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
 	return run.Root()
 }
@@ -129,8 +128,7 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	root = g.CompileCacheDir(root, cacheDir)
 
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
-	cache := root.File(llb.Mkdir("/cache-conda",
-		0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
+	cache := root.File(llb.Mkdir("/cache-conda",0755, llb.WithParents(true)),
 		llb.WithCustomName("[internal] setting conda cache mount permissions"))
 
 	// Always init bash since we will use it to create jupyter notebook service.

@@ -24,7 +24,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/flag"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 const (
@@ -120,12 +119,12 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		return root
 	}
 
-	cacheDir := fileutil.EnvdHomeDir(".cache")
-	// Create the cache directory to the container. see issue #582
+	// Create the ecache directory to the containr. see issue #582
+	cacheDir := filepath.Join("/", "root", ".cache", "pip")
 	root = g.CompileCacheDir(root, cacheDir)
 
-	cache := root.File(llb.Mkdir("/cache",
-		0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)), llb.WithCustomName("[internal] setting pip cache mount permissions"))
+	cache := root.File(llb.Mkdir("/cache-pip", 0755, llb.WithParents(true)),
+		llb.WithCustomName("[internal] setting pip cache mount permissions"))
 
 	if len(g.PyPIPackages) != 0 {
 		// Compose the package install command.
@@ -144,7 +143,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 				strings.Join(g.PyPIPackages, " ")))
 		// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 		run.AddMount(cacheDir, cache,
-			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))
+			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-pip"))
 		root = run.Root()
 	}
 
@@ -169,7 +168,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		run := root.
 			Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s", *g.RequirementsFile))
 		run.AddMount(cacheDir, cache,
-			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))
+			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-pip"))
 		run.AddMount(g.getWorkingDir(),
 			llb.Local(flag.FlagBuildContext))
 		root = run.Root()
@@ -182,7 +181,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 			run := root.Run(llb.Shlex(fmt.Sprintf(cmdTemplate, wheel)), llb.WithCustomNamef("pip install %s", wheel))
 			run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext), llb.Readonly)
 			run.AddMount(cacheDir, cache,
-				llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache"))
+				llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-pip"))
 			root = run.Root()
 		}
 	}
