@@ -143,6 +143,37 @@ func (g *Graph) compileExtraSource(root llb.State) (llb.State, error) {
 	return llb.Merge(inputs, llb.WithCustomName("[internal] build source layers")), nil
 }
 
+func (g *Graph) preparePythonBase() llb.State {
+	base := llb.Image(types.PythonBaseImage)
+	for _, env := range types.BaseEnvironment {
+		base = base.AddEnv(env.Name, env.Value)
+	}
+
+	// apt packages
+	var sb strings.Builder
+	sb.WriteString("apt-get update && apt-get install -y apt-utils && ")
+	sb.WriteString("apt-get install -y --no-install-recommends --no-install-suggests --fix-missing ")
+	sb.WriteString(strings.Join(types.BaseAptPackage, " "))
+	if g.Shell == shellZSH {
+		sb.WriteString("zsh ")
+	}
+	sb.WriteString("&& rm -rf /var/lib/apt/lists/* ")
+	// shell prompt
+	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
+
+	cacheDir := "/var/cache/apt"
+	cacheLibDir := "/var/lib/apt"
+
+	run := base.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())), llb.WithCustomNamef(sb.String()))
+	run.AddMount(cacheDir, llb.Scratch(),
+		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
+	run.AddMount(cacheLibDir, llb.Scratch(),
+		llb.AsPersistentCacheDir(g.CacheID(cacheLibDir), llb.CacheMountShared))
+
+	// TODO(keming): sshd image
+	return run.Root()
+}
+
 func (g *Graph) compileBase() (llb.State, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"os":       g.OS,
@@ -173,8 +204,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 				g.uid = 1001
 			}
 		case "python":
-			base = llb.Image(fmt.Sprintf(
-				"docker.io/%s/python:3.9-ubuntu20.04-envd-%s", org, v))
+			base = g.preparePythonBase()
 		case "julia":
 			base = llb.Image(fmt.Sprintf(
 				"docker.io/%s/julia:1.8rc1-ubuntu20.04-envd-%s", org, v))
