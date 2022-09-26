@@ -24,13 +24,13 @@ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
-    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-sshd-from-scratch \
+    --build-arg ENVD_SSH_IMAGE=tensorchord/envd-sshd-from-scratch \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-envd-${DOCKER_IMAGE_TAG} \
     -f python${PYTHON_VERSION}-${ENVD_OS}.Dockerfile .
 docker buildx build --build-arg IMAGE_NAME=docker.io/nvidia/cuda \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
-    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-sshd-from-scratch \
+    --build-arg ENVD_SSH_IMAGE=tensorchord/envd-sshd-from-scratch \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -t ${DOCKER_HUB_ORG}/python:${PYTHON_VERSION}-${ENVD_OS}-cuda11.2-cudnn8-envd-${DOCKER_IMAGE_TAG} \
     -f python${PYTHON_VERSION}-${ENVD_OS}-cuda11.2.Dockerfile .

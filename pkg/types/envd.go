@@ -16,9 +16,12 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/docker/docker/api/types"
 	"github.com/moby/buildkit/util/system"
+
+	"github.com/tensorchord/envd/pkg/version"
 )
 
 // DefaultPathEnvUnix is unix style list of directories to search for
@@ -32,6 +35,9 @@ const DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/usr/local/j
 const DefaultPathEnvWindows = system.DefaultPathEnvWindows
 
 const PythonBaseImage = "ubuntu:20.04"
+
+var EnvdSshdImage = fmt.Sprintf(
+	"tensorchord/envd-sshd-from-scratch:%s", version.GetEnvdVersion())
 
 var BaseEnvironment = []struct {
 	Name  string

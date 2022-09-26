@@ -149,6 +149,11 @@ func (g *Graph) preparePythonBase() llb.State {
 		base = base.AddEnv(env.Name, env.Value)
 	}
 
+	// envd-sshd
+	sshd := base.File(llb.Copy(
+		llb.Image(types.EnvdSshdImage), "/usr/bin/envd-sshd", "/var/envd/bin/envd-sshd",
+		&llb.CopyInfo{CreateDestPath: true}))
+
 	// apt packages
 	var sb strings.Builder
 	sb.WriteString("apt-get update && apt-get install -y apt-utils && ")
@@ -164,7 +169,7 @@ func (g *Graph) preparePythonBase() llb.State {
 	cacheDir := "/var/cache/apt"
 	cacheLibDir := "/var/lib/apt"
 
-	run := base.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())), llb.WithCustomNamef(sb.String()))
+	run := sshd.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())), llb.WithCustomNamef(sb.String()))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
 	run.AddMount(cacheLibDir, llb.Scratch(),
