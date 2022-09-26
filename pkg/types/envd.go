@@ -89,6 +89,16 @@ type PortBinding struct {
 	HostPort string
 }
 
+type EnvdAuth struct {
+	Current string       `json:"current,omitempty"`
+	Auth    []AuthConfig `json:"auth,omitempty"`
+}
+
+type AuthConfig struct {
+	Name          string `json:"name,omitempty"`
+	IdentityToken string `json:"identity_token,omitempty"`
+}
+
 func NewImage(image types.ImageSummary) (*EnvdImage, error) {
 	img := EnvdImage{
 		ImageSummary: image,

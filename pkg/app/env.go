@@ -49,7 +49,7 @@ var CommandListEnv = &cli.Command{
 }
 
 func getEnvironment(clicontext *cli.Context) error {
-	envdEngine, err := envd.New(clicontext.Context)
+	envdEngine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return err
 	}

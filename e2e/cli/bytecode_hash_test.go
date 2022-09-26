@@ -43,16 +43,16 @@ var _ = Describe("bytecode hash cache target", func() {
 	exampleName := "quick-start"
 	It("add some blank to build.envd", func() {
 		testcase := "add-blank"
-		e := e2e.NewExample(buildContextDirWithName(exampleName), testcase)
+		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		ctx := context.TODO()
 		e.BuildImage(false)()
-		dockerClient := e2e.GetDockerClient(ctx)
-		imageSum, err := dockerClient.GetImage(ctx, e.Tag)
+		engine := e2e.GetEngine(ctx)
+		imageSum, err := engine.GetImage(ctx, e.Tag)
 		Expect(err).NotTo(HaveOccurred())
 		oldCreated := imageSum.Created
 		appendSomeToFile("testdata/" + exampleName + "/build.envd")
 		e.BuildImage(false)()
-		imageSum, err = dockerClient.GetImage(ctx, e.Tag)
+		imageSum, err = engine.GetImage(ctx, e.Tag)
 		Expect(err).NotTo(HaveOccurred())
 		newCreated := imageSum.Created
 		Expect(oldCreated).To(Equal(newCreated))

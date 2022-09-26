@@ -16,7 +16,6 @@ package docs
 
 import (
 	"fmt"
-	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -65,7 +64,7 @@ var _ = Describe("check examples in documentation", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	up_tests := []string{"testdata/minimal", "testdata/getting_started", "testdata/jupyter", "testdata/complex"}
+	up_tests := []string{"testdata/minimal", "testdata/getting_started", "testdata/jupyter"}
 
 	for _, v := range up_tests {
 		It(fmt.Sprintf("can up %s environment", v), func() {
@@ -86,8 +85,3 @@ var _ = Describe("check examples in documentation", func() {
 	}
 
 })
-
-func TestMain(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "envd documentation example test suite")
-}

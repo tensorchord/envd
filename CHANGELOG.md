@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.2.4-alpha.1 (2022-09-21)
+
+ * [171b82f](https://github.com/tensorchord/envd/commit/171b82fcbac1da9543b9acda1911d110c322d802) fix: e2e doc test (#926)
+ * [ce36545](https://github.com/tensorchord/envd/commit/ce36545d4865a6062ab4b6332a0e26e0d7030db2) feat(cli): rm image when destroying the env (#925)
+ * [eecc7cf](https://github.com/tensorchord/envd/commit/eecc7cf48cf354ef3d72f17dfcf1d6f19bf90b85) feat: informative error message (#859)
+ * [a3fd464](https://github.com/tensorchord/envd/commit/a3fd4649f83f95d4e349348e4367bf564447780f) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.1.6 to 2.2.0 (#919)
+ * [756c92d](https://github.com/tensorchord/envd/commit/756c92d48cb819149be5520948de122b687a25aa) chore(deps): bump github.com/urfave/cli/v2 from 2.16.2 to 2.16.3 (#918)
+ * [b5acc08](https://github.com/tensorchord/envd/commit/b5acc08d46b6b84a0c57d19a2e1b62e247785bd4) chore(deps): bump pypa/cibuildwheel from 2.9.0 to 2.10.1 (#917)
+
+### Contributors
+
+ * Jinjing Zhou
+ * Keming
+ * dependabot[bot]
+
 ## v0.2.3 (2022-09-16)
 
  * [c3c0b4e](https://github.com/tensorchord/envd/commit/c3c0b4e33ab696c3863632d0d4179f8211813fcb) fix: Use macos 11 (#912)
