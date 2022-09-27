@@ -158,9 +158,6 @@ func (g *Graph) preparePythonBase(root llb.State) llb.State {
 	sb.WriteString("apt-get update && apt-get install -y apt-utils && ")
 	sb.WriteString("apt-get install -y --no-install-recommends --no-install-suggests --fix-missing ")
 	sb.WriteString(strings.Join(types.BaseAptPackage, " "))
-	if g.Shell == shellZSH {
-		sb.WriteString("zsh ")
-	}
 	sb.WriteString("&& rm -rf /var/lib/apt/lists/* ")
 	// shell prompt
 	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
