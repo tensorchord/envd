@@ -8,6 +8,7 @@ permissions:
 
 jobs:
   dependabot:
+    if: github.repository == 'tensorchord/envd'
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
@@ -27,6 +28,7 @@ jobs:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
   changelog:
+    if: github.repository == 'tensorchord/envd'
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'github-actions[bot]' }}
     steps:
