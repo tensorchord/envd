@@ -15,6 +15,7 @@ jobs:
   goreleaser:
     if: github.repository == 'kemingy/envd'
     runs-on: ubuntu-latest
+    environment: docker
     steps:
       - name: Checkout
         uses: actions/checkout@v3
