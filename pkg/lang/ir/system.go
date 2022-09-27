@@ -175,7 +175,6 @@ func (g *Graph) preparePythonBase() llb.State {
 	run.AddMount(cacheLibDir, llb.Scratch(),
 		llb.AsPersistentCacheDir(g.CacheID(cacheLibDir), llb.CacheMountShared))
 
-	// TODO(keming): sshd image
 	return run.Root()
 }
 
