@@ -26,4 +26,4 @@ custom_channels:
     install.python_packages(name = [
         "flask"
     ])
-    install.cuda(version="11.2", cudnn="8")
+    install.cuda(version="11.2.0", cudnn="8")
