@@ -370,7 +370,7 @@ func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
 	}
 	isUpdated, err := b.checkDepsFileUpdate(ctx, b.Tag, b.ManifestFilePath, depsFiles)
 	if err != nil {
-		b.logger.Debugf("failed to check manifest update: %s", err)
+		b.logger.Debugf("failed to check manifest update: %w", err)
 	}
 	if !isUpdated {
 		b.logger.Infof("manifest is not updated, skip building")
@@ -399,7 +399,7 @@ func (b generalBuilder) checkDepsFileUpdate(ctx context.Context, tag string, man
 			return true, err
 		}
 		modifiedtime := file.ModTime().Unix()
-		// Only needt o use the latest modified time
+		// Only need to use the latest modified time
 		if modifiedtime > latestTimestamp {
 			latestTimestamp = modifiedtime
 		}
