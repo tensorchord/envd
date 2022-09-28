@@ -36,14 +36,16 @@ const DefaultPathEnvWindows = system.DefaultPathEnvWindows
 
 const PythonBaseImage = "ubuntu:20.04"
 
-var EnvdSshdImage = fmt.Sprintf("tensorchord/envd-sshd-from-scratch:%s", version.GetEnvdVersion())
+var EnvdSshdImage = fmt.Sprintf(
+	"tensorchord/envd-sshd-from-scratch:%s",
+	version.GetVersionForImageTag())
 
 var BaseEnvironment = []struct {
 	Name  string
 	Value string
 }{
 	{"DEBIAN_FRONTEND", "noninteractive"},
-	{"PATH", "/usr/bin:" + DefaultPathEnvUnix},
+	{"PATH", DefaultPathEnvUnix},
 	{"LANG", "C.UTF-8"},
 	{"LC_ALL", "C.UTF-8"},
 }
@@ -69,6 +71,7 @@ var BaseAptPackage = []string{
 	"tini",
 	"sudo",
 	"vim",
+	"zsh",
 }
 
 type EnvdImage struct {

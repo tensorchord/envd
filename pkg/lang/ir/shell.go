@@ -91,7 +91,7 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 		File(llb.Mkfile(installPath,
 			0644, []byte(m.InstallScript()), llb.WithUIDGID(g.uid, g.gid)))
 	zshrc := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)),
-		llb.WithCustomName("install oh-my-zsh")).
+		llb.WithCustomName("[internal] install oh-my-zsh")).
 		File(llb.Mkfile(zshrcPath,
 			0644, []byte(m.ZSHRC()), llb.WithUIDGID(g.uid, g.gid)))
 	return zshrc, nil

@@ -69,7 +69,7 @@ changelog:
       - '^chore:'
 dockers:
 - image_templates:
-  - "tensorchord/envd-sshd-from-scratch:{{ .Version }}-amd64"
+  - "tensorchord/envd-sshd-from-scratch:v{{ .Version }}-amd64"
   use: buildx
   dockerfile: .goreleaser/envd-sshd.Dockerfile
   ids:
@@ -77,7 +77,7 @@ dockers:
   build_flag_templates:
   - "--platform=linux/amd64"
 - image_templates:
-  - "tensorchord/envd-sshd-from-scratch:{{ .Version }}-arm64v8"
+  - "tensorchord/envd-sshd-from-scratch:v{{ .Version }}-arm64v8"
   use: buildx
   goarch: arm64
   ids:
@@ -86,10 +86,10 @@ dockers:
   build_flag_templates:
   - "--platform=linux/arm64/v8"
 docker_manifests:
-- name_template: tensorchord/envd-sshd-from-scratch:{{ .Version }}
+- name_template: tensorchord/envd-sshd-from-scratch:v{{ .Version }}
   image_templates:
-  - tensorchord/envd-sshd-from-scratch:{{ .Version }}-amd64
-  - tensorchord/envd-sshd-from-scratch:{{ .Version }}-arm64v8
+  - tensorchord/envd-sshd-from-scratch:v{{ .Version }}-amd64
+  - tensorchord/envd-sshd-from-scratch:v{{ .Version }}-arm64v8
 # See https://github.com/tensorchord/envd/issues/908
 # brews:
 #   - name: envd

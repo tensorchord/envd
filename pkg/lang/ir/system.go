@@ -99,6 +99,7 @@ func (g *Graph) compileCUDAPackages(org string) llb.State {
 
 func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	if len(g.SystemPackages) == 0 {
+		logrus.Debug("skip the apt since system package is not specified")
 		return root
 	}
 
@@ -151,7 +152,8 @@ func (g *Graph) preparePythonBase(root llb.State) llb.State {
 	// envd-sshd
 	sshd := root.File(llb.Copy(
 		llb.Image(types.EnvdSshdImage), "/usr/bin/envd-sshd", "/var/envd/bin/envd-sshd",
-		&llb.CopyInfo{CreateDestPath: true}), llb.WithCustomName("[internal] add envd-sshd"))
+		&llb.CopyInfo{CreateDestPath: true}),
+		llb.WithCustomName(fmt.Sprintf("[internal] add envd-sshd from %s", types.EnvdSshdImage)))
 
 	// apt packages
 	var sb strings.Builder
@@ -165,7 +167,8 @@ func (g *Graph) preparePythonBase(root llb.State) llb.State {
 	cacheDir := "/var/cache/apt"
 	cacheLibDir := "/var/lib/apt"
 
-	run := sshd.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())), llb.WithCustomName("[internal] system packages"))
+	run := sshd.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
+		llb.WithCustomName("[internal] install system packages"))
 	run.AddMount(cacheDir, llb.Scratch(),
 		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
 	run.AddMount(cacheLibDir, llb.Scratch(),
@@ -213,7 +216,6 @@ func (g *Graph) compileBase() (llb.State, error) {
 	} else {
 		base = g.compileCUDAPackages("nvidia/cuda")
 	}
-	var res llb.ExecState
 
 	// Install conda first.
 	condaStage, err := g.installConda(base)
@@ -222,6 +224,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 	}
 
 	// TODO(gaocegege): Refactor user to a separate stage.
+	var res llb.ExecState
 	if g.uid == 0 {
 		res = condaStage.
 			Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", 1001)),

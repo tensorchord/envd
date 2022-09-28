@@ -108,12 +108,13 @@ jobs:
         key: ${{ runner.os }}-buildx-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-buildx-
+    - name: Docker Login
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERIO_USERNAME }}
+        password: ${{ secrets.DOCKERIO_TOKEN }}
     - name: Docker Buildx
-      env:
-        DOCKERIO_USERNAME: ${{ secrets.DOCKERIO_USERNAME }}
-        DOCKERIO_PASSWORD: ${{ secrets.DOCKERIO_PASSWORD }}
       run: |
-          docker login --username "${DOCKERIO_USERNAME}" --password "${DOCKERIO_PASSWORD}"
           ./base-images/build.sh
           DOCKER_IMAGE_TAG=latest ./base-images/build.sh
   cache_publish:
@@ -144,10 +145,11 @@ jobs:
       run: |
         mv dist/envd_linux_amd64_v1/envd /usr/local/bin/envd
         chmod +x /usr/local/bin/envd
+    - name: Docker Login
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERIO_USERNAME }}
+        password: ${{ secrets.DOCKERIO_TOKEN }}
     - name: Build and push
-      env:
-        DOCKERIO_USERNAME: ${{ secrets.DOCKERIO_USERNAME }}
-        DOCKERIO_PASSWORD: ${{ secrets.DOCKERIO_PASSWORD }}
       run: |
-          docker login --username "${DOCKERIO_USERNAME}" --password "${DOCKERIO_PASSWORD}"
           ./base-images/remote-cache/build-and-push-remote-cache.sh
