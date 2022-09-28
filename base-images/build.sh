@@ -25,13 +25,13 @@ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 # TODO(gaocegege): Support linux/arm64
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
-    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-sshd-from-scratch \
+    --build-arg ENVD_SSH_IMAGE=tensorchord/envd-sshd-from-scratch \
     -t ${DOCKER_HUB_ORG}/r-base:${RLANG_VERSION}-envd-${DOCKER_IMAGE_TAG} \
     --pull --push --platform linux/x86_64 \
     -f r${RLANG_VERSION}.Dockerfile .
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
-    --build-arg ENVD_SSH_IMAGE=ghcr.io/tensorchord/envd-sshd-from-scratch \
+    --build-arg ENVD_SSH_IMAGE=tensorchord/envd-sshd-from-scratch \
     -t ${DOCKER_HUB_ORG}/julia:${JULIA_VERSION}-${ENVD_OS}-envd-${DOCKER_IMAGE_TAG} \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -f julia${JULIA_VERSION}-${ENVD_OS}.Dockerfile .
