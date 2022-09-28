@@ -91,14 +91,15 @@ func (g Graph) compileCopy(root llb.State) llb.State {
 	return result
 }
 
-func (g *Graph) compileCUDAPackages(org, version string) llb.State {
-	return llb.Image(fmt.Sprintf(
-		"docker.io/%s/python:3.9-%s-cuda%s-cudnn%s-envd-%s",
-		org, g.OS, *g.CUDA, *g.CUDNN, version))
+func (g *Graph) compileCUDAPackages(org string) llb.State {
+	return g.preparePythonBase(llb.Image(fmt.Sprintf(
+		"docker.io/%s/%s-cudnn%s-devel-%s",
+		org, *g.CUDA, *g.CUDNN, g.OS)))
 }
 
 func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	if len(g.SystemPackages) == 0 {
+		logrus.Debug("skip the apt since system package is not specified")
 		return root
 	}
 
@@ -143,6 +144,39 @@ func (g *Graph) compileExtraSource(root llb.State) (llb.State, error) {
 	return llb.Merge(inputs, llb.WithCustomName("[internal] build source layers")), nil
 }
 
+func (g *Graph) preparePythonBase(root llb.State) llb.State {
+	for _, env := range types.BaseEnvironment {
+		root = root.AddEnv(env.Name, env.Value)
+	}
+
+	// envd-sshd
+	sshd := root.File(llb.Copy(
+		llb.Image(types.EnvdSshdImage), "/usr/bin/envd-sshd", "/var/envd/bin/envd-sshd",
+		&llb.CopyInfo{CreateDestPath: true}),
+		llb.WithCustomName(fmt.Sprintf("[internal] add envd-sshd from %s", types.EnvdSshdImage)))
+
+	// apt packages
+	var sb strings.Builder
+	sb.WriteString("apt-get update && apt-get install -y apt-utils && ")
+	sb.WriteString("apt-get install -y --no-install-recommends --no-install-suggests --fix-missing ")
+	sb.WriteString(strings.Join(types.BaseAptPackage, " "))
+	sb.WriteString("&& rm -rf /var/lib/apt/lists/* ")
+	// shell prompt
+	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
+
+	cacheDir := "/var/cache/apt"
+	cacheLibDir := "/var/lib/apt"
+
+	run := sshd.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
+		llb.WithCustomName("[internal] install system packages"))
+	run.AddMount(cacheDir, llb.Scratch(),
+		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
+	run.AddMount(cacheLibDir, llb.Scratch(),
+		llb.AsPersistentCacheDir(g.CacheID(cacheLibDir), llb.CacheMountShared))
+
+	return run.Root()
+}
+
 func (g *Graph) compileBase() (llb.State, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"os":       g.OS,
@@ -173,16 +207,15 @@ func (g *Graph) compileBase() (llb.State, error) {
 				g.uid = 1001
 			}
 		case "python":
-			base = llb.Image(fmt.Sprintf(
-				"docker.io/%s/python:3.9-ubuntu20.04-envd-%s", org, v))
+			// TODO(keming) use user input `base(os="")`
+			base = g.preparePythonBase(llb.Image(types.PythonBaseImage))
 		case "julia":
 			base = llb.Image(fmt.Sprintf(
 				"docker.io/%s/julia:1.8rc1-ubuntu20.04-envd-%s", org, v))
 		}
 	} else {
-		base = g.compileCUDAPackages(org, v)
+		base = g.compileCUDAPackages("nvidia/cuda")
 	}
-	var res llb.ExecState
 
 	// Install conda first.
 	condaStage, err := g.installConda(base)
@@ -191,6 +224,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 	}
 
 	// TODO(gaocegege): Refactor user to a separate stage.
+	var res llb.ExecState
 	if g.uid == 0 {
 		res = condaStage.
 			Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", 1001)),
