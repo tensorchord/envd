@@ -93,7 +93,7 @@ func (g Graph) compileCopy(root llb.State) llb.State {
 
 func (g *Graph) compileCUDAPackages(org string) llb.State {
 	return g.preparePythonBase(llb.Image(fmt.Sprintf(
-		"docker.io/%s/%s-cudnn%s-devel-%s",
+		"docker.io/%s:%s-cudnn%s-devel-%s",
 		org, *g.CUDA, *g.CUDNN, g.OS)))
 }
 
