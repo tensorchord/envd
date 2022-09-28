@@ -12,9 +12,7 @@ RLANG_VERSION="${RLANG_VERSION:-4.2}"
 
 cd ${ROOT_DIR}
 # ubuntu 22.04 build require moby/buildkit version greater than 0.8.1
-if ! docker buildx inspect cuda; then
-    docker buildx create --use --platform linux/x86_64,linux/arm64,linux/ppc64le --driver-opt image=moby/buildkit:v0.10.3
-fi
+docker buildx create --use --platform linux/x86_64,linux/arm64,linux/ppc64le --driver-opt image=moby/buildkit:v0.10.3
 
 # https://github.com/docker/buildx/issues/495#issuecomment-754688157
 docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
