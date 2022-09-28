@@ -36,7 +36,7 @@ const DefaultPathEnvWindows = system.DefaultPathEnvWindows
 
 const PythonBaseImage = "ubuntu:20.04"
 
-var EnvdSshdImage = fmt.Sprintf("kemingy/envd-sshd-from-scratch:%s", version.GetEnvdVersion())
+var EnvdSshdImage = fmt.Sprintf("kemingy/envd-sshd-from-scratch:%s", version.GetVersionForImageTag())
 
 var BaseEnvironment = []struct {
 	Name  string
