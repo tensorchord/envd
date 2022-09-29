@@ -86,7 +86,7 @@ func Compile(ctx context.Context, envName string, pub string) (*llb.Definition, 
 	}
 	state, err := DefaultGraph.Compile(uid, gid)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to compile")
+		return nil, errors.Wrap(err, "failed to compile the graph")
 	}
 	// TODO(gaocegege): Support multi platform.
 	def, err := state.Marshal(ctx, llb.LinuxAmd64)

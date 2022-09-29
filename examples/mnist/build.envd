@@ -15,9 +15,10 @@ def build():
         "--extra-index-url https://download.pytorch.org/whl/cpu"
     ])
 
+
 def build_gpu():
     base_env()
-    install.cuda(version="11.2", cudnn="8")    
+    install.cuda(version="11.2.0", cudnn="8")    
     install.python_packages([
         "torch",
         "torchvision",

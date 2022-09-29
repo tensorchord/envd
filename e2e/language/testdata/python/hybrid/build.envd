@@ -1,4 +1,2 @@
 def build():
-    install.python_packages(name=[
-        "via"
-    ], requirements="requirements.txt")
+    install.python_packages(name=["via"], requirements="requirements.txt")

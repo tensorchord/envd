@@ -1,11 +1,15 @@
 def build():
     base(os="ubuntu20.04", language="python")
-    #config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
-    install.python_packages([
-        "via",
-    ])
+    # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
+    install.python_packages(
+        [
+            "via",
+        ]
+    )
     io.copy(host_path="./build.envd", envd_path="/")
-    runtime.command(commands={
-        "test": "ls /",
-    })
+    runtime.command(
+        commands={
+            "test": "ls /",
+        }
+    )
     runtime.environ(env={"ENVD_MODE": "DEV"})

@@ -1,5 +1,56 @@
 # Changelog
 
+## v0.2.4-alpha.5 (2022-09-28)
+
+ * [d16a975](https://github.com/tensorchord/envd/commit/d16a975d2ec1c8310e02d0e00841cf82900d49cf) fix: cuda tag (#949)
+
+### Contributors
+
+ * Keming
+
+## v0.2.4-alpha.4 (2022-09-28)
+
+ * [236cd0b](https://github.com/tensorchord/envd/commit/236cd0be8cdfa9e4731d3b69cec7027001c8770b) fix: version tag in build.sh (#947)
+
+### Contributors
+
+ * Keming
+
+## v0.2.4-alpha.3 (2022-09-28)
+
+ * [2eef587](https://github.com/tensorchord/envd/commit/2eef587b44dfe77828570bac8a3e2a7def61c5e1) fix: r & julia sshd image (#945)
+
+### Contributors
+
+ * Keming
+
+## v0.2.4-alpha.2 (2022-09-28)
+
+ * [b704029](https://github.com/tensorchord/envd/commit/b70402917edf874a0a8e630664b637fa8c22cd53) feat(ir): all in llb (#941)
+ * [f5f70e0](https://github.com/tensorchord/envd/commit/f5f70e0de304b8ff4767cd935ab3d307ed5599a2) chore(deps): bump pypa/cibuildwheel from 2.10.1 to 2.10.2 (#936)
+ * [bd69c3d](https://github.com/tensorchord/envd/commit/bd69c3df326f1f213472960c099dff0c6d35e41c) feat: Support envd-server (#932)
+
+### Contributors
+
+ * Ce Gao
+ * Keming
+ * dependabot[bot]
+
+## v0.2.4-alpha.1 (2022-09-21)
+
+ * [171b82f](https://github.com/tensorchord/envd/commit/171b82fcbac1da9543b9acda1911d110c322d802) fix: e2e doc test (#926)
+ * [ce36545](https://github.com/tensorchord/envd/commit/ce36545d4865a6062ab4b6332a0e26e0d7030db2) feat(cli): rm image when destroying the env (#925)
+ * [eecc7cf](https://github.com/tensorchord/envd/commit/eecc7cf48cf354ef3d72f17dfcf1d6f19bf90b85) feat: informative error message (#859)
+ * [a3fd464](https://github.com/tensorchord/envd/commit/a3fd4649f83f95d4e349348e4367bf564447780f) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.1.6 to 2.2.0 (#919)
+ * [756c92d](https://github.com/tensorchord/envd/commit/756c92d48cb819149be5520948de122b687a25aa) chore(deps): bump github.com/urfave/cli/v2 from 2.16.2 to 2.16.3 (#918)
+ * [b5acc08](https://github.com/tensorchord/envd/commit/b5acc08d46b6b84a0c57d19a2e1b62e247785bd4) chore(deps): bump pypa/cibuildwheel from 2.9.0 to 2.10.1 (#917)
+
+### Contributors
+
+ * Jinjing Zhou
+ * Keming
+ * dependabot[bot]
+
 ## v0.2.3 (2022-09-16)
 
  * [c3c0b4e](https://github.com/tensorchord/envd/commit/c3c0b4e33ab696c3863632d0d4179f8211813fcb) fix: Use macos 11 (#912)

@@ -12,23 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package language
+package docs
 
 import (
-	"os"
-	"testing"
-
 	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
-	"github.com/tensorchord/envd/pkg/version"
+	"github.com/tensorchord/envd/e2e"
 )
 
-func init() {
-	version.SetGitTagForE2ETest(os.Getenv("GIT_LATEST_TAG"))
-}
-
-func TestMain(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "envd language Suite")
-}
+var _ = Describe("check GPU examples in documentation", Ordered, func() {
+	e := e2e.NewExample(e2e.BuildContextDirWithName("complex"), "e2e-doc")
+	It("should be able to build the GPU example", e.BuildImage(true))
+	AfterAll(e.DestroyContainer())
+})

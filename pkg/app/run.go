@@ -22,7 +22,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
@@ -116,12 +116,12 @@ func run(clicontext *cli.Context) error {
 	}
 
 	// Check if the container is running.
-	dockerClient, err := docker.NewClient(clicontext.Context)
+	engine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return errors.Wrap(err, "failed to create the docker client")
 	}
 	if isRunning, err :=
-		dockerClient.IsRunning(clicontext.Context, name); err != nil {
+		engine.IsRunning(clicontext.Context, name); err != nil {
 		return errors.Wrapf(
 			err, "failed to check if the environment %s is running", name)
 	} else if !isRunning {

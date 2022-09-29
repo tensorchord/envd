@@ -96,7 +96,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: help lint test build dev container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build base-image
+.PHONY: help lint test build dev container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build base-image envd-lint envd-fmt
 
 .DEFAULT_GOAL:=build-local
 
@@ -207,7 +207,7 @@ e2e-doc-test:
 		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
 		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
 		-X $(ROOT)/pkg/version.developmentFlag=true" \
-		-race -v -timeout 20m -coverpkg=./pkg/app -coverprofile=e2e-doc-coverage.out ./e2e/docs
+		-race -v -timeout 60m -coverpkg=./pkg/app -coverprofile=e2e-doc-coverage.out ./e2e/docs
 
 
 clean:  ## Clean the outputs and artifacts
@@ -220,3 +220,9 @@ fmt: ## Run go fmt against code.
 
 vet: ## Run go vet against code.
 	go vet ./...
+
+envd-lint:
+	black --check --include '(\.envd|\.py|\.ipynb)$$' .
+
+envd-fmt:
+	black --include '(\.envd|\.py|\.ipynb)$$' .

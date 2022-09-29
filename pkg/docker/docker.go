@@ -20,69 +20,34 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/jsonmessage"
-	"github.com/docker/go-connections/nat"
 	"github.com/moby/term"
 	"github.com/sirupsen/logrus"
-
-	envdconfig "github.com/tensorchord/envd/pkg/config"
-	"github.com/tensorchord/envd/pkg/lang/ir"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
-	"github.com/tensorchord/envd/pkg/util/netutil"
-)
-
-const (
-	localhost = "127.0.0.1"
 )
 
 var (
-	interval                 = 1 * time.Second
 	anchoredIdentifierRegexp = regexp.MustCompile(`^([a-f0-9]{64})$`)
 )
 
 type Client interface {
 	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
-	// StartEnvd creates the container for the given tag and container name.
-	StartEnvd(ctx context.Context, tag, name, buildContext string,
-		gpuEnabled bool, numGPUs int, sshPort int, g ir.Graph, timeout time.Duration,
-		mountOptionsStr []string) (string, string, error)
 	StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error)
-	CleanEnvdIfExists(ctx context.Context, name string, force bool) error
-
-	IsRunning(ctx context.Context, name string) (bool, error)
-	Exists(ctx context.Context, name string) (bool, error)
-	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
 
 	Exec(ctx context.Context, cname string, cmd []string) error
 	Destroy(ctx context.Context, name string) (string, error)
 
-	ListContainer(ctx context.Context) ([]types.Container, error)
-	GetContainer(ctx context.Context, cname string) (types.ContainerJSON, error)
-	PauseContainer(ctx context.Context, name string) (string, error)
-	ResumeContainer(ctx context.Context, name string) (string, error)
-
-	ListImage(ctx context.Context) ([]types.ImageSummary, error)
-	GetImage(ctx context.Context, image string) (types.ImageSummary, error)
 	GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error)
 	RemoveImage(ctx context.Context, image string) error
 
-	GetInfo(ctx context.Context) (types.Info, error)
 	Stats(ctx context.Context, cname string, statChan chan<- *Stats, done <-chan bool) error
-
-	// GPUEnabled returns true if nvidia container runtime exists in docker daemon.
-	GPUEnabled(ctx context.Context) (bool, error)
 }
 
 type generalClient struct {
@@ -131,52 +96,6 @@ func NormalizeNamed(s string) (string, error) {
 
 }
 
-func (c generalClient) GPUEnabled(ctx context.Context) (bool, error) {
-	info, err := c.GetInfo(ctx)
-	if err != nil {
-		return false, errors.Wrap(err, "failed to get docker info")
-	}
-	logrus.WithField("info", info).Debug("docker info")
-	nv := info.Runtimes["nvidia"]
-	return nv.Path != "", nil
-}
-
-func (c generalClient) WaitUntilRunning(ctx context.Context,
-	name string, timeout time.Duration) error {
-	logger := logrus.WithField("container", name)
-	logger.Debug("waiting to start")
-
-	// First, wait for the container to be marked as started.
-	ctxTimeout, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
-	for {
-		select {
-		case <-time.After(interval):
-			isRunning, err := c.IsRunning(ctxTimeout, name)
-			if err != nil {
-				// Has not yet started. Keep waiting.
-				return errors.Wrap(err, "failed to check if container is running")
-			}
-			if isRunning {
-				logger.Debug("the container is running")
-				return nil
-			}
-
-		case <-ctxTimeout.Done():
-			container, err := c.GetContainer(ctx, name)
-			if err != nil {
-				logger.Debugf("failed to inspect container %s", name)
-			}
-			state, err := json.Marshal(container.State)
-			if err != nil {
-				logger.Debug("failed to marshal container state")
-			}
-			logger.Debugf("container state: %s", state)
-			return errors.Errorf("timeout %s: container did not start", timeout)
-		}
-	}
-}
-
 func (c generalClient) ListImage(ctx context.Context) ([]types.ImageSummary, error) {
 	images, err := c.ImageList(ctx, types.ImageListOptions{
 		Filters: dockerFilters(false),
@@ -219,12 +138,6 @@ func (c generalClient) GetImageWithCacheHashLabel(ctx context.Context, image str
 	return images[0], nil
 }
 
-func (c generalClient) ListContainer(ctx context.Context) ([]types.Container, error) {
-	return c.ContainerList(ctx, types.ContainerListOptions{
-		Filters: dockerFilters(false),
-	})
-}
-
 func (c generalClient) PauseContainer(ctx context.Context, name string) (string, error) {
 	logger := logrus.WithField("container", name)
 	err := c.ContainerPause(ctx, name)
@@ -261,14 +174,6 @@ func (c generalClient) ResumeContainer(ctx context.Context, name string) (string
 		}
 	}
 	return name, nil
-}
-
-func (c generalClient) GetContainer(ctx context.Context, cname string) (types.ContainerJSON, error) {
-	return c.ContainerInspect(ctx, cname)
-}
-
-func (c generalClient) GetInfo(ctx context.Context) (types.Info, error) {
-	return c.Info(ctx)
 }
 
 func (c generalClient) Destroy(ctx context.Context, name string) (string, error) {
@@ -358,7 +263,7 @@ func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror str
 		return "", errors.Wrap(err, "failed to start container")
 	}
 
-	container, err := c.GetContainer(ctx, resp.ID)
+	container, err := c.ContainerInspect(ctx, resp.ID)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to inspect container")
 	}
@@ -366,217 +271,8 @@ func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror str
 	return container.Name, nil
 }
 
-func (c generalClient) CleanEnvdIfExists(ctx context.Context, name string, force bool) error {
-	created, err := c.Exists(ctx, name)
-	if err != nil {
-		return err
-	}
-	if !created {
-		return nil
-	}
-
-	// force delete the container no matter it is running or not.
-	if force {
-		return c.ContainerRemove(ctx, name, types.ContainerRemoveOptions{
-			Force: true,
-		})
-	}
-
-	running, _ := c.IsRunning(ctx, name)
-	if err != nil {
-		return err
-	}
-	if running {
-		logrus.Errorf("container %s is running, cannot clean envd, please save your data and stop the running container if you need to envd up again.", name)
-		return errors.Newf("\"%s\" is stil running, please run `envd destroy --name %s` stop it first", name, name)
-	}
-	return c.ContainerRemove(ctx, name, types.ContainerRemoveOptions{})
-}
-
-// StartEnvd creates the container for the given tag and container name.
-func (c generalClient) StartEnvd(ctx context.Context, tag, name, buildContext string,
-	gpuEnabled bool, numGPUs int, sshPortInHost int, g ir.Graph, timeout time.Duration,
-	mountOptionsStr []string) (string, string, error) {
-	logger := logrus.WithFields(logrus.Fields{
-		"tag":           tag,
-		"container":     name,
-		"gpu":           gpuEnabled,
-		"numGPUs":       numGPUs,
-		"build-context": buildContext,
-	})
-	config := &container.Config{
-		Image:        tag,
-		User:         "envd",
-		ExposedPorts: nat.PortSet{},
-	}
-	base := fileutil.EnvdHomeDir(filepath.Base(buildContext))
-	config.WorkingDir = base
-
-	mountOption := make([]mount.Mount, 0, len(mountOptionsStr)+len(g.Mount)+1)
-	for _, option := range mountOptionsStr {
-		mStr := strings.Split(option, ":")
-		if len(mStr) != 2 {
-			return "", "", errors.Newf("Invalid mount options %s", option)
-		}
-
-		logger.WithFields(logrus.Fields{
-			"mount-path":     mStr[0],
-			"container-path": mStr[1],
-		}).Debug("setting up container working directory")
-		mountOption = append(mountOption, mount.Mount{
-			Type:   mount.TypeBind,
-			Source: mStr[0],
-			Target: mStr[1],
-		})
-	}
-	for _, m := range g.Mount {
-		logger.WithFields(logrus.Fields{
-			"mount-path":     m.Source,
-			"container-path": m.Destination,
-		}).Debug("setting up declared mount directory")
-		mountOption = append(mountOption, mount.Mount{
-			Type:   mount.TypeBind,
-			Source: m.Source,
-			Target: m.Destination,
-		})
-	}
-
-	mountOption = append(mountOption, mount.Mount{
-		Type:   mount.TypeBind,
-		Source: buildContext,
-		Target: base,
-	})
-
-	logger.WithFields(logrus.Fields{
-		"mount-path":  buildContext,
-		"working-dir": base,
-	}).Debug("setting up container working directory")
-
-	rp := container.RestartPolicy{
-		Name: "always",
-	}
-	hostConfig := &container.HostConfig{
-		PortBindings:  nat.PortMap{},
-		Mounts:        mountOption,
-		RestartPolicy: rp,
-	}
-
-	// Configure ssh port.
-	natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.SSHPortInContainer))
-	hostConfig.PortBindings[natPort] = []nat.PortBinding{
-		{
-			HostIP:   localhost,
-			HostPort: strconv.Itoa(sshPortInHost),
-		},
-	}
-
-	var jupyterPortInHost int
-	// TODO(gaocegege): Avoid specific logic to set the port.
-	if g.JupyterConfig != nil {
-		if g.JupyterConfig.Port != 0 {
-			jupyterPortInHost = int(g.JupyterConfig.Port)
-		} else {
-			var err error
-			jupyterPortInHost, err = netutil.GetFreePort()
-			if err != nil {
-				return "", "", errors.Wrap(err, "failed to get a free port")
-			}
-		}
-		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.JupyterPortInContainer))
-		hostConfig.PortBindings[natPort] = []nat.PortBinding{
-			{
-				HostIP:   localhost,
-				HostPort: strconv.Itoa(jupyterPortInHost),
-			},
-		}
-		config.ExposedPorts[natPort] = struct{}{}
-	}
-	var rStudioPortInHost int
-	if g.RStudioServerConfig != nil {
-		var err error
-		rStudioPortInHost, err = netutil.GetFreePort()
-		if err != nil {
-			return "", "", errors.Wrap(err, "failed to get a free port")
-		}
-		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.RStudioServerPortInContainer))
-		hostConfig.PortBindings[natPort] = []nat.PortBinding{
-			{
-				HostIP:   localhost,
-				HostPort: strconv.Itoa(rStudioPortInHost),
-			},
-		}
-		config.ExposedPorts[natPort] = struct{}{}
-	}
-
-	if len(g.RuntimeExpose) > 0 {
-		for _, item := range g.RuntimeExpose {
-			var err error
-			if item.HostPort == 0 {
-				item.HostPort, err = netutil.GetFreePort()
-				if err != nil {
-					return "", "", errors.Wrap(err, "failed to get a free port")
-				}
-			}
-			natPort := nat.Port(fmt.Sprintf("%d/tcp", item.EnvdPort))
-			hostConfig.PortBindings[natPort] = []nat.PortBinding{
-				{
-					HostIP:   localhost,
-					HostPort: strconv.Itoa(item.HostPort),
-				},
-			}
-			config.ExposedPorts[natPort] = struct{}{}
-		}
-	}
-
-	if gpuEnabled {
-		logger.Debug("GPU is enabled.")
-		hostConfig.DeviceRequests = deviceRequests(numGPUs)
-	}
-
-	config.Labels = labels(name, g,
-		sshPortInHost, jupyterPortInHost, rStudioPortInHost)
-
-	logger = logger.WithFields(logrus.Fields{
-		"entrypoint":  config.Entrypoint,
-		"working-dir": config.WorkingDir,
-	})
-	logger.Debugf("starting %s container", name)
-
-	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
-	if err != nil {
-		return "", "", errors.Wrap(err, "failed to create the container")
-	}
-
-	for _, w := range resp.Warnings {
-		logger.Warnf("run with warnings: %s", w)
-	}
-
-	if err := c.ContainerStart(
-		ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-		errCause := errors.UnwrapAll(err)
-		// Hack to check if the port is already allocated.
-		if strings.Contains(errCause.Error(), "port is already allocated") {
-			logrus.Debugf("failed to allocate the port: %s", err)
-			return "", "", errors.New("port is already allocated in the host")
-		}
-		return "", "", errors.Wrap(err, "failed to run the container")
-	}
-
-	container, err := c.GetContainer(ctx, resp.ID)
-	if err != nil {
-		return "", "", errors.Wrap(err, "failed to inspect the container")
-	}
-
-	if err := c.WaitUntilRunning(
-		ctx, container.Name, timeout); err != nil {
-		return "", "", errors.Wrap(err, "failed to wait until the container is running")
-	}
-
-	return container.Name, container.NetworkSettings.IPAddress, nil
-}
-
 func (c generalClient) Exists(ctx context.Context, cname string) (bool, error) {
-	_, err := c.GetContainer(ctx, cname)
+	_, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
 			return false, nil
@@ -587,7 +283,7 @@ func (c generalClient) Exists(ctx context.Context, cname string) (bool, error) {
 }
 
 func (c generalClient) IsRunning(ctx context.Context, cname string) (bool, error) {
-	container, err := c.GetContainer(ctx, cname)
+	container, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
 			return false, nil
@@ -665,23 +361,4 @@ func (c generalClient) Stats(ctx context.Context, cname string, statChan chan<- 
 		stats = new(Stats)
 	}
 	return nil
-}
-
-func deviceRequests(count int) []container.DeviceRequest {
-	return []container.DeviceRequest{
-		{
-			Driver: "nvidia",
-			Capabilities: [][]string{
-				{"gpu"},
-				{"nvidia"},
-				{"compute"},
-				{"compat32"},
-				{"graphics"},
-				{"utility"},
-				{"video"},
-				{"display"},
-			},
-			Count: count,
-		},
-	}
 }
