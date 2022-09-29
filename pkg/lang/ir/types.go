@@ -34,7 +34,7 @@ type Graph struct {
 
 	Shell   string
 	CUDA    *string
-	CUDNN   *string
+	CUDNN   string
 	NumGPUs int
 
 	UbuntuAPTSource    *string

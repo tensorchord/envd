@@ -21,9 +21,8 @@ import (
 )
 
 func (g Graph) CacheID(filename string) string {
-	gpu := g.CUDA != nil || g.CUDNN != nil
 	var cacheID string
-	if gpu {
+	if g.CUDA != nil {
 		cacheID = fmt.Sprintf("%s/%s-gpu", filename, g.EnvironmentName)
 	} else {
 		cacheID = fmt.Sprintf("%s/%s-cpu", filename, g.EnvironmentName)

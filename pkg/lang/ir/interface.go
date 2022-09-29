@@ -66,7 +66,7 @@ func GPU(numGPUs int) {
 
 func CUDA(version, cudnn string) {
 	DefaultGraph.CUDA = &version
-	DefaultGraph.CUDNN = &cudnn
+	DefaultGraph.CUDNN = cudnn
 }
 
 func VSCodePlugins(plugins []string) error {
