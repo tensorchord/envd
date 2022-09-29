@@ -1,5 +1,6 @@
 def build():
-    config.conda_channel(channel="""
+    config.conda_channel(
+        channel="""
 channels:
   - defaults
 show_channel_urls: true
@@ -16,14 +17,16 @@ custom_channels:
   pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
   pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
   simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
-""")
-    install.conda_packages(name = [
-        "pytorch",
-        # "torchvision",  # optional
-        "cudatoolkit=11.3",
-    ], channel= ["pytorch"])
+"""
+    )
+    install.conda_packages(
+        name=[
+            "pytorch",
+            # "torchvision",  # optional
+            "cudatoolkit=11.3",
+        ],
+        channel=["pytorch"],
+    )
     base(os="ubuntu20.04", language="python3.8")
-    install.python_packages(name = [
-        "flask"
-    ])
+    install.python_packages(name=["flask"])
     install.cuda(version="11.2.0", cudnn="8")
