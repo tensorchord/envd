@@ -2,12 +2,13 @@ def build():
     base(os="ubuntu20.04", language="python")
     configure_streamlit(8501)
 
+
 def configure_streamlit(port):
-    config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
-    install.python_packages([
-        "streamlit"
-    ])
-    runtime.daemon(commands=[
-        ["streamlit", "hello", "--server.port", str(port)],
-    ])
+    config.pip_index(url="https://pypi.tuna.tsinghua.edu.cn/simple")
+    install.python_packages(["streamlit"])
+    runtime.daemon(
+        commands=[
+            ["streamlit", "hello", "--server.port", str(port)],
+        ]
+    )
     runtime.expose(envd_port=port, host_port=port, service="streamlit")

@@ -96,7 +96,7 @@ export GOFLAGS ?= -count=1
 #
 
 # All targets.
-.PHONY: help lint test build dev container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build base-image
+.PHONY: help lint test build dev container push addlicense debug debug-local build-local generate clean test-local addlicense-install mockgen-install pypi-build base-image envd-lint envd-fmt
 
 .DEFAULT_GOAL:=build-local
 
@@ -220,3 +220,9 @@ fmt: ## Run go fmt against code.
 
 vet: ## Run go vet against code.
 	go vet ./...
+
+envd-lint:
+	black --check --include '(\.envd|\.py|\.ipynb)$$' .
+
+envd-fmt:
+	black --include '(\.envd|\.py|\.ipynb)$$' .

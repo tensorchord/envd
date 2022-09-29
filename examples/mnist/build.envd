@@ -1,15 +1,20 @@
 def build():
     base(os="ubuntu20.04", language="python3")
-    install.vscode_extensions([
-        "ms-python.python",
-    ])
-    #config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
-    install.python_packages([
-        "tensorflow",
-        "numpy",
-    ])
+    install.vscode_extensions(
+        [
+            "ms-python.python",
+        ]
+    )
+    # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
+    install.python_packages(
+        [
+            "tensorflow",
+            "numpy",
+        ]
+    )
     shell("zsh")
     config.jupyter()
+
 
 def build_gpu():
     build()
