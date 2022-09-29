@@ -1,26 +1,33 @@
 def base_env():
     base(os="ubuntu20.04", language="python3")
-    install.vscode_extensions([
-        "ms-python.python",
-    ])
+    install.vscode_extensions(
+        [
+            "ms-python.python",
+        ]
+    )
     shell("zsh")
     config.jupyter()
     # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
 
+
 def build():
     base_env()
-    install.python_packages([
-        "torch",
-        "torchvision",
-        "--extra-index-url https://download.pytorch.org/whl/cpu"
-    ])
+    install.python_packages(
+        [
+            "torch",
+            "torchvision",
+            "--extra-index-url https://download.pytorch.org/whl/cpu",
+        ]
+    )
 
 
 def build_gpu():
     base_env()
-    install.cuda(version="11.2.0", cudnn="8")    
-    install.python_packages([
-        "torch",
-        "torchvision",
-        "--extra-index-url https://download.pytorch.org/whl/cu113"
-    ])
+    install.cuda(version="11.2.0", cudnn="8")
+    install.python_packages(
+        [
+            "torch",
+            "torchvision",
+            "--extra-index-url https://download.pytorch.org/whl/cu113",
+        ]
+    )
