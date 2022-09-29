@@ -48,7 +48,7 @@ func NewGraph() *Graph {
 			Version: &langVersion,
 		},
 		CUDA:    nil,
-		CUDNN:   nil,
+		CUDNN:   "8", // default version
 		NumGPUs: -1,
 
 		PyPIPackages:   []string{},
@@ -136,9 +136,7 @@ func (g Graph) Labels() (map[string]string, error) {
 	if g.GPUEnabled() {
 		labels[types.ImageLabelGPU] = "true"
 		labels[types.ImageLabelCUDA] = *g.CUDA
-		if g.CUDNN != nil {
-			labels[types.ImageLabelCUDNN] = *g.CUDNN
-		}
+		labels[types.ImageLabelCUDNN] = g.CUDNN
 	}
 	labels[types.ImageLabelVendor] = types.ImageVendorEnvd
 	code, err := g.RuntimeGraph.Dump()
