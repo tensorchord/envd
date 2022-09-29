@@ -265,6 +265,22 @@ func up(clicontext *cli.Context) error {
 
 `envd create` will be introduced as the new command. It builds the image, and launches the container/pod. If the runner is `envd-server`, the image needs to be pushed first.
 
+Here, the endpoint from `envd-server` needs to be designed carefully.
+
+```
+POST /v1/environments
+To be determined.
+```
+
+#### `envd ssh`
+
+`envd ssh` will be introduced as the new command. It creates the ssh client config, then connect to the ssh proxy server `containerssh`. The username should be the contains the identitytoken and project name.
+
+The `envd-server` should:
+
+- Get the identity token and the project name, then find the correct pod to attach.
+- Update `containerssh` app config with the `/v1/config` endpoint.
+
 #### `envd-sshd`
 
 The `envd-sshd` is a tiny sshd implementation which is embeded into the image, and will be used in the resulting environment. envd CLI generates the entrypoint for envrironment image. The command for `envd-sshd` will be like:
