@@ -48,7 +48,7 @@ func NewGraph() *Graph {
 			Version: &langVersion,
 		},
 		CUDA:    nil,
-		CUDNN:   nil,
+		CUDNN:   "8", // default version
 		NumGPUs: -1,
 
 		PyPIPackages:   []string{},
@@ -136,9 +136,7 @@ func (g Graph) Labels() (map[string]string, error) {
 	if g.GPUEnabled() {
 		labels[types.ImageLabelGPU] = "true"
 		labels[types.ImageLabelCUDA] = *g.CUDA
-		if g.CUDNN != nil {
-			labels[types.ImageLabelCUDNN] = *g.CUDNN
-		}
+		labels[types.ImageLabelCUDNN] = g.CUDNN
 	}
 	labels[types.ImageLabelVendor] = types.ImageVendorEnvd
 	code, err := g.RuntimeGraph.Dump()
@@ -185,10 +183,18 @@ func (g Graph) EnvString() []string {
 
 func (g Graph) DefaultCacheImporter() (*string, error) {
 	// The base remote cache should work for all languages.
-	res := fmt.Sprintf(
-		"type=registry,ref=docker.io/%s/python-cache:envd-%s",
-		viper.GetString(flag.FlagDockerOrganization),
-		version.GetVersionForImageTag())
+	var res string
+	if g.CUDA != nil {
+		res = fmt.Sprintf(
+			"type=registry,ref=docker.io/%s/python-cache:envd-%s-cuda-%s-cudnn-%s",
+			viper.GetString(flag.FlagDockerOrganization),
+			version.GetVersionForImageTag(), *g.CUDA, g.CUDNN)
+	} else {
+		res = fmt.Sprintf(
+			"type=registry,ref=docker.io/%s/python-cache:envd-%s",
+			viper.GetString(flag.FlagDockerOrganization),
+			version.GetVersionForImageTag())
+	}
 	return &res, nil
 }
 

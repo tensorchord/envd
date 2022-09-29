@@ -94,7 +94,7 @@ func (g Graph) compileCopy(root llb.State) llb.State {
 func (g *Graph) compileCUDAPackages(org string) llb.State {
 	return g.preparePythonBase(llb.Image(fmt.Sprintf(
 		"docker.io/%s:%s-cudnn%s-devel-%s",
-		org, *g.CUDA, *g.CUDNN, g.OS)))
+		org, *g.CUDA, g.CUDNN, g.OS)))
 }
 
 func (g Graph) compileSystemPackages(root llb.State) llb.State {
@@ -194,7 +194,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 	if g.Image != nil {
 		logger.WithField("image", *g.Image).Debugf("using custom base image")
 		return llb.Image(*g.Image), nil
-	} else if g.CUDA == nil && g.CUDNN == nil {
+	} else if g.CUDA == nil {
 		switch g.Language.Name {
 		case "r":
 			base = llb.Image(fmt.Sprintf("docker.io/%s/r-base:4.2-envd-%s", org, v))
