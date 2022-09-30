@@ -56,6 +56,7 @@ func main() {
 			Name:    flagAuthKey,
 			Usage:   "path to authorized keys file, defaults to " + config.ContainerAuthorizedKeysPath,
 			Value:   config.ContainerAuthorizedKeysPath,
+			EnvVars: []string{"ENVD_AUTHORIZED_KEYS_PATH"},
 			Aliases: []string{"a"},
 		},
 		&cli.BoolFlag{

@@ -211,7 +211,7 @@ func (g Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
 	}
 
 	template := `set -euo pipefail
-/var/envd/bin/envd-sshd --authorized-keys %s --port %d --shell %s &
+/var/envd/bin/envd-sshd --port %d --shell %s &
 %s
 wait -n`
 
@@ -235,7 +235,6 @@ wait -n`
 	}
 
 	cmd := fmt.Sprintf(template,
-		config.ContainerAuthorizedKeysPath,
 		config.SSHPortInContainer, g.Shell, customCmd.String())
 	ep = append(ep, cmd)
 
