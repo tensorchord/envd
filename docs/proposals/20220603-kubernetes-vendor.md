@@ -100,7 +100,7 @@ envd CLI communicates with the API server to:
 
 If the user reconnects to the pod, envd API server needs to know the correct pod to reconnect.
 
-Thus the backend pod should have a unique identifier. When the user run envd attach (Or maybe envd ssh), the only information given to envd API server, is the username. Thus the CLI should encode the project name, the user, and other info, and use it as the username.
+Thus the backend pod should have a unique identifier. When the user runs envd attach (Or maybe envd ssh), the only information given to the envd API server is the username. Thus the CLI should encode the project name, the user, and other info and use it as the username.
 
 Or, the server grants the user a unique random username when the envd CLI logins. The envd CLI uses the unique username to communicate with the API server.
 
