@@ -112,7 +112,7 @@ The pod can be deleted if it is idle within a given time threshold. This feature
 
 #### Port forwarding
 
-There are several ports will be used in envd:
+There are several ports that will be used in envd:
 
 - sshd server port. envd randomly selects a host port for sshd.
 - jupyter notebook port.
