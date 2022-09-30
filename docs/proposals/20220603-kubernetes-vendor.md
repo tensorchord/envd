@@ -283,7 +283,7 @@ The `envd-server` should:
 
 #### `envd-sshd`
 
-The `envd-sshd` is a tiny sshd implementation which is embeded into the image, and will be used in the resulting environment. envd CLI generates the entrypoint for envrironment image. The command for `envd-sshd` will be like:
+The `envd-sshd` is a tiny sshd implementation embedded into the image and will be used in the resulting environment. envd CLI generates the entrypoint for the environment image. The command for `envd-sshd` will be like this:
 
 ```
 envd-sshd --port <port> --key <public key path>
