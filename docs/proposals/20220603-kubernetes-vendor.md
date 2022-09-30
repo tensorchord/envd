@@ -48,7 +48,7 @@ As an ML infra engineer, I want to build the images with CI/CD tools. Docker may
 
 #### Remote development
 
-As a AI/ML engineer, I want to develop on the remote cluster (managed by Kubernetes).
+As an AI/ML engineer, I want to develop on the remote cluster (managed by Kubernetes).
 
 ### CLI behavior
 
