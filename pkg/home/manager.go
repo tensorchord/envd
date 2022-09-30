@@ -60,9 +60,11 @@ func Initialize() error {
 				Current: "default",
 				Contexts: []types.Context{
 					{
-						Name:          "default",
-						Builder:       types.BuilderTypeDocker,
-						BuilderSocket: "envd_buildkitd",
+						Name:           "default",
+						Builder:        types.BuilderTypeDocker,
+						BuilderAddress: "envd_buildkitd",
+						Runner:         types.RunnerTypeDocker,
+						RunnerAddress:  nil,
 					},
 				},
 			},

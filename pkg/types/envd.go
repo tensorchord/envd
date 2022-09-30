@@ -107,9 +107,11 @@ type EnvdContext struct {
 }
 
 type Context struct {
-	Name          string      `json:"name,omitempty"`
-	Builder       BuilderType `json:"builder,omitempty"`
-	BuilderSocket string      `json:"builder_socket,omitempty"`
+	Name           string      `json:"name,omitempty"`
+	Builder        BuilderType `json:"builder,omitempty"`
+	BuilderAddress string      `json:"builder_address,omitempty"`
+	Runner         RunnerType  `json:"runner,omitempty"`
+	RunnerAddress  *string     `json:"runner_address,omitempty"`
 }
 
 type BuilderType string
@@ -118,6 +120,13 @@ const (
 	BuilderTypeDocker     BuilderType = "docker-container"
 	BuilderTypeKubernetes BuilderType = "kube-pod"
 	BuilderTypeTCP        BuilderType = "tcp"
+)
+
+type RunnerType string
+
+const (
+	RunnerTypeDocker     RunnerType = "docker"
+	RunnerTypeEnvdServer RunnerType = "envd-server"
 )
 
 type Dependency struct {

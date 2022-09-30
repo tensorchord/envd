@@ -66,7 +66,7 @@ func renderContext(contexts types.EnvdContext, w io.Writer) {
 			envRow[0] = p.Name
 		}
 		envRow[1] = string(p.Builder)
-		envRow[2] = fmt.Sprintf("%s://%s", p.Builder, p.BuilderSocket)
+		envRow[2] = fmt.Sprintf("%s://%s", p.Builder, p.BuilderAddress)
 		table.Append(envRow)
 	}
 	table.Render()

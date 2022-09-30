@@ -66,12 +66,12 @@ func prune(clicontext *cli.Context) error {
 	filter := clicontext.StringSlice("filter")
 	verbose := clicontext.Bool("verbose")
 
-	currentDriver, currentSocket, err := home.GetManager().ContextGetCurrent()
+	c, err := home.GetManager().ContextGetCurrent()
 	if err != nil {
 		return errors.Wrap(err, "failed to get the current context")
 	}
 	bkClient, err := buildkitd.NewClient(clicontext.Context,
-		currentDriver, currentSocket, "")
+		c.Builder, c.BuilderAddress, "")
 	if err != nil {
 		return errors.Wrap(err, "failed to create buildkit client")
 	}
