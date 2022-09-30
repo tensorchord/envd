@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.4-alpha.6 (2022-09-29)
+
+ * [0b73548](https://github.com/tensorchord/envd/commit/0b7354868943f9e4ea189be18eeea534959b5d6c) example: Use torch in mnist example (#927)
+
+### Contributors
+
+ * Jinjing Zhou
+
 ## v0.2.4-alpha.5 (2022-09-28)
 
  * [d16a975](https://github.com/tensorchord/envd/commit/d16a975d2ec1c8310e02d0e00841cf82900d49cf) fix: cuda tag (#949)
