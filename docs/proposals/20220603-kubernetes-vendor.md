@@ -44,7 +44,7 @@ We can provide native support for ease of use.
 
 #### CI/CD with envd
 
-As a ML infra engineer, I want to build the images with CI/CD tools. Docker may not be set up in the CI/CD runners, so that envd should support to build with buildkitd running on the Kubernetes.
+As an ML infra engineer, I want to build the images with CI/CD tools. Docker may not be set up in the CI/CD runners so envd should support building with buildkitd running on the Kubernetes.
 
 #### Remote development
 
