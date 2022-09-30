@@ -199,7 +199,7 @@ $ envd context create --name my-context --builder-type docker-container --runner
 
 ##### `envd-server` runner
 
-envd CLI registers the local public key to the envd server, and request the address of the ssh proxy server `containerssh` if the user use the `envd-server` runner.
+envd CLI registers the local public key to the envd server and requests the address of the ssh proxy server `containerssh` if the user uses the `envd-server` runner.
 
 User registration is not supported in the current design. envd CLI sends a POST request to the envd server.
 
