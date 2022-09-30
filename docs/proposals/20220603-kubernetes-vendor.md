@@ -235,7 +235,7 @@ type Engine interface {
 }
 ```
 
-And, the exising `docker.Client` will only be used to:
+And, the existing `docker.Client` will only be used to:
 
 - Load the image into the local docker host via `builder`
 - Check if the buildkitd container is running in `buildkit.Client`
