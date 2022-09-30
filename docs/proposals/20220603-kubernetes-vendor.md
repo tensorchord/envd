@@ -9,7 +9,7 @@ envd builds and runs the environments with Docker. This proposal is to support K
 
 ## Motivation
 
-Docker runtime only works for individual developers. There are many data scientists developing models on Kubernetes. In the current design, they may need to run `envd build`, then push the image to a OCI image registry manually. The image can be used after a deployment or a pod is created in Kubernetes.
+Docker runtime only works for individual developers. There are many data scientists developing models on Kubernetes. In the current design, they may need to run `envd build` and then manually push the image to an OCI image registry. The image can be used after a deployment or a pod is created in Kubernetes.
 
 We can provide native support for ease of use.
 
