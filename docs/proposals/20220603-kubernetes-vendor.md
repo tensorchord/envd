@@ -104,7 +104,7 @@ Thus the backend pod should have a unique identifier. When the user runs envd at
 
 Or, the server grants the user a unique random username when the envd CLI logins. The envd CLI uses the unique username to communicate with the API server.
 
-The main challenge here is to identify the correct pod with the existing SSH protocol.
+The main challenge here is identifying the correct pod with the existing SSH protocol.
 
 #### Garbage collection
 
