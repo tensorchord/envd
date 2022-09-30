@@ -58,7 +58,7 @@ We need to support primitives like `run`:
 $ envd run --env my-env --image my-image
 ```
 
-User may use `envd` to build the image, and use it on Kubernetes. Thus they need to push the image to a registry. `envd up` may not satisfy the requirements.
+Users may use `envd` to build the image, and use it on Kubernetes. Thus they need to push the image to a registry. `envd up` may not satisfy the requirements.
 
 The end-to-end process will be:
 
