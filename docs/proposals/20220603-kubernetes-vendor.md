@@ -36,7 +36,7 @@ We can provide native support for ease of use.
 ## Terms
 
 - buildkit: https://github.com/moby/buildkit is the library behind `docker build`.
-- containerssh: https://containerssh.io/ is a ssh proxy server.
+- containerssh: https://containerssh.io/ is an ssh proxy server.
 
 ## Proposal
 
