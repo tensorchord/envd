@@ -274,7 +274,7 @@ To be determined.
 
 #### `envd ssh`
 
-`envd ssh` will be introduced as the new command. It creates the ssh client config, then connect to the ssh proxy server `containerssh`. The username should be the contains the identitytoken and project name.
+`envd ssh` will be introduced as the new command. It creates the ssh client config, then connects to the ssh proxy server `containerssh`. The username should contain the identity token and project name.
 
 The `envd-server` should:
 
