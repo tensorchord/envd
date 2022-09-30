@@ -17,7 +17,7 @@ We can provide native support for ease of use.
 
 - Run environments on Kubernetes
   - Build the envd environments with the buildkitd pod
-  - Compose Kubernetes resources (e.g. services, pods) when run `envd up`
+  - Compose Kubernetes resources (e.g., services, pods) when run `envd up`
   - Push the image to a registry
   - Port forward for sshd and jupyter notebook service
 - Manage environments on Kubernetes
