@@ -48,7 +48,7 @@ As an ML infra engineer, I want to build the images with CI/CD tools. Docker may
 
 #### Remote development
 
-As an AI/ML engineer, I want to develop on the remote cluster (managed by Kubernetes).
+As an AI/ML engineer, I want to develop on a remote cluster (managed by Kubernetes).
 
 ### CLI behavior
 
@@ -78,7 +78,7 @@ $ envd up
 
 The user first declares which runner will be used. `server` should be used if the user expects running on Kubernetes. The `server` is the short name of envd API server.
 
-Then the user needs to login to the server with the public key.
+Then the user needs to login into the server with the public key.
 
 After that, the user can manage the environments on Kubernetes.
 
@@ -92,8 +92,8 @@ envd API server provides RESTful HTTP API to the envd CLI, and acts as the ssh p
 
 envd CLI communicates with the API server to:
 
-- Register public key to the server for auth.
-- Create backend environment to connect. If it is on Kubernetes, the backend environment will be run inside a pod.
+- Register the public key to the server for auth.
+- Create a backend environment to connect. If it is on Kubernetes, the backend environment will be run inside a pod.
 - Connect to the ssh proxy server.
 
 #### Reconnection
@@ -108,11 +108,11 @@ The main challenge here is identifying the correct pod with the existing SSH pro
 
 #### Garbage collection
 
-The pod can be deleted if it is idle within a given time threshold. This feature is related to the containerssh audit. A new daemon process `envd-server-gc` can be introduced. It watches the audit log file directory, then delete the idle pods.
+The pod can be deleted if it is idle within a given time threshold. This feature is related to the containerssh audit. A new daemon process `envd-server-gc` can be introduced. It watches the audit log file directory, then deletes the idle pods.
 
 #### Port forwarding
 
-There are several ports that will be used in envd:
+Several ports will be used in envd:
 
 - sshd server port. envd randomly selects a host port for sshd.
 - jupyter notebook port.
@@ -122,7 +122,7 @@ The section is to be added. SSH port is forwarded by the ssh proxy server. Other
 
 #### Data and code integration
 
-`runtime.docker.mount` and other docker-specific funcs will be ignored in kubernetes context. `runtime.kubernetes.mount()` should create/use the corresponding PV/PVC in the backend pod.
+`runtime.docker.mount` and other docker-specific functions will be ignored in kubernetes context. `runtime.kubernetes.mount()` should create/use the corresponding PV/PVC in the backend pod.
 
 ```python
 runtime.kubernetes.mount("")
@@ -156,26 +156,26 @@ The structure of the envd context is:
 
 ```go
 type Context struct {
-	Name          string      `json:"name,omitempty"`
-	Builder       BuilderType `json:"builder,omitempty"`
-	BuilderAddr   string      `json:"builder_addr,omitempty"`
+    Name          string      `json:"name,omitempty"`
+    Builder       BuilderType `json:"builder,omitempty"`
+    BuilderAddr   string      `json:"builder_addr,omitempty"`
 
-	Runner     RunnerType `json:"runner,omitempty"`
-	RunnerAddr *string    `json:"runner_addr,omitempty"`
+    Runner     RunnerType `json:"runner,omitempty"`
+    RunnerAddr *string    `json:"runner_addr,omitempty"`
 }
 
 type BuilderType string
 
 const (
-	BuilderTypeDocker     BuilderType = "docker-container"
-	BuilderTypeKubernetes BuilderType = "kube-pod"
+    BuilderTypeDocker     BuilderType = "docker-container"
+    BuilderTypeKubernetes BuilderType = "kube-pod"
 )
 
 type RunnerType string
 
 const (
-	RunnerTypeDocker     RunnerType = "docker"
-	RunnerTypeKubernetes RunnerType = "server"
+    RunnerTypeDocker     RunnerType = "docker"
+    RunnerTypeKubernetes RunnerType = "server"
 )
 ```
 
@@ -191,7 +191,7 @@ Context{
 }
 ```
 
-Users may use `envd context create` to create new context and use it:
+Users may use `envd context create` to create a new context and use it:
 
 ```
 $ envd context create --name my-context --builder-type docker-container --runner-type docker --docker-host unix:///var/run/docker.sock
@@ -206,12 +206,12 @@ User registration is not supported in the current design. envd CLI sends a POST 
 ```
 POST /v1/auth
 request: {
-	"public_key": CONTENT
+    "public_key": CONTENT
 }
 response: {
-	"identity_token": "sadasfafd",
-	"port": "2222",
-	"status_message": "Login successfully"
+    "identity_token": "sadasfafd",
+    "port": "2222",
+    "status_message": "Login successfully"
 }
 ```
 
@@ -223,15 +223,14 @@ The server returns an identity token, to identify the user. The identity token w
 
 ```go
 type Engine interface {
-	StartEnvironment()
+    StartEnvironment()
+    ListEnvironments()
+    GetEnvironment()
+    PauseEnvironment()
+    ResumeEnvironment()
+    DestroyEnvironment()
 
-  ListEnvironments()
-  GetEnvironment()
-  PauseEnvironment()
-  ResumeEnvironment()
-  DestroyEnvironment()
-
-  GPUEnabled()
+    GPUEnabled()
 }
 ```
 
@@ -242,7 +241,7 @@ And, the existing `docker.Client` will only be used to:
 
 `builder` and `buildkit.Client` still needs to use `docker.Client` since we keep using docker to build the images.
 
-The pseudocode of the new logic will be like:
+The pseudocode of the new logic will be like this:
 
 ```go
 // Destroy the environment
@@ -263,7 +262,7 @@ func up(clicontext *cli.Context) error {
 
 #### `envd create`
 
-`envd create` will be introduced as the new command. It builds the image, and launches the container/pod. If the runner is `envd-server`, the image needs to be pushed first.
+`envd create` will be introduced as the new command. It builds the image and launches the container/pod. If the runner is `envd-server`, the image needs to be pushed first.
 
 Here, the endpoint from `envd-server` needs to be designed carefully.
 
@@ -291,7 +290,7 @@ envd-sshd --port <port> --key <public key path>
 
 The information needed by the sshd is passed to the binary via CLI arguments. It does not work with the Kubernetes design. The binary `envd-sshd` should read the environment variable `ENVD_SSH_KEY_PATH` to load the keys, instead of the CLI argument. The backend pods will be created with the same public key mounted in runtime. The public key is generated by the envd API server.
 
-The envd API server checks if the public key and signature provided by the user is valid. If both are valid, the server will use the generated private key and public key to connect to the backend pod.
+The envd API server checks if the public key and signature provided by the user are valid. If both are valid, the server will use the generated private key and public key to connect to the backend pod.
 
 ### Test Plan
 
