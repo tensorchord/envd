@@ -1,5 +1,6 @@
 <div align="center">
-<h1><img src="https://user-images.githubusercontent.com/52693877/190860902-ac07b00d-4441-47d4-b1d4-beff74926134.gif" alt="this slowpoke moves"  /></h1>
+<img src="https://user-images.githubusercontent.com/52693877/190860902-ac07b00d-4441-47d4-b1d4-beff74926134.gif" alt="this slowpoke moves"/>
+<h1><img src="https://user-images.githubusercontent.com/52693877/193411608-01864ed9-84e2-4ea8-b978-8cfe09d394ca.png" alt="explain"/></h1>
 <p>Development environment for AI/ML</p>
 </div>
 
