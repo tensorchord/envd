@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.2.4-alpha.7 (2022-10-01)
+
+ * [c22408c](https://github.com/tensorchord/envd/commit/c22408c8f3b87ef959bda7d7681203ffd8d6212c) fix(ir): `apt install` and `conda env create` cache (#962)
+ * [006f653](https://github.com/tensorchord/envd/commit/006f6538396b47b1bcab2a0d53ec9dae0221c8f5) feat: envd-sshd can read public key path from environment variable (#954)
+
+### Contributors
+
+ * Jinjing Zhou
+ * Keming
+
 ## v0.2.4-alpha.6 (2022-09-29)
 
  * [0b73548](https://github.com/tensorchord/envd/commit/0b7354868943f9e4ea189be18eeea534959b5d6c) example: Use torch in mnist example (#927)
