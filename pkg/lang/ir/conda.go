@@ -123,13 +123,7 @@ func (g *Graph) compileCondaPackages(root llb.State) llb.State {
 }
 
 func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
-	cacheDir := filepath.Join(condaRootPrefix, "pkgs")
-	// Create the cache directory to the container. see issue #582
-	root = g.CompileCacheDir(root, cacheDir)
-
-	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
-	cache := root.File(llb.Mkdir("/cache-conda",0755, llb.WithParents(true)),
-		llb.WithCustomName("[internal] setting conda cache mount permissions"))
+	root = llb.User("envd")(root)
 
 	// Always init bash since we will use it to create jupyter notebook service.
 	run := root.Run(
@@ -144,11 +138,8 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	cmd := g.condaCreateEnv(pythonVersion)
 
 	// Create a conda environment.
-	run = run.Dir(g.getWorkingDir()).Run(llb.Shlex(cmd),
-		llb.WithCustomNamef("[internal] create conda environment: %s", cmd))
-	run.AddMount(cacheDir, cache, llb.AsPersistentCacheDir(
-		g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
-	run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext))
+	run = run.Run(llb.Shlex(cmd),
+		llb.WithCustomName("[internal] create conda environment"))
 
 	switch g.Shell {
 	case shellBASH:

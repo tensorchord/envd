@@ -1,8 +1,10 @@
 def build():
     base(os="ubuntu20.04", language="r")
-    install.r_packages([
+    install.r_packages(
+        [
             "remotes",
             "rlang",
-        ])
+        ]
+    )
     config.rstudio_server()
     shell("zsh")

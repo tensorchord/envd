@@ -399,7 +399,7 @@ func (b generalBuilder) checkDepsFileUpdate(ctx context.Context, tag string, man
 			return true, err
 		}
 		modifiedtime := file.ModTime().Unix()
-		// Only needt o use the latest modified time
+		// Only need to use the latest modified time
 		if modifiedtime > latestTimestamp {
 			latestTimestamp = modifiedtime
 		}

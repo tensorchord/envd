@@ -49,7 +49,7 @@ func NewGraph() *Graph {
 			Version: &langVersion,
 		},
 		CUDA:    nil,
-		CUDNN:   nil,
+		CUDNN:   "8", // default version
 		NumGPUs: -1,
 
 		PyPIPackages:    []string{},
@@ -89,7 +89,7 @@ func Compile(ctx context.Context, envName string, pub string) (*llb.Definition, 
 	}
 	state, err := DefaultGraph.Compile(uid, gid)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to compile")
+		return nil, errors.Wrap(err, "failed to compile the graph")
 	}
 	// TODO(gaocegege): Support multi platform.
 	def, err := state.Marshal(ctx, llb.LinuxAmd64)
@@ -139,9 +139,7 @@ func (g Graph) Labels() (map[string]string, error) {
 	if g.GPUEnabled() {
 		labels[types.ImageLabelGPU] = "true"
 		labels[types.ImageLabelCUDA] = *g.CUDA
-		if g.CUDNN != nil {
-			labels[types.ImageLabelCUDNN] = *g.CUDNN
-		}
+		labels[types.ImageLabelCUDNN] = g.CUDNN
 	}
 	labels[types.ImageLabelVendor] = types.ImageVendorEnvd
 	code, err := g.RuntimeGraph.Dump()
@@ -188,10 +186,18 @@ func (g Graph) EnvString() []string {
 
 func (g Graph) DefaultCacheImporter() (*string, error) {
 	// The base remote cache should work for all languages.
-	res := fmt.Sprintf(
-		"type=registry,ref=docker.io/%s/python-cache:envd-%s",
-		viper.GetString(flag.FlagDockerOrganization),
-		version.GetVersionForImageTag())
+	var res string
+	if g.CUDA != nil {
+		res = fmt.Sprintf(
+			"type=registry,ref=docker.io/%s/python-cache:envd-%s-cuda-%s-cudnn-%s",
+			viper.GetString(flag.FlagDockerOrganization),
+			version.GetVersionForImageTag(), *g.CUDA, g.CUDNN)
+	} else {
+		res = fmt.Sprintf(
+			"type=registry,ref=docker.io/%s/python-cache:envd-%s",
+			viper.GetString(flag.FlagDockerOrganization),
+			version.GetVersionForImageTag())
+	}
 	return &res, nil
 }
 
@@ -208,7 +214,7 @@ func (g Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
 	}
 
 	template := `set -euo pipefail
-/var/envd/bin/envd-sshd --authorized-keys %s --port %d --shell %s &
+/var/envd/bin/envd-sshd --port %d --shell %s &
 %s
 wait -n`
 
@@ -232,7 +238,6 @@ wait -n`
 	}
 
 	cmd := fmt.Sprintf(template,
-		config.ContainerAuthorizedKeysPath,
 		config.SSHPortInContainer, g.Shell, customCmd.String())
 	ep = append(ep, cmd)
 

@@ -12,21 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ir
+package envd
 
 import (
-	"fmt"
+	"context"
 
-	"github.com/sirupsen/logrus"
+	"github.com/docker/docker/client"
+	envdclient "github.com/tensorchord/envd-server/client"
 )
 
-func (g Graph) CacheID(filename string) string {
-	var cacheID string
-	if g.CUDA != nil {
-		cacheID = fmt.Sprintf("%s/%s-gpu", filename, g.EnvironmentName)
+func New(ctx context.Context, backend string) (Engine, error) {
+	if backend == "docker" {
+		cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+		if err != nil {
+			return nil, err
+		}
+		return &dockerEngine{
+			Client: cli,
+		}, nil
 	} else {
-		cacheID = fmt.Sprintf("%s/%s-cpu", filename, g.EnvironmentName)
+		cli, err := envdclient.NewClientWithOpts(envdclient.FromEnv)
+		if err != nil {
+			return nil, err
+		}
+		return &envdServerEngine{
+			Client: cli,
+		}, nil
 	}
-	logrus.Debugf("apt/pypi calculated cacheID: %s", cacheID)
-	return cacheID
 }

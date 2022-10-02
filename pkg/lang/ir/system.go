@@ -91,14 +91,15 @@ func (g Graph) compileCopy(root llb.State) llb.State {
 	return result
 }
 
-func (g *Graph) compileCUDAPackages(org, version string) llb.State {
-	return llb.Image(fmt.Sprintf(
-		"docker.io/%s/python:3.9-%s-cuda%s-cudnn%s-envd-%s",
-		org, g.OS, *g.CUDA, *g.CUDNN, version))
+func (g *Graph) compileCUDAPackages(org string) llb.State {
+	return g.preparePythonBase(llb.Image(fmt.Sprintf(
+		"docker.io/%s:%s-cudnn%s-devel-%s",
+		org, *g.CUDA, g.CUDNN, g.OS)))
 }
 
 func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	if len(g.SystemPackages) == 0 {
+		logrus.Debug("skip the apt since system package is not specified")
 		return root
 	}
 
@@ -143,6 +144,34 @@ func (g *Graph) compileExtraSource(root llb.State) (llb.State, error) {
 	return llb.Merge(inputs, llb.WithCustomName("[internal] build source layers")), nil
 }
 
+func (g *Graph) preparePythonBase(root llb.State) llb.State {
+	for _, env := range types.BaseEnvironment {
+		root = root.AddEnv(env.Name, env.Value)
+	}
+
+	// apt packages
+	var sb strings.Builder
+	sb.WriteString("apt-get update && apt-get install -y apt-utils && ")
+	sb.WriteString("apt-get install -y --no-install-recommends --no-install-suggests --fix-missing ")
+	sb.WriteString(strings.Join(types.BaseAptPackage, " "))
+	sb.WriteString("&& rm -rf /var/lib/apt/lists/* ")
+	// shell prompt
+	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
+
+	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
+		llb.WithCustomName("[internal] install system packages"))
+
+	return run.Root()
+}
+
+func (g Graph) compileSshd(root llb.State) llb.State {
+	sshd := root.File(llb.Copy(
+		llb.Image(types.EnvdSshdImage), "/usr/bin/envd-sshd", "/var/envd/bin/envd-sshd",
+		&llb.CopyInfo{CreateDestPath: true}),
+		llb.WithCustomName(fmt.Sprintf("[internal] add envd-sshd from %s", types.EnvdSshdImage)))
+	return sshd
+}
+
 func (g *Graph) compileBase() (llb.State, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"os":       g.OS,
@@ -160,7 +189,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 	if g.Image != nil {
 		logger.WithField("image", *g.Image).Debugf("using custom base image")
 		return llb.Image(*g.Image), nil
-	} else if g.CUDA == nil && g.CUDNN == nil {
+	} else if g.CUDA == nil {
 		switch g.Language.Name {
 		case "r":
 			base = llb.Image(fmt.Sprintf("docker.io/%s/r-base:4.2-envd-%s", org, v))
@@ -173,14 +202,14 @@ func (g *Graph) compileBase() (llb.State, error) {
 				g.uid = 1001
 			}
 		case "python":
-			base = llb.Image(fmt.Sprintf(
-				"docker.io/%s/python:3.9-ubuntu20.04-envd-%s", org, v))
+			// TODO(keming) use user input `base(os="")`
+			base = g.preparePythonBase(llb.Image(types.PythonBaseImage))
 		case "julia":
 			base = llb.Image(fmt.Sprintf(
 				"docker.io/%s/julia:1.8rc1-ubuntu20.04-envd-%s", org, v))
 		}
 	} else {
-		base = g.compileCUDAPackages(org, v)
+		base = g.compileCUDAPackages("nvidia/cuda")
 	}
 
 	base = g.compileUserGroup(base)
@@ -189,7 +218,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to install conda")
 	}
-	return condaStage, nil
+	return g.compileSshd(condaStage), nil
 }
 
 func (g Graph) copySSHKey(root llb.State) (llb.State, error) {

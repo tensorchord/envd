@@ -29,6 +29,7 @@ type Manager interface {
 	contextManager
 	cacheManager
 	dataManager
+	authManager
 }
 
 type generalManager struct {
@@ -36,10 +37,12 @@ type generalManager struct {
 	cacheStatusFile string
 	configFile      string
 	contextFile     string
+	authFile        string
 
 	// TODO(gaocegege): Abstract CacheManager.
 	cacheMap map[string]bool
 	context  types.EnvdContext
+	auth     types.EnvdAuth
 
 	logger *logrus.Entry
 }
@@ -83,6 +86,10 @@ func (m *generalManager) init() error {
 
 	if err := m.initCache(); err != nil {
 		return errors.Wrap(err, "failed to initialize cache")
+	}
+
+	if err := m.initAuth(); err != nil {
+		return errors.Wrap(err, "failed to initialize auth")
 	}
 
 	if err := sshconfig.GenerateKeys(); err != nil {

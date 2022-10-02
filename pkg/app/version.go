@@ -84,7 +84,7 @@ func printVersion(ctx *cli.Context) error {
 }
 
 func getDetailedVersion(clicontext *cli.Context) (detailedVersion, error) {
-	engine, err := envd.New(clicontext.Context)
+	engine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return detailedVersion{}, errors.Wrap(
 			err, "failed to create engine for docker server",

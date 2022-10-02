@@ -16,9 +16,12 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/docker/docker/api/types"
 	"github.com/moby/buildkit/util/system"
+
+	"github.com/tensorchord/envd/pkg/version"
 )
 
 // DefaultPathEnvUnix is unix style list of directories to search for
@@ -30,6 +33,46 @@ const DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/home/envd/.
 // executables. Each directory is separated from the next by a colon
 // ';' character .
 const DefaultPathEnvWindows = system.DefaultPathEnvWindows
+
+const PythonBaseImage = "ubuntu:20.04"
+
+var EnvdSshdImage = fmt.Sprintf(
+	"tensorchord/envd-sshd-from-scratch:%s",
+	version.GetVersionForImageTag())
+
+var BaseEnvironment = []struct {
+	Name  string
+	Value string
+}{
+	{"DEBIAN_FRONTEND", "noninteractive"},
+	{"PATH", DefaultPathEnvUnix},
+	{"LANG", "C.UTF-8"},
+	{"LC_ALL", "C.UTF-8"},
+}
+var BaseAptPackage = []string{
+	"bash-static",
+	"libtinfo5",
+	"libncursesw5",
+	// conda dependencies
+	"bzip2",
+	"ca-certificates",
+	"libglib2.0-0",
+	"libsm6",
+	"libxext6",
+	"libxrender1",
+	"mercurial",
+	"procps",
+	"subversion",
+	"wget",
+	// envd dependencies
+	"curl",
+	"openssh-client",
+	"git",
+	"tini",
+	"sudo",
+	"vim",
+	"zsh",
+}
 
 type EnvdImage struct {
 	types.ImageSummary
@@ -87,6 +130,16 @@ type PortBinding struct {
 	Protocol string
 	HostIP   string
 	HostPort string
+}
+
+type EnvdAuth struct {
+	Current string       `json:"current,omitempty"`
+	Auth    []AuthConfig `json:"auth,omitempty"`
+}
+
+type AuthConfig struct {
+	Name          string `json:"name,omitempty"`
+	IdentityToken string `json:"identity_token,omitempty"`
 }
 
 func NewImage(image types.ImageSummary) (*EnvdImage, error) {

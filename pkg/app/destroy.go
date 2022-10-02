@@ -101,7 +101,7 @@ func destroy(clicontext *cli.Context) error {
 
 func getContainerTag(clicontext *cli.Context, name string) ([]string, error) {
 	tags := []string{}
-	envdEngine, err := envd.New(clicontext.Context)
+	envdEngine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return tags, err
 	}

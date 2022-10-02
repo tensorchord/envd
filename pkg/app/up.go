@@ -23,7 +23,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/builder"
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
@@ -177,13 +177,13 @@ func up(clicontext *cli.Context) error {
 }
 
 func StartEnvd(clicontext *cli.Context, buildOpt builder.Options, gpu bool, numGPUs int) (int, error) {
-	dockerClient, err := docker.NewClient(clicontext.Context)
+	engine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to create the docker client")
 	}
 
 	if gpu {
-		nvruntimeExists, err := dockerClient.GPUEnabled(clicontext.Context)
+		nvruntimeExists, err := engine.GPUEnabled(clicontext.Context)
 		if err != nil {
 			return 0, errors.Wrap(err, "failed to check if nvidia-runtime is installed")
 		}
@@ -199,11 +199,11 @@ func StartEnvd(clicontext *cli.Context, buildOpt builder.Options, gpu bool, numG
 
 	ctr := filepath.Base(buildOpt.BuildContextDir)
 	force := clicontext.Bool("force")
-	err = dockerClient.CleanEnvdIfExists(clicontext.Context, ctr, force)
+	err = engine.CleanEnvdIfExists(clicontext.Context, ctr, force)
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to clean the envd environment")
 	}
-	containerID, containerIP, err := dockerClient.StartEnvd(clicontext.Context,
+	containerID, containerIP, err := engine.StartEnvd(clicontext.Context,
 		buildOpt.Tag, ctr, buildOpt.BuildContextDir, gpu, numGPUs, sshPortInHost, *ir.DefaultGraph, clicontext.Duration("timeout"),
 		clicontext.StringSlice("volume"))
 	if err != nil {
