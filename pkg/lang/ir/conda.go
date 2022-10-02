@@ -24,7 +24,6 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 
-	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
