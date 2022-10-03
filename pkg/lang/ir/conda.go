@@ -122,7 +122,6 @@ func (g *Graph) compileCondaPackages(root llb.State) llb.State {
 }
 
 func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
-	g.UserDirectories = append(g.UserDirectories, condaRootPrefix)
 	// Always init bash since we will use it to create jupyter notebook service.
 	run := root.Run(
 		llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.condaInitShell("bash"))),
