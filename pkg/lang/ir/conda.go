@@ -24,11 +24,14 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 
+	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 const (
 	condaVersionDefault = "py39_4.11.0"
+	// check the issue https://github.com/mamba-org/mamba/issues/1975
+	mambaVersionDefault = "0.25.1"
 	condaRootPrefix     = "/opt/conda"
 	condaBinDir         = "/opt/conda/bin"
 )
@@ -69,21 +72,16 @@ func (g Graph) condaInitShell(shell string) string {
 	return fmt.Sprintf("%s init %s", path, shell)
 }
 
-func (g Graph) condaCreateEnv(version string) string {
-	cmd := fmt.Sprintf("bash -c \"%s", g.condaCommandPath())
-	env := fmt.Sprintf("-n envd python=%s\"", version)
-	if len(g.CondaConfig.CondaEnvFileName) > 0 {
-		env = fmt.Sprintf("--file %s ", g.CondaConfig.CondaEnvFileName) + env
-		// conda needs to use `conda env create` to create env from an env YAML file
-		if !g.CondaConfig.UseMicroMamba {
-			return fmt.Sprintf("%s env create %s", cmd, env)
-		}
+func (g Graph) condaUpdateFromFile() string {
+	args := fmt.Sprintf("update -n envd --file %s", g.CondaEnvFileName)
+	if g.CondaConfig.UseMicroMamba {
+		return fmt.Sprintf("%s %s", g.condaCommandPath(), args)
 	}
-	return fmt.Sprintf("%s create %s", cmd, env)
+	return fmt.Sprintf("%s env %s", g.condaCommandPath(), args)
 }
 
 func (g *Graph) compileCondaPackages(root llb.State) llb.State {
-	if len(g.CondaConfig.CondaPackages) == 0 {
+	if len(g.CondaConfig.CondaPackages) == 0 && len(g.CondaEnvFileName) == 0 {
 		logrus.Debug("Conda packages not enabled")
 		return root
 	}
@@ -98,24 +96,27 @@ func (g *Graph) compileCondaPackages(root llb.State) llb.State {
 	var sb strings.Builder
 	var run llb.ExecState
 
-	if len(g.CondaConfig.AdditionalChannels) == 0 {
-		sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
+	if len(g.CondaEnvFileName) > 0 {
+		sb.WriteString(g.condaUpdateFromFile())
 	} else {
-		sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
-		for _, channel := range g.CondaConfig.AdditionalChannels {
-			sb.WriteString(fmt.Sprintf(" -c %s", channel))
+		if len(g.CondaConfig.AdditionalChannels) == 0 {
+			sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
+		} else {
+			sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
+			for _, channel := range g.CondaConfig.AdditionalChannels {
+				sb.WriteString(fmt.Sprintf(" -c %s", channel))
+			}
+		}
+		for _, pkg := range g.CondaConfig.CondaPackages {
+			sb.WriteString(fmt.Sprintf(" %s", pkg))
 		}
 	}
 
-	for _, pkg := range g.CondaConfig.CondaPackages {
-		sb.WriteString(fmt.Sprintf(" %s", pkg))
-	}
-
 	cmd := sb.String()
-
-	run = root.
-		Run(llb.Shlex(cmd), llb.WithCustomNamef("conda install %s",
-			strings.Join(g.CondaPackages, " ")))
+	run = root.Dir(g.getWorkingDir()).
+		Run(llb.Shlex(cmd), llb.WithCustomNamef("[internal] %s %s",
+			cmd, strings.Join(g.CondaPackages, " ")))
+	run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext))
 	run.AddMount(cacheDir, cacheMount,
 		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
 	return run.Root()
@@ -132,10 +133,9 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get python version")
 	}
-	cmd := g.condaCreateEnv(pythonVersion)
-
 	// Create a conda environment.
-	run = run.Run(llb.Shlex(cmd),
+	cmd := fmt.Sprintf("bash -c \"%s create -n envd python=%s\"", g.condaCommandPath(), pythonVersion)
+	run = run.Dir(g.getWorkingDir()).Run(llb.Shlex(cmd),
 		llb.WithCustomNamef("[internal] create conda environment: %s", cmd))
 
 	switch g.Shell {
@@ -159,6 +159,7 @@ func (g Graph) installConda(root llb.State) (llb.State, error) {
 	if g.CondaConfig.UseMicroMamba {
 		run := root.AddEnv("MAMBA_BIN_DIR", condaBinDir).
 			AddEnv("MAMBA_ROOT_PREFIX", condaRootPrefix).
+			AddEnv("MAMBA_VERSION", mambaVersionDefault).
 			Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installMambaBash)),
 				llb.WithCustomName("[internal] install micro mamba"))
 		return run.Root(), nil
