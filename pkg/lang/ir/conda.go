@@ -122,8 +122,6 @@ func (g *Graph) compileCondaPackages(root llb.State) llb.State {
 }
 
 func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
-	root = llb.User("envd")(root)
-
 	// Always init bash since we will use it to create jupyter notebook service.
 	run := root.Run(
 		llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.condaInitShell("bash"))),
@@ -138,7 +136,7 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 
 	// Create a conda environment.
 	run = run.Run(llb.Shlex(cmd),
-		llb.WithCustomName("[internal] create conda environment"))
+		llb.WithCustomNamef("[internal] create conda environment: %s", cmd))
 
 	switch g.Shell {
 	case shellBASH:

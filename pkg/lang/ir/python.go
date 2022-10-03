@@ -104,7 +104,6 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 
 // Set the system default python to envd's python.
 func (g Graph) compileAlternative(root llb.State) llb.State {
-	root = llb.User("root")(root)
 	envdPrefix := "/opt/conda/envs/envd/bin"
 	run := root.
 		Run(llb.Shlexf("update-alternatives --install /usr/bin/python python %s/python 1", envdPrefix), llb.WithCustomName("update alternative python to envd")).
@@ -119,11 +118,11 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		return root
 	}
 
-	// Create the ecache directory to the containr. see issue #582
+	// Create the envd cache directory in the container. see issue #582
 	cacheDir := filepath.Join("/", "root", ".cache", "pip")
 	root = g.CompileCacheDir(root, cacheDir)
 
-	cache := root.File(llb.Mkdir("/cache-pip", 0755, llb.WithParents(true)),
+	cache := root.File(llb.Mkdir("/cache/pip", 0755, llb.WithParents(true)),
 		llb.WithCustomName("[internal] setting pip cache mount permissions"))
 
 	if len(g.PyPIPackages) != 0 {
@@ -143,7 +142,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 				strings.Join(g.PyPIPackages, " ")))
 		// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 		run.AddMount(cacheDir, cache,
-			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-pip"))
+			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
 		root = run.Root()
 	}
 
@@ -168,7 +167,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		run := root.
 			Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s", *g.RequirementsFile))
 		run.AddMount(cacheDir, cache,
-			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-pip"))
+			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
 		run.AddMount(g.getWorkingDir(),
 			llb.Local(flag.FlagBuildContext))
 		root = run.Root()
@@ -181,7 +180,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 			run := root.Run(llb.Shlex(fmt.Sprintf(cmdTemplate, wheel)), llb.WithCustomNamef("pip install %s", wheel))
 			run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext), llb.Readonly)
 			run.AddMount(cacheDir, cache,
-				llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-pip"))
+				llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
 			root = run.Root()
 		}
 	}
