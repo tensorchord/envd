@@ -57,7 +57,7 @@ func NewGraph() *Graph {
 		JuliaPackages:   []string{},
 		SystemPackages:  []string{},
 		Exec:            []string{},
-		UserDirectories: []string{"/usr/local/lib", "/home/envd"},
+		UserDirectories: []string{},
 		Shell:           shellBASH,
 		CondaConfig:     conda,
 		RuntimeGraph:    runtimeGraph,

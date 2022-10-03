@@ -86,7 +86,6 @@ func (g *Graph) compileCondaPackages(root llb.State) llb.State {
 		return root
 	}
 
-	g.UserDirectories = append(g.UserDirectories, condaRootPrefix)
 	cacheDir := filepath.Join(condaRootPrefix, "pkgs")
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 	cacheMount := root.File(llb.Mkdir("/cache-conda", 0755, llb.WithParents(true)),
@@ -123,6 +122,7 @@ func (g *Graph) compileCondaPackages(root llb.State) llb.State {
 }
 
 func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
+	g.UserDirectories = append(g.UserDirectories, condaRootPrefix)
 	// Always init bash since we will use it to create jupyter notebook service.
 	run := root.Run(
 		llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.condaInitShell("bash"))),

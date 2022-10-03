@@ -25,12 +25,15 @@ func (g *Graph) compileUserOwn(root llb.State) llb.State {
 	if g.Image != nil || g.uid == 0 {
 		return root
 	}
+	if len(g.UserDirectories) == 0 {
+		return root.User("envd")
+	}
 	run := root.Run()
 	for _, dir := range g.UserDirectories {
 		run = root.Run(llb.Shlex(fmt.Sprintf("chown -R envd:envd %s", dir)),
 			llb.WithCustomNamef("[internal] configure user permissions for %s", dir))
 	}
-	return llb.User("envd")(run.Root())
+	return run.Root().User("envd")
 }
 
 // compileUserGroup creates user `envd`
