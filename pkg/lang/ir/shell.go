@@ -61,15 +61,15 @@ func (g *Graph) compilePrompt(root llb.State) llb.State {
 		File(llb.Mkdir(defaultConfigDir, 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] creating config dir")).
 		File(llb.Mkfile(starshipConfigPath, 0644, []byte(starshipConfig), llb.WithUIDGID(g.uid, g.gid)),
-			llb.WithCustomName("[internal] setting prompt config"))
+			llb.WithCustomName("[internal] setting prompt starship config"))
 
 	run := config.Run(llb.Shlex(fmt.Sprintf(`bash -c 'echo "eval \"\$(starship init bash)\"" >> %s'`, fileutil.EnvdHomeDir(".bashrc"))),
-		llb.WithCustomName("[internal] setting prompt config")).Root()
+		llb.WithCustomName("[internal] setting prompt bash config")).Root()
 
 	if g.Shell == shellZSH {
 		run = run.Run(
 			llb.Shlex(fmt.Sprintf(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> %s'`, fileutil.EnvdHomeDir(".zshrc"))),
-			llb.WithCustomName("[internal] setting prompt config")).Root()
+			llb.WithCustomName("[internal] setting prompt zsh config")).Root()
 	}
 	return run
 }

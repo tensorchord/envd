@@ -52,7 +52,8 @@ type Graph struct {
 	JuliaPackages    []string
 	SystemPackages   []string
 
-	VSCodePlugins []vscode.Plugin
+	VSCodePlugins   []vscode.Plugin
+	UserDirectories []string
 
 	Exec       []string
 	Copy       []CopyInfo

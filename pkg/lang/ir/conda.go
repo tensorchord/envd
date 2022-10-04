@@ -30,6 +30,8 @@ import (
 
 const (
 	condaVersionDefault = "py39_4.11.0"
+	// check the issue https://github.com/mamba-org/mamba/issues/1975
+	mambaVersionDefault = "0.25.1"
 	condaRootPrefix     = "/opt/conda"
 	condaBinDir         = "/opt/conda/bin"
 )
@@ -44,19 +46,8 @@ var (
 	installMambaBash string
 )
 
-func (g Graph) CondaEnabled() bool {
-	if g.CondaConfig == nil {
-		return false
-	} else {
-		if g.CondaConfig.CondaPackages == nil && len(g.CondaConfig.CondaEnvFileName) == 0 {
-			return false
-		}
-	}
-	return true
-}
-
 func (g Graph) compileCondaChannel(root llb.State) llb.State {
-	if g.CondaConfig != nil && g.CondaConfig.CondaChannel != nil {
+	if g.CondaConfig.CondaChannel != nil {
 		logrus.WithField("conda-channel", *g.CondaChannel).Debug("using custom conda channel")
 		stage := root.
 			File(llb.Mkfile(condarc,
@@ -66,15 +57,8 @@ func (g Graph) compileCondaChannel(root llb.State) llb.State {
 	return root
 }
 
-func (g Graph) microMambaEnabled() bool {
-	if g.CondaConfig != nil && g.CondaConfig.UseMicroMamba {
-		return true
-	}
-	return false
-}
-
 func (g Graph) condaCommandPath() string {
-	if g.microMambaEnabled() {
+	if g.CondaConfig.UseMicroMamba {
 		return filepath.Join(condaBinDir, "micromamba")
 	}
 	return filepath.Join(condaBinDir, "conda")
@@ -82,53 +66,37 @@ func (g Graph) condaCommandPath() string {
 
 func (g Graph) condaInitShell(shell string) string {
 	path := g.condaCommandPath()
-	if g.microMambaEnabled() {
+	if g.CondaConfig.UseMicroMamba {
 		return fmt.Sprintf("%s shell init -p %s -s %s", path, condaRootPrefix, shell)
 	}
 	return fmt.Sprintf("%s init %s", path, shell)
 }
 
-func (g Graph) compileCondaPackages(root llb.State) llb.State {
-	if !g.CondaEnabled() {
+func (g Graph) condaUpdateFromFile() string {
+	args := fmt.Sprintf("update -n envd --file %s", g.CondaEnvFileName)
+	if g.CondaConfig.UseMicroMamba {
+		return fmt.Sprintf("%s %s", g.condaCommandPath(), args)
+	}
+	return fmt.Sprintf("%s env %s", g.condaCommandPath(), args)
+}
+
+func (g *Graph) compileCondaPackages(root llb.State) llb.State {
+	if len(g.CondaConfig.CondaPackages) == 0 && len(g.CondaEnvFileName) == 0 {
 		logrus.Debug("Conda packages not enabled")
 		return root
 	}
 
 	cacheDir := filepath.Join(condaRootPrefix, "pkgs")
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
-	cache := root.File(llb.Mkdir("/cache-conda",
-		0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
+	cacheMount := root.File(llb.Mkdir("/cache-conda", 0755, llb.WithParents(true)),
 		llb.WithCustomName("[internal] setting conda cache mount permissions"))
 
-	root = llb.User("envd")(root)
 	// Compose the package install command.
 	var sb strings.Builder
 	var run llb.ExecState
-	if len(g.CondaConfig.CondaEnvFileName) != 0 {
-		logrus.Debugf("using custom conda environment file content: %s", g.CondaConfig.CondaEnvFileName)
-		sb.WriteString("bash -c '")
-		sb.WriteString("set -euo pipefail\n")
-		sb.WriteString(fmt.Sprintf("chown -R envd:envd %s\n", g.getWorkingDir())) // Change mount dir permission
-		envdCmd := strings.Builder{}
-		envdCmd.WriteString(fmt.Sprintf("cd %s\n", g.getWorkingDir()))
-		envdCmd.WriteString(fmt.Sprintf("%s env update -n envd --file %s\n", g.condaCommandPath(), g.CondaConfig.CondaEnvFileName))
 
-		// Execute the command to write yaml file and conda env using envd user
-		sb.WriteString(fmt.Sprintf("sudo -i -u envd bash << EOF\nset -euo pipefail\n%s\nEOF\n", envdCmd.String()))
-		sb.WriteString("'")
-		cmd := sb.String()
-
-		run = root.User("root").
-			Dir(g.getWorkingDir()).
-			Run(llb.Shlex(cmd),
-				llb.WithCustomNamef("conda install from file %s", g.CondaConfig.CondaEnvFileName))
-
-		run.AddMount(cacheDir, cache,
-			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared),
-			llb.SourcePath("/cache-conda"))
-		run.AddMount(g.getWorkingDir(),
-			llb.Local(flag.FlagBuildContext))
-
+	if len(g.CondaEnvFileName) > 0 {
+		sb.WriteString(g.condaUpdateFromFile())
 	} else {
 		if len(g.CondaConfig.AdditionalChannels) == 0 {
 			sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
@@ -138,25 +106,22 @@ func (g Graph) compileCondaPackages(root llb.State) llb.State {
 				sb.WriteString(fmt.Sprintf(" -c %s", channel))
 			}
 		}
-
 		for _, pkg := range g.CondaConfig.CondaPackages {
 			sb.WriteString(fmt.Sprintf(" %s", pkg))
 		}
-
-		cmd := sb.String()
-
-		run = root.
-			Run(llb.Shlex(cmd), llb.WithCustomNamef("conda install %s",
-				strings.Join(g.CondaPackages, " ")))
-		run.AddMount(cacheDir, cache,
-			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
 	}
+
+	cmd := sb.String()
+	run = root.Dir(g.getWorkingDir()).
+		Run(llb.Shlex(cmd), llb.WithCustomNamef("[internal] %s %s",
+			cmd, strings.Join(g.CondaPackages, " ")))
+	run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext))
+	run.AddMount(cacheDir, cacheMount,
+		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
 	return run.Root()
 }
 
 func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
-	root = llb.User("envd")(root)
-
 	// Always init bash since we will use it to create jupyter notebook service.
 	run := root.Run(
 		llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.condaInitShell("bash"))),
@@ -167,14 +132,10 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get python version")
 	}
-
-	cmd := fmt.Sprintf(
-		"bash -c \"%s create -n envd python=%s\"",
-		g.condaCommandPath(), pythonVersion)
-
 	// Create a conda environment.
-	run = run.Run(llb.Shlex(cmd),
-		llb.WithCustomName("[internal] create conda environment"))
+	cmd := fmt.Sprintf("bash -c \"%s create -n envd python=%s\"", g.condaCommandPath(), pythonVersion)
+	run = run.Dir(g.getWorkingDir()).Run(llb.Shlex(cmd),
+		llb.WithCustomNamef("[internal] create conda environment: %s", cmd))
 
 	switch g.Shell {
 	case shellBASH:
@@ -194,9 +155,10 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 }
 
 func (g Graph) installConda(root llb.State) (llb.State, error) {
-	if g.microMambaEnabled() {
+	if g.CondaConfig.UseMicroMamba {
 		run := root.AddEnv("MAMBA_BIN_DIR", condaBinDir).
 			AddEnv("MAMBA_ROOT_PREFIX", condaRootPrefix).
+			AddEnv("MAMBA_VERSION", mambaVersionDefault).
 			Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installMambaBash)),
 				llb.WithCustomName("[internal] install micro mamba"))
 		return run.Root(), nil

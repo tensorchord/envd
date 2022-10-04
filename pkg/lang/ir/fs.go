@@ -17,8 +17,8 @@ import (
 	"github.com/moby/buildkit/client/llb"
 )
 
-func (g Graph) CompileCacheDir(root llb.State, cacheDir string) llb.State {
-	root = llb.User("envd")(root)
+func (g *Graph) CompileCacheDir(root llb.State, cacheDir string) llb.State {
+	g.UserDirectories = append(g.UserDirectories, cacheDir)
 	run := root.Run(llb.Shlexf("mkdir -p %s", cacheDir), llb.WithCustomName("[internal] create cache dir"))
 	return run.Root()
 }

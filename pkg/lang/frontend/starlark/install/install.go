@@ -193,7 +193,6 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 
 	envFileStr := envFile.GoString()
 	if envFileStr != "" {
-
 		if (len(nameList) != 0) || (len(channelList) != 0) {
 			return nil, errors.New("env_file and name/channel are mutually exclusive")
 		}
