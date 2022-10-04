@@ -44,7 +44,7 @@ func contextList(clicontext *cli.Context) error {
 
 func renderContext(contexts types.EnvdContext, w io.Writer) {
 	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"context", "builder", "socket"})
+	table.SetHeader([]string{"context", "builder", "builder addr", "runner", "runner addr"})
 
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
@@ -59,7 +59,7 @@ func renderContext(contexts types.EnvdContext, w io.Writer) {
 	table.SetNoWhiteSpace(true)
 
 	for _, p := range contexts.Contexts {
-		envRow := make([]string, 3)
+		envRow := make([]string, 5)
 		if p.Name == contexts.Current {
 			envRow[0] = fmt.Sprintf("%s (current)", p.Name)
 		} else {
@@ -67,6 +67,10 @@ func renderContext(contexts types.EnvdContext, w io.Writer) {
 		}
 		envRow[1] = string(p.Builder)
 		envRow[2] = fmt.Sprintf("%s://%s", p.Builder, p.BuilderAddress)
+		envRow[3] = string(p.Runner)
+		if p.RunnerAddress != nil {
+			envRow[4] = stringOrNone(*p.RunnerAddress)
+		}
 		table.Append(envRow)
 	}
 	table.Render()

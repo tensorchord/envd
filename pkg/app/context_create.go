@@ -43,6 +43,15 @@ var CommandContextCreate = &cli.Command{
 			Usage: "Builder address",
 			Value: "envd_buildkitd",
 		},
+		&cli.StringFlag{
+			Name:  "runner",
+			Usage: "Runner to use(docker, envd-server)",
+			Value: string(types.RunnerTypeDocker),
+		},
+		&cli.StringFlag{
+			Name:  "runner-address",
+			Usage: "Runner address",
+		},
 		&cli.BoolFlag{
 			Name:  "use",
 			Usage: "Use the context",
@@ -55,12 +64,18 @@ func contextCreate(clicontext *cli.Context) error {
 	name := clicontext.String("name")
 	builder := clicontext.String("builder")
 	builderAddress := clicontext.String("builder-address")
+	runner := clicontext.String("runner")
+	runnerAddress := clicontext.String("runner-address")
 	use := clicontext.Bool("use")
 
 	c := types.Context{
 		Name:           name,
 		Builder:        types.BuilderType(builder),
 		BuilderAddress: builderAddress,
+		Runner:         types.RunnerType(runner),
+	}
+	if runnerAddress != "" {
+		c.RunnerAddress = &runnerAddress
 	}
 
 	err := home.GetManager().ContextCreate(c, use)
