@@ -41,11 +41,21 @@ var _ = Describe("home context", func() {
 
 	Describe("add a new context", Ordered, func() {
 		contextName := "tcp-test"
-		builder := types.BuilderTypeTCP
-		socketAddr := "0.0.0.0:12345"
+		testContext := "envd_home_test"
+		testBuilderAddress := "0.0.0.0:12345"
+		testBuilder := types.BuilderTypeTCP
+		testRunner := types.RunnerTypeEnvdServer
+		testRunnerAddress := "http://localhost"
+		c := types.Context{
+			Name:           testContext,
+			Builder:        testBuilder,
+			BuilderAddress: testBuilderAddress,
+			Runner:         testRunner,
+			RunnerAddress:  &testRunnerAddress,
+		}
 
 		BeforeAll(func() {
-			err := home.GetManager().ContextCreate(contextName, builder, socketAddr, true)
+			err := home.GetManager().ContextCreate(c, true)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
