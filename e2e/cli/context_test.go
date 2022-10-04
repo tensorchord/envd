@@ -40,7 +40,6 @@ var _ = Describe("home context", func() {
 	})
 
 	Describe("add a new context", Ordered, func() {
-		contextName := "tcp-test"
 		testContext := "envd_home_test"
 		testBuilderAddress := "0.0.0.0:12345"
 		testBuilder := types.BuilderTypeTCP
@@ -59,10 +58,10 @@ var _ = Describe("home context", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 
-		It("should found a new context", func() {
+		It("should find a new context", func() {
 			contexts, err := home.GetManager().ContextList()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(contexts.Current).To(Equal(contextName))
+			Expect(contexts.Current).To(Equal(testContext))
 		})
 
 		Describe("connect buildkit through TCP", Ordered, func() {
@@ -95,14 +94,14 @@ var _ = Describe("home context", func() {
 		})
 
 		It("fail to delete the current context", func() {
-			err := home.GetManager().ContextRemove(contextName)
+			err := home.GetManager().ContextRemove(testContext)
 			Expect(err).To(HaveOccurred())
 		})
 
 		AfterAll(func() {
 			err := home.GetManager().ContextUse(defaultContext)
 			Expect(err).NotTo(HaveOccurred())
-			err = home.GetManager().ContextRemove(contextName)
+			err = home.GetManager().ContextRemove(testContext)
 			Expect(err).NotTo(HaveOccurred())
 			contexts, err := home.GetManager().ContextList()
 			Expect(err).NotTo(HaveOccurred())
