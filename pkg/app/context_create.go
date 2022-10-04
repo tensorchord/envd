@@ -39,9 +39,18 @@ var CommandContextCreate = &cli.Command{
 			Value: string(types.BuilderTypeDocker),
 		},
 		&cli.StringFlag{
-			Name:  "builder-socket",
-			Usage: "Builder socket",
+			Name:  "builder-address",
+			Usage: "Builder address",
 			Value: "envd_buildkitd",
+		},
+		&cli.StringFlag{
+			Name:  "runner",
+			Usage: "Runner to use(docker, envd-server)",
+			Value: string(types.RunnerTypeDocker),
+		},
+		&cli.StringFlag{
+			Name:  "runner-address",
+			Usage: "Runner address",
 		},
 		&cli.BoolFlag{
 			Name:  "use",
@@ -54,11 +63,22 @@ var CommandContextCreate = &cli.Command{
 func contextCreate(clicontext *cli.Context) error {
 	name := clicontext.String("name")
 	builder := clicontext.String("builder")
-	builderSocket := clicontext.String("builder-socket")
+	builderAddress := clicontext.String("builder-address")
+	runner := clicontext.String("runner")
+	runnerAddress := clicontext.String("runner-address")
 	use := clicontext.Bool("use")
 
-	err := home.GetManager().ContextCreate(name,
-		types.BuilderType(builder), builderSocket, use)
+	c := types.Context{
+		Name:           name,
+		Builder:        types.BuilderType(builder),
+		BuilderAddress: builderAddress,
+		Runner:         types.RunnerType(runner),
+	}
+	if runnerAddress != "" {
+		c.RunnerAddress = &runnerAddress
+	}
+
+	err := home.GetManager().ContextCreate(c, use)
 	if err != nil {
 		return errors.Wrap(err, "failed to create context")
 	}

@@ -192,14 +192,14 @@ func buildkit(clicontext *cli.Context) error {
 		return nil
 	}
 
-	currentDriver, currentSocket, err := home.GetManager().ContextGetCurrent()
+	c, err := home.GetManager().ContextGetCurrent()
 	if err != nil {
 		return errors.Wrap(err, "failed to get the current context")
 	}
 
 	logrus.Debug("bootstrap the buildkitd container")
 	bkClient, err := buildkitd.NewClient(clicontext.Context,
-		currentDriver, currentSocket, clicontext.String("dockerhub-mirror"))
+		c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"))
 	if err != nil {
 		return errors.Wrap(err, "failed to create buildkit client")
 	}

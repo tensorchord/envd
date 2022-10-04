@@ -29,9 +29,8 @@ type contextManager interface {
 	ContextFile() string
 	ContextList() (types.EnvdContext, error)
 	ContextUse(name string) error
-	ContextGetCurrent() (types.BuilderType, string, error)
-	ContextCreate(name string,
-		builder types.BuilderType, socket string, use bool) error
+	ContextGetCurrent() (*types.Context, error)
+	ContextCreate(c types.Context, use bool) error
 	ContextRemove(name string) error
 }
 
@@ -80,38 +79,36 @@ func (m generalManager) ContextFile() string {
 	return m.contextFile
 }
 
-func (m generalManager) ContextGetCurrent() (types.BuilderType, string, error) {
-	var driver types.BuilderType
-	var socket string
+func (m generalManager) ContextGetCurrent() (*types.Context, error) {
 	for _, c := range m.context.Contexts {
 		if m.context.Current == c.Name {
-			driver = c.Builder
-			socket = c.BuilderSocket
-			return driver, socket, nil
+			return &c, nil
 		}
 	}
-	return "", "", errors.New("no current context")
+	return nil, errors.New("no current context")
 }
 
-func (m *generalManager) ContextCreate(
-	name string, builder types.BuilderType, socket string, use bool) error {
+func (m *generalManager) ContextCreate(ctx types.Context, use bool) error {
 	for _, c := range m.context.Contexts {
-		if c.Name == name {
-			return errors.Newf("context \"%s\" already exists", name)
+		if c.Name == ctx.Name {
+			return errors.Newf("context \"%s\" already exists", ctx.Name)
 		}
 	}
-	switch builder {
+	switch ctx.Builder {
 	case types.BuilderTypeDocker, types.BuilderTypeKubernetes, types.BuilderTypeTCP:
-		m.context.Contexts = append(m.context.Contexts, types.Context{
-			Name:          name,
-			Builder:       builder,
-			BuilderSocket: socket,
-		})
+		break
 	default:
 		return errors.New("unknown builder type")
 	}
+	switch ctx.Runner {
+	case types.RunnerTypeDocker, types.RunnerTypeEnvdServer:
+		break
+	default:
+		return errors.New("unknown runner type")
+	}
+	m.context.Contexts = append(m.context.Contexts, ctx)
 	if use {
-		return m.ContextUse(name)
+		return m.ContextUse(ctx.Name)
 	}
 	return m.dumpContext()
 }
