@@ -96,10 +96,17 @@ func (m *generalManager) ContextCreate(ctx types.Context, use bool) error {
 	}
 	switch ctx.Builder {
 	case types.BuilderTypeDocker, types.BuilderTypeKubernetes, types.BuilderTypeTCP:
-		m.context.Contexts = append(m.context.Contexts, ctx)
+		break
 	default:
 		return errors.New("unknown builder type")
 	}
+	switch ctx.Runner {
+	case types.RunnerTypeDocker, types.RunnerTypeEnvdServer:
+		break
+	default:
+		return errors.New("unknown runner type")
+	}
+	m.context.Contexts = append(m.context.Contexts, ctx)
 	if use {
 		return m.ContextUse(ctx.Name)
 	}
