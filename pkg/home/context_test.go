@@ -33,7 +33,7 @@ var _ = Describe("context test", func() {
 		Builder:        testBuilder,
 		BuilderAddress: testBuilderAddress,
 		Runner:         testRunner,
-		RunnerAddress:  &testBuilderAddress,
+		RunnerAddress:  &testRunnerAddress,
 	}
 
 	BeforeEach(func() {
