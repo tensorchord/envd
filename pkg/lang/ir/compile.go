@@ -49,7 +49,7 @@ func NewGraph() *Graph {
 			Version: &langVersion,
 		},
 		CUDA:    nil,
-		CUDNN:   "8", // default version
+		CUDNN:   CUDNNVersionDefault,
 		NumGPUs: -1,
 
 		PyPIPackages:    []string{},
