@@ -1,6 +1,6 @@
 <div align="center">
 <img src="https://user-images.githubusercontent.com/52693877/190860902-ac07b00d-4441-47d4-b1d4-beff74926134.gif" alt="this slowpoke moves"/>
-<h1><img src="https://user-images.githubusercontent.com/52693877/193411608-01864ed9-84e2-4ea8-b978-8cfe09d394ca.png" alt="explain"/></h1>
+
 <p>Development environment for AI/ML</p>
 </div>
 
@@ -13,6 +13,8 @@
 <a href="https://github.com/tensorchord/envd/actions/workflows/CI.yml"><img alt="continuous integration" src="https://github.com/tensorchord/envd/actions/workflows/CI.yml/badge.svg"></a>
 <a href='https://coveralls.io/github/tensorchord/envd?branch=main'><img src='https://coveralls.io/repos/github/tensorchord/envd/badge.svg?branch=main' alt='Coverage Status' /></a>
 </p>
+
+<p><img src="https://user-images.githubusercontent.com/52693877/193411608-01864ed9-84e2-4ea8-b978-8cfe09d394ca.png" alt="explain"/></p>
 
 ## What is envd?
 
