@@ -20,6 +20,7 @@ const (
 	osDefault              = "ubuntu20.04"
 	languageDefault        = "python"
 	languageVersionDefault = "3"
+	CUDNNVersionDefault    = "8"
 
 	aptSourceFilePath = "/etc/apt/sources.list"
 	pypiIndexFilePath = "/etc/pip.conf"
