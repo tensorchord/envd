@@ -44,7 +44,6 @@ jobs:
         run: |
           make addlicense && git add pkg cmd &&
           git diff --cached --exit-code || (echo 'Please run "make addlicense" to verify govet' && exit 1);
-      - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11.0-beta.3'
