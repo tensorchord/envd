@@ -82,6 +82,7 @@ func (srv *Server) ListenAndServe() error {
 	return server.ListenAndServe()
 }
 
+//nolint:unparam
 func (srv *Server) getServer() (*ssh.Server, error) {
 	forwardHandler := &ssh.ForwardedTCPHandler{}
 
