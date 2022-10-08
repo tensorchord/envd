@@ -124,6 +124,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
+// nolint:unparam
 func (g *Graph) compileExtraSource(root llb.State) (llb.State, error) {
 	if len(g.HTTP) == 0 {
 		return root, nil
@@ -149,12 +150,6 @@ func (g *Graph) preparePythonBase(root llb.State) llb.State {
 		root = root.AddEnv(env.Name, env.Value)
 	}
 
-	// envd-sshd
-	sshd := root.File(llb.Copy(
-		llb.Image(types.EnvdSshdImage), "/usr/bin/envd-sshd", "/var/envd/bin/envd-sshd",
-		&llb.CopyInfo{CreateDestPath: true}),
-		llb.WithCustomName(fmt.Sprintf("[internal] add envd-sshd from %s", types.EnvdSshdImage)))
-
 	// apt packages
 	var sb strings.Builder
 	sb.WriteString("apt-get update && apt-get install -y apt-utils && ")
@@ -164,17 +159,18 @@ func (g *Graph) preparePythonBase(root llb.State) llb.State {
 	// shell prompt
 	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
 
-	cacheDir := "/var/cache/apt"
-	cacheLibDir := "/var/lib/apt"
-
-	run := sshd.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
+	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
 		llb.WithCustomName("[internal] install system packages"))
-	run.AddMount(cacheDir, llb.Scratch(),
-		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared))
-	run.AddMount(cacheLibDir, llb.Scratch(),
-		llb.AsPersistentCacheDir(g.CacheID(cacheLibDir), llb.CacheMountShared))
 
 	return run.Root()
+}
+
+func (g Graph) compileSshd(root llb.State) llb.State {
+	sshd := root.File(llb.Copy(
+		llb.Image(types.EnvdSshdImage), "/usr/bin/envd-sshd", "/var/envd/bin/envd-sshd",
+		&llb.CopyInfo{CreateDestPath: true}),
+		llb.WithCustomName(fmt.Sprintf("[internal] add envd-sshd from %s", types.EnvdSshdImage)))
+	return sshd
 }
 
 func (g *Graph) compileBase() (llb.State, error) {
@@ -217,44 +213,13 @@ func (g *Graph) compileBase() (llb.State, error) {
 		base = g.compileCUDAPackages("nvidia/cuda")
 	}
 
+	base = g.compileUserGroup(base)
 	// Install conda first.
 	condaStage, err := g.installConda(base)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to install conda")
 	}
-
-	// TODO(gaocegege): Refactor user to a separate stage.
-	var res llb.ExecState
-	if g.uid == 0 {
-		res = condaStage.
-			Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", 1001)),
-				llb.WithCustomName("[internal] still create group envd for root context")).
-			Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %d -g envd -s /bin/sh -m envd", 1001)),
-				llb.WithCustomName("[internal] still create user envd for root context")).
-			Run(llb.Shlex("usermod -s /bin/sh root"),
-				llb.WithCustomName("[internal] set root default shell to /bin/sh")).
-			Run(llb.Shlex("sed -i \"s/envd:x:1001:1001/envd:x:0:0/g\" /etc/passwd"),
-				llb.WithCustomName("[internal] set envd uid to 0 as root")).
-			Run(llb.Shlex("sed -i \"s./root./home/envd.g\" /etc/passwd"),
-				llb.WithCustomName("[internal] set root home dir to /home/envd")).
-			Run(llb.Shlex("sed -i \"s/envd:x:1001/envd:x:0/g\" /etc/group"),
-				llb.WithCustomName("[internal] set envd group to 0 as root group")).
-			Run(llb.Shlex("chown -R root:root /opt/conda"),
-				llb.WithCustomName("[internal] configure user permissions"))
-	} else {
-		res = condaStage.
-			Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", g.gid)),
-				llb.WithCustomName("[internal] create user group envd")).
-			Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %d -g envd -s /bin/sh -m envd", g.uid)),
-				llb.WithCustomName("[internal] create user envd")).
-			Run(llb.Shlex("adduser envd sudo"),
-				llb.WithCustomName("[internal] add user envd to sudoers")).
-			Run(llb.Shlex("chown -R envd:envd /usr/local/lib"),
-				llb.WithCustomName("[internal] configure user permissions")).
-			Run(llb.Shlex("chown -R envd:envd /opt/conda"),
-				llb.WithCustomName("[internal] configure user permissions"))
-	}
-	return llb.User("envd")(res.Root()), nil
+	return g.compileSshd(condaStage), nil
 }
 
 func (g Graph) copySSHKey(root llb.State) (llb.State, error) {

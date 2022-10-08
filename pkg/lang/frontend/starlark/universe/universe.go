@@ -46,10 +46,9 @@ func RegisterBuildContext(buildContextDir string) {
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var os, language, image string
-	var useConda bool
 
 	if err := starlark.UnpackArgs(ruleBase, args, kwargs,
-		"os?", &os, "language?", &language, "image?", &image, "use_conda?", &useConda); err != nil {
+		"os?", &os, "language?", &language, "image?", &image); err != nil {
 		return nil, err
 	}
 

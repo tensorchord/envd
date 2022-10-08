@@ -24,8 +24,17 @@ import (
 var _ = Describe("context test", func() {
 	defaultContext := "default"
 	testContext := "envd_home_test"
-	testSocket := "0.0.0.0:12345"
+	testBuilderAddress := "0.0.0.0:12345"
 	testBuilder := types.BuilderTypeTCP
+	testRunner := types.RunnerTypeEnvdServer
+	testRunnerAddress := "http://localhost"
+	c := types.Context{
+		Name:           testContext,
+		Builder:        testBuilder,
+		BuilderAddress: testBuilderAddress,
+		Runner:         testRunner,
+		RunnerAddress:  &testRunnerAddress,
+	}
 
 	BeforeEach(func() {
 		Expect(Initialize()).To(Succeed())
@@ -33,7 +42,7 @@ var _ = Describe("context test", func() {
 
 	Describe("create with use", Ordered, func() {
 		BeforeAll(func() {
-			err := GetManager().ContextCreate(testContext, testBuilder, testSocket, true)
+			err := GetManager().ContextCreate(c, true)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -41,10 +50,12 @@ var _ = Describe("context test", func() {
 			contexts, err := GetManager().ContextList()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(contexts.Current).To(Equal(testContext))
-			builder, socket, err := GetManager().ContextGetCurrent()
+			c, err := GetManager().ContextGetCurrent()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(builder).To(Equal(testBuilder))
-			Expect(socket).To(Equal(testSocket))
+			Expect(c.Builder).To(Equal(testBuilder))
+			Expect(c.BuilderAddress).To(Equal(testBuilderAddress))
+			Expect(c.Runner).To(Equal(testRunner))
+			Expect(*c.RunnerAddress).To(Equal(testRunnerAddress))
 		})
 
 		It("cannot delete the current context", func() {
@@ -63,12 +74,12 @@ var _ = Describe("context test", func() {
 
 	Describe("create without use", Ordered, func() {
 		BeforeAll(func() {
-			err := GetManager().ContextCreate(testContext, testBuilder, testSocket, false)
+			err := GetManager().ContextCreate(c, false)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("should not be able to create the same context", func() {
-			err := GetManager().ContextCreate(testContext, testBuilder, testSocket, false)
+			err := GetManager().ContextCreate(c, false)
 			Expect(err).To(HaveOccurred())
 		})
 

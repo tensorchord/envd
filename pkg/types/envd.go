@@ -28,7 +28,7 @@ import (
 // DefaultPathEnvUnix is unix style list of directories to search for
 // executables. Each directory is separated from the next by a colon
 // ':' character .
-const DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/usr/local/julia/bin:" + system.DefaultPathEnvUnix
+const DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/home/envd/.local/bin:/usr/local/julia/bin:" + system.DefaultPathEnvUnix
 
 // DefaultPathEnvWindows is windows style list of directories to search for
 // executables. Each directory is separated from the next by a colon
@@ -108,9 +108,11 @@ type EnvdContext struct {
 }
 
 type Context struct {
-	Name          string      `json:"name,omitempty"`
-	Builder       BuilderType `json:"builder,omitempty"`
-	BuilderSocket string      `json:"builder_socket,omitempty"`
+	Name           string      `json:"name,omitempty"`
+	Builder        BuilderType `json:"builder,omitempty"`
+	BuilderAddress string      `json:"builder_address,omitempty"`
+	Runner         RunnerType  `json:"runner,omitempty"`
+	RunnerAddress  *string     `json:"runner_address,omitempty"`
 }
 
 type BuilderType string
@@ -119,6 +121,13 @@ const (
 	BuilderTypeDocker     BuilderType = "docker-container"
 	BuilderTypeKubernetes BuilderType = "kube-pod"
 	BuilderTypeTCP        BuilderType = "tcp"
+)
+
+type RunnerType string
+
+const (
+	RunnerTypeDocker     RunnerType = "docker"
+	RunnerTypeEnvdServer RunnerType = "envd-server"
 )
 
 type Dependency struct {

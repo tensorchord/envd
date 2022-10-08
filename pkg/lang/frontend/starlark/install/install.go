@@ -132,19 +132,16 @@ func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin,
 
 func ruleFuncCUDA(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var version, cudnn starlark.String
+	var version, cudnn string
 
 	if err := starlark.UnpackArgs(ruleCUDA, args, kwargs,
-		"version?", &version, "cudnn?", &cudnn); err != nil {
+		"version", &version, "cudnn?", &cudnn); err != nil {
 		return nil, err
 	}
 
-	versionStr := version.GoString()
-	cudnnStr := cudnn.GoString()
-
 	logger.Debugf("rule `%s` is invoked, version=%s, cudnn=%s",
-		ruleCUDA, versionStr, cudnnStr)
-	ir.CUDA(versionStr, cudnnStr)
+		ruleCUDA, version, cudnn)
+	ir.CUDA(version, cudnn)
 
 	return starlark.None, nil
 }
@@ -193,7 +190,6 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 
 	envFileStr := envFile.GoString()
 	if envFileStr != "" {
-
 		if (len(nameList) != 0) || (len(channelList) != 0) {
 			return nil, errors.New("env_file and name/channel are mutually exclusive")
 		}

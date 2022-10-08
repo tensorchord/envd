@@ -30,7 +30,9 @@ func Base(os, language, image string) error {
 		Name:    l,
 		Version: version,
 	}
-	DefaultGraph.OS = os
+	if len(os) > 0 {
+		DefaultGraph.OS = os
+	}
 	if image != "" {
 		DefaultGraph.Image = &image
 	}
@@ -66,7 +68,9 @@ func GPU(numGPUs int) {
 
 func CUDA(version, cudnn string) {
 	DefaultGraph.CUDA = &version
-	DefaultGraph.CUDNN = cudnn
+	if len(cudnn) > 0 {
+		DefaultGraph.CUDNN = cudnn
+	}
 }
 
 func VSCodePlugins(plugins []string) error {
@@ -145,19 +149,12 @@ func Git(name, email, editor string) error {
 }
 
 func CondaChannel(channel string, useMamba bool) error {
-	if !DefaultGraph.CondaEnabled() {
-		DefaultGraph.CondaConfig = &CondaConfig{}
-	}
-
 	DefaultGraph.CondaConfig.CondaChannel = &channel
 	DefaultGraph.CondaConfig.UseMicroMamba = useMamba
 	return nil
 }
 
 func CondaPackage(deps []string, channel []string, envFile string) error {
-	if !DefaultGraph.CondaEnabled() {
-		DefaultGraph.CondaConfig = &CondaConfig{}
-	}
 	DefaultGraph.CondaConfig.CondaPackages = append(
 		DefaultGraph.CondaConfig.CondaPackages, deps...)
 

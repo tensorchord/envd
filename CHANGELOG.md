@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.2.4-alpha.8 (2022-10-08)
+
+ * [0be9969](https://github.com/tensorchord/envd/commit/0be9969471f8358f1cc283215ddf8e4cfcecebad) fix: Remove dump checkout and remove pre-commit (#982)
+ * [f4ebb02](https://github.com/tensorchord/envd/commit/f4ebb026c45ab29a84dfa57782ef5fec8c11cf14) Chore(test): Add test cases for pkg/util/starlarkutil (#979)
+ * [06d3cfa](https://github.com/tensorchord/envd/commit/06d3cfa1e171a409893d59494754dc47fb886a52) *: upgrade golangci-linter and add noloopclosure (#980)
+ * [17fedb8](https://github.com/tensorchord/envd/commit/17fedb8d2ae41318e2f705687c334b7e42413ab3) fix(ir): make sure default value won't be replaced with empty value (#970)
+ * [c1ae887](https://github.com/tensorchord/envd/commit/c1ae887f12b23802363ac417c198e19983c5605f) feat(CLI): Support runner in context (#961)
+ * [bf993e2](https://github.com/tensorchord/envd/commit/bf993e2cab44502abb74a79e732b74a5567b6194) refact: conda/mamba create/update env, fix user permissions (#933)
+ * [0e79fb9](https://github.com/tensorchord/envd/commit/0e79fb91b9f3770f2e5356fc8a10182dd31e2bdf) chore(deps): bump github.com/urfave/cli/v2 from 2.16.3 to 2.17.1 (#968)
+ * [c9045d2](https://github.com/tensorchord/envd/commit/c9045d24d412099a1ac0bf9b9acf78135157351d) chore(deps): bump dependabot/fetch-metadata from 1.3.3 to 1.3.4 (#967)
+
+### Contributors
+
+ * Ce Gao
+ * Keming
+ * Tumushimire Yves
+ * Weizhen Wang
+ * dependabot[bot]
+
+## v0.2.4-alpha.7 (2022-10-01)
+
+ * [c22408c](https://github.com/tensorchord/envd/commit/c22408c8f3b87ef959bda7d7681203ffd8d6212c) fix(ir): `apt install` and `conda env create` cache (#962)
+ * [006f653](https://github.com/tensorchord/envd/commit/006f6538396b47b1bcab2a0d53ec9dae0221c8f5) feat: envd-sshd can read public key path from environment variable (#954)
+
+### Contributors
+
+ * Jinjing Zhou
+ * Keming
+
 ## v0.2.4-alpha.6 (2022-09-29)
 
  * [0b73548](https://github.com/tensorchord/envd/commit/0b7354868943f9e4ea189be18eeea534959b5d6c) example: Use torch in mnist example (#927)

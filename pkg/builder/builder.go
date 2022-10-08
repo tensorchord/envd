@@ -126,11 +126,11 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 		}),
 	}
 
-	currentDriver, currentSocket, err := home.GetManager().ContextGetCurrent()
+	c, err := home.GetManager().ContextGetCurrent()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get the current context")
 	}
-	cli, err := buildkitd.NewClient(ctx, currentDriver, currentSocket, "")
+	cli, err := buildkitd.NewClient(ctx, c.Builder, c.BuilderAddress, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create buildkit client")
 	}
@@ -201,6 +201,7 @@ func (b generalBuilder) addBuilderTag(labels *map[string]string) {
 	(*labels)[types.ImageLabelCacheHash] = b.manifestCodeHash
 }
 
+// nolint:unparam
 func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	labels, err := ir.Labels()
 	if err != nil {
@@ -379,7 +380,7 @@ func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
 	return true
 }
 
-// Always return updated when met error
+// nolint:unparam
 func (b generalBuilder) checkDepsFileUpdate(ctx context.Context, tag string, manifest string, deps []string) (bool, error) {
 	dockerClient, err := docker.NewClient(ctx)
 	if err != nil {
