@@ -92,6 +92,7 @@ func (h *host) String() string {
 
 }
 
+// nolint:unparam
 func newParam(keyword string, args, comments []string) *param {
 	return &param{
 		comments: comments,
