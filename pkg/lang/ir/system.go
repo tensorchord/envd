@@ -124,6 +124,7 @@ func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
+// nolint:unparam
 func (g *Graph) compileExtraSource(root llb.State) (llb.State, error) {
 	if len(g.HTTP) == 0 {
 		return root, nil
