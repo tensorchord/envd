@@ -38,25 +38,14 @@ jobs:
             ${{ runner.OS }}-build-${{ env.cache-name }}-
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
-      - run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.0
-      - run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
       - name: Add license
         run: |
           make addlicense && git add pkg cmd &&
           git diff --cached --exit-code || (echo 'Please run "make addlicense" to verify govet' && exit 1);
-      - uses: actions/setup-python@v4
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
         with:
-          python-version: '3.11.0-beta.3'
-        env:
-          AGENT_TOOLSDIRECTORY: /opt/hostedtoolcache
-          RUNNER_TOOL_CACHE: /opt/hostedtoolcache
-      - id: file_changes
-        uses: trilom/file-changes-action@v1.2.4
-        with:
-          output: ' '
-      - uses: pre-commit/action@v3.0.0
-        with:
-          extra_args: --files ${{ steps.file_changes.outputs.files}}
+          version: latest
   test:
     name: test
     strategy:
