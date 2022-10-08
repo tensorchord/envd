@@ -201,6 +201,7 @@ func (b generalBuilder) addBuilderTag(labels *map[string]string) {
 	(*labels)[types.ImageLabelCacheHash] = b.manifestCodeHash
 }
 
+// nolint:unparam
 func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	labels, err := ir.Labels()
 	if err != nil {
@@ -379,7 +380,7 @@ func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
 	return true
 }
 
-// Always return updated when met error
+// nolint:unparam
 func (b generalBuilder) checkDepsFileUpdate(ctx context.Context, tag string, manifest string, deps []string) (bool, error) {
 	dockerClient, err := docker.NewClient(ctx)
 	if err != nil {

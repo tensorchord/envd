@@ -93,6 +93,7 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 	return cmd
 }
 
+// nolint:unparam
 func (g Graph) generateRStudioCommand(workingDir string) []string {
 	if g.RStudioServerConfig == nil {
 		return nil

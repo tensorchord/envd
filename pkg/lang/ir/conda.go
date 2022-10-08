@@ -154,6 +154,7 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	return run.Root(), nil
 }
 
+// nolint:unparam
 func (g Graph) installConda(root llb.State) (llb.State, error) {
 	if g.CondaConfig.UseMicroMamba {
 		run := root.AddEnv("MAMBA_BIN_DIR", condaBinDir).

@@ -21,6 +21,7 @@ import (
 	"github.com/moby/buildkit/client/llb"
 )
 
+// nolint:unparam
 func (g Graph) compileCustomPython(aptStage llb.State) (llb.State, error) {
 	pypiMirrorStage := g.compilePyPIIndex(aptStage)
 
