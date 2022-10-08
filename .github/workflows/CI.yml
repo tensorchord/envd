@@ -46,6 +46,8 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
+          # Ref https://github.com/golangci/golangci-lint-action/issues/244
+          skip-pkg-cache: true
   test:
     name: test
     strategy:
