@@ -47,20 +47,22 @@ type Client interface {
 }
 
 type Options struct {
-	Server         string
-	User           string
-	Port           int
-	Auth           bool
-	PrivateKeyPath string
-	PrivateKeyPwd  string
+	AgentForwarding bool
+	Server          string
+	User            string
+	Port            int
+	Auth            bool
+	PrivateKeyPath  string
+	PrivateKeyPwd   string
 }
 
 func DefaultOptions() Options {
 	return Options{
-		Server:        "localhost",
-		User:          "envd",
-		Auth:          true,
-		PrivateKeyPwd: "",
+		Server:          "localhost",
+		User:            "envd",
+		Auth:            true,
+		PrivateKeyPwd:   "",
+		AgentForwarding: true,
 	}
 }
 
@@ -82,6 +84,7 @@ func GetOptions(entry string) (*Options, error) {
 
 type generalClient struct {
 	cli *ssh.Client
+	opt *Options
 }
 
 func NewClient(opt Options) (Client, error) {
@@ -120,26 +123,31 @@ func NewClient(opt Options) (Client, error) {
 	}
 	cli = conn
 
-	// open connection to the local agent
-	socketLocation := os.Getenv("SSH_AUTH_SOCK")
-	if socketLocation != "" {
-		agentConn, err := net.Dial("unix", socketLocation)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not connect to local agent socket")
-		}
-		// create agent and add in auth
-		forwardingAgent := agent.NewClient(agentConn)
-		// add callback for forwarding agent to SSH config
-		// XXX - might want to handle reconnects appending multiple callbacks
-		auth := ssh.PublicKeysCallback(forwardingAgent.Signers)
-		config.Auth = append(config.Auth, auth)
-		if err := agent.ForwardToAgent(cli, forwardingAgent); err != nil {
-			return nil, errors.Wrap(err, "forwarding agent to client failed")
+	if opt.AgentForwarding {
+		// open connection to the local agent
+		socketLocation := os.Getenv("SSH_AUTH_SOCK")
+		if socketLocation != "" {
+			agentConn, err := net.Dial("unix", socketLocation)
+			if err != nil {
+				return nil, errors.Wrap(err, "could not connect to local agent socket")
+			}
+			// create agent and add in auth
+			forwardingAgent := agent.NewClient(agentConn)
+			// add callback for forwarding agent to SSH config
+			// might want to handle reconnects appending multiple callbacks
+			auth := ssh.PublicKeysCallback(forwardingAgent.Signers)
+			config.Auth = append(config.Auth, auth)
+			if err := agent.ForwardToAgent(cli, forwardingAgent); err != nil {
+				return nil, errors.Wrap(err, "forwarding agent to client failed")
+			}
+		} else {
+			logrus.Warn("failed to get the environment variable SSH_AUTH_SOCK")
 		}
 	}
 
 	return &generalClient{
 		cli: cli,
+		opt: &opt,
 	}, nil
 }
 
@@ -157,8 +165,10 @@ func (c generalClient) ExecWithOutput(cmd string) ([]byte, error) {
 	}
 	defer session.Close()
 
-	if err := agent.RequestAgentForwarding(session); err != nil {
-		return nil, errors.Wrap(err, "requesting agent forwarding failed")
+	if c.opt.AgentForwarding {
+		if err := agent.RequestAgentForwarding(session); err != nil {
+			return nil, errors.Wrap(err, "requesting agent forwarding failed")
+		}
 	}
 
 	return session.CombinedOutput(cmd)
@@ -172,8 +182,10 @@ func (c generalClient) Attach() error {
 	}
 	defer session.Close()
 
-	if err := agent.RequestAgentForwarding(session); err != nil {
-		return errors.Wrap(err, "requesting agent forwarding failed")
+	if c.opt.AgentForwarding {
+		if err := agent.RequestAgentForwarding(session); err != nil {
+			return errors.Wrap(err, "requesting agent forwarding failed")
+		}
 	}
 
 	modes := ssh.TerminalModes{

@@ -68,9 +68,11 @@ func LoadAuthorizedKeys(path string) ([]ssh.PublicKey, error) {
 
 // Server holds the ssh server configuration.
 type Server struct {
-	Port           int
-	Shell          string
+	Port  int
+	Shell string
+
 	AuthorizedKeys []ssh.PublicKey
+	Hostkey        ssh.Signer
 }
 
 // ListenAndServe starts the SSH server using port
@@ -115,6 +117,10 @@ func (srv *Server) getServer() (*ssh.Server, error) {
 	} else {
 		server.PublicKeyHandler = nil
 		server.PasswordHandler = nil
+	}
+
+	if srv.Hostkey != nil {
+		server.AddHostKey(srv.Hostkey)
 	}
 
 	return server, nil
