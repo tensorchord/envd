@@ -141,7 +141,7 @@ func NewClient(opt Options) (Client, error) {
 				return nil, errors.Wrap(err, "forwarding agent to client failed")
 			}
 		} else {
-			return nil, errors.New("failed to get the environment variable SSH_AUTH_SOCK")
+			logrus.Warn("failed to get the environment variable SSH_AUTH_SOCK")
 		}
 	}
 
