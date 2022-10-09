@@ -24,6 +24,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
@@ -124,13 +125,13 @@ func build(clicontext *cli.Context) error {
 }
 
 func DetectEnvironment(clicontext *cli.Context, buildOpt builder.Options) error {
-	dockerClient, err := docker.NewClient(clicontext.Context)
+	engine, err := envd.New(clicontext.Context, "docker")
 	if err != nil {
 		return errors.Wrap(err, "failed to create the docker client")
 	}
 	// detect if the current environment is running before building
 	ctr := filepath.Base(buildOpt.BuildContextDir)
-	running, _ := dockerClient.IsRunning(clicontext.Context, ctr)
+	running, _ := engine.IsRunning(clicontext.Context, ctr)
 	if err != nil {
 		return err
 	}
