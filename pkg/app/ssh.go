@@ -58,6 +58,7 @@ func sshc(clicontext *cli.Context) error {
 	opt.User = it
 	opt.PrivateKeyPath = clicontext.Path("private-key")
 	opt.Port = 2222
+	opt.AgentForwarding = false
 	sshClient, err := ssh.NewClient(opt)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the ssh client")
