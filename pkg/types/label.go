@@ -23,7 +23,7 @@ const (
 	ImageLabelVendor    = "ai.tensorchord.envd.vendor"
 	ImageLabelGPU       = "ai.tensorchord.envd.gpu"
 	ImageLabelAPT       = "ai.tensorchord.envd.apt.packages"
-	ImageLabelPyPI      = "ai.tensorchord.envd.pypi.packages"
+	ImageLabelPyPI      = "ai.tensorchord.envd.pypi.commands"
 	ImageLabelR         = "ai.tensorchord.envd.r.packages"
 	ImageLabelCUDA      = "ai.tensorchord.envd.gpu.cuda"
 	ImageLabelCUDNN     = "ai.tensorchord.envd.gpu.cudnn"
