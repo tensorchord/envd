@@ -257,8 +257,8 @@ func newDependencyFromLabels(label map[string]string) (*Dependency, error) {
 		}
 		packages := []string{}
 
-		for _, pkg := range lst {
-			if !strings.HasPrefix(pkg, "-") {
+		for i, pkg := range lst {
+			if !strings.HasPrefix(pkg, "-") && (i == 0 || !strings.HasPrefix(lst[i-1], "-")) {
 				packages = append(packages, pkg)
 			}
 		}
