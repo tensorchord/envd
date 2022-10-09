@@ -134,7 +134,7 @@ func NewClient(opt Options) (Client, error) {
 			// create agent and add in auth
 			forwardingAgent := agent.NewClient(agentConn)
 			// add callback for forwarding agent to SSH config
-			// XXX - might want to handle reconnects appending multiple callbacks
+			// might want to handle reconnects appending multiple callbacks
 			auth := ssh.PublicKeysCallback(forwardingAgent.Signers)
 			config.Auth = append(config.Auth, auth)
 			if err := agent.ForwardToAgent(cli, forwardingAgent); err != nil {
