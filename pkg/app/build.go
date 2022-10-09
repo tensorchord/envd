@@ -123,6 +123,23 @@ func build(clicontext *cli.Context) error {
 	return BuildImage(clicontext, builder)
 }
 
+func DetectEnvironment(clicontext *cli.Context, buildOpt builder.Options) error {
+	dockerClient, err := docker.NewClient(clicontext.Context)
+	if err != nil {
+		return errors.Wrap(err, "failed to create the docker client")
+	}
+	// detect if the current environment is running before building
+	ctr := filepath.Base(buildOpt.BuildContextDir)
+	running, _ := dockerClient.IsRunning(clicontext.Context, ctr)
+	if err != nil {
+		return err
+	}
+	if running {
+		logrus.Warnf("detect container %s is running.", ctr)
+	}
+	return nil
+}
+
 func GetBuilder(clicontext *cli.Context, opt builder.Options) (builder.Builder, error) {
 	builder, err := builder.New(clicontext.Context, opt)
 	if err != nil {
