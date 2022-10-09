@@ -131,12 +131,14 @@ func DetectEnvironment(clicontext *cli.Context, buildOpt builder.Options) error 
 	}
 	// detect if the current environment is running before building
 	ctr := filepath.Base(buildOpt.BuildContextDir)
-	running, _ := engine.IsRunning(clicontext.Context, ctr)
+	running, err := engine.IsRunning(clicontext.Context, ctr)
 	if err != nil {
 		return err
 	}
-	if running {
-		logrus.Warnf("detect container %s is running.", ctr)
+	force := clicontext.Bool("force")
+	if running && !force {
+		logrus.Errorf("detect container %s is running, please save your data and stop the running container if you need to envd up again.", ctr)
+		return errors.Newf("\"%s\" is stil running, please run `envd destroy --name %s` stop it first", ctr, ctr)
 	}
 	return nil
 }
