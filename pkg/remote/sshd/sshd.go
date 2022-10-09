@@ -211,7 +211,7 @@ func handlePTY(logger *logrus.Entry, cmd *exec.Cmd, s ssh.Session, ptyReq ssh.Pt
 
 	go func() {
 		for win := range winCh {
-			setWinsize(f, win.Width, win.Height)
+			setWinSize(f, win.Width, win.Height)
 		}
 	}()
 
@@ -246,10 +246,10 @@ func handlePTY(logger *logrus.Entry, cmd *exec.Cmd, s ssh.Session, ptyReq ssh.Pt
 	return nil
 }
 
-func setWinsize(f *os.File, w, h int) {
+func setWinSize(f *os.File, w, h int) {
 	// TODO(gaocegege): Should we use syscall or docker resize?
 	// Refer to https://github.com/gliderlabs/ssh/blob/master/_examples/ssh-docker/docker.go#L99
-	_, _, err := syscall.SyscallN(syscall.SYS_IOCTL, f.Fd(), uintptr(syscall.TIOCSWINSZ),
+	_, _, err := syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), uintptr(syscall.TIOCSWINSZ),
 		uintptr(unsafe.Pointer(&struct{ h, w, x, y uint16 }{uint16(h), uint16(w), 0, 0})))
 	if err != 0 {
 		logrus.WithError(err).Error("failed to set winsize")
