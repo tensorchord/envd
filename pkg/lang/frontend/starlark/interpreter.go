@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"hash/fnv"
 	"io/fs"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -175,7 +175,7 @@ func (s generalInterpreter) Eval(script string) (interface{}, error) {
 }
 
 func GetEnvdProgramHash(filename string) (string, error) {
-	envdSrc, err := ioutil.ReadFile(filename)
+	envdSrc, err := os.ReadFile(filename)
 	if err != nil {
 		return "", err
 	}

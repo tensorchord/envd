@@ -18,7 +18,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/cockroachdb/errors"
@@ -137,7 +136,7 @@ func sshServer(c *cli.Context) error {
 	var hostKey ssh.Signer = nil
 	if c.String(flagHostKey) != "" {
 		// read private key file
-		pemBytes, err := ioutil.ReadFile(c.String(flagHostKey))
+		pemBytes, err := os.ReadFile(c.String(flagHostKey))
 		if err != nil {
 			return errors.Wrapf(
 				err, "reading private key %s failed", c.String(flagHostKey))
