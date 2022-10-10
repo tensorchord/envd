@@ -408,6 +408,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "asjdf",
+      "name": "杨成锴",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22193008?v=4",
+      "profile": "https://www.homeboyc.cn/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
