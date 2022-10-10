@@ -64,9 +64,9 @@ var _ = Describe("check examples in documentation", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	up_tests := []string{"testdata/minimal", "testdata/getting_started", "testdata/jupyter"}
+	upTests := []string{"testdata/minimal", "testdata/getting_started", "testdata/jupyter"}
 
-	for _, v := range up_tests {
+	for _, v := range upTests {
 		It(fmt.Sprintf("can up %s environment", v), func() {
 			args := append(baseArgs, []string{
 				"up", "--path", v, "-f", "build.envd", "--detach", "--force",

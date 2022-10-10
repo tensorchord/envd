@@ -24,7 +24,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"os"
 	"strings"
@@ -100,7 +99,7 @@ func NewClient(opt Options) (Client, error) {
 
 	if opt.Auth {
 		// read private key file
-		pemBytes, err := ioutil.ReadFile(opt.PrivateKeyPath)
+		pemBytes, err := os.ReadFile(opt.PrivateKeyPath)
 		if err != nil {
 			return nil, errors.Wrapf(
 				err, "reading private key %s failed", opt.PrivateKeyPath)

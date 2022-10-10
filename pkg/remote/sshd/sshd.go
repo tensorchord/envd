@@ -18,7 +18,6 @@ package sshd
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -39,7 +38,7 @@ import (
 // LoadAuthorizedKeys loads path as an array.
 // It will return nil if path doesn't exist.
 func LoadAuthorizedKeys(path string) ([]ssh.PublicKey, error) {
-	authorizedKeysBytes, err := ioutil.ReadFile(path)
+	authorizedKeysBytes, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -212,7 +211,7 @@ func handlePTY(logger *logrus.Entry, cmd *exec.Cmd, s ssh.Session, ptyReq ssh.Pt
 
 	go func() {
 		for win := range winCh {
-			setWinsize(f, win.Width, win.Height)
+			setWinSize(f, win.Width, win.Height)
 		}
 	}()
 
@@ -247,7 +246,7 @@ func handlePTY(logger *logrus.Entry, cmd *exec.Cmd, s ssh.Session, ptyReq ssh.Pt
 	return nil
 }
 
-func setWinsize(f *os.File, w, h int) {
+func setWinSize(f *os.File, w, h int) {
 	// TODO(gaocegege): Should we use syscall or docker resize?
 	// Refer to https://github.com/gliderlabs/ssh/blob/master/_examples/ssh-docker/docker.go#L99
 	_, _, err := syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), uintptr(syscall.TIOCSWINSZ),
@@ -361,7 +360,7 @@ func (srv *Server) authorize(ctx ssh.Context, key ssh.PublicKey) bool {
 }
 
 func sftpHandler(sess ssh.Session) {
-	debugStream := ioutil.Discard
+	debugStream := io.Discard
 	serverOptions := []sftp.ServerOption{
 		sftp.WithDebug(debugStream),
 	}

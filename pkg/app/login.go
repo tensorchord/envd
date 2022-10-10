@@ -18,7 +18,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/cockroachdb/errors"
 	servertypes "github.com/tensorchord/envd-server/api/types"
@@ -44,7 +44,7 @@ func login(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the public key path")
 	}
-	key, err := ioutil.ReadFile(publicKeyPath)
+	key, err := os.ReadFile(publicKeyPath)
 	if err != nil {
 		return errors.Wrap(err, "failed to read the public key path")
 	}
