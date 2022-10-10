@@ -24,6 +24,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/envd"
+	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/metrics"
 	"github.com/tensorchord/envd/pkg/types"
 )
@@ -42,7 +43,14 @@ func top(clicontext *cli.Context) error {
 		return err
 	}
 
-	envdEngine, err := envd.New(clicontext.Context, "docker")
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+	opt := envd.Options{
+		Context: context,
+	}
+	envdEngine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
 		return err
 	}

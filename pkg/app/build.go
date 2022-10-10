@@ -125,7 +125,14 @@ func build(clicontext *cli.Context) error {
 }
 
 func DetectEnvironment(clicontext *cli.Context, buildOpt builder.Options) error {
-	engine, err := envd.New(clicontext.Context, "docker")
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+	opt := envd.Options{
+		Context: context,
+	}
+	engine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the docker client")
 	}

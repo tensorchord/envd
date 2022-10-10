@@ -24,6 +24,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/envd"
+	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
@@ -180,7 +181,14 @@ func up(clicontext *cli.Context) error {
 }
 
 func StartEnvd(clicontext *cli.Context, buildOpt builder.Options, gpu bool, numGPUs int) (int, error) {
-	engine, err := envd.New(clicontext.Context, "docker")
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to get the current context")
+	}
+	opt := envd.Options{
+		Context: context,
+	}
+	engine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to create the docker client")
 	}
