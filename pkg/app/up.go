@@ -141,6 +141,9 @@ func up(clicontext *cli.Context) error {
 	if err = InterpretEnvdDef(builder); err != nil {
 		return err
 	}
+	if err = DetectEnvironment(clicontext, buildOpt); err != nil {
+		return err
+	}
 	if err = BuildImage(clicontext, builder); err != nil {
 		return err
 	}

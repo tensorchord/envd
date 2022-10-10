@@ -220,23 +220,7 @@ func (e dockerEngine) CleanEnvdIfExists(ctx context.Context, name string, force 
 	if !created {
 		return nil
 	}
-
-	// force delete the container no matter it is running or not.
-	if force {
-		return e.ContainerRemove(ctx, name, dockertypes.ContainerRemoveOptions{
-			Force: true,
-		})
-	}
-
-	running, _ := e.IsRunning(ctx, name)
-	if err != nil {
-		return err
-	}
-	if running {
-		logrus.Errorf("container %s is running, cannot clean envd, please save your data and stop the running container if you need to envd up again.", name)
-		return errors.Newf("\"%s\" is stil running, please run `envd destroy --name %s` stop it first", name, name)
-	}
-	return e.ContainerRemove(ctx, name, dockertypes.ContainerRemoveOptions{})
+	return e.ContainerRemove(ctx, name, dockertypes.ContainerRemoveOptions{Force: force})
 }
 
 func (e dockerEngine) Exists(ctx context.Context, cname string) (bool, error) {
