@@ -21,9 +21,10 @@ import (
 	"os"
 
 	"github.com/cockroachdb/errors"
-	rawssh "github.com/gliderlabs/ssh"
+	"github.com/gliderlabs/ssh"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+	rawssh "golang.org/x/crypto/ssh"
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/remote/sshd"
@@ -36,6 +37,7 @@ const (
 	flagNoAuth  = "no-auth"
 	flagPort    = "port"
 	flagShell   = "shell"
+	flagHostKey = "hostkey"
 )
 
 func main() {
@@ -59,14 +61,20 @@ func main() {
 			EnvVars: []string{"ENVD_AUTHORIZED_KEYS_PATH"},
 			Aliases: []string{"a"},
 		},
+		&cli.StringFlag{
+			Name:    flagHostKey,
+			Usage:   "path to the host key",
+			EnvVars: []string{"ENVD_HOST_KEY"},
+		},
 		&cli.BoolFlag{
 			Name:  flagNoAuth,
 			Usage: "disable authentication",
 			Value: false,
 		},
 		&cli.IntFlag{
-			Name:  flagPort,
-			Usage: "port to listen on",
+			Name:    flagPort,
+			Usage:   "port to listen on",
+			Aliases: []string{"p"},
 		},
 		&cli.StringFlag{
 			Name:  flagShell,
@@ -107,7 +115,7 @@ func sshServer(c *cli.Context) error {
 	}
 
 	noAuth := c.Bool(flagNoAuth)
-	var keys []rawssh.PublicKey
+	var keys []ssh.PublicKey
 	if !noAuth {
 		var err error
 		path := c.String(flagAuthKey)
@@ -125,10 +133,27 @@ func sshServer(c *cli.Context) error {
 		logrus.Warn("no authentication enabled")
 	}
 
+	var hostKey ssh.Signer = nil
+	if c.String(flagHostKey) != "" {
+		// read private key file
+		pemBytes, err := os.ReadFile(c.String(flagHostKey))
+		if err != nil {
+			return errors.Wrapf(
+				err, "reading private key %s failed", c.String(flagHostKey))
+		}
+		if privateKey, err := rawssh.ParsePrivateKey(pemBytes); err != nil {
+			return err
+		} else {
+			logrus.Debugf("load host key from %s", c.String(flagHostKey))
+			hostKey = privateKey
+		}
+	}
+
 	srv := sshd.Server{
 		Port:           port,
 		Shell:          shell,
 		AuthorizedKeys: keys,
+		Hostkey:        hostKey,
 	}
 
 	logrus.Infof("ssh server %s started in 0.0.0.0:%d", version.GetVersion().String(), srv.Port)

@@ -399,6 +399,33 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "dragonly",
+      "name": "Yilong Li",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8433465?v=4",
+      "profile": "https://elon.fun/",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "asjdf",
+      "name": "杨成锴",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22193008?v=4",
+      "profile": "https://www.homeboyc.cn/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Belyenochi",
+      "name": "JasonZhu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26409132?v=4",
+      "profile": "https://belyenochi.github.io/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

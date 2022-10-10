@@ -24,6 +24,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
@@ -121,6 +122,32 @@ func build(clicontext *cli.Context) error {
 		return err
 	}
 	return BuildImage(clicontext, builder)
+}
+
+func DetectEnvironment(clicontext *cli.Context, buildOpt builder.Options) error {
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+	opt := envd.Options{
+		Context: context,
+	}
+	engine, err := envd.New(clicontext.Context, opt)
+	if err != nil {
+		return errors.Wrap(err, "failed to create the docker client")
+	}
+	// detect if the current environment is running before building
+	ctr := filepath.Base(buildOpt.BuildContextDir)
+	running, err := engine.IsRunning(clicontext.Context, ctr)
+	if err != nil {
+		return err
+	}
+	force := clicontext.Bool("force")
+	if running && !force {
+		logrus.Errorf("detect container %s is running, please save your data and stop the running container if you need to envd up again.", ctr)
+		return errors.Newf("\"%s\" is stil running, please run `envd destroy --name %s` stop it first", ctr, ctr)
+	}
+	return nil
 }
 
 func GetBuilder(clicontext *cli.Context, opt builder.Options) (builder.Builder, error) {

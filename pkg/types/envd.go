@@ -17,6 +17,7 @@ package types
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/moby/buildkit/util/system"
@@ -249,12 +250,19 @@ func newDependencyFromLabels(label map[string]string) (*Dependency, error) {
 		}
 		dep.APTPackages = lst
 	}
-	if pkgs, ok := label[ImageLabelPyPI]; ok {
-		lst, err := parsePyPIPackages(pkgs)
+	if pypiCommands, ok := label[ImageLabelPyPI]; ok {
+		lst, err := parsePyPICommands(pypiCommands)
 		if err != nil {
 			return nil, err
 		}
-		dep.PyPIPackages = lst
+		packages := []string{}
+
+		for i, pkg := range lst {
+			if !strings.HasPrefix(pkg, "-") && (i == 0 || !strings.HasPrefix(lst[i-1], "-")) {
+				packages = append(packages, pkg)
+			}
+		}
+		dep.PyPIPackages = packages
 	}
 	return &dep, nil
 }
@@ -265,7 +273,7 @@ func parseAPTPackages(lst string) ([]string, error) {
 	return pkgs, err
 }
 
-func parsePyPIPackages(lst string) ([]string, error) {
+func parsePyPICommands(lst string) ([]string, error) {
 	var pkgs []string
 	err := json.Unmarshal([]byte(lst), &pkgs)
 	return pkgs, err

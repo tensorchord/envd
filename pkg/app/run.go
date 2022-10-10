@@ -23,6 +23,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/envd"
+	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
@@ -116,7 +117,14 @@ func run(clicontext *cli.Context) error {
 	}
 
 	// Check if the container is running.
-	engine, err := envd.New(clicontext.Context, "docker")
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+	envdOpt := envd.Options{
+		Context: context,
+	}
+	engine, err := envd.New(clicontext.Context, envdOpt)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the docker client")
 	}

@@ -19,7 +19,7 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -181,7 +181,7 @@ func initCommand(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(filePath, buildEnvdContent, 0644)
+	err = os.WriteFile(filePath, buildEnvdContent, 0644)
 	if err != nil {
 		return errors.Wrapf(err, "Failed to create build.envd")
 	}

@@ -20,6 +20,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/envd"
+	"github.com/tensorchord/envd/pkg/home"
 )
 
 var CommandResume = &cli.Command{
@@ -43,7 +44,14 @@ func resume(clicontext *cli.Context) error {
 	if env == "" {
 		return errors.New("env is required")
 	}
-	envdEngine, err := envd.New(clicontext.Context, "docker")
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+	opt := envd.Options{
+		Context: context,
+	}
+	envdEngine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
 		return errors.Wrap(err, "failed to create envd engine")
 	}

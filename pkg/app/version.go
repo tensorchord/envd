@@ -22,6 +22,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/envd"
+	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/version"
 )
@@ -84,7 +85,14 @@ func printVersion(ctx *cli.Context) error {
 }
 
 func getDetailedVersion(clicontext *cli.Context) (detailedVersion, error) {
-	engine, err := envd.New(clicontext.Context, "docker")
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return detailedVersion{}, errors.Wrap(err, "failed to get the current context")
+	}
+	opt := envd.Options{
+		Context: context,
+	}
+	engine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
 		return detailedVersion{}, errors.Wrap(
 			err, "failed to create engine for docker server",

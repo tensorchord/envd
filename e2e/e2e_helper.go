@@ -27,6 +27,7 @@ import (
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 func BuildContextDirWithName(name string) string {
@@ -70,7 +71,12 @@ func (e *Example) RemoveImage() func() {
 }
 
 func GetEngine(ctx context.Context) envd.Engine {
-	engine, err := envd.New(ctx, "docker")
+	opt := envd.Options{
+		Context: &types.Context{
+			Runner: types.RunnerTypeDocker,
+		},
+	}
+	engine, err := envd.New(ctx, opt)
 	if err != nil {
 		panic(err)
 	}

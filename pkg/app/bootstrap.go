@@ -16,7 +16,7 @@ package app
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
@@ -139,21 +139,21 @@ func sshKey(clicontext *cli.Context) error {
 			}
 		}
 		pub, pri := sshKeyPair[0], sshKeyPair[1]
-		pubKey, err := ioutil.ReadFile(pub)
+		pubKey, err := os.ReadFile(pub)
 		if err != nil {
 			return errors.Wrap(err, "Cannot open public key")
 		}
-		err = ioutil.WriteFile(path, pubKey, 0644)
+		err = os.WriteFile(path, pubKey, 0644)
 		if err != nil {
 			return errors.Wrap(err, "Cannot write public key")
 		}
 
-		priKey, err := ioutil.ReadFile(pri)
+		priKey, err := os.ReadFile(pri)
 		if err != nil {
 			return errors.Wrap(err, "Cannot open private key")
 		}
 
-		err = ioutil.WriteFile(path, priKey, 0600)
+		err = os.WriteFile(path, priKey, 0600)
 		if err != nil {
 			return errors.Wrap(err, "Cannot write private key")
 		}

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.2.4-alpha.9 (2022-10-09)
+
+ * [b2a9018](https://github.com/tensorchord/envd/commit/b2a90188c012fa186de2ecb7b1aa534062681020) feat: Support cli argument for host key (#992)
+ * [91ea50c](https://github.com/tensorchord/envd/commit/91ea50cd74e36f2d0d966d2b6a1ddea0ad15c43b) bug: fix pypi package information (#959)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+
 ## v0.2.4-alpha.8 (2022-10-08)
 
  * [0be9969](https://github.com/tensorchord/envd/commit/0be9969471f8358f1cc283215ddf8e4cfcecebad) fix: Remove dump checkout and remove pre-commit (#982)
