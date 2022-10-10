@@ -20,12 +20,14 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/pkg/stringid"
 	"github.com/docker/go-units"
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/envd"
+	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
@@ -49,7 +51,14 @@ var CommandListImage = &cli.Command{
 }
 
 func getImage(clicontext *cli.Context) error {
-	envdEngine, err := envd.New(clicontext.Context, "docker")
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+	opt := envd.Options{
+		Context: context,
+	}
+	envdEngine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
 		return err
 	}

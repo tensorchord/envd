@@ -25,6 +25,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/envd"
+	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
 
@@ -101,7 +102,14 @@ func destroy(clicontext *cli.Context) error {
 
 func getContainerTag(clicontext *cli.Context, name string) ([]string, error) {
 	tags := []string{}
-	envdEngine, err := envd.New(clicontext.Context, "docker")
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return tags, err
+	}
+	opt := envd.Options{
+		Context: context,
+	}
+	envdEngine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
 		return tags, err
 	}

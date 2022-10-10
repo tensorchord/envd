@@ -118,7 +118,12 @@ func (c *generalClient) maybeStart(ctx context.Context,
 		if err != nil {
 			return "", err
 		}
-		engine, err := envd.New(ctx, "docker")
+		opt := envd.Options{
+			Context: &types.Context{
+				Runner: types.RunnerTypeDocker,
+			},
+		}
+		engine, err := envd.New(ctx, opt)
 		if err != nil {
 			return "", err
 		}
