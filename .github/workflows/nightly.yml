@@ -35,6 +35,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
+          args: --timeout=5m
           version: latest
           # Ref https://github.com/golangci/golangci-lint-action/issues/244
           skip-pkg-cache: true
