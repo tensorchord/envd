@@ -39,7 +39,7 @@ const (
 var (
 	// this file can be used by both conda and mamba
 	// https://mamba.readthedocs.io/en/latest/user_guide/configuration.html#multiple-rc-files
-	condarc = fileutil.EnvdHomeDir(".condarc")
+	condarc = "/opt/conda/.condarc"
 	//go:embed install-conda.sh
 	installCondaBash string
 	//go:embed install-mamba.sh
