@@ -3,6 +3,8 @@ name: nightly
 on:
   schedule:
     - cron: '0 2 * * *' # UTC 2:00 every day
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
