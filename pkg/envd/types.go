@@ -1,0 +1,57 @@
+// Copyright 2022 The envd Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package envd
+
+import (
+	"time"
+
+	"github.com/tensorchord/envd/pkg/lang/ir"
+)
+
+type StartOptions struct {
+	Image           string
+	EnvironmentName string
+	BuildContext    string
+	NumGPU          int
+	Timeout         time.Duration
+	Forced          bool
+
+	EngineSource
+}
+
+type EngineSource struct {
+	DockerSource     *DockerSource
+	EnvdServerSource *EnvdServerSource
+}
+
+type DockerSource struct {
+	Graph        ir.Graph
+	MountOptions []string
+}
+
+type EnvdServerSource struct{}
+
+type Engine interface {
+	ImageClient
+	EnvironmentClient
+	VersionClient
+}
+
+type StartResult struct {
+	// TODO(gaocegege): Make result a chan, to send running status to the receiver.
+	SSHPort int
+	Address string
+	Name    string
+}

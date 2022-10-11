@@ -61,6 +61,7 @@ func New() EnvdApp {
 
 	internalApp.Commands = []*cli.Command{
 		CommandBootstrap,
+		CommandCreate,
 		CommandContext,
 		CommandBuild,
 		CommandDestroy,
@@ -68,8 +69,6 @@ func New() EnvdApp {
 		CommandImage,
 		CommandInit,
 		CommandLogin,
-		CommandK8s,
-		CommandSSH,
 		CommandPause,
 		CommandPrune,
 		CommandRun,

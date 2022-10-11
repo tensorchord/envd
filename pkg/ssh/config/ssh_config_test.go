@@ -26,7 +26,15 @@ var _ = Describe("ssh config", func() {
 			iface := "localhost"
 			port := 8888
 			keyPath := "key"
-			err := add(getSSHConfigPath(), buildHostname(env), iface, port, keyPath)
+			eo := EntryOptions{
+				Name:               buildHostname(env),
+				IFace:              iface,
+				Port:               port,
+				PrivateKeyPath:     keyPath,
+				EnableHostKeyCheck: false,
+				EnableAgentForward: true,
+			}
+			err := add(getSSHConfigPath(), eo)
 			Expect(err).NotTo(HaveOccurred())
 
 			actual, err := GetPort(env)

@@ -28,7 +28,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.13.0
 	github.com/stretchr/testify v1.8.0
-	github.com/tensorchord/envd-server v0.0.2
+	github.com/tensorchord/envd-server v0.0.3
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
 	github.com/urfave/cli/v2 v2.19.2
@@ -37,11 +37,22 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20220919170432-7a66f970e087
 	golang.org/x/time v0.0.0-20220920022843-2ce7c2934d45
+	k8s.io/api v0.25.2
 )
 
 require (
+	github.com/google/gofuzz v1.2.0 // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/op/go-logging v0.0.0-20160211212156-b2cb9fa56473 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	gopkg.in/inf.v0 v0.9.1 // indirect
+	k8s.io/apimachinery v0.25.2 // indirect
+	k8s.io/klog/v2 v2.80.1 // indirect
+	k8s.io/utils v0.0.0-20220823124924-e9cbc92d1a73 // indirect
+	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
+	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )
 
 require (

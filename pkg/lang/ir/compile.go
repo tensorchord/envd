@@ -50,7 +50,7 @@ func NewGraph() *Graph {
 		},
 		CUDA:    nil,
 		CUDNN:   CUDNNVersionDefault,
-		NumGPUs: -1,
+		NumGPUs: 0,
 
 		PyPIPackages:    []string{},
 		RPackages:       []string{},
