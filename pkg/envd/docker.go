@@ -507,6 +507,14 @@ func (e dockerEngine) GetImage(ctx context.Context, image string) (dockertypes.I
 	return images[0], nil
 }
 
+func (e dockerEngine) PruneImage(ctx context.Context) (dockertypes.ImagesPruneReport, error) {
+	pruneReport, err := e.ImagesPrune(ctx, filters.Args{})
+	if err != nil {
+		return dockertypes.ImagesPruneReport{}, errors.Wrap(err, "failed to prune images")
+	}
+	return pruneReport, nil
+}
+
 func deviceRequests(count int) []container.DeviceRequest {
 	return []container.DeviceRequest{
 		{

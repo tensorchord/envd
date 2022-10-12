@@ -43,6 +43,7 @@ type ImageClient interface {
 	ListImage(ctx context.Context) ([]types.EnvdImage, error)
 	ListImageDependency(ctx context.Context, image string) (*types.Dependency, error)
 	GetImage(ctx context.Context, image string) (dockertypes.ImageSummary, error)
+	PruneImage(ctx context.Context) (dockertypes.ImagesPruneReport, error)
 }
 
 type VersionClient interface {
