@@ -20,6 +20,14 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
+const (
+	localhost = "127.0.0.1"
+)
+
+var (
+	waitingInterval = 1 * time.Second
+)
+
 type StartOptions struct {
 	Image           string
 	EnvironmentName string

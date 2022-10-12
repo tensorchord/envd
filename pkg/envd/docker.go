@@ -39,14 +39,6 @@ import (
 	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
-const (
-	localhost = "127.0.0.1"
-)
-
-var (
-	waitingInternal = 1 * time.Second
-)
-
 type dockerEngine struct {
 	*client.Client
 }
@@ -465,7 +457,7 @@ func (e dockerEngine) WaitUntilRunning(ctx context.Context,
 	defer cancel()
 	for {
 		select {
-		case <-time.After(waitingInternal):
+		case <-time.After(waitingInterval):
 			isRunning, err := e.IsRunning(ctxTimeout, name)
 			if err != nil {
 				// Has not yet started. Keep waiting.

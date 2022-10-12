@@ -131,7 +131,7 @@ func (e *envdServerEngine) WaitUntilRunning(ctx context.Context, name string, ti
 	defer cancel()
 	for {
 		select {
-		case <-time.After(waitingInternal):
+		case <-time.After(waitingInterval):
 			isRunning, err := e.IsRunning(ctxTimeout, name)
 			if err != nil {
 				// Has not yet started. Keep waiting.
