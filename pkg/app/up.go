@@ -22,13 +22,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
-	"github.com/tensorchord/envd/pkg/util/netutil"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 const (
@@ -157,17 +156,64 @@ func up(clicontext *cli.Context) error {
 	} else {
 		gpu = builder.GPUEnabled()
 	}
-	numGPUs := builder.NumGPUs()
+	numGPU := 0
+	if gpu {
+		numGPU = 1
+	}
 
-	sshPortInHost, error := StartEnvd(clicontext, buildOpt, gpu, numGPUs)
-	if error != nil {
-		return error
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+	opt := envd.Options{
+		Context: context,
+	}
+	engine, err := envd.New(clicontext.Context, opt)
+	if err != nil {
+		return errors.Wrap(err, "failed to create the docker client")
+	}
+
+	startOptions := envd.StartOptions{
+		EnvironmentName: filepath.Base(buildOpt.BuildContextDir),
+		BuildContext:    buildOpt.BuildContextDir,
+		Image:           buildOpt.Tag,
+		NumGPU:          numGPU,
+		Forced:          clicontext.Bool("force"),
+		Timeout:         clicontext.Duration("timeout"),
+	}
+	if context.Runner != types.RunnerTypeEnvdServer {
+		startOptions.EngineSource = envd.EngineSource{
+			DockerSource: &envd.DockerSource{
+				Graph:        *ir.DefaultGraph,
+				MountOptions: clicontext.StringSlice("volume"),
+			},
+		}
+	}
+
+	res, err := engine.StartEnvd(clicontext.Context, startOptions)
+	if err != nil {
+		return errors.Wrap(err, "failed to start the envd environment")
+	}
+	logrus.Debugf("container %s is running", res.Name)
+
+	logrus.Debugf("add entry %s to SSH config.", ctr)
+	eo := sshconfig.EntryOptions{
+		Name:               ctr,
+		IFace:              localhost,
+		Port:               res.SSHPort,
+		PrivateKeyPath:     clicontext.Path("private-key"),
+		EnableHostKeyCheck: false,
+		EnableAgentForward: true,
+	}
+	if err = sshconfig.AddEntry(eo); err != nil {
+		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
+		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 
 	if !detach {
 		opt := ssh.DefaultOptions()
 		opt.PrivateKeyPath = clicontext.Path("private-key")
-		opt.Port = sshPortInHost
+		opt.Port = res.SSHPort
 		sshClient, err := ssh.NewClient(opt)
 		if err != nil {
 			return errors.Wrap(err, "failed to create the ssh client")
@@ -178,56 +224,4 @@ func up(clicontext *cli.Context) error {
 	}
 
 	return nil
-}
-
-func StartEnvd(clicontext *cli.Context, buildOpt builder.Options, gpu bool, numGPUs int) (int, error) {
-	context, err := home.GetManager().ContextGetCurrent()
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to get the current context")
-	}
-	opt := envd.Options{
-		Context: context,
-	}
-	engine, err := envd.New(clicontext.Context, opt)
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to create the docker client")
-	}
-
-	if gpu {
-		nvruntimeExists, err := engine.GPUEnabled(clicontext.Context)
-		if err != nil {
-			return 0, errors.Wrap(err, "failed to check if nvidia-runtime is installed")
-		}
-		if !nvruntimeExists {
-			return 0, errors.New("GPU is required but nvidia container runtime is not installed, please refer to https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker")
-		}
-	}
-
-	sshPortInHost, err := netutil.GetFreePort()
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to get a free port")
-	}
-
-	ctr := filepath.Base(buildOpt.BuildContextDir)
-	force := clicontext.Bool("force")
-	err = engine.CleanEnvdIfExists(clicontext.Context, ctr, force)
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to clean the envd environment")
-	}
-	containerID, containerIP, err := engine.StartEnvd(clicontext.Context,
-		buildOpt.Tag, ctr, buildOpt.BuildContextDir, gpu, numGPUs, sshPortInHost, *ir.DefaultGraph, clicontext.Duration("timeout"),
-		clicontext.StringSlice("volume"))
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to start the envd environment")
-	}
-	logrus.Debugf("container %s is running", containerID)
-
-	logrus.Debugf("Add entry %s to SSH config. at %s", buildOpt.BuildContextDir, containerIP)
-	if err = sshconfig.AddEntry(
-		ctr, localhost, sshPortInHost, clicontext.Path("private-key")); err != nil {
-		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
-		return 0, errors.Wrap(err, "failed to add entry to your SSH config file")
-	}
-	return sshPortInHost, nil
-
 }

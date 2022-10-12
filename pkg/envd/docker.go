@@ -39,14 +39,6 @@ import (
 	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
-const (
-	localhost = "127.0.0.1"
-)
-
-var (
-	waitingInternal = 1 * time.Second
-)
-
 type dockerEngine struct {
 	*client.Client
 }
@@ -246,29 +238,51 @@ func (e dockerEngine) IsRunning(ctx context.Context, cname string) (bool, error)
 }
 
 // StartEnvd creates the container for the given tag and container name.
-func (e dockerEngine) StartEnvd(ctx context.Context, tag, name, buildContext string,
-	gpuEnabled bool, numGPUs int, sshPortInHost int, g ir.Graph, timeout time.Duration,
-	mountOptionsStr []string) (string, string, error) {
+func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartResult, error) {
 	logger := logrus.WithFields(logrus.Fields{
-		"tag":           tag,
-		"container":     name,
-		"gpu":           gpuEnabled,
-		"numGPUs":       numGPUs,
-		"build-context": buildContext,
+		"tag":           so.Image,
+		"environment":   so.EnvironmentName,
+		"gpu":           so.NumGPU,
+		"build-context": so.BuildContext,
 	})
+	if so.NumGPU != 0 {
+		nvruntimeExists, err := e.GPUEnabled(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to check if nvidia-runtime is installed")
+		}
+		if !nvruntimeExists {
+			return nil, errors.New("GPU is required but nvidia container runtime is not installed, please refer to https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker")
+		}
+	}
+
+	sshPortInHost, err := netutil.GetFreePort()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get a free port")
+	}
+
+	err = e.CleanEnvdIfExists(ctx, so.EnvironmentName, so.Forced)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to clean the envd environment")
+	}
 	config := &container.Config{
-		Image:        tag,
+		Image:        so.Image,
 		User:         "envd",
 		ExposedPorts: nat.PortSet{},
 	}
-	base := fileutil.EnvdHomeDir(filepath.Base(buildContext))
+	base := fileutil.EnvdHomeDir(filepath.Base(so.BuildContext))
 	config.WorkingDir = base
 
-	mountOption := make([]mount.Mount, 0, len(mountOptionsStr)+len(g.Mount)+1)
-	for _, option := range mountOptionsStr {
+	if so.DockerSource == nil {
+		return nil, errors.New("failed to get the docker-specific options")
+	}
+	g := so.DockerSource.Graph
+
+	mountOption := make([]mount.Mount, 0,
+		len(so.DockerSource.MountOptions)+len(g.Mount)+1)
+	for _, option := range so.DockerSource.MountOptions {
 		mStr := strings.Split(option, ":")
 		if len(mStr) != 2 {
-			return "", "", errors.Newf("Invalid mount options %s", option)
+			return nil, errors.Newf("Invalid mount options %s", option)
 		}
 
 		logger.WithFields(logrus.Fields{
@@ -295,12 +309,12 @@ func (e dockerEngine) StartEnvd(ctx context.Context, tag, name, buildContext str
 
 	mountOption = append(mountOption, mount.Mount{
 		Type:   mount.TypeBind,
-		Source: buildContext,
+		Source: so.BuildContext,
 		Target: base,
 	})
 
 	logger.WithFields(logrus.Fields{
-		"mount-path":  buildContext,
+		"mount-path":  so.BuildContext,
 		"working-dir": base,
 	}).Debug("setting up container working directory")
 
@@ -324,6 +338,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, tag, name, buildContext str
 
 	var jupyterPortInHost int
 	// TODO(gaocegege): Avoid specific logic to set the port.
+	// Add a func to builder to generate all the ports from the build process.
 	if g.JupyterConfig != nil {
 		if g.JupyterConfig.Port != 0 {
 			jupyterPortInHost = int(g.JupyterConfig.Port)
@@ -331,7 +346,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, tag, name, buildContext str
 			var err error
 			jupyterPortInHost, err = netutil.GetFreePort()
 			if err != nil {
-				return "", "", errors.Wrap(err, "failed to get a free port")
+				return nil, errors.Wrap(err, "failed to get a free port")
 			}
 		}
 		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.JupyterPortInContainer))
@@ -348,7 +363,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, tag, name, buildContext str
 		var err error
 		rStudioPortInHost, err = netutil.GetFreePort()
 		if err != nil {
-			return "", "", errors.Wrap(err, "failed to get a free port")
+			return nil, errors.Wrap(err, "failed to get a free port")
 		}
 		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.RStudioServerPortInContainer))
 		hostConfig.PortBindings[natPort] = []nat.PortBinding{
@@ -366,7 +381,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, tag, name, buildContext str
 			if item.HostPort == 0 {
 				item.HostPort, err = netutil.GetFreePort()
 				if err != nil {
-					return "", "", errors.Wrap(err, "failed to get a free port")
+					return nil, errors.Wrap(err, "failed to get a free port")
 				}
 			}
 			natPort := nat.Port(fmt.Sprintf("%d/tcp", item.EnvdPort))
@@ -380,23 +395,23 @@ func (e dockerEngine) StartEnvd(ctx context.Context, tag, name, buildContext str
 		}
 	}
 
-	if gpuEnabled {
+	if so.NumGPU != 0 {
 		logger.Debug("GPU is enabled.")
-		hostConfig.DeviceRequests = deviceRequests(numGPUs)
+		hostConfig.DeviceRequests = deviceRequests(so.NumGPU)
 	}
 
-	config.Labels = labels(name, g,
+	config.Labels = labels(so.EnvironmentName, g,
 		sshPortInHost, jupyterPortInHost, rStudioPortInHost)
 
 	logger = logger.WithFields(logrus.Fields{
 		"entrypoint":  config.Entrypoint,
 		"working-dir": config.WorkingDir,
 	})
-	logger.Debugf("starting %s container", name)
+	logger.Debugf("starting %s container", so.EnvironmentName)
 
-	resp, err := e.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
+	resp, err := e.ContainerCreate(ctx, config, hostConfig, nil, nil, so.EnvironmentName)
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to create the container")
+		return nil, errors.Wrap(err, "failed to create the container")
 	}
 
 	for _, w := range resp.Warnings {
@@ -409,22 +424,27 @@ func (e dockerEngine) StartEnvd(ctx context.Context, tag, name, buildContext str
 		// Hack to check if the port is already allocated.
 		if strings.Contains(errCause.Error(), "port is already allocated") {
 			logrus.Debugf("failed to allocate the port: %s", err)
-			return "", "", errors.New("port is already allocated in the host")
+			return nil, errors.New("port is already allocated in the host")
 		}
-		return "", "", errors.Wrap(err, "failed to run the container")
+		return nil, errors.Wrap(err, "failed to run the container")
 	}
 
 	container, err := e.ContainerInspect(ctx, resp.ID)
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to inspect the container")
+		return nil, errors.Wrap(err, "failed to inspect the container")
 	}
 
 	if err := e.WaitUntilRunning(
-		ctx, container.Name, timeout); err != nil {
-		return "", "", errors.Wrap(err, "failed to wait until the container is running")
+		ctx, container.Name, so.Timeout); err != nil {
+		return nil, errors.Wrap(err, "failed to wait until the container is running")
 	}
 
-	return container.Name, container.NetworkSettings.IPAddress, nil
+	result := &StartResult{
+		SSHPort: sshPortInHost,
+		Address: container.NetworkSettings.IPAddress,
+		Name:    container.Name,
+	}
+	return result, nil
 }
 
 func (e dockerEngine) WaitUntilRunning(ctx context.Context,
@@ -437,7 +457,7 @@ func (e dockerEngine) WaitUntilRunning(ctx context.Context,
 	defer cancel()
 	for {
 		select {
-		case <-time.After(waitingInternal):
+		case <-time.After(waitingInterval):
 			isRunning, err := e.IsRunning(ctxTimeout, name)
 			if err != nil {
 				// Has not yet started. Keep waiting.

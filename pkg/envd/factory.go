@@ -21,6 +21,7 @@ import (
 	"github.com/docker/docker/client"
 	envdclient "github.com/tensorchord/envd-server/client"
 
+	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
@@ -33,12 +34,18 @@ func New(ctx context.Context, opt Options) (Engine, error) {
 		return nil, errors.New("failed to get the context")
 	}
 	if opt.Context.Runner == types.RunnerTypeEnvdServer {
+		ac, err := home.GetManager().AuthGetCurrent()
+		if err != nil {
+			return nil, err
+		}
+
 		cli, err := envdclient.NewClientWithOpts(envdclient.FromEnv)
 		if err != nil {
 			return nil, err
 		}
 		return &envdServerEngine{
-			Client: cli,
+			Client:        cli,
+			IdentityToken: ac.IdentityToken,
 		}, nil
 	} else {
 		cli, err := client.NewClientWithOpts(

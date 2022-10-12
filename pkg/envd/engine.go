@@ -20,15 +20,8 @@ import (
 
 	dockertypes "github.com/docker/docker/api/types"
 
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/types"
 )
-
-type Engine interface {
-	ImageClient
-	EnvironmentClient
-	VersionClient
-}
 
 type EnvironmentClient interface {
 	PauseEnvironment(ctx context.Context, env string) (string, error)
@@ -39,9 +32,7 @@ type EnvironmentClient interface {
 
 	CleanEnvdIfExists(ctx context.Context, name string, force bool) error
 	// StartEnvd creates the container for the given tag and container name.
-	StartEnvd(ctx context.Context, tag, name, buildContext string,
-		gpuEnabled bool, numGPUs int, sshPort int, g ir.Graph, timeout time.Duration,
-		mountOptionsStr []string) (string, string, error)
+	StartEnvd(ctx context.Context, so StartOptions) (*StartResult, error)
 
 	IsRunning(ctx context.Context, name string) (bool, error)
 	Exists(ctx context.Context, name string) (bool, error)
