@@ -8,9 +8,8 @@ import (
 	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/go-units"
 	"github.com/olekukonko/tablewriter"
+	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/urfave/cli/v2"
-
-	"github.com/tensorchord/envd/pkg/envd"
 )
 
 var CommandPruneImages = &cli.Command{
@@ -21,11 +20,11 @@ var CommandPruneImages = &cli.Command{
 
 func pruneImages(clicontext *cli.Context) error {
 
-	envdEngine, err := envd.New(clicontext.Context, "docker")
+	cli, err := docker.NewClient(clicontext.Context)
 	if err != nil {
 		return err
 	}
-	report, err := envdEngine.PruneImage(clicontext.Context)
+	report, err := cli.PruneImage(clicontext.Context)
 	if err != nil {
 		return err
 	}

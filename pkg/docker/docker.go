@@ -26,6 +26,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/moby/term"
@@ -46,6 +47,8 @@ type Client interface {
 
 	GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error)
 	RemoveImage(ctx context.Context, image string) error
+
+	PruneImage(ctx context.Context) (types.ImagesPruneReport, error)
 
 	Stats(ctx context.Context, cname string, statChan chan<- *Stats, done <-chan bool) error
 }
@@ -318,6 +321,14 @@ func (c generalClient) Exec(ctx context.Context, cname string, cmd []string) err
 	return c.ContainerExecStart(ctx, execID, types.ExecStartCheck{
 		Detach: true,
 	})
+}
+
+func (c generalClient) PruneImage(ctx context.Context) (types.ImagesPruneReport, error) {
+	pruneReport, err := c.ImagesPrune(ctx, filters.Args{})
+	if err != nil {
+		return types.ImagesPruneReport{}, errors.Wrap(err, "failed to prune images")
+	}
+	return pruneReport, nil
 }
 
 func (c generalClient) Stats(ctx context.Context, cname string, statChan chan<- *Stats, done <-chan bool) (retErr error) {
