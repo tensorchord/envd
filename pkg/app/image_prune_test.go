@@ -15,9 +15,10 @@
 package app
 
 import (
-	"github.com/docker/docker/api/types"
 	"os"
 	"testing"
+
+	"github.com/docker/docker/api/types"
 )
 
 func Test_renderPruneReport(t *testing.T) {

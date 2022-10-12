@@ -22,8 +22,9 @@ import (
 	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/go-units"
 	"github.com/olekukonko/tablewriter"
-	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/urfave/cli/v2"
+
+	"github.com/tensorchord/envd/pkg/docker"
 )
 
 var CommandPruneImages = &cli.Command{
