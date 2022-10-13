@@ -20,6 +20,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
+	"regexp"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
@@ -366,9 +369,10 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 
 func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
 	depsFiles := []string{
-		b.PubKeyPath,
 		b.ConfigFilePath,
 	}
+	depsFiles = getDepsFiles(depsFiles)
+	fmt.Println(depsFiles)
 	isUpdated, err := b.checkDepsFileUpdate(ctx, b.Tag, b.ManifestFilePath, depsFiles)
 	if err != nil {
 		b.logger.Debugf("failed to check manifest update: %s", err)
@@ -378,6 +382,65 @@ func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
 		return false
 	}
 	return true
+}
+
+func getDepsFiles(deps []string) []string {
+	tHandle := reflect.TypeOf(*ir.DefaultGraph)
+	vHandle := reflect.ValueOf(*ir.DefaultGraph)
+	deps = searchFileInGraph(tHandle, vHandle, deps)
+	return deps
+}
+
+// Match all filed in ir.Graph with the given keyword
+func likeFileFiled(str string) bool {
+	nameKeyword := []string{
+		"File",
+		"Path",
+		"Wheels",
+	}
+	if len(nameKeyword) == 0 {
+		return true
+	}
+	re := regexp.MustCompile(strings.Join(nameKeyword, "|"))
+	return re.MatchString(str)
+}
+
+// search all files in Graph
+func searchFileInGraph(tHandle reflect.Type, vHandle reflect.Value, deps []string) []string {
+	for i := 0; i < vHandle.NumField(); i++ {
+		v := vHandle.Field(i)
+		if v.Type().Kind() == reflect.Struct {
+			t := v.Type()
+			deps = searchFileInGraph(t, v, deps)
+		} else if v.Type().Kind() == reflect.Ptr {
+			if v.Type().Elem().Kind() == reflect.Struct {
+				if v.Elem().CanAddr() {
+					t := v.Type().Elem()
+					deps = searchFileInGraph(t, v.Elem(), deps)
+					fmt.Println((deps))
+				}
+			}
+		} else {
+			t := tHandle.Field(i)
+			fieldName := t.Name
+			if likeFileFiled(fieldName) {
+				typeName := t.Type.String()
+				if v.Interface() != nil {
+					if typeName == "string" {
+						deps = append(deps, v.Interface().(string))
+					}
+					if typeName == "*string" {
+						deps = append(deps, *(v.Interface().(*string)))
+					}
+					if typeName == "[]string" {
+						filesList := v.Interface().([]string)
+						deps = append(deps, filesList...)
+					}
+				}
+			}
+		}
+	}
+	return deps
 }
 
 // nolint:unparam
