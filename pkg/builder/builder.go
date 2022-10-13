@@ -372,7 +372,6 @@ func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
 		b.ConfigFilePath,
 	}
 	depsFiles = getDepsFiles(depsFiles)
-	fmt.Println(depsFiles)
 	isUpdated, err := b.checkDepsFileUpdate(ctx, b.Tag, b.ManifestFilePath, depsFiles)
 	if err != nil {
 		b.logger.Debugf("failed to check manifest update: %s", err)
@@ -417,7 +416,6 @@ func searchFileInGraph(tHandle reflect.Type, vHandle reflect.Value, deps []strin
 				if v.Elem().CanAddr() {
 					t := v.Type().Elem()
 					deps = searchFileInGraph(t, v.Elem(), deps)
-					fmt.Println((deps))
 				}
 			}
 		} else {

@@ -100,6 +100,9 @@ func (rg *RuntimeGraph) Load(code []byte) error {
 	return nil
 }
 
+// A stream of gobs is self-describing. Each data item in the stream is preceded by a specification of its type, expressed in terms of a small set of predefined types. Pointers are not transmitted, but the things they point to are transmitted; that is, the values are flattened.
+// see https://pkg.go.dev/encoding/gob#hdr-Basics
+// we hash the blobs to determined if the graph changed.
 func GetDefaultGraphHash() string {
 	var b bytes.Buffer
 	err := gob.NewEncoder(&b).Encode(*DefaultGraph)
