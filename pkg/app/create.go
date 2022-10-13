@@ -15,6 +15,7 @@
 package app
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -29,6 +30,7 @@ import (
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
 var CommandCreate = &cli.Command{
@@ -132,6 +134,7 @@ func create(clicontext *cli.Context) error {
 
 	// TODO(gaocegege): Test why it fails.
 	if !clicontext.Bool("detach") {
+		outputChannel := make(chan error)
 		opt := ssh.DefaultOptions()
 		opt.PrivateKeyPath = clicontext.Path("private-key")
 		opt.Port = res.SSHPort
@@ -141,10 +144,30 @@ func create(clicontext *cli.Context) error {
 
 		sshClient, err := ssh.NewClient(opt)
 		if err != nil {
-			return errors.Wrap(err, "failed to create the ssh client")
+			outputChannel <- errors.Wrap(err, "failed to create the ssh client")
 		}
-		if err := sshClient.Attach(); err != nil {
-			return errors.Wrap(err, "failed to attach to the container")
+
+		go func() {
+			if err := sshClient.Attach(); err != nil {
+				outputChannel <- errors.Wrap(err, "failed to attach to the container")
+			}
+		}()
+
+		jupyterLocalPort, err := netutil.GetFreePort()
+		if err != nil {
+			return errors.Wrap(err, "failed to get a free port")
+		}
+
+		localAddress := fmt.Sprintf("%s:%d", localhost, jupyterLocalPort)
+		remoteAddress := fmt.Sprintf("%s:%s", localhost, "8888")
+		go func() {
+			if err := sshClient.LocalForward(localAddress, remoteAddress); err != nil {
+				outputChannel <- errors.Wrap(err, "failed to forward to local port")
+			}
+		}()
+
+		if err := <-outputChannel; err != nil {
+			return err
 		}
 	}
 	return nil

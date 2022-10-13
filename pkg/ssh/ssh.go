@@ -42,6 +42,7 @@ import (
 type Client interface {
 	Attach() error
 	ExecWithOutput(cmd string) ([]byte, error)
+	LocalForward(localAddress, targetAddress string) error
 	Close() error
 }
 
@@ -280,6 +281,42 @@ func (c generalClient) Attach() error {
 
 	logrus.Debugf("command failed: %s", err)
 	return errors.Wrap(err, "command failed")
+}
+
+func (c generalClient) LocalForward(localAddress, targetAddress string) error {
+	localListener, err := net.Listen("tcp", localAddress)
+	if err != nil {
+		return errors.Wrap(err, "net.Listen failed")
+	}
+
+	logrus.Debug("begin to forward " + localAddress + " to " + targetAddress)
+	for {
+		localCon, err := localListener.Accept()
+		if err != nil {
+			return errors.Wrap(err, "listen.Accept failed")
+		}
+
+		sshConn, err := c.cli.Dial("tcp", targetAddress)
+		if err != nil {
+			return errors.Wrap(err, "listen.Accept failed")
+		}
+
+		// Copy local.Reader to sshConn.Writer
+		go func() {
+			_, err = io.Copy(sshConn, localCon)
+			if err != nil {
+				logrus.Debugf("io.Copy failed: %v", err)
+			}
+		}()
+
+		// Copy sshConn.Reader to localCon.Writer
+		go func() {
+			_, err = io.Copy(localCon, sshConn)
+			if err != nil {
+				logrus.Debugf("io.Copy failed: %v", err)
+			}
+		}()
+	}
 }
 
 func isTerminal(r io.Reader) (int, bool) {
