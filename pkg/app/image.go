@@ -41,6 +41,7 @@ var CommandImage = &cli.Command{
 		CommandDescribeImage,
 		CommandListImage,
 		CommandPruneImages,
+		CommandRemoveImage,
 	},
 }
 
