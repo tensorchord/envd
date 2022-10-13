@@ -36,12 +36,24 @@ func New(ctx context.Context, opt Options) (Engine, error) {
 	if opt.Context.Runner == types.RunnerTypeEnvdServer {
 		ac, err := home.GetManager().AuthGetCurrent()
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to get the auth information")
 		}
 
-		cli, err := envdclient.NewClientWithOpts(envdclient.FromEnv)
+		// Get the runner host.
+		opts := []envdclient.Opt{
+			envdclient.WithTLSClientConfigFromEnv(),
+		}
+		if opt.Context.RunnerAddress != nil {
+			opts = append(opts,
+				envdclient.WithHost(*opt.Context.RunnerAddress))
+		} else {
+			opts = append(opts,
+				envdclient.WithHostFromEnv())
+		}
+
+		cli, err := envdclient.NewClientWithOpts(opts...)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to create the envd-server client")
 		}
 		return &envdServerEngine{
 			Client:        cli,
@@ -51,7 +63,7 @@ func New(ctx context.Context, opt Options) (Engine, error) {
 		cli, err := client.NewClientWithOpts(
 			client.FromEnv, client.WithAPIVersionNegotiation())
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to create the docker client")
 		}
 		return &dockerEngine{
 			Client: cli,
