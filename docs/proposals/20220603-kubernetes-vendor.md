@@ -63,7 +63,7 @@ Users may use `envd` to build the image, and use it on Kubernetes. Thus they nee
 The end-to-end process will be:
 
 ```
-$ envd context create --name test --builder-name test --use --builder kube-pod --runner server --runner-addr http://localhost:2222
+$ envd context create --name test --builder-name test --use --builder kube-pod --runner server --runner-addr http://localhost:8080
 $ envd login
 $ envd build
 $ envd push
@@ -71,7 +71,7 @@ $ envd run --env test --image test
 
 or 
 
-$ envd context create --name test --builder-name test --use --builder kube-pod --runner server --runner-addr http://localhost:2222
+$ envd context create --name test --builder-name test --use --builder kube-pod --runner server --runner-addr http://localhost:8080
 $ envd login
 $ envd up
 ```

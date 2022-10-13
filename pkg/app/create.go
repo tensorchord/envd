@@ -91,9 +91,14 @@ func create(clicontext *cli.Context) error {
 	logrus.Debugf("container %s is running", res.Name)
 
 	logrus.Debugf("add entry %s to SSH config.", res.Name)
+	hostname, err := c.GetSSHHostname()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the ssh hostname")
+	}
+
 	eo := sshconfig.EntryOptions{
 		Name:               res.Name,
-		IFace:              localhost,
+		IFace:              hostname,
 		Port:               res.SSHPort,
 		PrivateKeyPath:     clicontext.Path("private-key"),
 		EnableHostKeyCheck: false,
@@ -111,6 +116,8 @@ func create(clicontext *cli.Context) error {
 		opt.Port = res.SSHPort
 		opt.AgentForwarding = false
 		opt.User = res.Name
+		opt.Server = hostname
+
 		sshClient, err := ssh.NewClient(opt)
 		if err != nil {
 			return errors.Wrap(err, "failed to create the ssh client")

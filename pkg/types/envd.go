@@ -22,6 +22,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/moby/buildkit/util/system"
 
+	"github.com/tensorchord/envd/pkg/util/netutil"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -113,6 +114,11 @@ type Context struct {
 	BuilderAddress string      `json:"builder_address,omitempty"`
 	Runner         RunnerType  `json:"runner,omitempty"`
 	RunnerAddress  *string     `json:"runner_address,omitempty"`
+}
+
+type TCPAddr struct {
+	IP   string
+	Port int
 }
 
 type BuilderType string
@@ -277,4 +283,17 @@ func parsePyPICommands(lst string) ([]string, error) {
 	var pkgs []string
 	err := json.Unmarshal([]byte(lst), &pkgs)
 	return pkgs, err
+}
+
+func (c Context) GetSSHHostname() (string, error) {
+	if c.RunnerAddress == nil {
+		return "localhost", nil
+	}
+
+	// TODO(gaocegege): Check ENVD_SERVER_HOST.
+	hostname, err := netutil.GetHost(*c.RunnerAddress)
+	if err != nil {
+		return "", err
+	}
+	return hostname, nil
 }

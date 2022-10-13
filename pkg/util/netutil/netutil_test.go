@@ -25,3 +25,49 @@ func TestGetFreePort(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEqual(t, port, 0)
 }
+
+func TestGetHost(t *testing.T) {
+	tcs := []struct {
+		host     string
+		expected string
+		err      bool
+	}{
+		{
+			host:     "https://localhost:8080",
+			expected: "localhost",
+			err:      false,
+		},
+		{
+			host:     "localhost:8080",
+			expected: "",
+			err:      true,
+		},
+		{
+			host:     "http://localhost:8080",
+			expected: "localhost",
+			err:      false,
+		},
+		{
+			host:     "http://1.1.1.1:8080",
+			expected: "1.1.1.1",
+			err:      false,
+		},
+	}
+	for _, tc := range tcs {
+		host, err := GetHost(tc.host)
+		if tc.err == true {
+			if err == nil {
+				t.Error("expect to get the error, but got nil")
+			}
+			continue
+		}
+		if tc.err == false {
+			if err != nil {
+				t.Errorf("unexpected error %v", err)
+			}
+			if host != tc.expected {
+				t.Errorf("expected %s, got %s", tc.expected, host)
+			}
+		}
+	}
+}
