@@ -435,6 +435,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "my",
+      "name": "my",
+      "avatar_url": "https://avatars.githubusercontent.com/u/50836?v=4",
+      "profile": "https://github.com/my",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
