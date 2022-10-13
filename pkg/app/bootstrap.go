@@ -160,7 +160,7 @@ func sshKey(clicontext *cli.Context) error {
 		return nil
 
 	default:
-		return errors.Errorf("Invliad ssh-keypair flag")
+		return errors.Errorf("Invalid ssh-keypair flag")
 	}
 }
 
