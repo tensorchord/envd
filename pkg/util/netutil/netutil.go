@@ -14,8 +14,13 @@
 
 package netutil
 
-import "net"
+import (
+	"fmt"
+	"net"
+	"net/url"
+)
 
+// GetFreePort returns an available port in the host.
 func GetFreePort() (int, error) {
 	l, err := net.Listen("tcp", ":0")
 	if err != nil {
@@ -23,4 +28,17 @@ func GetFreePort() (int, error) {
 	}
 	defer l.Close()
 	return l.Addr().(*net.TCPAddr).Port, nil
+}
+
+// GetHost get the IP address from the address.
+func GetHost(addr string) (string, error) {
+	if u, err := url.Parse(addr); err != nil {
+		return "", err
+	} else {
+		h := u.Hostname()
+		if h == "" {
+			return "", fmt.Errorf("failed to get the hostname from %s", addr)
+		}
+		return h, nil
+	}
 }

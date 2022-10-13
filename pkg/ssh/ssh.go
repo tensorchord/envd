@@ -57,7 +57,6 @@ type Options struct {
 
 func DefaultOptions() Options {
 	return Options{
-		Server:          "localhost",
 		User:            "envd",
 		Auth:            true,
 		PrivateKeyPwd:   "",

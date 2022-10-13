@@ -30,10 +30,6 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-const (
-	localhost = "127.0.0.1"
-)
-
 var CommandUp = &cli.Command{
 	Name:     "up",
 	Category: CategoryBasic,
@@ -120,9 +116,13 @@ var CommandUp = &cli.Command{
 }
 
 func up(clicontext *cli.Context) error {
+	c, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
 	buildOpt, err := ParseBuildOpt(clicontext)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to parse the build options")
 	}
 
 	ctr := filepath.Base(buildOpt.BuildContextDir)
@@ -197,9 +197,14 @@ func up(clicontext *cli.Context) error {
 	logrus.Debugf("container %s is running", res.Name)
 
 	logrus.Debugf("add entry %s to SSH config.", ctr)
+	hostname, err := c.GetSSHHostname()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the ssh hostname")
+	}
+
 	eo := sshconfig.EntryOptions{
 		Name:               ctr,
-		IFace:              localhost,
+		IFace:              hostname,
 		Port:               res.SSHPort,
 		PrivateKeyPath:     clicontext.Path("private-key"),
 		EnableHostKeyCheck: false,
@@ -218,6 +223,8 @@ func up(clicontext *cli.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to create the ssh client")
 		}
+		opt.Server = hostname
+
 		if err := sshClient.Attach(); err != nil {
 			return errors.Wrap(err, "failed to attach to the container")
 		}
