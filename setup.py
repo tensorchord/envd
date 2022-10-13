@@ -30,7 +30,8 @@ def build_envd_if_not_found():
             with open(".GIT_TAG_INFO") as f:
                 logging.info("Use build_tag from envd._version")
                 tag = f.read().strip()
-                errno = subprocess.call(["GIT_TAG={}".format(tag), "make", "build-release", ])
+                errno = subprocess.call(
+                    ["GIT_TAG={}".format(tag), "make", "build-release"])
         except:
             errno = subprocess.call(["make", "build-release", ""])
         assert errno == 0, "Failed to build envd"
