@@ -148,6 +148,7 @@ func up(clicontext *cli.Context) error {
 		return err
 	}
 
+	logrus.Debug("start running the environment")
 	// Do not attach GPU if the flag is set.
 	gpuEnable := clicontext.Bool("no-gpu")
 	var gpu bool
