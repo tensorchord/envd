@@ -40,6 +40,7 @@ var CommandImage = &cli.Command{
 	Subcommands: []*cli.Command{
 		CommandDescribeImage,
 		CommandListImage,
+		CommandRemoveImage,
 	},
 }
 
