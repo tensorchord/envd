@@ -116,11 +116,6 @@ type Context struct {
 	RunnerAddress  *string     `json:"runner_address,omitempty"`
 }
 
-type TCPAddr struct {
-	IP   string
-	Port int
-}
-
 type BuilderType string
 
 const (
