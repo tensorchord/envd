@@ -45,6 +45,10 @@ func (e *envdServerEngine) GetImage(ctx context.Context, image string) (dockerty
 	return dockertypes.ImageSummary{}, errors.New("not implemented")
 }
 
+func (e envdServerEngine) PruneImage(ctx context.Context) (dockertypes.ImagesPruneReport, error) {
+	return dockertypes.ImagesPruneReport{}, errors.New("not implemented")
+}
+
 func (e *envdServerEngine) GetInfo(ctx context.Context) (*types.EnvdInfo, error) {
 	return nil, errors.New("not implemented")
 }
