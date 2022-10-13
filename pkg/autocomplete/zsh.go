@@ -17,6 +17,7 @@ package autocomplete
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
@@ -52,33 +53,62 @@ _cli_zsh_autocomplete() {
 
 compdef _cli_zsh_autocomplete envd`
 
+var zshConfig = `
+# envd zsh-completion
+[ -f ~/.envd.zsh ] && source ~/.envd.zsh
+`
+
 // If debugging this, it might be required to run `rm ~/.zcompdump*` to remove the cache
 func InsertZSHCompleteEntry() error {
+	// check the system has zsh
+	_, err := exec.LookPath("zsh")
+	if err != nil {
+		log.L.Debugf("can't find zsh in this system, stop setting the zsh-completion.")
+		return nil
+	}
+
 	// should be the same on linux and macOS
-	path := "/usr/local/share/zsh/site-functions/_envd"
-	dirPath := filepath.Dir(path)
-
-	dirPathExists, err := fileutil.DirExists(dirPath)
-	if err != nil {
-		return errors.Wrapf(err, "failed to check if %s exists", dirPath)
-	}
-	if !dirPathExists {
-		log.L.Warnf("Warning: unable to enable zsh-completion: %s does not exist", dirPath)
-		return nil // zsh-completion isn't available, silently fail.
+	filename := ".envd.zsh"
+	homeDir := os.Getenv("HOME")
+	dirs := []string{
+		"/usr/share/zsh/site-functions",
+		"/usr/local/share/zsh/site-functions",
+		homeDir,
 	}
 
-	pathExists, err := fileutil.FileExists(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed to check if %s exists", path)
-	}
-	if pathExists {
-		return nil // file already exists, don't update it.
+	var f *os.File
+	var lastErr error
+	path := ""
+	for _, dir := range dirs {
+		dirPathExists, err := fileutil.DirExists(dir)
+		if err != nil {
+			return errors.Wrapf(err, "failed to check if %s exists", dir)
+		}
+		if dirPathExists {
+			path = fmt.Sprintf("%s/%s", dir, filename)
+			log.L.Debugf("use the zsh-completion path for envd: %s", path)
+
+			pathExists, err := fileutil.FileExists(path)
+			if err != nil {
+				lastErr = errors.Wrapf(err, "failed to check if %s exists", path)
+			}
+			if pathExists {
+				return nil // file already exists, don't update it.
+			}
+
+			// create the completion file
+			f, err = os.Create(path)
+			if err != nil {
+				lastErr = err
+				continue
+			}
+
+			break
+		}
 	}
 
-	// create the completion file
-	f, err := os.Create(path)
-	if err != nil {
-		return err
+	if f == nil {
+		return lastErr
 	}
 	defer f.Close()
 
@@ -91,6 +121,23 @@ func InsertZSHCompleteEntry() error {
 	_, err = f.Write([]byte(compEntry))
 	if err != nil {
 		return errors.Wrapf(err, "failed writing to %s", path)
+	}
+
+	if strings.HasPrefix(path, homeDir) {
+		zshFile, err := os.OpenFile(fmt.Sprintf("%s/.zshrc", homeDir), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+		if err != nil {
+			log.L.Warnf("unable to open the `~/.zshrc`, please add the following lines into `~/.zshrc` to get the envd zsh completion:\n"+
+				"    %s\n", zshConfig)
+			return err
+		}
+		defer zshFile.Close()
+
+		_, err = fmt.Fprintf(zshFile, "%s\n", zshConfig)
+		if err != nil {
+			log.L.Warnf("unable to write the `~/.zshrc`, please add the following lines into `~/.zshrc` to get the envd zsh completion:\n"+
+				"    %s\n", zshConfig)
+			return err
+		}
 	}
 
 	return deleteZcompdump()
