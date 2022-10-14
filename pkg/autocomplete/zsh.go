@@ -71,8 +71,8 @@ func InsertZSHCompleteEntry() error {
 	filename := "envd.zsh"
 	homeDir := os.Getenv("HOME")
 	dirs := []string{
-		//"/usr/share/zsh/site-functions",
-		//"/usr/local/share/zsh/site-functions",
+		"/usr/share/zsh/site-functions",
+		"/usr/local/share/zsh/site-functions",
 		fmt.Sprintf("%s/.config/envd", homeDir),
 	}
 
