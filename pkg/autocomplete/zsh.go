@@ -73,7 +73,7 @@ func InsertZSHCompleteEntry() error {
 	dirs := []string{
 		"/usr/share/zsh/site-functions",
 		"/usr/local/share/zsh/site-functions",
-		fmt.Sprintf("%s/.config/envd", homeDir),
+		fileutil.DefaultConfigDir,
 	}
 
 	var f *os.File
