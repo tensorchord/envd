@@ -55,7 +55,7 @@ compdef _cli_zsh_autocomplete envd`
 
 var zshConfig = `
 # envd zsh-completion
-[ -f ~/.envd.zsh ] && source ~/.envd.zsh
+[ -f ~/.config/envd/envd.zsh ] && source ~/.config/envd/envd.zsh
 `
 
 // If debugging this, it might be required to run `rm ~/.zcompdump*` to remove the cache
@@ -68,12 +68,12 @@ func InsertZSHCompleteEntry() error {
 	}
 
 	// should be the same on linux and macOS
-	filename := ".envd.zsh"
+	filename := "envd.zsh"
 	homeDir := os.Getenv("HOME")
 	dirs := []string{
-		"/usr/share/zsh/site-functions",
-		"/usr/local/share/zsh/site-functions",
-		homeDir,
+		//"/usr/share/zsh/site-functions",
+		//"/usr/local/share/zsh/site-functions",
+		fmt.Sprintf("%s/.config/envd", homeDir),
 	}
 
 	var f *os.File
