@@ -3,7 +3,7 @@ def build():
         channel="""
 channels:
   - defaults
-  - conda-forge # dgllife in env.yaml only works if specify channels here
+  - dglteam # dgllife in env.yaml only works if specify channels here
     """
     )
     install.conda_packages(env_file="env.yaml")
