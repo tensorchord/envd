@@ -4,6 +4,7 @@ include Makefile
 include .goreleaser.yaml .goreleaser/*.Dockerfile
 include pkg/* cmd/*
 include go.mod go.sum
+include .GIT_TAG_INFO
 prune examples
 prune docs
 prune .github

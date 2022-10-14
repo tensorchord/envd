@@ -65,5 +65,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.GIT_TAG_INFO
 
 test.tar

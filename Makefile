@@ -71,7 +71,7 @@ BUILD_DIR := ./build
 VERSION ?= $(shell git describe --match 'v[0-9]*' --always --tags --abbrev=0)
 BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 GIT_COMMIT=$(shell git rev-parse HEAD)
-GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-match --tags HEAD 2>/dev/null; fi)
+GIT_TAG ?= $(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-match --tags HEAD 2>/dev/null; fi)
 GIT_TREE_STATE=$(shell if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)
 GITSHA ?= $(shell git rev-parse --short HEAD)
 GIT_LATEST_TAG ?= $(shell git describe --tags --abbrev=0)
@@ -110,6 +110,7 @@ build-release:
 		-X $(ROOT)/pkg/version.gitTag=$(GIT_TAG)" \
 	    $(CMD_DIR)/$${target};                                                         \
 	done
+	@[[ ! -z "$(GIT_TAG)" ]] && echo "$(GIT_TAG)" > .GIT_TAG_INFO
 
 help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)

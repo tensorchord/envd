@@ -26,7 +26,15 @@ with open("README.md", "r", encoding="utf-8") as f:
 def build_envd_if_not_found():
     if not os.path.exists("bin/envd"):
         logging.info("envd not found. Build from scratch")
-        errno = subprocess.call(["make", "build-release"])
+        try:
+            with open(".GIT_TAG_INFO") as f:
+                logging.info("Use build_tag from envd._version")
+                tag = f.read().strip()
+                errno = subprocess.call(
+                    ["make", "build-release", "GIT_TAG={}".format(tag)]
+                )
+        except:
+            errno = subprocess.call(["make", "build-release"])
         assert errno == 0, "Failed to build envd"
 
 
