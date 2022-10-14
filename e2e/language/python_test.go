@@ -54,4 +54,13 @@ var _ = Describe("python", Ordered, func() {
 		e.RunContainer()()
 		e.DestroyContainer()()
 	})
+
+	It("Should build conda with separate channel setting successfully", func() {
+		exampleName := "python/conda_channel"
+		testcase := "e2e"
+		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
+		e.BuildImage(true)()
+		e.RunContainer()()
+		e.DestroyContainer()()
+	})
 })
