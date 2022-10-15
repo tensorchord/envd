@@ -17,6 +17,7 @@ package app
 import (
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 	"github.com/olekukonko/tablewriter"
@@ -27,16 +28,24 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
+func getCurrentDirOrPanic() string {
+	dir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	return filepath.Base(dir)
+}
+
 var CommandDescribeEnvironment = &cli.Command{
 	Name:    "describe",
 	Aliases: []string{"d"},
 	Usage:   "Show details about environments, including dependencies and port binding",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     "env",
-			Usage:    "Specify the envd environment to use",
-			Aliases:  []string{"e"},
-			Required: true,
+			Name:    "env",
+			Usage:   "Specify the envd environment to use",
+			Aliases: []string{"e"},
+			Value:   getCurrentDirOrPanic(),
 		},
 	},
 	Action: getEnvironmentDescriptions,
