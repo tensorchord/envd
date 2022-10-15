@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.2.4-alpha.10 (2022-10-14)
+
+ * [d3f93a8](https://github.com/tensorchord/envd/commit/d3f93a8389cbf198ce217e2001b7ae0c7df62d2b) bug: fix explicit channel setting with conda env.yaml (#1008)
+ * [bcd8029](https://github.com/tensorchord/envd/commit/bcd802976597b3ef07906aa26682fc8ffa0e891a) bug: Fix install from source will lose version information (#1024)
+ * [a58197c](https://github.com/tensorchord/envd/commit/a58197c476745bbe568e5712e54912936ca3a14e) fix: Add two debug logs (#1023)
+ * [0fc4d8d](https://github.com/tensorchord/envd/commit/0fc4d8d12e9a13c00e760ee105765b0270a2c3ee) feat(context): Get ssh hostname from context, instead of hard-coded string (#1020)
+ * [262a07b](https://github.com/tensorchord/envd/commit/262a07b69f976317379d42a8583b1d084c41e73b) feat(CLI): Support envd images prune #976 (#1012)
+ * [88dc908](https://github.com/tensorchord/envd/commit/88dc908bc09b99b009c93a72999951096c984daa) fix(CLI): Fix a typo (#1015)
+ * [931e1a0](https://github.com/tensorchord/envd/commit/931e1a09d0e3eda869d80e9b73e730c8c8768514) feat(cli): add `envd images remove` command (#1007)
+ * [f26fc4c](https://github.com/tensorchord/envd/commit/f26fc4ce7e42ed0e567cb492c41551f6c2f2c3b4) feat(CLI): Support create command (#1001)
+ * [f288ff3](https://github.com/tensorchord/envd/commit/f288ff3b8f2cdb2f63cbe313635f3596b3a2ace7) feat(CI): add nightly build & test tasks (#1006)
+ * [46168da](https://github.com/tensorchord/envd/commit/46168dac70fb8cd9b841a32e35a414ad29ddfaa2) chore(test): Add test cases for pkg/home/auth.go (#1009)
+ * [d87afda](https://github.com/tensorchord/envd/commit/d87afda9213fcb334ca55d247ba3c0663b7b180b) feat: Add envd-server runtime proposal (#303)
+ * [fec7ada](https://github.com/tensorchord/envd/commit/fec7ada4efc2186fa5f858d5abe211a2beb2dfdd) fix: Remove hard code docker in envd engine init (#1000)
+ * [cf56f0d](https://github.com/tensorchord/envd/commit/cf56f0de7bfb05be47d4704c14f9bbb892a86d28) chore(deps): bump github.com/onsi/gomega from 1.20.2 to 1.21.1 (#997)
+ * [a55470e](https://github.com/tensorchord/envd/commit/a55470e363b35b689649596b449b996ada701630) feat(build): detect if the current environment is running before building (#892) (#989)
+ * [d0219f2](https://github.com/tensorchord/envd/commit/d0219f2e3e999e27f334a39180031390a4554af9) chore(deps): bump github.com/urfave/cli/v2 from 2.17.1 to 2.19.2 (#998)
+
+### Contributors
+
+ * Ce Gao
+ * JasonZhu
+ * Jinjing Zhou
+ * Tumushimire Yves
+ * XRW
+ * Yijiang Liu
+ * Zhenzhen Zhao
+ * dependabot[bot]
+
 ## v0.2.4-alpha.9 (2022-10-09)
 
  * [b2a9018](https://github.com/tensorchord/envd/commit/b2a90188c012fa186de2ecb7b1aa534062681020) feat: Support cli argument for host key (#992)
