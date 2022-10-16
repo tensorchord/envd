@@ -29,6 +29,10 @@ var _ = Describe("auth test", Ordered, func() {
 		IdentityToken: defaultIdentityToken,
 	}
 
+	BeforeEach(func() {
+		Expect(Initialize()).To(Succeed())
+	})
+
 	Describe("create with use", func() {
 		BeforeAll(func() {
 			err := GetManager().AuthCreate(ac, true)
