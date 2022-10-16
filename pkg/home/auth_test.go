@@ -21,7 +21,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("auth test", func() {
+var _ = Describe("auth test", Ordered, func() {
 	defaultAuthName := "auth_name"
 	defaultIdentityToken := "default_token"
 	ac := types.AuthConfig{
@@ -29,7 +29,7 @@ var _ = Describe("auth test", func() {
 		IdentityToken: defaultIdentityToken,
 	}
 
-	Describe("create with use", Ordered, func() {
+	Describe("create with use", func() {
 		BeforeAll(func() {
 			err := GetManager().AuthCreate(ac, true)
 			Expect(err).NotTo(HaveOccurred())
@@ -49,7 +49,7 @@ var _ = Describe("auth test", func() {
 		})
 	})
 
-	Describe("create without use", Ordered, func() {
+	Describe("create without use", func() {
 		BeforeAll(func() {
 			err := GetManager().AuthCreate(ac, false)
 			Expect(err).NotTo(HaveOccurred())
