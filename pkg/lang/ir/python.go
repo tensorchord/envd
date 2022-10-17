@@ -54,8 +54,6 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 	}
 	builtinSystemStage := pypiMirrorStage
 
-	systemStage := g.compileSystemPackages(builtinSystemStage)
-
 	sshStage, err := g.copySSHKey(builtinSystemStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
@@ -63,12 +61,14 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
 
 	// Conda affects shell and python, thus we cannot do it in parallel.
-	shellStage, err := g.compileShell(systemStage)
+	shellStage, err := g.compileShell(builtinSystemStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile shell")
 	}
 
-	condaEnvStage, err := g.compileCondaEnvironment(shellStage)
+	systemStage := g.compileSystemPackages(shellStage)
+
+	condaEnvStage, err := g.compileCondaEnvironment(systemStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile conda environment")
 	}
