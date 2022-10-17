@@ -52,7 +52,7 @@ func (g Graph) compileRun(root llb.State) llb.State {
 	}
 
 	workingDir := g.getWorkingDir()
-	stage := root.AddEnv("PATH", types.DefaultPathEnvUnix)
+	stage := root
 	for _, execGroup := range g.Exec {
 		var sb strings.Builder
 		sb.WriteString("set -euo pipefail\n")
@@ -62,16 +62,15 @@ func (g Graph) compileRun(root llb.State) llb.State {
 
 		cmdStr := fmt.Sprintf("/usr/bin/bash -c '%s'", sb.String())
 		logrus.WithField("command", cmdStr).Debug("compile run command")
+		// Mount the build context into the build process.
+		// TODO(gaocegege): Maybe we should make it readonly,
+		// but these cases then cannot be supported:
+		// run(commands=["git clone xx.git"])
 		stage = stage.
 			Run(llb.Shlex(cmdStr),
 				llb.AddEnv("PATH", types.DefaultPathEnvUnix),
 				llb.Dir(workingDir),
 				llb.AddMount(workingDir, llb.Local(flag.FlagBuildContext))).Root()
-		// Mount the build context into the build process.
-		// TODO(gaocegege): Maybe we should make it readonly,
-		// but these cases then cannot be supported:
-		// run(commands=["git clone xx.git"])
-		// stage = run.AddMount(workingDir, llb.Local(flag.FlagBuildContext))
 	}
 	return stage
 }
