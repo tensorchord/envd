@@ -56,7 +56,7 @@ func NewGraph() *Graph {
 		RPackages:       []string{},
 		JuliaPackages:   []string{},
 		SystemPackages:  []string{},
-		Exec:            []string{},
+		Exec:            [][]string{},
 		UserDirectories: []string{},
 		Shell:           shellBASH,
 		CondaConfig:     conda,

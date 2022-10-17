@@ -55,7 +55,7 @@ type Graph struct {
 	VSCodePlugins   []vscode.Plugin
 	UserDirectories []string
 
-	Exec       []string
+	Exec       [][]string
 	Copy       []CopyInfo
 	Mount      []MountInfo
 	HTTP       []HTTPInfo
