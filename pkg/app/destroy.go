@@ -32,7 +32,7 @@ import (
 var CommandDestroy = &cli.Command{
 	Name:     "destroy",
 	Category: CategoryBasic,
-	Aliases:  []string{"d"},
+	Aliases:  []string{"down", "d"},
 	Usage:    "Destroy the envd environment",
 	Flags: []cli.Flag{
 		&cli.PathFlag{
