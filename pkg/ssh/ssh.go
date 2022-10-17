@@ -139,7 +139,7 @@ func NewClient(opt Options) (Client, error) {
 				return nil, errors.Wrap(err, "forwarding agent to client failed")
 			}
 		} else {
-			logrus.Warn("failed to get the environment variable SSH_AUTH_SOCK")
+			logrus.Warn("SSH Agent Forwarding is disabled. This will have no impact on your normal use if you do not use the ssh key on the host.")
 		}
 	}
 
