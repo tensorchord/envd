@@ -74,7 +74,7 @@ jobs:
         mv dist/envd_darwin_amd64_v1/envd bin/envd
         chmod +x bin/envd
     - name: Build wheels
-      uses: pypa/cibuildwheel@v2.10.2
+      uses: pypa/cibuildwheel@v2.11.1
       env:
         CIBW_ARCHS: auto64
     - name: Build source distribution
