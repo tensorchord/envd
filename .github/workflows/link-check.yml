@@ -5,21 +5,22 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/**'
-      - '**.md'
+      - ".github/workflows/**"
+      - "**.md"
   pull_request:
     paths:
-      - '.github/workflows/**'
-      - '**.md'
+      - ".github/workflows/**"
+      - "**.md"
 
 jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: gaurav-nelson/github-action-markdown-link-check@v1
-      with:
-        file-path: 'README.md'
-        folder-path: 'docs'
-        check-modified-files-only: yes
-        base-branch	: main
+      - uses: actions/checkout@v3
+      - uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          file-path: "README.md"
+          folder-path: "docs"
+          check-modified-files-only: yes
+          base-branch: main
+          config-file: .markdown-lint.json
