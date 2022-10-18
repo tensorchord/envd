@@ -68,17 +68,21 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 
 	systemStage := g.compileSystemPackages(shellStage)
 
-	condaEnvStage, err := g.compileCondaEnvironment(systemStage)
+	condaEnvStage, err := g.compileCondaEnvironment(shellStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile conda environment")
 	}
 
+	diffCondaEnvStage := llb.Diff(shellStage, condaEnvStage)
+	diffSystemStage := llb.Diff(shellStage, systemStage)
+	prePythonStage := llb.Merge([]llb.State{diffSystemStage, diffCondaEnvStage, shellStage}, llb.WithCustomName("pre-python stage"))
+
 	condaStage := llb.Diff(builtinSystemStage,
-		g.compileCondaPackages(condaEnvStage),
+		g.compileCondaPackages(prePythonStage),
 		llb.WithCustomName("install conda packages"))
 
 	pypiStage := llb.Diff(condaEnvStage,
-		g.compilePyPIPackages(condaEnvStage),
+		g.compilePyPIPackages(prePythonStage),
 		llb.WithCustomName("install PyPI packages"))
 
 	vscodeStage, err := g.compileVSCode()
@@ -89,12 +93,12 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 	var merged llb.State
 	if vscodeStage != nil {
 		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, condaStage,
+			builtinSystemStage, condaStage,
 			diffSSHStage, pypiStage, *vscodeStage,
 		}, llb.WithCustomName("merging all components into one"))
 	} else {
 		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, condaStage,
+			builtinSystemStage, condaStage,
 			diffSSHStage, pypiStage,
 		}, llb.WithCustomName("merging all components into one"))
 	}
