@@ -23,6 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 	"github.com/tensorchord/envd-server/client"
+	"github.com/tensorchord/envd-server/errdefs"
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/tensorchord/envd/pkg/types"
@@ -58,27 +59,83 @@ func (e *envdServerEngine) GPUEnabled(ctx context.Context) (bool, error) {
 }
 
 func (e *envdServerEngine) PauseEnvironment(ctx context.Context, env string) (string, error) {
-	return "", errors.New("not implemented")
+	return "", errors.New("pausing/resuming environments is not supported for the runner envd-server")
 }
 
 func (e *envdServerEngine) ResumeEnvironment(ctx context.Context, env string) (string, error) {
-	return "", errors.New("not implemented")
+	return "", errors.New("pausing/resuming environments is not supported for the runner envd-server")
 }
 
 func (e *envdServerEngine) ListEnvironment(ctx context.Context) ([]types.EnvdEnvironment, error) {
-	return nil, errors.New("not implemented")
+	req := servertypes.EnvironmentListRequest{
+		IdentityToken: e.IdentityToken,
+	}
+
+	ctr, err := e.EnvironmentList(ctx, req)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get environment")
+	}
+	env, err := types.NewEnvironmentFromPod(ctr.Pod)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create env from the container")
+	}
+	return []types.EnvdEnvironment{*env}, nil
 }
 
 func (e *envdServerEngine) ListEnvDependency(ctx context.Context, env string) (*types.Dependency, error) {
-	return nil, errors.New("not implemented")
+	req := servertypes.EnvironmentListRequest{
+		IdentityToken: e.IdentityToken,
+	}
+
+	logger := logrus.WithFields(logrus.Fields{
+		"env": env,
+	})
+	logger.Debug("getting dependencies")
+	ctr, err := e.EnvironmentList(ctx, req)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get environment")
+	}
+	dep, err := types.NewDependencyFromLabels(ctr.Pod.Annotations)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create dependency from the container")
+	}
+	return dep, nil
 }
 
 func (e *envdServerEngine) ListEnvPortBinding(ctx context.Context, env string) ([]types.PortBinding, error) {
-	return nil, errors.New("not implemented")
+	req := servertypes.EnvironmentListRequest{
+		IdentityToken: e.IdentityToken,
+	}
+
+	_, err := e.EnvironmentList(ctx, req)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get environment")
+	}
+	// TODO(gaocegege): Remove hard coded.
+	res := []types.PortBinding{
+		{
+			Port:     "2222",
+			Protocol: "TCP",
+			HostIP:   "localhost",
+			HostPort: "2222",
+		},
+	}
+	return res, nil
 }
 
 func (e *envdServerEngine) CleanEnvdIfExists(ctx context.Context, name string, force bool) error {
-	return errors.New("not implemented")
+	created, err := e.Exists(ctx, name)
+	if err != nil {
+		return err
+	}
+	if !created {
+		return nil
+	}
+
+	req := servertypes.EnvironmentRemoveRequest{
+		IdentityToken: e.IdentityToken,
+	}
+	return e.EnvironmentRemove(ctx, req)
 }
 
 // StartEnvd creates the container for the given tag and container name.
@@ -123,7 +180,18 @@ func (e *envdServerEngine) IsRunning(ctx context.Context, name string) (bool, er
 }
 
 func (e *envdServerEngine) Exists(ctx context.Context, name string) (bool, error) {
-	return false, errors.New("not implemented")
+	req := servertypes.EnvironmentListRequest{
+		IdentityToken: e.IdentityToken,
+	}
+
+	_, err := e.EnvironmentList(ctx, req)
+	if err != nil {
+		if errdefs.IsNotFound(err) {
+			return false, nil
+		}
+		return false, errors.Wrap(err, "failed to list the environment")
+	}
+	return true, nil
 }
 
 func (e *envdServerEngine) WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error {

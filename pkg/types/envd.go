@@ -21,6 +21,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/moby/buildkit/util/system"
+	v1 "k8s.io/api/core/v1"
 
 	"github.com/tensorchord/envd/pkg/util/netutil"
 	"github.com/tensorchord/envd/pkg/version"
@@ -83,9 +84,10 @@ type EnvdImage struct {
 }
 
 type EnvdEnvironment struct {
-	types.Container
+	Image string `json:"image,omitempty"`
+	Name  string `json:"name,omitempty"`
 
-	Name              string  `json:"name,omitempty"`
+	Status            string  `json:"status,omitempty"`
 	JupyterAddr       *string `json:"jupyter_addr,omitempty"`
 	RStudioServerAddr *string `json:"rstudio_server_addr,omitempty"`
 	EnvdManifest      `json:",inline,omitempty"`
@@ -165,9 +167,10 @@ func NewImage(image types.ImageSummary) (*EnvdImage, error) {
 	return &img, nil
 }
 
-func NewEnvironment(ctr types.Container) (*EnvdEnvironment, error) {
+func NewEnvironmentFromContainer(ctr types.Container) (*EnvdEnvironment, error) {
 	env := EnvdEnvironment{
-		Container: ctr,
+		Image:  ctr.Image,
+		Status: ctr.Status,
 	}
 	if name, ok := ctr.Labels[ContainerLabelName]; ok {
 		env.Name = name
@@ -180,6 +183,27 @@ func NewEnvironment(ctr types.Container) (*EnvdEnvironment, error) {
 	}
 
 	m, err := newManifest(ctr.Labels)
+	if err != nil {
+		return nil, err
+	}
+	env.EnvdManifest = m
+	return &env, nil
+}
+
+func NewEnvironmentFromPod(ctr v1.Pod) (*EnvdEnvironment, error) {
+	env := EnvdEnvironment{
+		Image:  ctr.Spec.Containers[0].Image,
+		Status: string(ctr.Status.Phase),
+		Name:   ctr.Name,
+	}
+	if jupyterAddr, ok := ctr.Annotations[ContainerLabelJupyterAddr]; ok {
+		env.JupyterAddr = &jupyterAddr
+	}
+	if rstudioServerAddr, ok := ctr.Annotations[ContainerLabelRStudioServerAddr]; ok {
+		env.RStudioServerAddr = &rstudioServerAddr
+	}
+
+	m, err := newManifest(ctr.Annotations)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +225,7 @@ func newManifest(labels map[string]string) (EnvdManifest, error) {
 	if context, ok := labels[ImageLabelContext]; ok {
 		manifest.BuildContext = context
 	}
-	dep, err := newDependencyFromLabels(labels)
+	dep, err := NewDependencyFromLabels(labels)
 	if err != nil {
 		return manifest, err
 	}
@@ -210,11 +234,11 @@ func newManifest(labels map[string]string) (EnvdManifest, error) {
 }
 
 func NewDependencyFromContainerJSON(ctr types.ContainerJSON) (*Dependency, error) {
-	return newDependencyFromLabels(ctr.Config.Labels)
+	return NewDependencyFromLabels(ctr.Config.Labels)
 }
 
 func NewDependencyFromImage(img types.ImageSummary) (*Dependency, error) {
-	return newDependencyFromLabels(img.Labels)
+	return NewDependencyFromLabels(img.Labels)
 }
 
 func NewPortBindingFromContainerJSON(ctr types.ContainerJSON) []PortBinding {
@@ -242,7 +266,7 @@ func GetImageName(image EnvdImage) string {
 	return "<none>"
 }
 
-func newDependencyFromLabels(label map[string]string) (*Dependency, error) {
+func NewDependencyFromLabels(label map[string]string) (*Dependency, error) {
 	dep := Dependency{}
 	if pkgs, ok := label[ImageLabelAPT]; ok {
 		lst, err := parseAPTPackages(pkgs)

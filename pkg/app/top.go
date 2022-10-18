@@ -99,7 +99,6 @@ func initGrid(ctx context.Context, envs []types.EnvdEnvironment, collector metri
 	rows := make([]*metrics.WidgetRow, rowNumber)
 	header := metrics.NewWidgetRow(0)
 	header.Add(metrics.NewNameCol("Name"))
-	header.Add(metrics.NewNameCol("ID"))
 	header.Add(metrics.NewNameCol("CPU"))
 	header.Add(metrics.NewNameCol("Memory"))
 	rows[0] = header
@@ -107,7 +106,6 @@ func initGrid(ctx context.Context, envs []types.EnvdEnvironment, collector metri
 		row := metrics.NewWidgetRow(i + 1)
 		metricsChan := collector.Watch(ctx, env.Name)
 		row.Add(metrics.NewNameCol(env.Name))
-		row.Add(metrics.NewNameCol(env.ID[0:12]))
 		row.Add(metrics.NewCPUCol(metricsChan))
 		row.Add(metrics.NewMEMCol(metricsChan))
 		rows[i+1] = row
