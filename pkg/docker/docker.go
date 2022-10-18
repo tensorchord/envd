@@ -43,7 +43,6 @@ type Client interface {
 	StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error)
 
 	Exec(ctx context.Context, cname string, cmd []string) error
-	Destroy(ctx context.Context, name string) (string, error)
 
 	GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error)
 	RemoveImage(ctx context.Context, image string) error
@@ -175,30 +174,6 @@ func (c generalClient) ResumeContainer(ctx context.Context, name string) (string
 		default:
 			return "", errors.Wrap(err, "failed to resume container")
 		}
-	}
-	return name, nil
-}
-
-func (c generalClient) Destroy(ctx context.Context, name string) (string, error) {
-	logger := logrus.WithField("container", name)
-	// Refer to https://docs.docker.com/engine/reference/commandline/container_kill/
-	if err := c.ContainerKill(ctx, name, "KILL"); err != nil {
-		errCause := errors.UnwrapAll(err).Error()
-		switch {
-		case strings.Contains(errCause, "is not running"):
-			// If the container is not running, there is no need to kill it.
-			logger.Debug("container is not running, there is no need to kill it")
-		case strings.Contains(errCause, "No such container"):
-			// If the container is not found, it is already destroyed or the name is wrong.
-			logger.Infof("cannot find container %s, maybe it's already destroyed or the name is wrong", name)
-			return "", nil
-		default:
-			return "", errors.Wrap(err, "failed to kill the container")
-		}
-	}
-
-	if err := c.ContainerRemove(ctx, name, types.ContainerRemoveOptions{}); err != nil {
-		return "", errors.Wrap(err, "failed to remove the container")
 	}
 	return name, nil
 }
