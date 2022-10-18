@@ -27,7 +27,7 @@ var _ = g.Describe("pypi label", func() {
 			labels := make(map[string]string)
 			s, _ := json.Marshal([]string{"numpy", "torch", "--extra-url", "https://download.pytorch.org/whl/torch_stable.html"})
 			labels[ImageLabelPyPI] = string(s)
-			d, err := newDependencyFromLabels(labels)
+			d, err := NewDependencyFromLabels(labels)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(d.PyPIPackages).To(Equal([]string{"numpy", "torch"}))
 		})

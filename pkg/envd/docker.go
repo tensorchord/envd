@@ -88,7 +88,7 @@ func (e dockerEngine) ListEnvironment(
 
 	envs := make([]types.EnvdEnvironment, 0)
 	for _, ctr := range ctrs {
-		env, err := types.NewEnvironment(ctr)
+		env, err := types.NewEnvironmentFromContainer(ctr)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create env from the container")
 		}
