@@ -107,10 +107,6 @@ func (e *envdServerEngine) ListEnvPortBinding(ctx context.Context, env string) (
 		IdentityToken: e.IdentityToken,
 	}
 
-	logger := logrus.WithFields(logrus.Fields{
-		"env": env,
-	})
-	logger.Debug("getting dependencies")
 	_, err := e.EnvironmentList(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get environment")
