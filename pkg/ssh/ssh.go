@@ -86,6 +86,14 @@ type generalClient struct {
 }
 
 func NewClient(opt Options) (Client, error) {
+	logrus.WithFields(logrus.Fields{
+		"user":             opt.User,
+		"port":             opt.Port,
+		"server":           opt.Server,
+		"agent-forwarding": opt.AgentForwarding,
+		"auth":             opt.Auth,
+	}).Debug("ssh to the environment")
+
 	config := &ssh.ClientConfig{
 		User: opt.User,
 		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {

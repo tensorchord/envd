@@ -15,10 +15,13 @@
 package app
 
 import (
+	"strings"
 	"time"
 
+	"github.com/Pallinder/go-randomdata"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/envd-server/sshname"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/envd"
@@ -41,6 +44,10 @@ var CommandCreate = &cli.Command{
 			Usage:       "image name",
 			DefaultText: "PROJECT:dev",
 			Required:    true,
+		},
+		&cli.StringFlag{
+			Name:  "name",
+			Usage: "environment name",
 		},
 		&cli.DurationFlag{
 			Name:  "timeout",
@@ -76,9 +83,14 @@ func create(clicontext *cli.Context) error {
 		return err
 	}
 
+	name := clicontext.String("name")
+	if name == "" {
+		name = strings.ToLower(randomdata.SillyName())
+	}
 	opt := envd.StartOptions{
-		Image:   clicontext.String("image"),
-		Timeout: clicontext.Duration("timeout"),
+		Image:           clicontext.String("image"),
+		Timeout:         clicontext.Duration("timeout"),
+		EnvironmentName: name,
 	}
 	if c.Runner == types.RunnerTypeEnvdServer {
 		opt.EnvdServerSource = &envd.EnvdServerSource{}
@@ -96,6 +108,14 @@ func create(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get the ssh hostname")
 	}
 
+	ac, err := home.GetManager().AuthGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the auth information")
+	}
+	username, err := sshname.Username(ac.IdentityToken, res.Name)
+	if err != nil {
+		return errors.Wrap(err, "failed to get the username")
+	}
 	eo := sshconfig.EntryOptions{
 		Name:               res.Name,
 		IFace:              hostname,
@@ -103,19 +123,20 @@ func create(clicontext *cli.Context) error {
 		PrivateKeyPath:     clicontext.Path("private-key"),
 		EnableHostKeyCheck: false,
 		EnableAgentForward: false,
-		User:               res.Name,
+		User:               username,
 	}
 	if err = sshconfig.AddEntry(eo); err != nil {
 		logrus.Infof("failed to add entry %s to your SSH config file: %s", res.Name, err)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 
+	// TODO(gaocegege): Test why it fails.
 	if !clicontext.Bool("detach") {
 		opt := ssh.DefaultOptions()
 		opt.PrivateKeyPath = clicontext.Path("private-key")
 		opt.Port = res.SSHPort
 		opt.AgentForwarding = false
-		opt.User = res.Name
+		opt.User = username
 		opt.Server = hostname
 
 		sshClient, err := ssh.NewClient(opt)

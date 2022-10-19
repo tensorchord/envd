@@ -21,7 +21,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/moby/buildkit/util/system"
-	v1 "k8s.io/api/core/v1"
+	servertypes "github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/util/netutil"
 	"github.com/tensorchord/envd/pkg/version"
@@ -190,20 +190,20 @@ func NewEnvironmentFromContainer(ctr types.Container) (*EnvdEnvironment, error) 
 	return &env, nil
 }
 
-func NewEnvironmentFromPod(ctr v1.Pod) (*EnvdEnvironment, error) {
+func NewEnvironmentFromServer(ctr servertypes.Environment) (*EnvdEnvironment, error) {
 	env := EnvdEnvironment{
-		Image:  ctr.Spec.Containers[0].Image,
-		Status: string(ctr.Status.Phase),
+		Image:  ctr.Spec.Image,
+		Status: ctr.Status.Phase,
 		Name:   ctr.Name,
 	}
-	if jupyterAddr, ok := ctr.Annotations[ContainerLabelJupyterAddr]; ok {
+	if jupyterAddr, ok := ctr.Labels[ContainerLabelJupyterAddr]; ok {
 		env.JupyterAddr = &jupyterAddr
 	}
-	if rstudioServerAddr, ok := ctr.Annotations[ContainerLabelRStudioServerAddr]; ok {
+	if rstudioServerAddr, ok := ctr.Labels[ContainerLabelRStudioServerAddr]; ok {
 		env.RStudioServerAddr = &rstudioServerAddr
 	}
 
-	m, err := newManifest(ctr.Annotations)
+	m, err := newManifest(ctr.Labels)
 	if err != nil {
 		return nil, err
 	}

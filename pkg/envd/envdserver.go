@@ -24,7 +24,6 @@ import (
 	servertypes "github.com/tensorchord/envd-server/api/types"
 	"github.com/tensorchord/envd-server/client"
 	"github.com/tensorchord/envd-server/errdefs"
-	v1 "k8s.io/api/core/v1"
 
 	"github.com/tensorchord/envd/pkg/types"
 )
@@ -67,47 +66,42 @@ func (e *envdServerEngine) ResumeEnvironment(ctx context.Context, env string) (s
 }
 
 func (e *envdServerEngine) ListEnvironment(ctx context.Context) ([]types.EnvdEnvironment, error) {
-	req := servertypes.EnvironmentListRequest{
-		IdentityToken: e.IdentityToken,
-	}
-
-	ctr, err := e.EnvironmentList(ctx, req)
+	env, err := e.EnvironmentList(ctx, e.IdentityToken)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get environment")
 	}
-	env, err := types.NewEnvironmentFromPod(ctr.Pod)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create env from the container")
+	res := []types.EnvdEnvironment{}
+	for _, e := range env.Items {
+		env, err := types.NewEnvironmentFromServer(e)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create env from the container")
+		}
+		res = append(res, *env)
 	}
-	return []types.EnvdEnvironment{*env}, nil
+
+	return res, nil
 }
 
-func (e *envdServerEngine) ListEnvDependency(ctx context.Context, env string) (*types.Dependency, error) {
-	req := servertypes.EnvironmentListRequest{
-		IdentityToken: e.IdentityToken,
-	}
-
+func (e *envdServerEngine) ListEnvDependency(
+	ctx context.Context, name string) (*types.Dependency, error) {
 	logger := logrus.WithFields(logrus.Fields{
-		"env": env,
+		"env": name,
 	})
 	logger.Debug("getting dependencies")
-	ctr, err := e.EnvironmentList(ctx, req)
+	env, err := e.EnvironmentGet(ctx, e.IdentityToken, name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get environment")
 	}
-	dep, err := types.NewDependencyFromLabels(ctr.Pod.Annotations)
+	dep, err := types.NewDependencyFromLabels(env.Labels)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create dependency from the container")
 	}
 	return dep, nil
 }
 
-func (e *envdServerEngine) ListEnvPortBinding(ctx context.Context, env string) ([]types.PortBinding, error) {
-	req := servertypes.EnvironmentListRequest{
-		IdentityToken: e.IdentityToken,
-	}
-
-	_, err := e.EnvironmentList(ctx, req)
+func (e *envdServerEngine) ListEnvPortBinding(
+	ctx context.Context, name string) ([]types.PortBinding, error) {
+	_, err := e.EnvironmentGet(ctx, e.IdentityToken, name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get environment")
 	}
@@ -132,10 +126,7 @@ func (e *envdServerEngine) CleanEnvdIfExists(ctx context.Context, name string, f
 		return nil
 	}
 
-	req := servertypes.EnvironmentRemoveRequest{
-		IdentityToken: e.IdentityToken,
-	}
-	return e.EnvironmentRemove(ctx, req)
+	return e.EnvironmentRemove(ctx, e.IdentityToken, name)
 }
 
 // StartEnvd creates the container for the given tag and container name.
@@ -145,11 +136,17 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 	}
 
 	req := servertypes.EnvironmentCreateRequest{
-		IdentityToken: e.IdentityToken,
-		Image:         so.Image,
+		Environment: servertypes.Environment{
+			ObjectMeta: servertypes.ObjectMeta{
+				Name: so.EnvironmentName,
+			},
+			Spec: servertypes.EnvironmentSpec{
+				Image: so.Image,
+			},
+		},
 	}
 
-	resp, err := e.EnvironmentCreate(ctx, req)
+	resp, err := e.EnvironmentCreate(ctx, e.IdentityToken, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create the environment")
 	}
@@ -168,23 +165,16 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 }
 
 func (e *envdServerEngine) IsRunning(ctx context.Context, name string) (bool, error) {
-	req := servertypes.EnvironmentListRequest{
-		IdentityToken: e.IdentityToken,
-	}
-
-	resp, err := e.EnvironmentList(ctx, req)
+	resp, err := e.EnvironmentGet(ctx, e.IdentityToken, name)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to list the environment")
 	}
-	return resp.Pod.Status.Phase == v1.PodRunning, nil
+	// "Running" is hard-coded here.
+	return resp.Status.Phase == "Running", nil
 }
 
 func (e *envdServerEngine) Exists(ctx context.Context, name string) (bool, error) {
-	req := servertypes.EnvironmentListRequest{
-		IdentityToken: e.IdentityToken,
-	}
-
-	_, err := e.EnvironmentList(ctx, req)
+	_, err := e.EnvironmentGet(ctx, e.IdentityToken, name)
 	if err != nil {
 		if errdefs.IsNotFound(err) {
 			return false, nil
