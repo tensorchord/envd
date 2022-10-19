@@ -37,7 +37,13 @@ const DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/home/envd/.
 // ';' character .
 const DefaultPathEnvWindows = system.DefaultPathEnvWindows
 
-const PythonBaseImage = "ubuntu:20.04"
+const (
+	PythonBaseImage = "ubuntu:20.04"
+	// supervisor
+	HorustImage      = "kemingy/horust:latest"
+	HorustServiceDir = "/etc/horust/services"
+	HorustLogDir     = "/var/logs"
+)
 
 var EnvdSshdImage = fmt.Sprintf(
 	"tensorchord/envd-sshd-from-scratch:%s",
