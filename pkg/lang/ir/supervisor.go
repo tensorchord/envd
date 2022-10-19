@@ -56,6 +56,9 @@ func (g Graph) addNewProcess(root llb.State, name, command string) llb.State {
 }
 
 func (g Graph) compileEntrypoint(root llb.State) llb.State {
+	if (g.Image != nil) {
+		return root
+	}
 	cmd := fmt.Sprintf("/var/envd/bin/envd-sshd --port %d --shell %s", config.SSHPortInContainer, g.Shell)
 	entrypoint := g.addNewProcess(root, "sshd", cmd)
 
