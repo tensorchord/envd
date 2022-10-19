@@ -81,7 +81,7 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 
 	// get from env if not set
 	if len(workingDir) == 0 {
-		workingDir = "${WORKDIR}"
+		workingDir = "${ENVD_WORKDIR}"
 	}
 
 	cmd := []string{
@@ -106,7 +106,7 @@ func (g Graph) generateRStudioCommand(workingDir string) []string {
 
 	// get from env if not set
 	// if len(workingDir) == 0 {
-	// 	workingDir = "${WORKDIR}"
+	// 	workingDir = "${ENVD_WORKDIR}"
 	// }
 
 	return []string{
