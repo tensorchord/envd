@@ -15,11 +15,14 @@
 package cli
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/tensorchord/envd/e2e"
 	"github.com/tensorchord/envd/pkg/app"
+	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
 )
 
@@ -34,6 +37,9 @@ var _ = Describe("up command", Ordered, func() {
 		envdApp := app.New()
 		err := envdApp.Run(append(baseArgs, "bootstrap"))
 		Expect(err).NotTo(HaveOccurred())
+		_, err = docker.NewClient(context.TODO())
+		Expect(err).NotTo(HaveOccurred())
+
 	})
 	When("given the right arguments", func() {
 		It("should up and destroy successfully", func() {

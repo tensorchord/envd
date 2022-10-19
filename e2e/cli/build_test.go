@@ -15,11 +15,14 @@
 package cli
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/tensorchord/envd/e2e"
 	"github.com/tensorchord/envd/pkg/app"
+	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/home"
 )
 
@@ -32,7 +35,8 @@ var _ = Describe("build command", Ordered, func() {
 			e2e.ResetEnvdApp()
 			err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 			Expect(err).NotTo(HaveOccurred())
-
+			_, err = docker.NewClient(context.TODO())
+			Expect(err).NotTo(HaveOccurred())
 			envdApp = app.New()
 			args := []string{
 				"envd.test", "--debug", "build", "--path", buildTestName,
@@ -47,7 +51,8 @@ var _ = Describe("build command", Ordered, func() {
 			e2e.ResetEnvdApp()
 			err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 			Expect(err).NotTo(HaveOccurred())
-
+			_, err = docker.NewClient(context.TODO())
+			Expect(err).NotTo(HaveOccurred())
 			envdApp = app.New()
 			args := []string{
 				"envd.test", "--debug", "build", "--path", customImageTestName,
@@ -61,6 +66,8 @@ var _ = Describe("build command", Ordered, func() {
 		envdApp := app.New()
 		e2e.ResetEnvdApp()
 		err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
+		Expect(err).NotTo(HaveOccurred())
+		_, err = docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())
 		// Init DefaultGraph.
 		// ir.DefaultGraph = ir.NewGraph()
