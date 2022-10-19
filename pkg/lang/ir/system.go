@@ -169,8 +169,6 @@ func (g Graph) compileSshd(root llb.State) llb.State {
 		llb.Image(types.EnvdSshdImage), "/usr/bin/envd-sshd", "/var/envd/bin/envd-sshd",
 		&llb.CopyInfo{CreateDestPath: true}),
 		llb.WithCustomName(fmt.Sprintf("[internal] add envd-sshd from %s", types.EnvdSshdImage)))
-	sshd = g.addNewProcess(
-		sshd, "sshd", fmt.Sprintf("/var/envd/bin/envd-sshd --port %d --shell %s", config.SSHPortInContainer, g.Shell))
 	return sshd
 }
 

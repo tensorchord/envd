@@ -17,8 +17,11 @@ package ir
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/moby/buildkit/client/llb"
+
+	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
@@ -45,4 +48,27 @@ func (g Graph) addNewProcess(root llb.State, name, command string) llb.State {
 	filename := filepath.Join(types.HorustServiceDir, fmt.Sprintf("%s.toml", name))
 	supervisor := root.File(llb.Mkfile(filename, 0644, []byte(template), llb.WithUIDGID(g.uid, g.gid)))
 	return supervisor
+}
+
+func (g Graph) compileEntrypoint(root llb.State) llb.State {
+	cmd := fmt.Sprintf("/var/envd/bin/envd-sshd --port %d --shell %s", config.SSHPortInContainer, g.Shell)
+	entrypoint := g.addNewProcess(root, "sshd", cmd)
+
+	if g.RuntimeDaemon != nil {
+		for i, command := range g.RuntimeDaemon {
+			entrypoint = g.addNewProcess(entrypoint, fmt.Sprintf("daemon_%d", i), fmt.Sprintf("%s &\n", strings.Join(command, " ")))
+		}
+	}
+
+	if g.JupyterConfig != nil {
+		jupyterCmd := g.generateJupyterCommand("")
+		entrypoint = g.addNewProcess(entrypoint, "jupyter", strings.Join(jupyterCmd, " "))
+	}
+
+	if g.RStudioServerConfig != nil {
+		rstudioCmd := g.generateRStudioCommand("")
+		entrypoint = g.addNewProcess(entrypoint, "rstudio", strings.Join(rstudioCmd, " "))
+	}
+
+	return entrypoint
 }

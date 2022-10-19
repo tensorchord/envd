@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
@@ -29,6 +30,7 @@ import (
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -198,49 +200,12 @@ func (g Graph) DefaultCacheImporter() (*string, error) {
 	return &res, nil
 }
 
-func (g Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
+func (g *Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
 	if g.Image != nil {
 		return g.Entrypoint, nil
 	}
+	g.RuntimeEnviron["WORKDIR"] = fileutil.EnvdHomeDir(filepath.Base(buildContextDir))
 	return []string{"horust"}, nil
-
-	// 	ep := []string{
-	// 		"tini",
-	// 		"--",
-	// 		"bash",
-	// 		"-c",
-	// 	}
-
-	// 	template := `set -euo pipefail
-	// /var/envd/bin/envd-sshd --port %d --shell %s &
-	// %s
-	// wait -n`
-
-	// 	// Generate jupyter and rstudio server commands.
-	// 	var customCmd strings.Builder
-	// 	workingDir := fileutil.EnvdHomeDir(filepath.Base(buildContextDir))
-	// 	if g.RuntimeDaemon != nil {
-	// 		for _, command := range g.RuntimeDaemon {
-	// 			customCmd.WriteString(fmt.Sprintf("%s &\n", strings.Join(command, " ")))
-	// 		}
-	// 	}
-	// 	if g.JupyterConfig != nil {
-	// 		jupyterCmd := g.generateJupyterCommand(workingDir)
-	// 		customCmd.WriteString(strings.Join(jupyterCmd, " "))
-	// 		customCmd.WriteString("\n")
-	// 	}
-	// 	if g.RStudioServerConfig != nil {
-	// 		rstudioCmd := g.generateRStudioCommand(workingDir)
-	// 		customCmd.WriteString(strings.Join(rstudioCmd, " "))
-	// 		customCmd.WriteString("\n")
-	// 	}
-
-	// 	cmd := fmt.Sprintf(template,
-	// 		config.SSHPortInContainer, g.Shell, customCmd.String())
-	// 	ep = append(ep, cmd)
-
-	// 	logrus.WithField("entrypoint", ep).Debug("generate entrypoint")
-	// 	return ep, nil
 }
 
 func (g Graph) Compile(uid, gid int) (llb.State, error) {
@@ -295,7 +260,8 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	// TODO(gaocegege): Support order-based exec.
 	run := g.compileRun(copy)
 	git := g.compileGit(run)
-	finalStage := g.compileUserOwn(git)
+	user := g.compileUserOwn(git)
+	entrypoint := g.compileEntrypoint(user)
 	g.Writer.Finish()
-	return finalStage, nil
+	return entrypoint, nil
 }

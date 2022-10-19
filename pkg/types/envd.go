@@ -77,7 +77,6 @@ var BaseAptPackage = []string{
 	"curl",
 	"openssh-client",
 	"git",
-	"tini",
 	"sudo",
 	"vim",
 	"zsh",
