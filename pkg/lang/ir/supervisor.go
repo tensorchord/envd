@@ -32,6 +32,11 @@ command = "%[2]s"
 stdout = "/var/logs/%[1]s_stdout.log"
 stderr = "/var/logs/%[1]s_stderr.log"
 user = "${USER}"
+working-directory = "${ENVD_WORKDIR}"
+
+[environment]
+keep-env = true
+re-export = [ "PATH", "SHELL", "USER", "ENVD_WORKDIR" ]
 
 [restart]
 strategy = "on-failure"
