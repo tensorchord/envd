@@ -3,6 +3,7 @@ module github.com/tensorchord/envd
 go 1.18
 
 require (
+	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/alessio/shellescape v1.4.1
 	github.com/cockroachdb/errors v1.9.0
 	github.com/containerd/console v1.0.3
@@ -20,8 +21,8 @@ require (
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6
 	github.com/morikuni/aec v1.0.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/onsi/ginkgo/v2 v2.3.1
-	github.com/onsi/gomega v1.22.1
+	github.com/onsi/ginkgo/v2 v2.2.0
+	github.com/onsi/gomega v1.21.1
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.1.0-rc1
 	github.com/pkg/sftp v1.13.5
@@ -37,22 +38,11 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20220919170432-7a66f970e087
 	golang.org/x/time v0.0.0-20220920022843-2ce7c2934d45
-	k8s.io/api v0.25.3
 )
 
 require (
-	github.com/google/gofuzz v1.2.0 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/op/go-logging v0.0.0-20160211212156-b2cb9fa56473 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	gopkg.in/inf.v0 v0.9.1 // indirect
-	k8s.io/apimachinery v0.25.3 // indirect
-	k8s.io/klog/v2 v2.80.1 // indirect
-	k8s.io/utils v0.0.0-20220823124924-e9cbc92d1a73 // indirect
-	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
-	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )
 
 require (
