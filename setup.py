@@ -65,7 +65,7 @@ class SdistCommand(distutils.command.sdist.sdist):
             logging.warning(".GIT_TAG_INFO not found")
         else:
             logging.info(".GIT_TAG_INFO generated")
-        super.run()
+        super().run()
 
 
 def get_version():
