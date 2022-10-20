@@ -25,7 +25,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 
 def build_envd_if_not_found():
-    if not os.path.exists("bin/envd"):
+    if not os.path.isfile("bin/envd"):
         logging.info("envd not found. Build from scratch")
         try:
             with open(".GIT_TAG_INFO") as f:
