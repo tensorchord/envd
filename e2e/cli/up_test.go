@@ -23,7 +23,9 @@ import (
 	"github.com/tensorchord/envd/e2e"
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 var _ = Describe("up command", Ordered, func() {
@@ -37,10 +39,15 @@ var _ = Describe("up command", Ordered, func() {
 		envdApp := app.New()
 		err := envdApp.Run(append(baseArgs, "bootstrap"))
 		Expect(err).NotTo(HaveOccurred())
-		cli, err := docker.NewClient(context.TODO())
+		_, err = docker.NewClient(context.TODO())
 		Expect(err).NotTo(HaveOccurred())
-		_, err = cli.Destroy(context.TODO(), env)
+		c := types.Context{Runner: types.RunnerTypeDocker}
+		opt := envd.Options{Context: &c}
+		envdEngine, err := envd.New(context.TODO(), opt)
 		Expect(err).NotTo(HaveOccurred())
+		_, err = envdEngine.Destroy(context.TODO(), env)
+		Expect(err).NotTo(HaveOccurred())
+
 	})
 	When("given the right arguments", func() {
 		It("should up and destroy successfully", func() {
