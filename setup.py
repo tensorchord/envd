@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import distutils.command.sdist
 import os
 import shutil
 import setuptools.command.sdist
@@ -58,10 +59,6 @@ class EnvdBuildExt(build_ext):
 
 
 class SdistCommand(setuptools.command.sdist.sdist):
-    def initialize_options(self) -> None:
-        self.manifest = "MANIFEST.in"
-        return super().initialize_options()
-
     def run(self):
         errno = subprocess.call(["make", "generate-git-tag-info"])
         assert errno == 0, "Failed to generate git tag info"

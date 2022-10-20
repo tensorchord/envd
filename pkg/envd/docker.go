@@ -447,6 +447,30 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	return result, nil
 }
 
+func (e dockerEngine) Destroy(ctx context.Context, name string) (string, error) {
+	logger := logrus.WithField("container", name)
+	// Refer to https://docs.docker.com/engine/reference/commandline/container_kill/
+	if err := e.ContainerKill(ctx, name, "KILL"); err != nil {
+		errCause := errors.UnwrapAll(err).Error()
+		switch {
+		case strings.Contains(errCause, "is not running"):
+			// If the container is not running, there is no need to kill it.
+			logger.Debug("container is not running, there is no need to kill it")
+		case strings.Contains(errCause, "No such container"):
+			// If the container is not found, it is already destroyed or the name is wrong.
+			logger.Infof("cannot find container %s, maybe it's already destroyed or the name is wrong", name)
+			return "", nil
+		default:
+			return "", errors.Wrap(err, "failed to kill the container")
+		}
+	}
+
+	if err := e.ContainerRemove(ctx, name, dockertypes.ContainerRemoveOptions{}); err != nil {
+		return "", errors.Wrap(err, "failed to remove the container")
+	}
+	return name, nil
+}
+
 func (e dockerEngine) WaitUntilRunning(ctx context.Context,
 	name string, timeout time.Duration) error {
 	logger := logrus.WithField("container", name)
