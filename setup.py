@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import distutils.command.sdist
 import os
 import shutil
 from setuptools import setup, Extension, find_packages
@@ -28,12 +29,15 @@ def build_envd_if_not_found():
         logging.info("envd not found. Build from scratch")
         try:
             with open(".GIT_TAG_INFO") as f:
-                logging.info("Use build_tag from envd._version")
+                logging.info("Use build_tag from .GIT_TAG_INFO")
                 tag = f.read().strip()
+                logging.info("start building envd from source")
                 errno = subprocess.call(
                     ["make", "build-release", "GIT_TAG={}".format(tag)]
                 )
         except:
+            logging.warning(".GIT_TAG_INFO not found")
+            logging.info("start building envd from source")
             errno = subprocess.call(["make", "build-release"])
         assert errno == 0, "Failed to build envd"
 
@@ -51,6 +55,17 @@ class EnvdBuildExt(build_ext):
         build_envd_if_not_found()
         os.makedirs(bin_path, exist_ok=True)
         shutil.copy("bin/envd", bin_path)
+
+class SdistCommand(distutils.command.sdist.sdist):
+
+    def run(self):
+        errno = subprocess.call(["make", "generate-git-tag-info"])
+        assert errno == 0, "Failed to generate git tag info"
+        if not os.path.exists(".GIT_TAG_INFO"):
+            logging.warning(".GIT_TAG_INFO not found")
+        else:
+            logging.info(".GIT_TAG_INFO generated")
+        distutils.command.sdist.sdist.run(self)
 
 
 def get_version():
@@ -103,5 +118,5 @@ setup(
     ext_modules=[
         EnvdExtension(name="envd", sources=["cmd/*"]),
     ],
-    cmdclass=dict(build_ext=EnvdBuildExt),
+    cmdclass=dict(build_ext=EnvdBuildExt, sdist=SdistCommand),
 )
