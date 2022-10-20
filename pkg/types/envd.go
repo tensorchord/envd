@@ -39,7 +39,7 @@ const (
 	// image
 	PythonBaseImage = "ubuntu:20.04"
 	// supervisor
-	HorustImage      = "kemingy/horust:latest"
+	HorustImage      = "tensorchord/horust:v0.1.0"
 	HorustServiceDir = "/etc/horust/services"
 	HorustLogDir     = "/var/logs"
 	// env
