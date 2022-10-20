@@ -56,6 +56,7 @@ class EnvdBuildExt(build_ext):
         os.makedirs(bin_path, exist_ok=True)
         shutil.copy("bin/envd", bin_path)
 
+
 class SdistCommand(distutils.command.sdist.sdist):
 
     def run(self):
