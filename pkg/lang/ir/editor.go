@@ -15,6 +15,7 @@
 package ir
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/cockroachdb/errors"
@@ -24,6 +25,7 @@ import (
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
+	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -81,7 +83,7 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 
 	// get from env if not set
 	if len(workingDir) == 0 {
-		workingDir = "${ENVD_WORKDIR}"
+		workingDir = fmt.Sprintf("${%s}", types.EnvdWorkDir)
 	}
 
 	cmd := []string{
@@ -106,7 +108,7 @@ func (g Graph) generateRStudioCommand(workingDir string) []string {
 
 	// get from env if not set
 	// if len(workingDir) == 0 {
-	// 	workingDir = "${ENVD_WORKDIR}"
+	// 	workingDir = fmt.Sprintf("${%s}", types.EnvdWorkDir)
 	// }
 
 	return []string{

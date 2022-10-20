@@ -27,22 +27,23 @@ import (
 	"github.com/tensorchord/envd/pkg/version"
 )
 
-// DefaultPathEnvUnix is unix style list of directories to search for
-// executables. Each directory is separated from the next by a colon
-// ':' character .
-const DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/home/envd/.local/bin:/usr/local/julia/bin:" + system.DefaultPathEnvUnix
-
-// DefaultPathEnvWindows is windows style list of directories to search for
-// executables. Each directory is separated from the next by a colon
-// ';' character .
-const DefaultPathEnvWindows = system.DefaultPathEnvWindows
-
 const (
+	// DefaultPathEnvUnix is unix style list of directories to search for
+	// executables. Each directory is separated from the next by a colon
+	// ':' character .
+	DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/home/envd/.local/bin:/usr/local/julia/bin:" + system.DefaultPathEnvUnix
+	// DefaultPathEnvWindows is windows style list of directories to search for
+	// executables. Each directory is separated from the next by a colon
+	// ';' character .
+	DefaultPathEnvWindows = system.DefaultPathEnvWindows
+	// image
 	PythonBaseImage = "ubuntu:20.04"
 	// supervisor
 	HorustImage      = "kemingy/horust:latest"
 	HorustServiceDir = "/etc/horust/services"
 	HorustLogDir     = "/var/logs"
+	// env
+	EnvdWorkDir = "ENVD_WORKDIR"
 )
 
 var EnvdSshdImage = fmt.Sprintf(

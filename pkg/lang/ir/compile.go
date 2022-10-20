@@ -204,7 +204,7 @@ func (g *Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
 	if g.Image != nil {
 		return g.Entrypoint, nil
 	}
-	g.RuntimeEnviron["ENVD_WORKDIR"] = fileutil.EnvdHomeDir(filepath.Base(buildContextDir))
+	g.RuntimeEnviron[types.EnvdWorkDir] = fileutil.EnvdHomeDir(filepath.Base(buildContextDir))
 	return []string{"horust"}, nil
 }
 

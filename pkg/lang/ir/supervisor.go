@@ -32,11 +32,11 @@ command = "%[2]s"
 stdout = "/var/logs/%[1]s_stdout.log"
 stderr = "/var/logs/%[1]s_stderr.log"
 user = "${USER}"
-working-directory = "${ENVD_WORKDIR}"
+working-directory = "${%[3]s}"
 
 [environment]
 keep-env = true
-re-export = [ "PATH", "SHELL", "USER", "ENVD_WORKDIR" ]
+re-export = [ "PATH", "SHELL", "USER", "%[3]s" ]
 
 [restart]
 strategy = "on-failure"
@@ -49,7 +49,7 @@ wait = "5s"
 )
 
 func (g Graph) addNewProcess(root llb.State, name, command string) llb.State {
-	template := fmt.Sprintf(horustTemplate, name, command)
+	template := fmt.Sprintf(horustTemplate, name, command, types.EnvdWorkDir)
 	filename := filepath.Join(types.HorustServiceDir, fmt.Sprintf("%s.toml", name))
 	supervisor := root.File(llb.Mkfile(filename, 0644, []byte(template), llb.WithUIDGID(g.uid, g.gid)))
 	return supervisor
