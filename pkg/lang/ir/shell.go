@@ -46,8 +46,10 @@ disabled = false
 
 func (g *Graph) compileShell(root llb.State) (llb.State, error) {
 	if g.Shell == shellZSH {
+		g.RuntimeEnviron["SHELL"] = "/usr/bin/zsh"
 		return g.compileZSH(root)
 	}
+	g.RuntimeEnviron["SHELL"] = "/usr/bin/bash"
 	return root, nil
 }
 

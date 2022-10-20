@@ -15,6 +15,7 @@
 package ir
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/cockroachdb/errors"
@@ -24,6 +25,7 @@ import (
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
+	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -79,6 +81,11 @@ func (g Graph) generateJupyterCommand(workingDir string) []string {
 		g.JupyterConfig.Token = "''"
 	}
 
+	// get from env if not set
+	if len(workingDir) == 0 {
+		workingDir = fmt.Sprintf("${%s}", types.EnvdWorkDir)
+	}
+
 	cmd := []string{
 		"python3", "-m", "notebook",
 		"--ip", "0.0.0.0", "--notebook-dir", workingDir,
@@ -98,6 +105,11 @@ func (g Graph) generateRStudioCommand(workingDir string) []string {
 	if g.RStudioServerConfig == nil {
 		return nil
 	}
+
+	// get from env if not set
+	// if len(workingDir) == 0 {
+	// 	workingDir = fmt.Sprintf("${%s}", types.EnvdWorkDir)
+	// }
 
 	return []string{
 		// TODO(gaocegege): Remove root permission here.

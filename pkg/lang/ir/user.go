@@ -23,8 +23,10 @@ import (
 // compileUserOwn chown related directories
 func (g *Graph) compileUserOwn(root llb.State) llb.State {
 	if g.Image != nil || g.uid == 0 {
+		g.RuntimeEnviron["USER"] = "root"
 		return root
 	}
+	g.RuntimeEnviron["USER"] = "envd"
 	if len(g.UserDirectories) == 0 {
 		return root.User("envd")
 	}
