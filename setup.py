@@ -61,11 +61,11 @@ class SdistCommand(distutils.command.sdist.sdist):
     def run(self):
         errno = subprocess.call(["make", "generate-git-tag-info"])
         assert errno == 0, "Failed to generate git tag info"
-        if not os.path.exists(".GIT_TAG_INFO"):
+        if not os.path.isfile(".GIT_TAG_INFO"):
             logging.warning(".GIT_TAG_INFO not found")
         else:
             logging.info(".GIT_TAG_INFO generated")
-        distutils.command.sdist.sdist.run(self)
+        super.run(self)
 
 
 def get_version():
