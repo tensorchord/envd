@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.4-alpha.13 (2022-10-20)
+
+ * [672bcd7](https://github.com/tensorchord/envd/commit/672bcd7c04f093f41d113749e39da3f193aea406) bug: fix install from pypi source release (#1064)
+
+### Contributors
+
+ * Jinjing Zhou
+
 ## v0.2.4-alpha.12 (2022-10-20)
 
  * [cd5cf52](https://github.com/tensorchord/envd/commit/cd5cf522e29ba54113a22867acc396e6fcd128e1) feat: use horust as the dev container supervisor (#1051)
