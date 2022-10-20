@@ -58,7 +58,6 @@ class EnvdBuildExt(build_ext):
 
 
 class SdistCommand(distutils.command.sdist.sdist):
-
     def run(self):
         errno = subprocess.call(["make", "generate-git-tag-info"])
         assert errno == 0, "Failed to generate git tag info"
