@@ -27,7 +27,6 @@ import (
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
-	"github.com/tensorchord/envd/pkg/types"
 )
 
 var CommandDestroy = &cli.Command{
@@ -75,8 +74,11 @@ func destroy(clicontext *cli.Context) error {
 		}
 		ctrName = filepath.Base(buildContext)
 	}
-	c := types.Context{Runner: types.RunnerTypeDocker}
-	opt := envd.Options{Context: &c}
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+	opt := envd.Options{Context: context}
 	envdEngine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
 		return errors.Wrap(err, "failed to create envd engine")
