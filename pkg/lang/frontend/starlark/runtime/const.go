@@ -15,9 +15,10 @@
 package runtime
 
 const (
-	ruleCommand = "runtime.command"
-	ruleExpose  = "runtime.expose"
-	ruleDaemon  = "runtime.daemon"
-	ruleEnviron = "runtime.environ"
-	ruleMount   = "runtime.mount"
+	ruleCommand    = "runtime.command"
+	ruleExpose     = "runtime.expose"
+	ruleDaemon     = "runtime.daemon"
+	ruleEnviron    = "runtime.environ"
+	ruleMount      = "runtime.mount"
+	ruleInitScript = "runtime.init_script"
 )

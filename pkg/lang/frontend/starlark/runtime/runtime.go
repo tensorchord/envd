@@ -27,6 +27,7 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/data"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/util/starlarkutil"
 )
 
 var (
@@ -36,11 +37,12 @@ var (
 var Module = &starlarkstruct.Module{
 	Name: "runtime",
 	Members: starlark.StringDict{
-		"command": starlark.NewBuiltin(ruleCommand, ruleFuncCommand),
-		"daemon":  starlark.NewBuiltin(ruleDaemon, ruleFuncDaemon),
-		"expose":  starlark.NewBuiltin(ruleExpose, ruleFuncExpose),
-		"environ": starlark.NewBuiltin(ruleEnviron, ruleFuncEnviron),
-		"mount":   starlark.NewBuiltin(ruleMount, ruleFuncMount),
+		"command":     starlark.NewBuiltin(ruleCommand, ruleFuncCommand),
+		"daemon":      starlark.NewBuiltin(ruleDaemon, ruleFuncDaemon),
+		"expose":      starlark.NewBuiltin(ruleExpose, ruleFuncExpose),
+		"environ":     starlark.NewBuiltin(ruleEnviron, ruleFuncEnviron),
+		"mount":       starlark.NewBuiltin(ruleMount, ruleFuncMount),
+		"init_script": starlark.NewBuiltin(ruleInitScript, ruleFuncInitScript),
 	},
 }
 
@@ -197,5 +199,27 @@ func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 	ir.Mount(sourceStr, destinationStr)
 
+	return starlark.None, nil
+}
+
+func ruleFuncInitScript(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var commands *starlark.List
+	var name starlark.String
+
+	if err := starlark.UnpackArgs(ruleCommand, args, kwargs,
+		"commands?", &commands, "name?", &name); err != nil {
+		return nil, err
+	}
+
+	commandsSlice, err := starlarkutil.ToStringSlice(commands)
+	if err != nil {
+		return nil, err
+	}
+
+	logger.Debugf("rule `%s` is invoked, name: %s, commands: %v",
+		ruleCommand, name, commandsSlice)
+
+	ir.RuntimeCommands(commandsMap)
 	return starlark.None, nil
 }
