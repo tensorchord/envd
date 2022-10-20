@@ -117,7 +117,7 @@ jobs:
       run: |
           ./base-images/build.sh
   envd_image_push:
-    name: Build & push images
+    name: Build & push envd images
     # only trigger on main repo when tag starts with v
     if: github.repository == 'tensorchord/envd' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
