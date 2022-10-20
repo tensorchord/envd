@@ -27,6 +27,7 @@ import (
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 var CommandDestroy = &cli.Command{
@@ -74,7 +75,18 @@ func destroy(clicontext *cli.Context) error {
 		}
 		ctrName = filepath.Base(buildContext)
 	}
+	c := types.Context{Runner: types.RunnerTypeDocker}
+	opt := envd.Options{Context: &c}
+	envdEngine, err := envd.New(clicontext.Context, opt)
+	if err != nil {
+		return errors.Wrap(err, "failed to create envd engine")
+	}
 
+	if ctrName, err := envdEngine.Destroy(clicontext.Context, ctrName); err != nil {
+		return errors.Wrapf(err, "failed to destroy the environment: %s", ctrName)
+	} else if ctrName != "" {
+		logrus.Infof("container(%s) is destroyed", ctrName)
+	}
 	tags, err := getContainerTag(clicontext, ctrName)
 	if err != nil {
 		return err

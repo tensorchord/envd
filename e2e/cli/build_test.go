@@ -23,7 +23,9 @@ import (
 	"github.com/tensorchord/envd/e2e"
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 var _ = Describe("build command", Ordered, func() {
@@ -36,6 +38,12 @@ var _ = Describe("build command", Ordered, func() {
 			err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 			Expect(err).NotTo(HaveOccurred())
 			_, err = docker.NewClient(context.TODO())
+			Expect(err).NotTo(HaveOccurred())
+			c := types.Context{Runner: types.RunnerTypeDocker}
+			opt := envd.Options{Context: &c}
+			envdEngine, err := envd.New(context.TODO(), opt)
+			Expect(err).NotTo(HaveOccurred())
+			_, err = envdEngine.Destroy(context.TODO(), buildTestName)
 			Expect(err).NotTo(HaveOccurred())
 			envdApp = app.New()
 			args := []string{
@@ -53,6 +61,12 @@ var _ = Describe("build command", Ordered, func() {
 			Expect(err).NotTo(HaveOccurred())
 			_, err = docker.NewClient(context.TODO())
 			Expect(err).NotTo(HaveOccurred())
+			c := types.Context{Runner: types.RunnerTypeDocker}
+			opt := envd.Options{Context: &c}
+			envdEngine, err := envd.New(context.TODO(), opt)
+			Expect(err).NotTo(HaveOccurred())
+			_, err = envdEngine.Destroy(context.TODO(), buildTestName)
+			Expect(err).NotTo(HaveOccurred())
 			envdApp = app.New()
 			args := []string{
 				"envd.test", "--debug", "build", "--path", customImageTestName,
@@ -68,6 +82,12 @@ var _ = Describe("build command", Ordered, func() {
 		err := envdApp.Run([]string{"envd.test", "--debug", "bootstrap"})
 		Expect(err).NotTo(HaveOccurred())
 		_, err = docker.NewClient(context.TODO())
+		Expect(err).NotTo(HaveOccurred())
+		c := types.Context{Runner: types.RunnerTypeDocker}
+		opt := envd.Options{Context: &c}
+		envdEngine, err := envd.New(context.TODO(), opt)
+		Expect(err).NotTo(HaveOccurred())
+		_, err = envdEngine.Destroy(context.TODO(), buildTestName)
 		Expect(err).NotTo(HaveOccurred())
 		// Init DefaultGraph.
 		// ir.DefaultGraph = ir.NewGraph()

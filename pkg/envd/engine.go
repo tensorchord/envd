@@ -37,6 +37,7 @@ type EnvironmentClient interface {
 	IsRunning(ctx context.Context, name string) (bool, error)
 	Exists(ctx context.Context, name string) (bool, error)
 	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
+	Destroy(ctx context.Context, name string) (string, error)
 }
 
 type ImageClient interface {
