@@ -110,7 +110,10 @@ build-release:
 		-X $(ROOT)/pkg/version.gitTag=$(GIT_TAG)" \
 	    $(CMD_DIR)/$${target};                                                         \
 	done
-	@[[ ! -z "$(GIT_TAG)" ]] && echo "$(GIT_TAG)" > .GIT_TAG_INFO
+	@$(MAKE) generate-git-tag-info
+
+generate-git-tag-info:
+	[[ ! -z "$(GIT_TAG)" ]] && echo "$(GIT_TAG)" > .GIT_TAG_INFO || true
 
 help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
