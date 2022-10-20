@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.4-alpha.12 (2022-10-20)
+
+ * [cd5cf52](https://github.com/tensorchord/envd/commit/cd5cf522e29ba54113a22867acc396e6fcd128e1) feat: use horust as the dev container supervisor (#1051)
+
+### Contributors
+
+ * Keming
+
 ## v0.2.4-alpha.11 (2022-10-20)
 
  * [044d89e](https://github.com/tensorchord/envd/commit/044d89e0d0901b3cf75d62c8505b2455b5b91dc5) feat: Update env client to support multiple envs (#1052)
