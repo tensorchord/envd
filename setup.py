@@ -14,7 +14,7 @@
 
 import os
 import shutil
-import setuptools.command.sdist
+from setuptools.command.sdist import sdist
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 import subprocess
@@ -57,7 +57,7 @@ class EnvdBuildExt(build_ext):
         shutil.copy("bin/envd", bin_path)
 
 
-class SdistCommand(setuptools.command.sdist.sdist):
+class SdistCommand(sdist):
     def run(self):
         errno = subprocess.call(["make", "generate-git-tag-info"])
         assert errno == 0, "Failed to generate git tag info"
