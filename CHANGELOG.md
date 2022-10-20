@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.2.4-alpha.11 (2022-10-20)
+
+ * [044d89e](https://github.com/tensorchord/envd/commit/044d89e0d0901b3cf75d62c8505b2455b5b91dc5) feat: Update env client to support multiple envs (#1052)
+ * [711dfb2](https://github.com/tensorchord/envd/commit/711dfb2ac9f08e467d315427b894191aa598e1d5) feat(lang): Add proposal for custom base image (#567)
+ * [b601304](https://github.com/tensorchord/envd/commit/b601304a72bc586c78149a3dc9cec3bd1b1d1c35) chroe: make python package after apt package (#1048)
+ * [cf78dd1](https://github.com/tensorchord/envd/commit/cf78dd131e869ad20fe67a4a1159d7bf69e6fb63) feat: Implement env client in envd engine (#1049)
+ * [bc6255b](https://github.com/tensorchord/envd/commit/bc6255bc3d494be85afc7c132f2e48f72fffd0fa) example: Add torch profiler example (#1026)
+ * [ded3fce](https://github.com/tensorchord/envd/commit/ded3fce1b481aab9c51c2f13dbb2d92288532da0) feat: add `envd down` as an alias for `envd destroy` (#1047)
+ * [9b8582d](https://github.com/tensorchord/envd/commit/9b8582d910e83288ef90ba45b599221341ad29f6) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.2.0 to 2.3.1 (#1039)
+ * [0ee19ed](https://github.com/tensorchord/envd/commit/0ee19ed79d3332a25082878ca19c1bc032072aef) chore(deps): bump pypa/cibuildwheel from 2.10.2 to 2.11.1 (#1036)
+ * [6ba7633](https://github.com/tensorchord/envd/commit/6ba763368d81035b0f13e5eb1549856ecaaa30d1) chore(deps): bump k8s.io/api from 0.25.2 to 0.25.3 (#1038)
+ * [0500dca](https://github.com/tensorchord/envd/commit/0500dca9b5174510c1c741ec1d9cfbf97d09a2e9) chore(deps): bump github.com/urfave/cli/v2 from 2.19.2 to 2.20.2 (#1037)
+ * [847f187](https://github.com/tensorchord/envd/commit/847f187b45983a56093dd962d5638dae5f260743) chore(deps): bump github.com/onsi/gomega from 1.21.1 to 1.22.1 (#1040)
+ * [1fb2721](https://github.com/tensorchord/envd/commit/1fb272197f405c5ee9dcca46c82079095afa406d) bug: Fix flaky auth test (#1034)
+ * [d0134d3](https://github.com/tensorchord/envd/commit/d0134d301eba153dcda0c79a3a23babf75a14434) fix(zsh): ignore inserting zsh-completion if system don't have zsh shell (#1025)
+ * [ec92a29](https://github.com/tensorchord/envd/commit/ec92a295b835664d559f201ba2542a6a609a560d) feat: support using current directory name as env name in envd describe (#1033)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * Zhenzhen Zhao
+ * dependabot[bot]
+ * wangxiaolei
+
 ## v0.2.4-alpha.10 (2022-10-14)
 
  * [d3f93a8](https://github.com/tensorchord/envd/commit/d3f93a8389cbf198ce217e2001b7ae0c7df62d2b) bug: fix explicit channel setting with conda env.yaml (#1008)
