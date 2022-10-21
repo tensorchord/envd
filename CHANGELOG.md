@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.2.4-alpha.14 (2022-10-21)
+
+ * [51b00fb](https://github.com/tensorchord/envd/commit/51b00fb189422b4791ef2c53cc80ac3a5067b67a) feat(context): Support unix context and daemonless (#1062)
+ * [d41b674](https://github.com/tensorchord/envd/commit/d41b67430da64f19b67de4710ad3df1f56f9cc94) bug: Fix sdist didn't include go files (#1068)
+ * [181ee71](https://github.com/tensorchord/envd/commit/181ee71a73f3723ca68cd26fd40f53ca96231429) chore(CLI): Move destroy logic from docker to envd engine. (#1050)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * Tumushimire Yves
+
 ## v0.2.4-alpha.13 (2022-10-20)
 
  * [672bcd7](https://github.com/tensorchord/envd/commit/672bcd7c04f093f41d113749e39da3f193aea406) bug: fix install from pypi source release (#1064)
