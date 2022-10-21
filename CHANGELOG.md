@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.4-alpha.15 (2022-10-21)
+
+ * [9faeebe](https://github.com/tensorchord/envd/commit/9faeebe27f47ce2ee1d99b04325eb41745390099) fix: Fix build.sh (#1072)
+ * [ff30b3a](https://github.com/tensorchord/envd/commit/ff30b3a5a4b1ccdc089b601c1d4c2bfdd81ce61c) fix: Fix the file name typo (#1071)
+
+### Contributors
+
+ * Ce Gao
+
 ## v0.2.4-alpha.14 (2022-10-21)
 
  * [51b00fb](https://github.com/tensorchord/envd/commit/51b00fb189422b4791ef2c53cc80ac3a5067b67a) feat(context): Support unix context and daemonless (#1062)
