@@ -27,7 +27,7 @@ cd ${ROOT_DIR}
 
 docker buildx build \
     --build-arg ENVD_VERSION=${ENVD_VERSION} \
-    -t ${DOCKER_HUB_ORG}/envd:${ENVD_VERSION} \
+    -t ${DOCKER_HUB_ORG}/envd:${ENVD_VERSION}-rootless \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -f envd-daemonless.Dockerfile ../../
 
