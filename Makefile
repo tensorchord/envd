@@ -157,7 +157,7 @@ generate: mockgen-install  ## Generate mocks
 # It is used by vscode to attach into the process.
 debug-local:
 	@for target in $(TARGETS); do                                                      \
-	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath                                    \
+	  CGO_ENABLED=$(CGO_ENABLED) go build                                              \
 	  	-v -o $(DEBUG_DIR)/$${target}                                                  \
 	  	-gcflags='all=-N -l'                                                           \
 	    $(CMD_DIR)/$${target};                                                         \
