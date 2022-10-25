@@ -74,13 +74,21 @@ func destroy(clicontext *cli.Context) error {
 		}
 		ctrName = filepath.Base(buildContext)
 	}
+	context, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the current context")
+	}
+	opt := envd.Options{Context: context}
+	envdEngine, err := envd.New(clicontext.Context, opt)
+	if err != nil {
+		return errors.Wrap(err, "failed to create envd engine")
+	}
 
-	if ctrName, err := dockerClient.Destroy(clicontext.Context, ctrName); err != nil {
+	if ctrName, err := envdEngine.Destroy(clicontext.Context, ctrName); err != nil {
 		return errors.Wrapf(err, "failed to destroy the environment: %s", ctrName)
 	} else if ctrName != "" {
 		logrus.Infof("container(%s) is destroyed", ctrName)
 	}
-
 	tags, err := getContainerTag(clicontext, ctrName)
 	if err != nil {
 		return err

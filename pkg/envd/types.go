@@ -17,6 +17,8 @@ package envd
 import (
 	"time"
 
+	"github.com/tensorchord/envd-server/api/types"
+
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
@@ -62,4 +64,6 @@ type StartResult struct {
 	SSHPort int
 	Address string
 	Name    string
+
+	Ports []types.EnvironmentPort
 }

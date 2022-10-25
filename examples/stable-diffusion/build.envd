@@ -1,0 +1,14 @@
+def build():
+    base(os="ubuntu20.04", language="python")
+    # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
+    install.python_packages(
+        [
+            "torch",
+            "transformers",
+            "diffusers",
+        ]
+    )
+    install.cuda(version="11.2.0", cudnn="8")
+    runtime.mount(
+        host_path="~/.cache/huggingface", envd_path="/home/envd/.cache/huggingface"
+    )

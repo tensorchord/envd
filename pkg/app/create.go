@@ -15,6 +15,7 @@
 package app
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -29,6 +30,7 @@ import (
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
 var CommandCreate = &cli.Command{
@@ -52,7 +54,7 @@ var CommandCreate = &cli.Command{
 		&cli.DurationFlag{
 			Name:  "timeout",
 			Usage: "Timeout of container creation",
-			Value: time.Second * 30,
+			Value: time.Second * 1800,
 		},
 		&cli.BoolFlag{
 			Name:  "detach",
@@ -132,6 +134,7 @@ func create(clicontext *cli.Context) error {
 
 	// TODO(gaocegege): Test why it fails.
 	if !clicontext.Bool("detach") {
+		outputChannel := make(chan error)
 		opt := ssh.DefaultOptions()
 		opt.PrivateKeyPath = clicontext.Path("private-key")
 		opt.Port = res.SSHPort
@@ -141,10 +144,40 @@ func create(clicontext *cli.Context) error {
 
 		sshClient, err := ssh.NewClient(opt)
 		if err != nil {
-			return errors.Wrap(err, "failed to create the ssh client")
+			outputChannel <- errors.Wrap(err, "failed to create the ssh client")
 		}
-		if err := sshClient.Attach(); err != nil {
-			return errors.Wrap(err, "failed to attach to the container")
+
+		ports := res.Ports
+
+		for _, p := range ports {
+			if p.Port == 2222 {
+				continue
+			}
+
+			// TODO(gaocegege): Use one remote port.
+			localPort, err := netutil.GetFreePort()
+			if err != nil {
+				return errors.Wrap(err, "failed to get a free port")
+			}
+			localAddress := fmt.Sprintf("%s:%d", "localhost", localPort)
+			remoteAddress := fmt.Sprintf("%s:%d", "localhost", p.Port)
+			logrus.Infof("service \"%s\" is listening at %s\n", p.Name, localAddress)
+			go func() {
+				if err := sshClient.LocalForward(localAddress, remoteAddress); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to local port")
+				}
+			}()
+		}
+
+		go func() {
+			if err := sshClient.Attach(); err != nil {
+				outputChannel <- errors.Wrap(err, "failed to attach to the container")
+			}
+			outputChannel <- nil
+		}()
+
+		if err := <-outputChannel; err != nil {
+			return err
 		}
 	}
 	return nil

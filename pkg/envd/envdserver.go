@@ -37,6 +37,10 @@ func (e *envdServerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, er
 	return nil, errors.New("not implemented")
 }
 
+func (e envdServerEngine) Destroy(ctx context.Context, name string) (string, error) {
+	return "", errors.New("not implemented")
+}
+
 func (e *envdServerEngine) ListImageDependency(ctx context.Context, image string) (*types.Dependency, error) {
 	return nil, errors.New("not implemented")
 }
@@ -152,14 +156,15 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 	}
 
 	if err := e.WaitUntilRunning(
-		ctx, resp.ID, so.Timeout); err != nil {
+		ctx, resp.Created.Name, so.Timeout); err != nil {
 		return nil, errors.Wrap(err, "failed to wait until the container is running")
 	}
 
 	result := &StartResult{
 		SSHPort: 2222,
 		Address: "",
-		Name:    resp.ID,
+		Name:    resp.Created.Name,
+		Ports:   resp.Created.Spec.Ports,
 	}
 	return result, nil
 }

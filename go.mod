@@ -17,22 +17,22 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
-	github.com/moby/buildkit v0.10.4
+	github.com/moby/buildkit v0.10.5
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6
 	github.com/morikuni/aec v1.0.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/onsi/ginkgo/v2 v2.2.0
-	github.com/onsi/gomega v1.21.1
+	github.com/onsi/ginkgo/v2 v2.3.0
+	github.com/onsi/gomega v1.22.1
 	github.com/opencontainers/go-digest v1.0.0
-	github.com/opencontainers/image-spec v1.1.0-rc1
+	github.com/opencontainers/image-spec v1.1.0-rc2
 	github.com/pkg/sftp v1.13.5
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.13.0
-	github.com/stretchr/testify v1.8.0
-	github.com/tensorchord/envd-server v0.0.5
+	github.com/stretchr/testify v1.8.1
+	github.com/tensorchord/envd-server v0.0.6
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
-	github.com/urfave/cli/v2 v2.20.2
+	github.com/urfave/cli/v2 v2.20.3
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.0.0-20221010152910-d6f0a8c073c2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
