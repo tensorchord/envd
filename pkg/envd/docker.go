@@ -34,6 +34,8 @@ import (
 
 	envdconfig "github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/ssh"
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/util/netutil"
@@ -235,6 +237,36 @@ func (e dockerEngine) IsRunning(ctx context.Context, cname string) (bool, error)
 		return false, err
 	}
 	return container.State.Running, nil
+}
+
+func (e dockerEngine) GenerateSSHConfig(name, iface, privateKeyPath string,
+	startResult *StartResult) (sshconfig.EntryOptions, error) {
+	eo := sshconfig.EntryOptions{
+		Name:               name,
+		IFace:              iface,
+		Port:               startResult.SSHPort,
+		PrivateKeyPath:     privateKeyPath,
+		EnableHostKeyCheck: false,
+		EnableAgentForward: true,
+	}
+	return eo, nil
+}
+
+func (e dockerEngine) Attach(name, iface, privateKeyPath string,
+	startResult *StartResult) error {
+	opt := ssh.DefaultOptions()
+	opt.PrivateKeyPath = privateKeyPath
+	opt.Port = startResult.SSHPort
+	sshClient, err := ssh.NewClient(opt)
+	if err != nil {
+		return errors.Wrap(err, "failed to create the ssh client")
+	}
+	opt.Server = iface
+
+	if err := sshClient.Attach(); err != nil {
+		return errors.Wrap(err, "failed to attach to the container")
+	}
+	return nil
 }
 
 // StartEnvd creates the container for the given tag and container name.
