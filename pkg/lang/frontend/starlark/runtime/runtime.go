@@ -205,10 +205,9 @@ func ruleFuncMount(thread *starlark.Thread, _ *starlark.Builtin,
 func ruleFuncInitScript(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var commands *starlark.List
-	var name starlark.String
 
 	if err := starlark.UnpackArgs(ruleCommand, args, kwargs,
-		"commands?", &commands, "name?", &name); err != nil {
+		"commands?", &commands); err != nil {
 		return nil, err
 	}
 
@@ -217,9 +216,9 @@ func ruleFuncInitScript(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	logger.Debugf("rule `%s` is invoked, name: %s, commands: %v",
-		ruleCommand, name, commandsSlice)
+	logger.Debugf("rule `%s` is invoked, commands: %v",
+		ruleInitScript, commandsSlice)
 
-	ir.RuntimeCommands(commandsMap)
+	ir.RuntimeInitScript(commandsSlice)
 	return starlark.None, nil
 }

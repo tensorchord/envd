@@ -28,9 +28,11 @@ import (
 const (
 	horustTemplate = `
 name = "%[1]s"
-command = "%[2]s"
-stdout = "/var/logs/%[1]s_stdout.log"
-stderr = "/var/logs/%[1]s_stderr.log"
+command = """
+%[2]s
+"""
+stdout = "/var/log/horust/%[1]s_stdout.log"
+stderr = "/var/log/horust/%[1]s_stderr.log"
 user = "${USER}"
 working-directory = "${%[3]s}"
 %[4]s
@@ -42,7 +44,7 @@ re-export = [ "PATH", "SHELL", "USER", "%[3]s", "ENVD_AUTHORIZED_KEYS_PATH", "EN
 [restart]
 strategy = "on-failure"
 backoff = "1s"
-attempts = 5
+attempts = 2
 
 [termination]
 wait = "5s"
@@ -76,7 +78,7 @@ func (g Graph) compileEntrypoint(root llb.State) llb.State {
 	var deps []string
 	if g.RuntimeInitScript != nil {
 		for i, command := range g.RuntimeInitScript {
-			entrypoint = g.addNewProcess(entrypoint, fmt.Sprintf("init_%d", i), fmt.Sprintf("%s &\n", strings.Join(command, " ")), nil)
+			entrypoint = g.addNewProcess(entrypoint, fmt.Sprintf("init_%d", i), fmt.Sprintf("/bin/bash -c 'set -euo pipefail\n%s'", strings.Join(command, "\n")), nil)
 			deps = append(deps, fmt.Sprintf("init_%d", i))
 		}
 	}
