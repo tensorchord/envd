@@ -52,16 +52,8 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 	if err := g.compileJupyter(); err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
 	}
-	builtinSystemStage := pypiMirrorStage
-
-	sshStage, err := g.copySSHKey(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
-	}
-	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
-
 	// Conda affects shell and python, thus we cannot do it in parallel.
-	shellStage, err := g.compileShell(builtinSystemStage)
+	shellStage, err := g.compileShell(pypiMirrorStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile shell")
 	}
@@ -73,34 +65,42 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 		return llb.State{}, errors.Wrap(err, "failed to compile conda environment")
 	}
 
-	diffCondaEnvStage := llb.Diff(shellStage, condaEnvStage)
-	diffSystemStage := llb.Diff(shellStage, systemStage)
+	diffCondaEnvStage := llb.Diff(shellStage, condaEnvStage,
+		llb.WithCustomName("[internal] conda python environment"))
+	diffSystemStage := llb.Diff(shellStage, systemStage,
+		llb.WithCustomName("[internal] install system packages"))
 	prePythonStage := llb.Merge([]llb.State{diffSystemStage, diffCondaEnvStage, shellStage}, llb.WithCustomName("pre-python stage"))
 
-	condaStage := llb.Diff(builtinSystemStage,
+	condaStage := llb.Diff(prePythonStage,
 		g.compileCondaPackages(prePythonStage),
-		llb.WithCustomName("install conda packages"))
+		llb.WithCustomName("[internal] install conda packages"))
 
-	pypiStage := llb.Diff(condaEnvStage,
+	pypiStage := llb.Diff(prePythonStage,
 		g.compilePyPIPackages(prePythonStage),
-		llb.WithCustomName("install PyPI packages"))
+		llb.WithCustomName("[internal] install PyPI packages"))
 
 	vscodeStage, err := g.compileVSCode()
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
 	}
+	sshStage, err := g.copySSHKey(prePythonStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
+	}
+	diffSSHStage := llb.Diff(prePythonStage, sshStage,
+		llb.WithCustomName("[internal] install ssh key"))
 
 	var merged llb.State
 	if vscodeStage != nil {
 		merged = llb.Merge([]llb.State{
-			builtinSystemStage, condaStage,
-			diffSSHStage, pypiStage, *vscodeStage,
-		}, llb.WithCustomName("merging all components into one"))
+			prePythonStage, condaStage, pypiStage,
+			diffSSHStage, *vscodeStage,
+		}, llb.WithCustomName("[internal] generating the image"))
 	} else {
 		merged = llb.Merge([]llb.State{
-			builtinSystemStage, condaStage,
+			prePythonStage, condaStage,
 			diffSSHStage, pypiStage,
-		}, llb.WithCustomName("merging all components into one"))
+		}, llb.WithCustomName("[internal] generating the image"))
 	}
 	merged = g.compileAlternative(merged)
 	return merged, nil
@@ -110,10 +110,14 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 func (g Graph) compileAlternative(root llb.State) llb.State {
 	envdPrefix := "/opt/conda/envs/envd/bin"
 	run := root.
-		Run(llb.Shlexf("update-alternatives --install /usr/bin/python python %s/python 1", envdPrefix), llb.WithCustomName("update alternative python to envd")).
-		Run(llb.Shlexf("update-alternatives --install /usr/bin/python3 python3 %s/python3 1", envdPrefix), llb.WithCustomName("update alternative python3 to envd")).
-		Run(llb.Shlexf("update-alternatives --install /usr/bin/pip pip %s/pip 1", envdPrefix), llb.WithCustomName("update alternative pip to envd")).
-		Run(llb.Shlexf("update-alternatives --install /usr/bin/pip3 pip3 %s/pip3 1", envdPrefix), llb.WithCustomName("update alternative pip3 to envd"))
+		Run(llb.Shlexf("update-alternatives --install /usr/bin/python python %s/python 1", envdPrefix),
+			llb.WithCustomName("[internal] update alternative python to envd")).
+		Run(llb.Shlexf("update-alternatives --install /usr/bin/python3 python3 %s/python3 1", envdPrefix),
+			llb.WithCustomName("[internal] update alternative python3 to envd")).
+		Run(llb.Shlexf("update-alternatives --install /usr/bin/pip pip %s/pip 1", envdPrefix),
+			llb.WithCustomName("[internal] update alternative pip to envd")).
+		Run(llb.Shlexf("update-alternatives --install /usr/bin/pip3 pip3 %s/pip3 1", envdPrefix),
+			llb.WithCustomName("[internal] update alternative pip3 to envd"))
 	return run.Root()
 }
 
@@ -200,13 +204,13 @@ func (g Graph) compilePyPIIndex(root llb.State) llb.State {
 			extraIndex = "extra-index-url=" + *g.PyPIExtraIndexURL
 		}
 		content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIIndexURL, extraIndex)
+		dir := filepath.Dir(pypiIndexFilePath)
 		pypiMirror := root.
-			File(llb.Mkdir(filepath.Dir(pypiIndexFilePath),
-				0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
-				llb.WithCustomName("[internal] setting PyPI index")).
+			File(llb.Mkdir(dir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
+				llb.WithCustomNamef("[internal] setting PyPI index dir %s", dir)).
 			File(llb.Mkfile(pypiIndexFilePath,
 				0644, []byte(content), llb.WithUIDGID(g.uid, g.gid)),
-				llb.WithCustomName("[internal] setting PyPI index"))
+				llb.WithCustomNamef("[internal] setting PyPI index file %s", pypiIndexFilePath))
 		return pypiMirror
 	}
 	return root

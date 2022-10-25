@@ -51,7 +51,7 @@ wait = "5s"
 func (g Graph) addNewProcess(root llb.State, name, command string) llb.State {
 	template := fmt.Sprintf(horustTemplate, name, command, types.EnvdWorkDir)
 	filename := filepath.Join(types.HorustServiceDir, fmt.Sprintf("%s.toml", name))
-	supervisor := root.File(llb.Mkfile(filename, 0644, []byte(template), llb.WithUIDGID(g.uid, g.gid)))
+	supervisor := root.File(llb.Mkfile(filename, 0644, []byte(template), llb.WithUIDGID(g.uid, g.gid)), llb.WithCustomNamef("[internal] create file %s", filename))
 	return supervisor
 }
 
