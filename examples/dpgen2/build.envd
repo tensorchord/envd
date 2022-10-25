@@ -1,0 +1,36 @@
+def install_kubectl_kind():
+    run(
+        [
+            'curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"',
+            "sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl",
+        ]
+    )
+    run(
+        [
+            "curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.16.0/kind-linux-amd64",
+            "chmod +x ./kind",
+            "sudo mv ./kind /usr/local/bin/kind",
+        ]
+    )
+    runtime.init_script(
+        [
+            "sudo kind create cluster",
+            "sudo docker network connect kind dpgen2",
+            'sudo kind get kubeconfig --name "kind" --internal | sed "s/kind-control-plane/$(sudo docker inspect "kind-control-plane" --format "{{ .NetworkSettings.Networks.kind.IPAddress }}")/g" | tee /home/envd/.kindkubeconfig',
+        ]
+    )
+    runtime.environ(env={"KUBECONFIG": "/home/envd/.kindkubeconfig"})
+
+
+def build():
+    base(os="ubuntu20.04", language="python3.9")
+    install.python_packages(
+        name=[
+            "pydflow",
+        ]
+    )
+    shell("zsh")
+    run(["pip install git+https://github.com/deepmodeling/dpgen2 -i https://pypi.tuna.tsinghua.edu.cn/simple"])
+    run(["curl -sSL https://get.daocloud.io/docker | sh"])
+    runtime.mount("/var/run/docker.sock", "/var/run/docker.sock")
+    install_kubectl_kind()
