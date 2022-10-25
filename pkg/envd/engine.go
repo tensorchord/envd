@@ -20,8 +20,17 @@ import (
 
 	dockertypes "github.com/docker/docker/api/types"
 
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
 )
+
+// Engine is the core engine to manage the envd environments.
+type Engine interface {
+	SSHClient
+	ImageClient
+	EnvironmentClient
+	VersionClient
+}
 
 type EnvironmentClient interface {
 	PauseEnvironment(ctx context.Context, env string) (string, error)
@@ -38,6 +47,12 @@ type EnvironmentClient interface {
 	Exists(ctx context.Context, name string) (bool, error)
 	WaitUntilRunning(ctx context.Context, name string, timeout time.Duration) error
 	Destroy(ctx context.Context, name string) (string, error)
+}
+
+type SSHClient interface {
+	GenerateSSHConfig(name, iface, privateKeyPath string,
+		startResult *StartResult) (sshconfig.EntryOptions, error)
+	Attach(name, iface, privateKeyPath string, startResult *StartResult) error
 }
 
 type ImageClient interface {

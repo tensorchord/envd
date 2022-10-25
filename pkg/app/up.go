@@ -15,6 +15,7 @@
 package app
 
 import (
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -25,7 +26,6 @@ import (
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
-	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
 )
@@ -120,9 +120,15 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the current context")
 	}
+
 	buildOpt, err := ParseBuildOpt(clicontext)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse the build options")
+	}
+
+	// Always push image to registry when envd-server is the runner.
+	if c.Runner == types.RunnerTypeEnvdServer {
+		buildOpt.OutputOpts = fmt.Sprintf("type=image,name=%s,push=true", buildOpt.Tag)
 	}
 
 	ctr := filepath.Base(buildOpt.BuildContextDir)
@@ -162,12 +168,8 @@ func up(clicontext *cli.Context) error {
 		numGPU = 1
 	}
 
-	context, err := home.GetManager().ContextGetCurrent()
-	if err != nil {
-		return errors.Wrap(err, "failed to get the current context")
-	}
 	opt := envd.Options{
-		Context: context,
+		Context: c,
 	}
 	engine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
@@ -182,13 +184,15 @@ func up(clicontext *cli.Context) error {
 		Forced:          clicontext.Bool("force"),
 		Timeout:         clicontext.Duration("timeout"),
 	}
-	if context.Runner != types.RunnerTypeEnvdServer {
+	if c.Runner != types.RunnerTypeEnvdServer {
 		startOptions.EngineSource = envd.EngineSource{
 			DockerSource: &envd.DockerSource{
 				Graph:        *ir.DefaultGraph,
 				MountOptions: clicontext.StringSlice("volume"),
 			},
 		}
+	} else if c.Runner == types.RunnerTypeEnvdServer {
+		startOptions.EnvdServerSource = &envd.EnvdServerSource{}
 	}
 
 	res, err := engine.StartEnvd(clicontext.Context, startOptions)
@@ -203,13 +207,10 @@ func up(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get the ssh hostname")
 	}
 
-	eo := sshconfig.EntryOptions{
-		Name:               ctr,
-		IFace:              hostname,
-		Port:               res.SSHPort,
-		PrivateKeyPath:     clicontext.Path("private-key"),
-		EnableHostKeyCheck: false,
-		EnableAgentForward: true,
+	eo, err := engine.GenerateSSHConfig(ctr, hostname,
+		clicontext.Path("private-key"), res)
+	if err != nil {
+		return errors.Wrap(err, "failed to get the ssh entry")
 	}
 	if err = sshconfig.AddEntry(eo); err != nil {
 		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
@@ -217,17 +218,9 @@ func up(clicontext *cli.Context) error {
 	}
 
 	if !detach {
-		opt := ssh.DefaultOptions()
-		opt.PrivateKeyPath = clicontext.Path("private-key")
-		opt.Port = res.SSHPort
-		sshClient, err := ssh.NewClient(opt)
-		if err != nil {
-			return errors.Wrap(err, "failed to create the ssh client")
-		}
-		opt.Server = hostname
-
-		if err := sshClient.Attach(); err != nil {
-			return errors.Wrap(err, "failed to attach to the container")
+		if err := engine.Attach(ctr, hostname,
+			clicontext.Path("private-key"), res); err != nil {
+			return errors.Wrap(err, "failed to attach to the ssh target")
 		}
 	}
 
