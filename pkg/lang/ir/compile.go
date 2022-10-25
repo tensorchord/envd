@@ -25,6 +25,7 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	servertypes "github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/flag"
@@ -146,6 +147,39 @@ func (g Graph) Labels() (map[string]string, error) {
 		return labels, err
 	}
 	labels[types.RuntimeGraphCode] = code
+
+	ports := []servertypes.EnvironmentPort{}
+	ports = append(ports, servertypes.EnvironmentPort{
+		Name: "ssh",
+		Port: config.SSHPortInContainer,
+	})
+	if g.JupyterConfig != nil {
+		ports = append(ports, servertypes.EnvironmentPort{
+			Name: "jupyter",
+			Port: config.JupyterPortInContainer,
+		})
+	}
+	if g.RStudioServerConfig != nil {
+		ports = append(ports, servertypes.EnvironmentPort{
+			Name: "rstudio-server",
+			Port: config.RStudioServerPortInContainer,
+		})
+	}
+
+	if g.RuntimeExpose != nil && len(g.RuntimeExpose) > 0 {
+		for _, item := range g.RuntimeExpose {
+			ports = append(ports, servertypes.EnvironmentPort{
+				Name: item.ServiceName,
+				Port: int32(item.EnvdPort),
+			})
+		}
+	}
+
+	portsData, err := json.Marshal(ports)
+	if err != nil {
+		return labels, err
+	}
+	labels[types.ImageLabelPorts] = string(portsData)
 
 	return labels, nil
 }

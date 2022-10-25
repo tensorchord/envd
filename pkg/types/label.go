@@ -22,6 +22,7 @@ const (
 
 	ImageLabelVendor    = "ai.tensorchord.envd.vendor"
 	ImageLabelGPU       = "ai.tensorchord.envd.gpu"
+	ImageLabelPorts     = "ai.tensorchord.envd.ports"
 	ImageLabelAPT       = "ai.tensorchord.envd.apt.packages"
 	ImageLabelPyPI      = "ai.tensorchord.envd.pypi.commands"
 	ImageLabelR         = "ai.tensorchord.envd.r.packages"

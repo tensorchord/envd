@@ -13,3 +13,4 @@ def build():
         }
     )
     runtime.environ(env={"ENVD_MODE": "DEV"})
+    config.jupyter()
