@@ -77,10 +77,11 @@ type Graph struct {
 
 // The results during runtime should be maintained here
 type RuntimeGraph struct {
-	RuntimeCommands map[string]string
-	RuntimeDaemon   [][]string
-	RuntimeEnviron  map[string]string
-	RuntimeExpose   []ExposeItem
+	RuntimeCommands   map[string]string
+	RuntimeDaemon     [][]string
+	RuntimeInitScript [][]string
+	RuntimeEnviron    map[string]string
+	RuntimeExpose     []ExposeItem
 }
 
 type CopyInfo struct {

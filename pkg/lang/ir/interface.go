@@ -226,6 +226,6 @@ func RuntimeEnviron(env map[string]string) {
 	}
 }
 
-func RuntimeInitScript(commands map[[]string]string) {
-
+func RuntimeInitScript(commands []string) {
+	DefaultGraph.RuntimeInitScript = append(DefaultGraph.RuntimeInitScript, commands)
 }
