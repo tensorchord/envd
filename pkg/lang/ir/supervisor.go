@@ -36,7 +36,7 @@ working-directory = "${%[3]s}"
 
 [environment]
 keep-env = true
-re-export = [ "PATH", "SHELL", "USER", "%[3]s" ]
+re-export = [ "PATH", "SHELL", "USER", "%[3]s", "ENVD_AUTHORIZED_KEYS_PATH", "ENVD_HOST_KEY" ]
 
 [restart]
 strategy = "on-failure"

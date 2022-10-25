@@ -54,7 +54,7 @@ var CommandCreate = &cli.Command{
 		&cli.DurationFlag{
 			Name:  "timeout",
 			Usage: "Timeout of container creation",
-			Value: time.Second * 30,
+			Value: time.Second * 1800,
 		},
 		&cli.BoolFlag{
 			Name:  "detach",
@@ -147,23 +147,33 @@ func create(clicontext *cli.Context) error {
 			outputChannel <- errors.Wrap(err, "failed to create the ssh client")
 		}
 
+		ports := res.Ports
+
+		for _, p := range ports {
+			if p.Port == 2222 {
+				continue
+			}
+
+			// TODO(gaocegege): Use one remote port.
+			localPort, err := netutil.GetFreePort()
+			if err != nil {
+				return errors.Wrap(err, "failed to get a free port")
+			}
+			localAddress := fmt.Sprintf("%s:%d", "localhost", localPort)
+			remoteAddress := fmt.Sprintf("%s:%d", "localhost", p.Port)
+			logrus.Infof("service \"%s\" is listening at %s\n", p.Name, localAddress)
+			go func() {
+				if err := sshClient.LocalForward(localAddress, remoteAddress); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to local port")
+				}
+			}()
+		}
+
 		go func() {
 			if err := sshClient.Attach(); err != nil {
 				outputChannel <- errors.Wrap(err, "failed to attach to the container")
 			}
-		}()
-
-		jupyterLocalPort, err := netutil.GetFreePort()
-		if err != nil {
-			return errors.Wrap(err, "failed to get a free port")
-		}
-
-		localAddress := fmt.Sprintf("%s:%d", localhost, jupyterLocalPort)
-		remoteAddress := fmt.Sprintf("%s:%s", localhost, "8888")
-		go func() {
-			if err := sshClient.LocalForward(localAddress, remoteAddress); err != nil {
-				outputChannel <- errors.Wrap(err, "failed to forward to local port")
-			}
+			outputChannel <- nil
 		}()
 
 		if err := <-outputChannel; err != nil {
