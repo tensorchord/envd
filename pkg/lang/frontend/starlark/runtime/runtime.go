@@ -37,12 +37,12 @@ var (
 var Module = &starlarkstruct.Module{
 	Name: "runtime",
 	Members: starlark.StringDict{
-		"command":     starlark.NewBuiltin(ruleCommand, ruleFuncCommand),
-		"daemon":      starlark.NewBuiltin(ruleDaemon, ruleFuncDaemon),
-		"expose":      starlark.NewBuiltin(ruleExpose, ruleFuncExpose),
-		"environ":     starlark.NewBuiltin(ruleEnviron, ruleFuncEnviron),
-		"mount":       starlark.NewBuiltin(ruleMount, ruleFuncMount),
-		"init_script": starlark.NewBuiltin(ruleInitScript, ruleFuncInitScript),
+		"command": starlark.NewBuiltin(ruleCommand, ruleFuncCommand),
+		"daemon":  starlark.NewBuiltin(ruleDaemon, ruleFuncDaemon),
+		"expose":  starlark.NewBuiltin(ruleExpose, ruleFuncExpose),
+		"environ": starlark.NewBuiltin(ruleEnviron, ruleFuncEnviron),
+		"mount":   starlark.NewBuiltin(ruleMount, ruleFuncMount),
+		"init":    starlark.NewBuiltin(ruleInitScript, ruleFuncInitScript),
 	},
 }
 

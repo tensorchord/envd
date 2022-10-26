@@ -12,7 +12,7 @@ def install_kubectl_kind():
             "sudo mv ./kind /usr/local/bin/kind",
         ]
     )
-    runtime.init_script(
+    runtime.init(
         [
             "sudo kind create cluster",
             "sudo docker network connect kind dpgen2",
@@ -30,7 +30,11 @@ def build():
         ]
     )
     shell("zsh")
-    run(["pip install git+https://github.com/deepmodeling/dpgen2 -i https://pypi.tuna.tsinghua.edu.cn/simple"])
+    run(
+        [
+            "pip install git+https://github.com/deepmodeling/dpgen2 -i https://pypi.tuna.tsinghua.edu.cn/simple"
+        ]
+    )
     run(["curl -sSL https://get.daocloud.io/docker | sh"])
     runtime.mount("/var/run/docker.sock", "/var/run/docker.sock")
     install_kubectl_kind()

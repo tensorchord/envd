@@ -20,5 +20,5 @@ const (
 	ruleDaemon     = "runtime.daemon"
 	ruleEnviron    = "runtime.environ"
 	ruleMount      = "runtime.mount"
-	ruleInitScript = "runtime.init_script"
+	ruleInitScript = "runtime.init"
 )
