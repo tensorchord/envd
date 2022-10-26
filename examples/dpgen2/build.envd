@@ -1,4 +1,4 @@
-def install_kubectl_kind():
+def install_kubectl_kind(env_name):
     run(
         [
             'curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"',
@@ -15,7 +15,7 @@ def install_kubectl_kind():
     runtime.init(
         [
             "sudo kind create cluster",
-            "sudo docker network connect kind dpgen2",
+            "sudo docker network connect kind {}".format(env_name),
             'sudo kind get kubeconfig --name "kind" --internal | sed "s/kind-control-plane/$(sudo docker inspect "kind-control-plane" --format "{{ .NetworkSettings.Networks.kind.IPAddress }}")/g" | tee /home/envd/.kindkubeconfig',
         ]
     )
@@ -37,4 +37,4 @@ def build():
     )
     run(["curl -sSL https://get.daocloud.io/docker | sh"])
     runtime.mount("/var/run/docker.sock", "/var/run/docker.sock")
-    install_kubectl_kind()
+    install_kubectl_kind("dpgen2")
