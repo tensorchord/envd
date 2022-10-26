@@ -28,11 +28,14 @@ import (
 const (
 	horustTemplate = `
 name = "%[1]s"
-command = "%[2]s"
-stdout = "/var/logs/%[1]s_stdout.log"
-stderr = "/var/logs/%[1]s_stderr.log"
+command = """
+%[2]s
+"""
+stdout = "/var/log/horust/%[1]s_stdout.log"
+stderr = "/var/log/horust/%[1]s_stderr.log"
 user = "${USER}"
 working-directory = "${%[3]s}"
+%[4]s
 
 [environment]
 keep-env = true
@@ -41,15 +44,26 @@ re-export = [ "PATH", "SHELL", "USER", "%[3]s", "ENVD_AUTHORIZED_KEYS_PATH", "EN
 [restart]
 strategy = "on-failure"
 backoff = "1s"
-attempts = 5
+attempts = 2
 
 [termination]
 wait = "5s"
 `
 )
 
-func (g Graph) addNewProcess(root llb.State, name, command string) llb.State {
-	template := fmt.Sprintf(horustTemplate, name, command, types.EnvdWorkDir)
+func (g Graph) addNewProcess(root llb.State, name, command string, depends []string) llb.State {
+	var sb strings.Builder
+	if len(depends) != 0 {
+		sb.WriteString("start-after = [")
+		for _, d := range depends {
+			sb.WriteString("\"")
+			sb.WriteString(d)
+			sb.WriteString("\",")
+		}
+		sb.WriteString("]\n")
+	}
+	template := fmt.Sprintf(horustTemplate, name, command, types.EnvdWorkDir, sb.String())
+
 	filename := filepath.Join(types.HorustServiceDir, fmt.Sprintf("%s.toml", name))
 	supervisor := root.File(llb.Mkfile(filename, 0644, []byte(template), llb.WithUIDGID(g.uid, g.gid)), llb.WithCustomNamef("[internal] create file %s", filename))
 	return supervisor
@@ -60,22 +74,29 @@ func (g Graph) compileEntrypoint(root llb.State) llb.State {
 		return root
 	}
 	cmd := fmt.Sprintf("/var/envd/bin/envd-sshd --port %d --shell %s", config.SSHPortInContainer, g.Shell)
-	entrypoint := g.addNewProcess(root, "sshd", cmd)
+	entrypoint := g.addNewProcess(root, "sshd", cmd, nil)
+	var deps []string
+	if g.RuntimeInitScript != nil {
+		for i, command := range g.RuntimeInitScript {
+			entrypoint = g.addNewProcess(entrypoint, fmt.Sprintf("init_%d", i), fmt.Sprintf("/bin/bash -c 'set -euo pipefail\n%s'", strings.Join(command, "\n")), nil)
+			deps = append(deps, fmt.Sprintf("init_%d", i))
+		}
+	}
 
 	if g.RuntimeDaemon != nil {
 		for i, command := range g.RuntimeDaemon {
-			entrypoint = g.addNewProcess(entrypoint, fmt.Sprintf("daemon_%d", i), fmt.Sprintf("%s &\n", strings.Join(command, " ")))
+			entrypoint = g.addNewProcess(entrypoint, fmt.Sprintf("daemon_%d", i), fmt.Sprintf("%s &\n", strings.Join(command, " ")), deps)
 		}
 	}
 
 	if g.JupyterConfig != nil {
 		jupyterCmd := g.generateJupyterCommand("")
-		entrypoint = g.addNewProcess(entrypoint, "jupyter", strings.Join(jupyterCmd, " "))
+		entrypoint = g.addNewProcess(entrypoint, "jupyter", strings.Join(jupyterCmd, " "), deps)
 	}
 
 	if g.RStudioServerConfig != nil {
 		rstudioCmd := g.generateRStudioCommand("")
-		entrypoint = g.addNewProcess(entrypoint, "rstudio", strings.Join(rstudioCmd, " "))
+		entrypoint = g.addNewProcess(entrypoint, "rstudio", strings.Join(rstudioCmd, " "), deps)
 	}
 
 	return entrypoint
