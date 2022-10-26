@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.2.4-alpha.16 (2022-10-26)
+
+ * [ac87c76](https://github.com/tensorchord/envd/commit/ac87c76f78e8d6ff8c156365310ed5740e8e054b) feature: support runtime init script (#1085)
+ * [3416e70](https://github.com/tensorchord/envd/commit/3416e70ad5753441b109e1f6d755d9a02cd26e5c) feat: enable convenient vscode debugging (#1089)
+ * [753fde3](https://github.com/tensorchord/envd/commit/753fde329e7da22837af27cddb48969947b9125b) fix:#1090 (#1092)
+ * [1ddd513](https://github.com/tensorchord/envd/commit/1ddd513c03b78b8382d309c3a9fb162ae39973b9) feat(CLI): Support envd-server in up command (#1087)
+ * [ab9fe2c](https://github.com/tensorchord/envd/commit/ab9fe2ce255ea18780310f37903b216853386589) feat: Support forward (#1014)
+ * [4cd6fef](https://github.com/tensorchord/envd/commit/4cd6fef5d6284538ea523011aac47feec8dcf36a) chore(deps): bump github.com/moby/buildkit from 0.10.4 to 0.10.5 (#1081)
+ * [a81bbb0](https://github.com/tensorchord/envd/commit/a81bbb0aab9b1a7d1bf37a0374884f34af386c3b) chore(deps): bump github.com/urfave/cli/v2 from 2.20.2 to 2.20.3 (#1078)
+ * [a89f466](https://github.com/tensorchord/envd/commit/a89f466517aec054c0e0c5a295f09b5e7b3c33b7) chore(deps): bump github.com/opencontainers/image-spec from 1.1.0-rc1 to 1.1.0-rc2 (#1077)
+ * [a209f79](https://github.com/tensorchord/envd/commit/a209f79d07b945c2a1a87972f191be7f4428d6c1) chore(deps): bump github.com/onsi/gomega from 1.21.1 to 1.22.1 (#1080)
+ * [a8a6339](https://github.com/tensorchord/envd/commit/a8a633928a5ec70f5deccbebf81619bb1dbe33da) chore(deps): bump github.com/stretchr/testify from 1.8.0 to 1.8.1 (#1079)
+
+### Contributors
+
+ * Ce Gao
+ * Friends A
+ * Jinjing Zhou
+ * Yilong Li
+ * dependabot[bot]
+
 ## v0.2.4-alpha.15 (2022-10-21)
 
  * [9faeebe](https://github.com/tensorchord/envd/commit/9faeebe27f47ce2ee1d99b04325eb41745390099) fix: Fix build.sh (#1072)
