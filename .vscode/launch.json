@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "envd up",
+      "type": "go",
+      "request": "launch",
+      "mode": "exec",
+      "program": "${workspaceFolder}/debug-bin/envd",
+      "cwd": "directory containing build.envd",
+      "args": [
+        "up"
+      ]
+    }
+  ]
+}
