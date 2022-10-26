@@ -15,15 +15,12 @@
 package app
 
 import (
-	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
@@ -60,10 +57,6 @@ func destroy(clicontext *cli.Context) error {
 	if path == "" && name == "" {
 		path = "."
 	}
-	dockerClient, err := docker.NewClient(clicontext.Context)
-	if err != nil {
-		return err
-	}
 	var ctrName string
 	if name != "" {
 		ctrName = name
@@ -87,18 +80,7 @@ func destroy(clicontext *cli.Context) error {
 	if ctrName, err := envdEngine.Destroy(clicontext.Context, ctrName); err != nil {
 		return errors.Wrapf(err, "failed to destroy the environment: %s", ctrName)
 	} else if ctrName != "" {
-		logrus.Infof("container(%s) is destroyed", ctrName)
-	}
-	tags, err := getContainerTag(clicontext, ctrName)
-	if err != nil {
-		return err
-	} else {
-		for _, tag := range tags {
-			if err := dockerClient.RemoveImage(clicontext.Context, tag); err != nil {
-				return errors.Errorf("remove image %s failed: %w", tag, err)
-			}
-			logrus.Infof("image(%s) is destroyed", tag)
-		}
+		logrus.Infof("environment(%s) is destroyed", ctrName)
 	}
 
 	if err = sshconfig.RemoveEntry(ctrName); err != nil {
@@ -106,35 +88,4 @@ func destroy(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}
 	return nil
-}
-
-func getContainerTag(clicontext *cli.Context, name string) ([]string, error) {
-	tags := []string{}
-	context, err := home.GetManager().ContextGetCurrent()
-	if err != nil {
-		return tags, err
-	}
-	opt := envd.Options{
-		Context: context,
-	}
-	envdEngine, err := envd.New(clicontext.Context, opt)
-	if err != nil {
-		return tags, err
-	}
-	// check the images instead of running containers because `envd build` also produce images
-	images, err := envdEngine.ListImage(clicontext.Context)
-	if err != nil {
-		return tags, err
-	}
-	for _, img := range images {
-		for _, tag := range img.ImageSummary.RepoTags {
-			if strings.HasPrefix(tag, fmt.Sprintf("%s:", name)) {
-				tags = append(tags, tag)
-			}
-		}
-	}
-	if len(tags) == 0 {
-		logrus.Infof("cannot find the image of %s", name)
-	}
-	return tags, nil
 }

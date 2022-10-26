@@ -222,15 +222,6 @@ func (g *Graph) compileBase() (llb.State, error) {
 	return g.compileSshd(supervisor), nil
 }
 
-func (g Graph) installHorust(root llb.State) llb.State {
-	horust := root.
-		File(llb.Copy(llb.Image(types.HorustImage), "/", "/usr/local/bin", llb.WithUIDGID(g.uid, g.gid)),
-			llb.WithCustomName("[internal] install horust")).
-		File(llb.Mkdir(types.HorustServiceDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid))).
-		File(llb.Mkdir(types.HorustLogDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)))
-	return horust
-}
-
 func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 	public := DefaultGraph.PublicKeyPath
 	bdat, err := os.ReadFile(public)

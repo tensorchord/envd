@@ -468,7 +468,41 @@ func (e dockerEngine) Destroy(ctx context.Context, name string) (string, error) 
 	if err := e.ContainerRemove(ctx, name, dockertypes.ContainerRemoveOptions{}); err != nil {
 		return "", errors.Wrap(err, "failed to remove the container")
 	}
+
+	// remove image
+	tags, err := e.getContainerTag(ctx, name)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get the container tags")
+	} else {
+		for _, tag := range tags {
+			if _, err := e.ImageRemove(ctx, tag, dockertypes.ImageRemoveOptions{}); err != nil {
+				return "", errors.Errorf("remove image %s failed: %w", tag, err)
+			}
+			logrus.Infof("image(%s) is destroyed", tag)
+		}
+	}
+
 	return name, nil
+}
+
+func (e dockerEngine) getContainerTag(ctx context.Context, name string) ([]string, error) {
+	tags := []string{}
+	// check the images instead of running containers because `envd build` also produce images
+	images, err := e.ListImage(ctx)
+	if err != nil {
+		return tags, err
+	}
+	for _, img := range images {
+		for _, tag := range img.ImageSummary.RepoTags {
+			if strings.HasPrefix(tag, fmt.Sprintf("%s:", name)) {
+				tags = append(tags, tag)
+			}
+		}
+	}
+	if len(tags) == 0 {
+		logrus.Infof("cannot find the image of %s", name)
+	}
+	return tags, nil
 }
 
 func (e dockerEngine) WaitUntilRunning(ctx context.Context,

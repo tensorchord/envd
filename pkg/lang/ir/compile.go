@@ -228,7 +228,8 @@ func (g Graph) DefaultCacheImporter() (*string, error) {
 	} else {
 		res = fmt.Sprintf(
 			"type=registry,ref=docker.io/%s/python-cache:envd-%s",
-			viper.GetString(flag.FlagDockerOrganization),
+			// viper.GetString(flag.FlagDockerOrganization),
+			"kemingy",
 			version.GetVersionForImageTag())
 	}
 	return &res, nil
