@@ -85,16 +85,11 @@ func (s *generalInterpreter) load(thread *starlark.Thread, module string) (starl
 }
 
 func (s *generalInterpreter) exec(thread *starlark.Thread, module string) (starlark.StringDict, error) {
-	e, ok := s.cache[module]
-	if e != nil {
-		return e.globals, e.err
-	}
-	if ok {
+	if _, ok := s.cache[module]; ok {
 		return nil, errors.Newf("Detect cycling import during parsing %s", module)
 	}
 
-	s.cache[module] = nil
-
+	var e *entry
 	if !strings.HasPrefix(module, universe.GitPrefix) {
 		var data interface{}
 		globals, err := starlark.ExecFile(thread, module, data, s.predeclared)
@@ -109,6 +104,7 @@ func (s *generalInterpreter) exec(thread *starlark.Thread, module string) (starl
 		globals, err := s.loadGitModule(thread, path)
 		e = &entry{globals, err}
 	}
+	s.cache[module] = e
 
 	return e.globals, e.err
 }
