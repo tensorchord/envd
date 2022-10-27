@@ -48,7 +48,7 @@ def build():
 
 <details>
   <summary><code>envdlib.tensorboard</code> is defined in <a href="https://github.com/tensorchord/envdlib/blob/main/src/monitoring.envd">github.com/tensorchord/envdlib</a></summary>
-  
+
 ```python
 def tensorboard(envd_port=6006, envd_dir="/home/envd/logs",
         host_port=0, host_dir="/var/log/tensorboard"):
@@ -91,7 +91,11 @@ def tensorboard(envd_port=6006, envd_dir="/home/envd/logs",
 For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before.
 
 <p align=center>
-  <img src="https://user-images.githubusercontent.com/5100735/189928628-543f4851-87b7-462b-b811-372cbf46ff25.svg" width="65%"/>
+  <img src="https://user-images.githubusercontent.com/5100735/189928628-543f4851-87b7-462b-b811-372cbf46ff25.svg#gh-light-mode-only" width="65%"/>
+</p>
+
+<p align=center>
+  <img src="https://user-images.githubusercontent.com/16186646/197944452-4a5dcd5f-68d0-4505-b419-e95c298978d7.svg#gh-dark-mode-only" width="65%"/>
 </p>
 
 🐍 **One configuration to rule them all**
@@ -115,11 +119,11 @@ def build():
 
 ☁️ **No polluted environment**
 
-Are you working on multiple projects, all of which need different versions of CUDA? `envd` helps you create isolated and clean environments. 
+Are you working on multiple projects, all of which need different versions of CUDA? `envd` helps you create isolated and clean environments.
 
 ## Who should use envd?
 
-We’re focused on helping data scientists and teams that develop AI/ML models. And they may suffer from:
+We're focused on helping data scientists and teams that develop AI/ML models. And they may suffer from:
 
 - building the development environments with Python/R/Julia, CUDA, Docker, SSH, and so on. Do you have a complicated Dockerfile or build script that sets up all your dev environments, but is always breaking?
 - Updating the environment. Do you always need to ask infrastructure engineers how to add a new Python/R/Julia package in the Dockerfile?
@@ -158,7 +162,7 @@ envd bootstrap
 
 Please clone the [`envd-quick-start`](https://github.com/tensorchord/envd-quick-start):
 
-```
+```bash
 git clone https://github.com/tensorchord/envd-quick-start.git
 ```
 
@@ -179,11 +183,11 @@ def build():
 
 Then please run the command below to set up a new environment:
 
-```
+```bash
 cd envd-quick-start && envd up
 ```
 
-```
+```bash
 $ cd envd-quick-start && envd up
 [+] ⌚ parse build.envd and download/cache dependencies 2.8s ✅ (finished)
  => download oh-my-zsh                                                    2.8s
@@ -207,7 +211,7 @@ $ cd envd-quick-start && envd up
  => => exporting manifest sha256:7dbe9494d2a7a39af16d514b997a5a8f08b637f  0.0s
  => => exporting config sha256:1da06b907d53cf8a7312c138c3221e590dedc2717  0.0s
  => => sending tarball                                                    0.4s
-envd-quick-start via Py v3.9.13 via 🅒 envd 
+envd-quick-start via Py v3.9.13 via 🅒 envd
 ⬢ [envd]❯ # You are in the container-based environment!
 ```
 

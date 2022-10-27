@@ -41,7 +41,7 @@ const (
 	// supervisor
 	HorustImage      = "tensorchord/horust:v0.1.0"
 	HorustServiceDir = "/etc/horust/services"
-	HorustLogDir     = "/var/logs"
+	HorustLogDir     = "/var/log/horust"
 	// env
 	EnvdWorkDir = "ENVD_WORKDIR"
 )

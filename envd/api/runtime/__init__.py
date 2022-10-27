@@ -93,3 +93,11 @@ def mount(host_path: str, envd_path: str):
         host_path (str): source path in the host machine
         envd_path (str): destination path in the envd container
     """
+
+
+def init(commands: List[str]):
+    """Commands to be executed when start the container
+
+    Args:
+        commands (List[str]): list of commands
+    """

@@ -164,7 +164,7 @@ func (g *Graph) preparePythonBase(root llb.State) llb.State {
 	return run.Root()
 }
 
-func (g Graph) compileSshd(root llb.State) llb.State {
+func (g Graph) compileSSHD(root llb.State) llb.State {
 	sshd := root.File(llb.Copy(
 		llb.Image(types.EnvdSshdImage), "/usr/bin/envd-sshd", "/var/envd/bin/envd-sshd",
 		&llb.CopyInfo{CreateDestPath: true}),
@@ -212,14 +212,20 @@ func (g *Graph) compileBase() (llb.State, error) {
 		base = g.compileCUDAPackages("nvidia/cuda")
 	}
 
-	base = g.compileUserGroup(base)
 	// Install conda first.
 	condaStage, err := g.installConda(base)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to install conda")
 	}
 	supervisor := g.installHorust(condaStage)
-	return g.compileSshd(supervisor), nil
+	sshdStage := g.compileSSHD(supervisor)
+	source, err := g.compileExtraSource(sshdStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get extra sources")
+	}
+	aptStage := g.compileUbuntuAPT(source)
+	final := g.compileUserGroup(aptStage)
+	return final, nil
 }
 
 func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
@@ -231,9 +237,10 @@ func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 	}
 	run := root.
 		File(llb.Mkdir("/var/envd", 0755, llb.WithParents(true),
-			llb.WithUIDGID(g.uid, g.gid))).
+			llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomName("[internal] create dir for ssh key")).
 		File(llb.Mkfile(config.ContainerAuthorizedKeysPath,
 			0644, []byte(dat+" envd"), llb.WithUIDGID(g.uid, g.gid)),
-			llb.WithCustomName("install ssh keys"))
+			llb.WithCustomName("[internal] install ssh keys"))
 	return run, nil
 }

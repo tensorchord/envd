@@ -53,12 +53,6 @@ type DockerSource struct {
 
 type EnvdServerSource struct{}
 
-type Engine interface {
-	ImageClient
-	EnvironmentClient
-	VersionClient
-}
-
 type StartResult struct {
 	// TODO(gaocegege): Make result a chan, to send running status to the receiver.
 	SSHPort int

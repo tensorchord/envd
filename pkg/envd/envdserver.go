@@ -16,6 +16,7 @@ package envd
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -24,8 +25,12 @@ import (
 	servertypes "github.com/tensorchord/envd-server/api/types"
 	"github.com/tensorchord/envd-server/client"
 	"github.com/tensorchord/envd-server/errdefs"
+	"github.com/tensorchord/envd-server/sshname"
 
+	"github.com/tensorchord/envd/pkg/ssh"
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
 type envdServerEngine struct {
@@ -85,6 +90,79 @@ func (e *envdServerEngine) ListEnvironment(ctx context.Context) ([]types.EnvdEnv
 	}
 
 	return res, nil
+}
+
+func (e envdServerEngine) GenerateSSHConfig(name, iface, privateKeyPath string, startResult *StartResult) (sshconfig.EntryOptions, error) {
+	username, err := sshname.Username(e.IdentityToken, startResult.Name)
+	if err != nil {
+		return sshconfig.EntryOptions{}, errors.Wrap(err, "failed to get the username")
+	}
+
+	eo := sshconfig.EntryOptions{
+		Name:               name,
+		IFace:              iface,
+		Port:               startResult.SSHPort,
+		PrivateKeyPath:     privateKeyPath,
+		EnableHostKeyCheck: false,
+		EnableAgentForward: false,
+		User:               username,
+	}
+	return eo, nil
+}
+
+func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult *StartResult) error {
+	username, err := sshname.Username(e.IdentityToken, startResult.Name)
+	if err != nil {
+		return errors.Wrap(err, "failed to get the username")
+	}
+
+	outputChannel := make(chan error)
+	opt := ssh.DefaultOptions()
+	opt.PrivateKeyPath = privateKeyPath
+	opt.Port = startResult.SSHPort
+	opt.AgentForwarding = false
+	opt.User = username
+	opt.Server = iface
+
+	sshClient, err := ssh.NewClient(opt)
+	if err != nil {
+		outputChannel <- errors.Wrap(err, "failed to create the ssh client")
+	}
+
+	ports := startResult.Ports
+
+	for _, p := range ports {
+		if p.Port == 2222 {
+			continue
+		}
+
+		// TODO(gaocegege): Use one remote port.
+		localPort, err := netutil.GetFreePort()
+		if err != nil {
+			return errors.Wrap(err, "failed to get a free port")
+		}
+		localAddress := fmt.Sprintf("%s:%d", "localhost", localPort)
+		remoteAddress := fmt.Sprintf("%s:%d", "localhost", p.Port)
+		logrus.Infof("service \"%s\" is listening at %s\n", p.Name, localAddress)
+		go func() {
+			if err := sshClient.LocalForward(localAddress, remoteAddress); err != nil {
+				outputChannel <- errors.Wrap(err, "failed to forward to local port")
+			}
+		}()
+	}
+
+	go func() {
+		if err := sshClient.Attach(); err != nil {
+			outputChannel <- errors.Wrap(err, "failed to attach to the container")
+		}
+		outputChannel <- nil
+	}()
+
+	if err := <-outputChannel; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (e *envdServerEngine) ListEnvDependency(
@@ -173,6 +251,9 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 func (e *envdServerEngine) IsRunning(ctx context.Context, name string) (bool, error) {
 	resp, err := e.EnvironmentGet(ctx, e.IdentityToken, name)
 	if err != nil {
+		if errdefs.IsNotFound(err) {
+			return false, nil
+		}
 		return false, errors.Wrap(err, "failed to list the environment")
 	}
 	// "Running" is hard-coded here.

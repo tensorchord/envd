@@ -1,4 +1,4 @@
-envdlib = include("https://github.com/kemingy/envdlib")
+envdlib = include("https://github.com/tensorchord/envdlib")
 
 
 def build():

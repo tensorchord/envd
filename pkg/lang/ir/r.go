@@ -58,12 +58,12 @@ func (g Graph) compileRLang(aptStage llb.State) (llb.State, error) {
 		merged = llb.Merge([]llb.State{
 			builtinSystemStage, systemStage, diffShellStage,
 			diffSSHStage, rPackageInstallStage, *vscodeStage,
-		}, llb.WithCustomName("merging all components into one"))
+		}, llb.WithCustomName("[internal] generating the image"))
 	} else {
 		merged = llb.Merge([]llb.State{
 			builtinSystemStage, systemStage, diffShellStage,
 			diffSSHStage, rPackageInstallStage,
-		}, llb.WithCustomName("merging all components into one"))
+		}, llb.WithCustomName("[internal] generating the image"))
 	}
 	return merged, nil
 }
