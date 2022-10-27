@@ -43,7 +43,8 @@ func (e *envdServerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, er
 }
 
 func (e envdServerEngine) Destroy(ctx context.Context, name string) (string, error) {
-	return "", errors.New("not implemented")
+	err := e.EnvironmentRemove(ctx, e.IdentityToken, name)
+	return name, err
 }
 
 func (e *envdServerEngine) ListImageDependency(ctx context.Context, image string) (*types.Dependency, error) {
