@@ -181,6 +181,12 @@ func (g Graph) Labels() (map[string]string, error) {
 	}
 	labels[types.ImageLabelPorts] = string(portsData)
 
+	repoInfo, err := json.Marshal(g.Repo)
+	if err != nil {
+		return labels, err
+	}
+	labels[types.ImageLabelRepo] = string(repoInfo)
+
 	return labels, nil
 }
 

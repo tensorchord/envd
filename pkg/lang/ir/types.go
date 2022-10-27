@@ -19,6 +19,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 // A Graph contains the state,
@@ -60,6 +61,8 @@ type Graph struct {
 	Mount      []MountInfo
 	HTTP       []HTTPInfo
 	Entrypoint []string
+
+	Repo types.RepoInfo
 
 	*JupyterConfig
 	*GitConfig

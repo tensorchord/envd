@@ -24,4 +24,5 @@ const (
 	ruleJuliaPackageServer = "config.julia_pkg_server"
 	ruleRStudioServer      = "config.rstudio_server"
 	ruleEntrypoint         = "config.entrypoint"
+	ruleRepo               = "config.repo"
 )
