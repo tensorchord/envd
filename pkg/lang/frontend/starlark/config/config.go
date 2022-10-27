@@ -44,6 +44,7 @@ var Module = &starlarkstruct.Module{
 			ruleJuliaPackageServer, ruleFuncJuliaPackageServer),
 		"rstudio_server": starlark.NewBuiltin(ruleRStudioServer, ruleFuncRStudioServer),
 		"entrypoint":     starlark.NewBuiltin(ruleEntrypoint, ruleFuncEntrypoint),
+		"repo":           starlark.NewBuiltin(ruleRepo, ruleFuncRepo),
 	},
 }
 
@@ -210,5 +211,18 @@ func ruleFuncEntrypoint(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("user defined entrypoints: {%s}\n", argList)
 	ir.Entrypoint(argList)
+	return starlark.None, nil
+}
+
+func ruleFuncRepo(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var url, description string
+
+	if err := starlark.UnpackArgs(ruleRepo, args, kwargs, "url", &url, "description?", &description); err != nil {
+		return nil, err
+	}
+
+	logger.Debugf("repo info: url=%s, description=%s", url, description)
+	ir.Repo(url, description)
 	return starlark.None, nil
 }

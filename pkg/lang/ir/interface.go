@@ -19,6 +19,7 @@ import (
 	"github.com/opencontainers/go-digest"
 
 	"github.com/tensorchord/envd/pkg/editor/vscode"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 func Base(os, language, image string) error {
@@ -228,4 +229,11 @@ func RuntimeEnviron(env map[string]string) {
 
 func RuntimeInitScript(commands []string) {
 	DefaultGraph.RuntimeInitScript = append(DefaultGraph.RuntimeInitScript, commands)
+}
+
+func Repo(url, description string) {
+	DefaultGraph.Repo = types.RepoInfo{
+		Description: description,
+		URL:         url,
+	}
 }

@@ -145,6 +145,11 @@ type Dependency struct {
 	PyPIPackages []string `json:"pypi_packages,omitempty"`
 }
 
+type RepoInfo struct {
+	URL         string `json:"url,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
 type PortBinding struct {
 	Port     string
 	Protocol string
