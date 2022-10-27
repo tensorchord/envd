@@ -218,7 +218,7 @@ func ruleFuncRepo(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var url, description string
 
-	if err := starlark.UnpackArgs(ruleRepo, args, kwargs, "url?", &url, "description?", &description); err != nil {
+	if err := starlark.UnpackArgs(ruleRepo, args, kwargs, "url", &url, "description?", &description); err != nil {
 		return nil, err
 	}
 
