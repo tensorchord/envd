@@ -231,10 +231,9 @@ func RuntimeInitScript(commands []string) {
 	DefaultGraph.RuntimeInitScript = append(DefaultGraph.RuntimeInitScript, commands)
 }
 
-func Repo(url, description string) error {
+func Repo(url, description string) {
 	DefaultGraph.Repo = types.RepoInfo{
 		Description: description,
 		URL:         url,
 	}
-	return nil
 }
