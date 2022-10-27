@@ -99,7 +99,8 @@ func New() EnvdApp {
 
  Global Options:
 	{{range $index, $option := .VisibleFlags}}{{if $index}}
-	{{end}}{{wrap $option.String 6}}{{end}}{{end}}{{end}}`
+	{{end}}{{wrap $option.String 6}}{{end}}{{end}}{{end}}
+`
 
 	// Deal with debug flag.
 	var debugEnabled bool
