@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 
 	"github.com/tensorchord/envd/pkg/config"
@@ -78,9 +79,12 @@ func (g Graph) addNewProcess(root llb.State, name, command string, depends []str
 	return supervisor
 }
 
-func (g Graph) compileEntrypoint(root llb.State) llb.State {
+func (g Graph) compileEntrypoint(root llb.State) (llb.State, error) {
 	if g.Image != nil {
-		return root
+		return root, nil
+	}
+	if len(g.Entrypoint) > 0 {
+		return root, errors.New("`config.entrypoint` is only for custom image, maybe you need `runtime.init`")
 	}
 	cmd := fmt.Sprintf("/var/envd/bin/envd-sshd --port %d --shell %s", config.SSHPortInContainer, g.Shell)
 	entrypoint := g.addNewProcess(root, "sshd", cmd, nil)
@@ -108,5 +112,5 @@ func (g Graph) compileEntrypoint(root llb.State) llb.State {
 		entrypoint = g.addNewProcess(entrypoint, "rstudio", strings.Join(rstudioCmd, " "), deps)
 	}
 
-	return entrypoint
+	return entrypoint, nil
 }
