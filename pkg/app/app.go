@@ -23,6 +23,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/version"
@@ -44,6 +45,18 @@ func New() EnvdApp {
 		&cli.BoolFlag{
 			Name:  "debug",
 			Usage: "enable debug output in logs",
+		},
+		&cli.BoolFlag{
+			Name:    flag.FlagAnalytics,
+			Usage:   "enable analytics",
+			Value:   true,
+			EnvVars: []string{"ENVD_ANALYTICS"},
+		},
+		&cli.StringFlag{
+			Name:    "analytics-token",
+			Value:   "Kdj4DfmpMoFh9qia2gz9wJq7TdrfVsP7",
+			EnvVars: []string{"ENVD_ANALYTICS_TOKEN"},
+			Hidden:  true,
 		},
 		&cli.StringFlag{
 			Name:   flag.FlagBuildkitdImage,
@@ -117,9 +130,17 @@ func New() EnvdApp {
 			return errors.Wrap(err, "failed to initialize home manager")
 		}
 
+		analytics := context.Bool(flag.FlagAnalytics)
+		if analytics {
+			if err := telemetry.Initialize(context.String("analytics-token")); err != nil {
+				return errors.Wrap(err, "failed to create telemetry client")
+			}
+		}
+
 		// TODO(gaocegege): Add a config struct to keep them.
 		viper.Set(flag.FlagBuildkitdImage, context.String(flag.FlagBuildkitdImage))
 		viper.Set(flag.FlagDebug, debugEnabled)
+		viper.Set(flag.FlagAnalytics, analytics)
 		viper.Set(flag.FlagDockerOrganization,
 			context.String(flag.FlagDockerOrganization))
 		return nil

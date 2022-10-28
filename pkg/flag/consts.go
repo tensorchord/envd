@@ -18,6 +18,7 @@ const (
 	FlagCacheDir           = "cache-dir"
 	FlagBuildkitdImage     = "buildkitd-image"
 	FlagDebug              = "debug"
+	FlagAnalytics          = "analytics-enabled"
 	FlagBuildContext       = "build-context"
 	FlagDockerOrganization = "docker-organization"
 )
