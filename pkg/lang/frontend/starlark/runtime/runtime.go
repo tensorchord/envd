@@ -15,6 +15,7 @@
 package runtime
 
 import (
+	"net"
 	"os/user"
 	"path/filepath"
 	"strings"
@@ -103,13 +104,14 @@ func ruleFuncDaemon(thread *starlark.Thread, _ *starlark.Builtin,
 func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		envdPort    starlark.Int
-		hostPort    = starlark.MakeInt(0) // 0 means envd can randomly choose a free port
-		serviceName = starlark.String("")
+		envdPort      starlark.Int
+		hostPort      = starlark.MakeInt(0) // 0 means envd can randomly choose a free port
+		serviceName   = starlark.String("")
+		listeningAddr = starlark.String("127.0.0.1") // default to lisen only on local loopback interface
 	)
 
 	if err := starlark.UnpackArgs(ruleExpose,
-		args, kwargs, "envd_port", &envdPort, "host_port?", &hostPort, "service?", &serviceName); err != nil {
+		args, kwargs, "envd_port", &envdPort, "host_port?", &hostPort, "service?", &serviceName, "listening_addr?", &listeningAddr); err != nil {
 		return nil, err
 	}
 	envdPortInt, ok := envdPort.Int64()
@@ -121,9 +123,13 @@ func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, errors.New("host_port must be a positive integer less than 65535")
 	}
 	serviceNameStr := serviceName.GoString()
+	listeningAddrStr := listeningAddr.GoString()
+	if net.ParseIP(listeningAddrStr) == nil {
+		return nil, errors.New("listening_addr must be a valid IP address")
+	}
 
 	logger.Debugf("rule `%s` is invoked, envd_port=%d, host_port=%d, service=%s", ruleExpose, envdPortInt, hostPortInt, serviceNameStr)
-	err := ir.RuntimeExpose(int(envdPortInt), int(hostPortInt), serviceNameStr)
+	err := ir.RuntimeExpose(int(envdPortInt), int(hostPortInt), serviceNameStr, listeningAddrStr)
 	return starlark.None, err
 }
 
