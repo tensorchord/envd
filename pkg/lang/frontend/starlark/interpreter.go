@@ -85,26 +85,40 @@ func (s *generalInterpreter) load(thread *starlark.Thread, module string) (starl
 }
 
 func (s *generalInterpreter) exec(thread *starlark.Thread, module string) (starlark.StringDict, error) {
-	if _, ok := s.cache[module]; ok {
-		return nil, errors.Newf("Detect cycling import during parsing %s", module)
-	}
+	e, ok := s.cache[module]
 
-	var e *entry
-	if !strings.HasPrefix(module, universe.GitPrefix) {
-		var data interface{}
-		globals, err := starlark.ExecFile(thread, module, data, s.predeclared)
-		e = &entry{globals, err}
-	} else {
-		// exec remote git repo
-		url := module[len(universe.GitPrefix):]
-		path, err := fileutil.DownloadOrUpdateGitRepo(url)
-		if err != nil {
-			return nil, err
+	// There are two cases:
+	// 1. module does not exist in s.cache
+	// 2. there's an explicit `nil` placeholder for module in s.cache
+	if e == nil {
+		if ok {
+			// Case 2.
+			// There is an explicit `nil` for module, which means we are in the middle of exec module.
+			return nil, errors.Newf("Detected cycle import during parsing %s", module)
 		}
-		globals, err := s.loadGitModule(thread, path)
-		e = &entry{globals, err}
+
+		// Case 1.
+		// Add a placeholder to indicate "load in progress".
+		s.cache[module] = nil
+
+		if !strings.HasPrefix(module, universe.GitPrefix) {
+			var data interface{}
+			globals, err := starlark.ExecFile(thread, module, data, s.predeclared)
+			e = &entry{globals, err}
+		} else {
+			// exec remote git repo
+			url := module[len(universe.GitPrefix):]
+			path, err := fileutil.DownloadOrUpdateGitRepo(url)
+			if err != nil {
+				return nil, err
+			}
+			globals, err := s.loadGitModule(thread, path)
+			e = &entry{globals, err}
+		}
+
+		// Update the cache.
+		s.cache[module] = e
 	}
-	s.cache[module] = e
 
 	return e.globals, e.err
 }
