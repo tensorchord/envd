@@ -100,7 +100,7 @@ To build and push the image to a registry:
 }
 
 func build(clicontext *cli.Context) error {
-	telemetry.GetReporter().Telemetry("up", nil)
+	telemetry.GetReporter().Telemetry("build", nil)
 	opt, err := ParseBuildOpt(clicontext)
 	if err != nil {
 		return err
