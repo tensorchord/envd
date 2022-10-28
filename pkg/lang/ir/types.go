@@ -56,7 +56,7 @@ type Graph struct {
 	VSCodePlugins   []vscode.Plugin
 	UserDirectories []string
 
-	Exec       [][]string
+	Exec       []RunBuildCommand
 	Copy       []CopyInfo
 	Mount      []MountInfo
 	HTTP       []HTTPInfo
@@ -134,6 +134,11 @@ type ExposeItem struct {
 type JupyterConfig struct {
 	Token string
 	Port  int64
+}
+
+type RunBuildCommand struct {
+	Command []string
+	MountHost bool
 }
 
 const (

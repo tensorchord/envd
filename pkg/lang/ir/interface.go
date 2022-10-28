@@ -134,9 +134,11 @@ func RStudioServer() error {
 	return nil
 }
 
-func Run(commands []string) error {
-	// TODO(gaocegege): Support order-based exec.
-	DefaultGraph.Exec = append(DefaultGraph.Exec, commands)
+func Run(commands []string, mount bool) error {
+	DefaultGraph.Exec = append(DefaultGraph.Exec, RunBuildCommand{
+		Command: commands,
+		MountHost: mount,
+	})
 	return nil
 }
 

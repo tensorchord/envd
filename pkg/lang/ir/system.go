@@ -52,11 +52,11 @@ func (g Graph) compileRun(root llb.State) llb.State {
 	}
 
 	workingDir := g.getWorkingDir()
-	stage := root
+	stage := root.AddEnv("PATH", types.DefaultPathEnvUnix)
 	for _, execGroup := range g.Exec {
 		var sb strings.Builder
 		sb.WriteString("set -euo pipefail\n")
-		for _, c := range execGroup {
+		for _, c := range execGroup.Command {
 			sb.WriteString(c + "\n")
 		}
 
@@ -66,11 +66,11 @@ func (g Graph) compileRun(root llb.State) llb.State {
 		// TODO(gaocegege): Maybe we should make it readonly,
 		// but these cases then cannot be supported:
 		// run(commands=["git clone xx.git"])
-		stage = stage.
-			Run(llb.Shlex(cmdStr),
-				llb.AddEnv("PATH", types.DefaultPathEnvUnix),
-				llb.Dir(workingDir),
-				llb.AddMount(workingDir, llb.Local(flag.FlagBuildContext))).Root()
+		run := stage.Dir(workingDir).Run(llb.Shlex(cmdStr))
+		if execGroup.MountHost {
+			run.AddMount(workingDir, llb.Local(flag.FlagBuildContext))
+		}
+		stage = run.Root()
 	}
 	return stage
 }
