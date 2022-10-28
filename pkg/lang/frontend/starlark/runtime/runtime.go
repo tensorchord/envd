@@ -111,7 +111,7 @@ func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
 	)
 
 	if err := starlark.UnpackArgs(ruleExpose,
-		args, kwargs, "envd_port", &envdPort, "host_port?", &hostPort, "service?", &serviceName, "listen_addr?", &listeningAddr); err != nil {
+		args, kwargs, "envd_port", &envdPort, "host_port?", &hostPort, "service?", &serviceName, "listening_addr?", &listeningAddr); err != nil {
 		return nil, err
 	}
 	envdPortInt, ok := envdPort.Int64()
