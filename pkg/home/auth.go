@@ -90,7 +90,7 @@ func (m *generalManager) AuthCreate(ac types.AuthConfig, use bool) error {
 	for _, a := range m.auth.Auth {
 		if a.Name == ac.Name {
 			// Auth should be idempotent. Thus do not return error here.
-			return nil
+			return m.AuthUse(ac.Name)
 		}
 	}
 	m.auth.Auth = append(m.auth.Auth, ac)
