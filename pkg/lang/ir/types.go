@@ -137,7 +137,7 @@ type JupyterConfig struct {
 }
 
 type RunBuildCommand struct {
-	Command []string
+	Command   []string
 	MountHost bool
 }
 
