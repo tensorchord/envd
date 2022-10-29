@@ -214,11 +214,12 @@ func RuntimeDaemon(commands [][]string) {
 	DefaultGraph.RuntimeDaemon = append(DefaultGraph.RuntimeDaemon, commands...)
 }
 
-func RuntimeExpose(envdPort, hostPort int, serviceName string) error {
+func RuntimeExpose(envdPort, hostPort int, serviceName string, listeningAddr string) error {
 	DefaultGraph.RuntimeExpose = append(DefaultGraph.RuntimeExpose, ExposeItem{
-		EnvdPort:    envdPort,
-		HostPort:    hostPort,
-		ServiceName: serviceName,
+		EnvdPort:      envdPort,
+		HostPort:      hostPort,
+		ServiceName:   serviceName,
+		ListeningAddr: listeningAddr,
 	})
 	return nil
 }

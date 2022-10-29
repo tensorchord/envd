@@ -126,9 +126,10 @@ type GitConfig struct {
 }
 
 type ExposeItem struct {
-	EnvdPort    int
-	HostPort    int
-	ServiceName string
+	EnvdPort      int
+	HostPort      int
+	ServiceName   string
+	ListeningAddr string
 }
 
 type JupyterConfig struct {

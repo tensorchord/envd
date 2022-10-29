@@ -419,7 +419,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 			natPort := nat.Port(fmt.Sprintf("%d/tcp", item.EnvdPort))
 			hostConfig.PortBindings[natPort] = []nat.PortBinding{
 				{
-					HostIP:   localhost,
+					HostIP:   item.ListeningAddr,
 					HostPort: strconv.Itoa(item.HostPort),
 				},
 			}
