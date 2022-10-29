@@ -47,7 +47,7 @@ def run(commands: str, mount_host: bool = False):
 
     Args:
         commands (str): command to run during the building process
-        mount_host (bool): mount the host directory
+        mount_host (bool): mount the host directory. Default is False.
 
     Example:
     ```
