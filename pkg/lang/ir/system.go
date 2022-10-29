@@ -56,7 +56,7 @@ func (g Graph) compileRun(root llb.State) llb.State {
 	for _, execGroup := range g.Exec {
 		var sb strings.Builder
 		sb.WriteString("set -euo pipefail\n")
-		for _, c := range execGroup.Command {
+		for _, c := range execGroup.Commands {
 			sb.WriteString(c + "\n")
 		}
 

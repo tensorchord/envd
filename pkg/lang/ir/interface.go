@@ -136,7 +136,7 @@ func RStudioServer() error {
 
 func Run(commands []string, mount bool) error {
 	DefaultGraph.Exec = append(DefaultGraph.Exec, RunBuildCommand{
-		Command:   commands,
+		Commands:  commands,
 		MountHost: mount,
 	})
 	return nil
