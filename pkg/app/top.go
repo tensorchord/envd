@@ -22,6 +22,7 @@ import (
 	ui "github.com/gizak/termui/v3"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
@@ -50,6 +51,10 @@ func top(clicontext *cli.Context) error {
 	opt := envd.Options{
 		Context: context,
 	}
+
+	r := string(context.Runner)
+	telemetry.GetReporter().Telemetry("top", &r)
+
 	envdEngine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
 		return err

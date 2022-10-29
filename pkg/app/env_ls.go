@@ -25,6 +25,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
@@ -42,6 +43,9 @@ func getEnvironment(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the current context")
 	}
+
+	runner := string(context.Runner)
+	telemetry.GetReporter().Telemetry("environment_list", &runner)
 	opt := envd.Options{
 		Context: context,
 	}

@@ -23,6 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -130,6 +131,8 @@ func up(clicontext *cli.Context) error {
 	if c.Runner == types.RunnerTypeEnvdServer {
 		buildOpt.OutputOpts = fmt.Sprintf("type=image,name=%s,push=true", buildOpt.Tag)
 	}
+	r := string(c.Runner)
+	telemetry.GetReporter().Telemetry("up", &r)
 
 	ctr := filepath.Base(buildOpt.BuildContextDir)
 	detach := clicontext.Bool("detach")

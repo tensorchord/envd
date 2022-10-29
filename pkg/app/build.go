@@ -22,6 +22,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/envd"
@@ -99,6 +100,7 @@ To build and push the image to a registry:
 }
 
 func build(clicontext *cli.Context) error {
+	telemetry.GetReporter().Telemetry("build", nil)
 	opt, err := ParseBuildOpt(clicontext)
 	if err != nil {
 		return err
