@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.2.4-alpha.17 (2022-10-29)
+
+ * [197b6c6](https://github.com/tensorchord/envd/commit/197b6c612891f0b7bc95b4b1f12a7daacbe7e51f) feat: Add telemetry with the help of segment.io (#1113)
+ * [dedd731](https://github.com/tensorchord/envd/commit/dedd73113214d68fd6f8421446fcf2ea8895252e) feat: Add listening_addr to expose fun (#1110)
+ * [f672c8f](https://github.com/tensorchord/envd/commit/f672c8f67c9fd793427fb9ec556e767fdf1ef50b) feat: support build time run without mount host (#1109)
+ * [214f7c8](https://github.com/tensorchord/envd/commit/214f7c88c64c8b9152e0abb3acfb67e57cc1bf68) fix: panic if the user specify entrypoint for non-costom image (#1108)
+ * [8f89ba6](https://github.com/tensorchord/envd/commit/8f89ba6c57795f76f38e0d613ab62517d7b03205) fix: auth with the same name (#1106)
+ * [e831fe9](https://github.com/tensorchord/envd/commit/e831fe9c46a4f4085e95395722ffd836bd305c8e) fix: cycle import detection in the interpreter (#1104)
+ * [356a707](https://github.com/tensorchord/envd/commit/356a707bfc7e4f9945868fbbcd94a03277d3e601) feat: add config.repo in envd (#1101)
+ * [4429bae](https://github.com/tensorchord/envd/commit/4429baebf0bfb6a4f496609c90117881975b4054) fix(CLI): Fix format for app (#1100)
+ * [0a975de](https://github.com/tensorchord/envd/commit/0a975de0103d84841252b54b549cddaa6d82d8a6) feat: support envd server destroy env (#1096)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * Keming
+ * Yilong Li
+ * nullday
+
 ## v0.2.4-alpha.16 (2022-10-26)
 
  * [ac87c76](https://github.com/tensorchord/envd/commit/ac87c76f78e8d6ff8c156365310ed5740e8e054b) feature: support runtime init script (#1085)
