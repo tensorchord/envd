@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	segmentio "github.com/segmentio/analytics-go/v3"
 	"github.com/sirupsen/logrus"
 
