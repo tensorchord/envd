@@ -42,11 +42,13 @@ def shell(name: str):
     """
 
 
-def run(commands: str):
+def run(commands: str, mount_host: bool = False):
     """Execute command
 
     Args:
         commands (str): command to run during the building process
+        mount_host (bool): mount the host directory. Default is False.
+            Enabling this will disable the build cache for this operation.
 
     Example:
     ```
