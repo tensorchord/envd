@@ -42,6 +42,8 @@ import (
 type Builder interface {
 	Build(ctx context.Context, force bool) error
 	Interpret() error
+	// Compile compiles envd IR to LLB.
+	Compile(ctx context.Context) (*llb.Definition, error)
 	GPUEnabled() bool
 	NumGPUs() int
 }
@@ -155,7 +157,7 @@ func (b generalBuilder) Build(ctx context.Context, force bool) error {
 		return nil
 	}
 
-	def, err := b.compile(ctx)
+	def, err := b.Compile(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to compile")
 	}
@@ -187,7 +189,7 @@ func (b generalBuilder) Interpret() error {
 	return nil
 }
 
-func (b generalBuilder) compile(ctx context.Context) (*llb.Definition, error) {
+func (b generalBuilder) Compile(ctx context.Context) (*llb.Definition, error) {
 	envName := filepath.Base(b.BuildContextDir)
 	def, err := ir.Compile(ctx, envName, b.PubKeyPath)
 	if err != nil {
