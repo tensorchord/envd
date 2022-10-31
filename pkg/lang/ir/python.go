@@ -69,7 +69,10 @@ func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
 		llb.WithCustomName("[internal] conda python environment"))
 	diffSystemStage := llb.Diff(shellStage, systemStage,
 		llb.WithCustomName("[internal] install system packages"))
-	prePythonStage := llb.Merge([]llb.State{diffSystemStage, diffCondaEnvStage, shellStage}, llb.WithCustomName("pre-python stage"))
+	prePythonStage := llb.Merge([]llb.State{
+		diffSystemStage,
+		diffCondaEnvStage,
+		shellStage}, llb.WithCustomName("pre-python stage"))
 
 	condaStage := llb.Diff(prePythonStage,
 		g.compileCondaPackages(prePythonStage),
