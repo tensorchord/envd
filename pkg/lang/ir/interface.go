@@ -117,7 +117,6 @@ func JuliaPackageServer(url string) error {
 
 func Shell(shell string) error {
 	DefaultGraph.Shell = shell
-	DefaultGraph.SystemPackages = append(DefaultGraph.SystemPackages, shell)
 	return nil
 }
 

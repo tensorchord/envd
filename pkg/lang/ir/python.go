@@ -45,41 +45,47 @@ func (g Graph) getAppropriatePythonVersion() (string, error) {
 	return "", errors.Errorf("python version %s is not supported", version)
 }
 
-func (g Graph) compilePython(aptStage llb.State) (llb.State, error) {
-	condaChanelStage := g.compileCondaChannel(aptStage)
-	pypiMirrorStage := g.compilePyPIIndex(condaChanelStage)
-
+func (g Graph) compilePython(baseStage llb.State) (llb.State, error) {
 	if err := g.compileJupyter(); err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
 	}
-	// Conda affects shell and python, thus we cannot do it in parallel.
-	shellStage, err := g.compileShell(pypiMirrorStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile shell")
-	}
+	aptStage := g.compileUbuntuAPT(baseStage)
+	systemStage := g.compileSystemPackages(aptStage)
 
-	systemStage := g.compileSystemPackages(shellStage)
-
-	condaEnvStage, err := g.compileCondaEnvironment(shellStage)
+	condaEnvStage, err := g.compileCondaEnvironment(baseStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile conda environment")
 	}
 
-	diffCondaEnvStage := llb.Diff(shellStage, condaEnvStage,
+	// Conda affects shell and python, thus we cannot do it in parallel.
+	shellStage, err := g.compileShell(baseStage)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile shell")
+	}
+	condaShellStage := g.compileCondaShell(shellStage)
+
+	diffCondaEnvStage := llb.Diff(baseStage, condaEnvStage,
 		llb.WithCustomName("[internal] conda python environment"))
-	diffSystemStage := llb.Diff(shellStage, systemStage,
+	diffSystemStage := llb.Diff(baseStage, systemStage,
 		llb.WithCustomName("[internal] install system packages"))
+	diffShellStage := llb.Diff(baseStage, condaShellStage,
+		llb.WithCustomNamef("[internal] configure shell %s", g.Shell))
 	prePythonStage := llb.Merge([]llb.State{
 		diffSystemStage,
 		diffCondaEnvStage,
-		shellStage}, llb.WithCustomName("pre-python stage"))
+		diffShellStage,
+		baseStage}, llb.WithCustomName("pre-python stage"))
+
+	condaChannelStage := g.compileCondaChannel(prePythonStage)
 
 	condaStage := llb.Diff(prePythonStage,
-		g.compileCondaPackages(prePythonStage),
+		g.compileCondaPackages(condaChannelStage),
 		llb.WithCustomName("[internal] install conda packages"))
 
+	pypiMirrorStage := g.compilePyPIIndex(prePythonStage)
+
 	pypiStage := llb.Diff(prePythonStage,
-		g.compilePyPIPackages(prePythonStage),
+		g.compilePyPIPackages(pypiMirrorStage),
 		llb.WithCustomName("[internal] install PyPI packages"))
 
 	vscodeStage, err := g.compileVSCode()

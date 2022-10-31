@@ -25,7 +25,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/flag"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 const (
@@ -137,20 +136,6 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	run = run.Run(llb.Shlex(cmd),
 		llb.WithCustomNamef("[internal] create conda environment: %s", cmd))
 
-	switch g.Shell {
-	case shellBASH:
-		run = run.Run(
-			llb.Shlex(
-				fmt.Sprintf(`bash -c 'echo "source %s/activate envd" >> %s'`,
-					condaBinDir, fileutil.EnvdHomeDir(".bashrc"))),
-			llb.WithCustomName("[internal] add conda environment to bashrc"))
-	case shellZSH:
-		run = run.Run(
-			llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.condaInitShell(g.Shell))),
-			llb.WithCustomNamef("[internal] initialize conda %s environment", g.Shell)).Run(
-			llb.Shlex(fmt.Sprintf(`bash -c 'echo "source %s/activate envd" >> %s'`, condaBinDir, fileutil.EnvdHomeDir(".zshrc"))),
-			llb.WithCustomName("[internal] add conda environment to zshrc"))
-	}
 	return run.Root(), nil
 }
 
