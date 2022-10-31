@@ -30,8 +30,10 @@ import (
 	"github.com/tensorchord/envd/pkg/version"
 )
 
+type TelemetryField func(*segmentio.Properties)
+
 type Reporter interface {
-	Telemetry(command string, runner *string)
+	Telemetry(command string, fields ...TelemetryField)
 }
 
 type defaultReporter struct {
@@ -153,7 +155,13 @@ func (r *defaultReporter) Identify() {
 	}
 }
 
-func (r *defaultReporter) Telemetry(command string, runner *string) {
+func AddField(name string, value interface{}) TelemetryField {
+	return func(p *segmentio.Properties) {
+		p.Set(name, value)
+	}
+}
+
+func (r *defaultReporter) Telemetry(command string, fields ...TelemetryField) {
 	if r.enabled {
 		logrus.WithFields(logrus.Fields{
 			"UID":     r.UID,
@@ -164,11 +172,13 @@ func (r *defaultReporter) Telemetry(command string, runner *string) {
 			Event:      command,
 			Properties: segmentio.NewProperties(),
 		}
-		if runner != nil {
-			t.Properties = t.Properties.Set("runner", runner)
+		for _, field := range fields {
+			field(&t.Properties)
 		}
 		if err := r.client.Enqueue(t); err != nil {
 			logrus.Warn(err)
 		}
+		// make sure the msg can be sent out
+		r.client.Close()
 	}
 }

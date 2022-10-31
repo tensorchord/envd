@@ -35,8 +35,7 @@ var CommandPruneImages = &cli.Command{
 }
 
 func pruneImages(clicontext *cli.Context) error {
-	r := "docker"
-	telemetry.GetReporter().Telemetry("image_prune", &r)
+	telemetry.GetReporter().Telemetry("image_prune", telemetry.AddField("runner", "docker"))
 
 	cli, err := docker.NewClient(clicontext.Context)
 	if err != nil {

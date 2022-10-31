@@ -44,8 +44,7 @@ func getEnvironment(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get the current context")
 	}
 
-	runner := string(context.Runner)
-	telemetry.GetReporter().Telemetry("environment_list", &runner)
+	telemetry.GetReporter().Telemetry("environment_list", telemetry.AddField("runner", context.Runner))
 	opt := envd.Options{
 		Context: context,
 	}

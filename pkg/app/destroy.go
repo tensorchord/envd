@@ -72,9 +72,7 @@ func destroy(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the current context")
 	}
-
-	r := string(context.Runner)
-	telemetry.GetReporter().Telemetry("destroy", &r)
+	telemetry.GetReporter().Telemetry("destroy", telemetry.AddField("runner", context.Runner))
 
 	opt := envd.Options{Context: context}
 	envdEngine, err := envd.New(clicontext.Context, opt)
