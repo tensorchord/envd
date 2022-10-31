@@ -78,8 +78,8 @@ func (g Graph) compilePython(baseStage llb.State) (llb.State, error) {
 
 	condaChannelStage := g.compileCondaChannel(prePythonStage)
 
-	condaStage := llb.Diff(condaChannelStage,
-		g.compileCondaPackages(prePythonStage),
+	condaStage := llb.Diff(prePythonStage,
+		g.compileCondaPackages(condaChannelStage),
 		llb.WithCustomName("[internal] install conda packages"))
 
 	pypiMirrorStage := g.compilePyPIIndex(prePythonStage)
