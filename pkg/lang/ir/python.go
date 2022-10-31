@@ -49,10 +49,10 @@ func (g Graph) compilePython(baseStage llb.State) (llb.State, error) {
 	if err := g.compileJupyter(); err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
 	}
-	systemStage := g.compileSystemPackages(baseStage)
+	aptStage := g.compileUbuntuAPT(baseStage)
+	systemStage := g.compileSystemPackages(aptStage)
 
-	condaChannelStage := g.compileCondaChannel(baseStage)
-	condaEnvStage, err := g.compileCondaEnvironment(condaChannelStage)
+	condaEnvStage, err := g.compileCondaEnvironment(baseStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile conda environment")
 	}
@@ -76,7 +76,9 @@ func (g Graph) compilePython(baseStage llb.State) (llb.State, error) {
 		diffShellStage,
 		baseStage}, llb.WithCustomName("pre-python stage"))
 
-	condaStage := llb.Diff(prePythonStage,
+	condaChannelStage := g.compileCondaChannel(prePythonStage)
+
+	condaStage := llb.Diff(condaChannelStage,
 		g.compileCondaPackages(prePythonStage),
 		llb.WithCustomName("[internal] install conda packages"))
 

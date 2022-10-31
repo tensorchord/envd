@@ -35,13 +35,12 @@ import (
 func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
 	if g.UbuntuAPTSource != nil {
 		logrus.WithField("source", *g.UbuntuAPTSource).Debug("using custom APT source")
-		aptSource := llb.Scratch().
+		aptSource := root.
 			File(llb.Mkdir(filepath.Dir(aptSourceFilePath), 0755, llb.WithParents(true)),
 				llb.WithCustomName("[internal] setting apt source")).
 			File(llb.Mkfile(aptSourceFilePath, 0644, []byte(*g.UbuntuAPTSource)),
 				llb.WithCustomName("[internal] setting apt source"))
-		return llb.Merge([]llb.State{root, aptSource},
-			llb.WithCustomName("[internal] setting apt source"))
+		return aptSource
 	}
 	return root
 }
@@ -159,7 +158,7 @@ func (g *Graph) preparePythonBase(root llb.State) llb.State {
 	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
 
 	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
-		llb.WithCustomName("[internal] install system packages"))
+		llb.WithCustomName("[internal] install built-in packages"))
 
 	return run.Root()
 }
@@ -223,8 +222,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get extra sources")
 	}
-	aptStage := g.compileUbuntuAPT(source)
-	final := g.compileUserGroup(aptStage)
+	final := g.compileUserGroup(source)
 	return final, nil
 }
 

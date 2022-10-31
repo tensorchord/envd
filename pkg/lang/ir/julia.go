@@ -23,11 +23,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (g Graph) compileJulia(aptStage llb.State) (llb.State, error) {
+func (g Graph) compileJulia(baseStage llb.State) (llb.State, error) {
 	if err := g.compileJupyter(); err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
 	}
 
+	aptStage := g.compileUbuntuAPT(baseStage)
 	builtinSystemStage := aptStage
 
 	sshStage, err := g.copySSHKey(builtinSystemStage)
