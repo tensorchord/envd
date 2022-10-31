@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 	"strconv"
 	"strings"
 
@@ -45,7 +46,8 @@ func getEnvironment(clicontext *cli.Context) error {
 	}
 
 	runner := string(context.Runner)
-	telemetry.GetReporter().Telemetry("environment_list", &runner)
+	start := time.Now()
+	defer telemetry.GetReporter().Telemetry("environment_list", &runner, start)
 	opt := envd.Options{
 		Context: context,
 	}

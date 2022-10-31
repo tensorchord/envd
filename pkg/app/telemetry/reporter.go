@@ -31,7 +31,7 @@ import (
 )
 
 type Reporter interface {
-	Telemetry(command string, runner *string)
+	Telemetry(command string, runner *string, start time.Time)
 }
 
 type defaultReporter struct {
@@ -49,9 +49,13 @@ var (
 
 func Initialize(enabled bool, token string) error {
 	once.Do(func() {
+		client, err := segmentio.NewWithConfig(token, segmentio.Config{BatchSize: 1})
+		if err != nil {
+			logrus.Debug("failed to init telemetry client")
+		}
 		reporter = &defaultReporter{
 			enabled: enabled,
-			client:  segmentio.New(token),
+			client:  client,
 		}
 	})
 	return reporter.init()
@@ -142,11 +146,13 @@ func (r *defaultReporter) dumpTelemetry() error {
 	return err
 }
 
-func (r *defaultReporter) Telemetry(command string, runner *string) {
+func (r *defaultReporter) Telemetry(command string, runner *string, start time.Time) {
 	if r.enabled {
+		duration := time.Since(start)
 		logrus.WithFields(logrus.Fields{
 			"UID":     r.UID,
 			"command": command,
+			"duration": duration,
 		}).Debug("sending telemetry track event")
 		t := segmentio.Track{
 			UserId:     r.UID,
@@ -159,5 +165,7 @@ func (r *defaultReporter) Telemetry(command string, runner *string) {
 		if err := r.client.Enqueue(t); err != nil {
 			logrus.Warn(err)
 		}
+		// make sure the msg can be send out
+		r.client.Close()
 	}
 }

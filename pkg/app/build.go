@@ -16,6 +16,7 @@ package app
 
 import (
 	"fmt"
+	"time"
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
@@ -100,7 +101,8 @@ To build and push the image to a registry:
 }
 
 func build(clicontext *cli.Context) error {
-	telemetry.GetReporter().Telemetry("build", nil)
+	start := time.Now()
+	defer telemetry.GetReporter().Telemetry("build", nil, start)
 	opt, err := ParseBuildOpt(clicontext)
 	if err != nil {
 		return err

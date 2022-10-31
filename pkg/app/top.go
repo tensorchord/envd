@@ -53,7 +53,8 @@ func top(clicontext *cli.Context) error {
 	}
 
 	r := string(context.Runner)
-	telemetry.GetReporter().Telemetry("top", &r)
+	start := time.Now()
+	defer telemetry.GetReporter().Telemetry("top", &r, start)
 
 	envdEngine, err := envd.New(clicontext.Context, opt)
 	if err != nil {

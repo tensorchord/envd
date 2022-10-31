@@ -132,7 +132,8 @@ func up(clicontext *cli.Context) error {
 		buildOpt.OutputOpts = fmt.Sprintf("type=image,name=%s,push=true", buildOpt.Tag)
 	}
 	r := string(c.Runner)
-	telemetry.GetReporter().Telemetry("up", &r)
+	start := time.Now()
+	defer telemetry.GetReporter().Telemetry("up", &r, start)
 
 	ctr := filepath.Base(buildOpt.BuildContextDir)
 	detach := clicontext.Bool("detach")
