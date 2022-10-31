@@ -51,13 +51,16 @@ var (
 
 func Initialize(enabled bool, token string) error {
 	once.Do(func() {
-		client, err := segmentio.NewWithConfig(token, segmentio.Config{BatchSize: 1})
+		// Ref https://segment.com/docs/connections/sources/catalog/libraries/server/go/#development-settings
+		c, err := segmentio.NewWithConfig(token, segmentio.Config{
+			BatchSize: 1,
+		})
 		if err != nil {
-			logrus.Debug("failed to init telemetry client")
+			panic(err)
 		}
 		reporter = &defaultReporter{
 			enabled: enabled,
-			client:  client,
+			client:  c,
 		}
 	})
 	return reporter.init()
@@ -110,6 +113,23 @@ func (r *defaultReporter) init() error {
 	file.Close()
 	r.UID = string(uid)
 
+	r.Identify()
+	return nil
+}
+
+func (r *defaultReporter) dumpTelemetry() error {
+	file, err := os.Create(r.telemetryFile)
+	if err != nil {
+		return errors.Wrap(err, "failed to create cache telemetry file")
+	}
+	defer file.Close()
+
+	// Write uid to file.
+	_, err = file.Write([]byte(r.UID))
+	return err
+}
+
+func (r *defaultReporter) Identify() {
 	logrus.WithField("UID", r.UID).Debug("telemetry initialization")
 	if r.enabled {
 		logrus.Debug("sending telemetry")
@@ -130,22 +150,9 @@ func (r *defaultReporter) init() error {
 			Traits:    segmentio.NewTraits(),
 		}); err != nil {
 			logrus.Warn("telemetry failed")
-			return nil
+			return
 		}
 	}
-	return nil
-}
-
-func (r *defaultReporter) dumpTelemetry() error {
-	file, err := os.Create(r.telemetryFile)
-	if err != nil {
-		return errors.Wrap(err, "failed to create cache telemetry file")
-	}
-	defer file.Close()
-
-	// Write uid to file.
-	_, err = file.Write([]byte(r.UID))
-	return err
 }
 
 func AddField(name string, value interface{}) TelemetryField {

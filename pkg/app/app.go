@@ -87,6 +87,7 @@ func New() EnvdApp {
 		CommandRun,
 		CommandResume,
 		CommandUp,
+		CommandDebug,
 		CommandVersion,
 		CommandTop,
 	}

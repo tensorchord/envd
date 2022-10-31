@@ -134,7 +134,7 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	}
 	// Create a conda environment.
 	cmd := fmt.Sprintf("bash -c \"%s create -n envd python=%s\"", g.condaCommandPath(), pythonVersion)
-	run = run.Dir(g.getWorkingDir()).Run(llb.Shlex(cmd),
+	run = run.Run(llb.Shlex(cmd),
 		llb.WithCustomNamef("[internal] create conda environment: %s", cmd))
 
 	switch g.Shell {
