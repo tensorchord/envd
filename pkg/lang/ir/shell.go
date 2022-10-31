@@ -53,6 +53,25 @@ func (g *Graph) compileShell(root llb.State) (llb.State, error) {
 	return root, nil
 }
 
+func (g *Graph) compileCondaShell(root llb.State) llb.State {
+	var run llb.ExecState
+	switch g.Shell {
+	case shellBASH:
+		run = root.Run(
+			llb.Shlex(
+				fmt.Sprintf(`bash -c 'echo "source %s/activate envd" >> %s'`,
+					condaBinDir, fileutil.EnvdHomeDir(".bashrc"))),
+			llb.WithCustomName("[internal] add conda environment to bashrc"))
+	case shellZSH:
+		run = root.Run(
+			llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.condaInitShell(g.Shell))),
+			llb.WithCustomNamef("[internal] initialize conda %s environment", g.Shell)).Run(
+			llb.Shlex(fmt.Sprintf(`bash -c 'echo "source %s/activate envd" >> %s'`, condaBinDir, fileutil.EnvdHomeDir(".zshrc"))),
+			llb.WithCustomName("[internal] add conda environment to zshrc"))
+	}
+	return run.Root()
+}
+
 func (g *Graph) compilePrompt(root llb.State) llb.State {
 	// skip this for customized image
 	if g.Image != nil {
