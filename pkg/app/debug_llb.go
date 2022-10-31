@@ -165,7 +165,7 @@ func attr(dgst digest.Digest, op pb.Op) (string, string) {
 	case *pb.Op_Source:
 		return op.Source.Identifier, "ellipse"
 	case *pb.Op_Exec:
-		return strings.Join(op.Exec.Meta.Args, " "), "box"
+		return generateExecNode(op.Exec)
 	case *pb.Op_Build:
 		return "build", "box3d"
 	case *pb.Op_Merge:
@@ -195,4 +195,27 @@ func attr(dgst digest.Digest, op pb.Op) (string, string) {
 	default:
 		return dgst.String(), "plaintext"
 	}
+}
+
+func generateExecNode(op *pb.ExecOp) (string, string) {
+	mounts := []string{}
+	for _, m := range op.Mounts {
+		mstr := fmt.Sprintf("selector=%s, target=%s, mount-type=%s", m.Selector,
+			m.Dest, m.MountType)
+		if m.CacheOpt != nil {
+			mstr = mstr + fmt.Sprintf(" cache-id=%s, cache-share-mode = %s",
+				m.CacheOpt.ID, m.CacheOpt.Sharing)
+		}
+		mounts = append(mounts, mstr)
+	}
+
+	name := fmt.Sprintf("user=%s, cwd=%s, args={%s}, mounts={%s}, env={%s}",
+		op.Meta.User,
+		op.Meta.Cwd,
+		strings.Join(op.Meta.Args, " "),
+		strings.Join(mounts, " "),
+		strings.Join(op.Meta.Env, " "),
+	)
+
+	return name, "box"
 }
