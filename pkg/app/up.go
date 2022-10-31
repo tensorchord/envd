@@ -131,9 +131,7 @@ func up(clicontext *cli.Context) error {
 	if c.Runner == types.RunnerTypeEnvdServer {
 		buildOpt.OutputOpts = fmt.Sprintf("type=image,name=%s,push=true", buildOpt.Tag)
 	}
-	r := string(c.Runner)
 	start := time.Now()
-	defer telemetry.GetReporter().Telemetry("up", &r, start)
 
 	ctr := filepath.Base(buildOpt.BuildContextDir)
 	detach := clicontext.Bool("detach")
@@ -220,6 +218,10 @@ func up(clicontext *cli.Context) error {
 		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
+	telemetry.GetReporter().Telemetry(
+		"up",
+		telemetry.AddField("runner", c.Runner),
+		telemetry.AddField("duration", time.Since(start).Seconds()))
 
 	if !detach {
 		if err := engine.Attach(ctr, hostname,

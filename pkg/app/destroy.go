@@ -16,7 +16,6 @@ package app
 
 import (
 	"path/filepath"
-	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
@@ -73,10 +72,7 @@ func destroy(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the current context")
 	}
-
-	r := string(context.Runner)
-	start := time.Now()
-	defer telemetry.GetReporter().Telemetry("destroy", &r, start)
+	telemetry.GetReporter().Telemetry("destroy", telemetry.AddField("runner", context.Runner))
 
 	opt := envd.Options{Context: context}
 	envdEngine, err := envd.New(clicontext.Context, opt)

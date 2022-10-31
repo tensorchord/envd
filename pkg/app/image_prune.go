@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
 
 	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/go-units"
@@ -36,9 +35,7 @@ var CommandPruneImages = &cli.Command{
 }
 
 func pruneImages(clicontext *cli.Context) error {
-	r := "docker"
-	start := time.Now()
-	defer telemetry.GetReporter().Telemetry("image_prune", &r, start)
+	telemetry.GetReporter().Telemetry("image_prune", telemetry.AddField("runner", "docker"))
 
 	cli, err := docker.NewClient(clicontext.Context)
 	if err != nil {

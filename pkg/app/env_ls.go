@@ -20,7 +20,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/olekukonko/tablewriter"
@@ -45,9 +44,7 @@ func getEnvironment(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get the current context")
 	}
 
-	runner := string(context.Runner)
-	start := time.Now()
-	defer telemetry.GetReporter().Telemetry("environment_list", &runner, start)
+	telemetry.GetReporter().Telemetry("environment_list", telemetry.AddField("runner", context.Runner))
 	opt := envd.Options{
 		Context: context,
 	}

@@ -101,12 +101,14 @@ To build and push the image to a registry:
 }
 
 func build(clicontext *cli.Context) error {
-	start := time.Now()
-	defer telemetry.GetReporter().Telemetry("build", nil, start)
 	opt, err := ParseBuildOpt(clicontext)
 	if err != nil {
 		return err
 	}
+	defer func(start time.Time) {
+		telemetry.GetReporter().Telemetry(
+			"build", telemetry.AddField("duration", time.Since(start).Seconds()))
+	}(time.Now())
 
 	logger := logrus.WithFields(logrus.Fields{
 		"build-context": opt.BuildContextDir,
