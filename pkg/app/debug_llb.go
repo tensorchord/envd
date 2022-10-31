@@ -100,7 +100,7 @@ func debugLLB(clicontext *cli.Context) error {
 
 	ops, err := loadLLB(def)
 	if err != nil {
-		errors.Wrap(err, "failed to load LLB")
+		return errors.Wrap(err, "failed to load LLB")
 	}
 
 	if clicontext.Bool("dot") {
@@ -109,7 +109,7 @@ func debugLLB(clicontext *cli.Context) error {
 		enc := json.NewEncoder(os.Stdout)
 		for _, op := range ops {
 			if err := enc.Encode(op); err != nil {
-				return err
+				return errors.Wrap(err, "failed to encode LLB op")
 			}
 		}
 	}
