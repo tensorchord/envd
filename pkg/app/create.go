@@ -68,6 +68,11 @@ var CommandCreate = &cli.Command{
 			Value:   sshconfig.GetPrivateKeyOrPanic(),
 			Hidden:  true,
 		},
+		&cli.StringFlag{
+			Name:  "host",
+			Usage: "Assign the host address for environment ssh acesss server listening",
+			Value: envd.Localhost,
+		},
 	},
 	Action: create,
 }
@@ -90,6 +95,7 @@ func create(clicontext *cli.Context) error {
 		name = strings.ToLower(randomdata.SillyName())
 	}
 	opt := envd.StartOptions{
+		SshdHost:        clicontext.String("host"),
 		Image:           clicontext.String("image"),
 		Timeout:         clicontext.Duration("timeout"),
 		EnvironmentName: name,
@@ -105,7 +111,7 @@ func create(clicontext *cli.Context) error {
 	logrus.Debugf("container %s is running", res.Name)
 
 	logrus.Debugf("add entry %s to SSH config.", res.Name)
-	hostname, err := c.GetSSHHostname()
+	hostname, err := c.GetSSHHostname(opt.SshdHost)
 	if err != nil {
 		return errors.Wrap(err, "failed to get the ssh hostname")
 	}
