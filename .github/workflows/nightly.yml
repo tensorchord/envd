@@ -41,6 +41,9 @@ jobs:
           skip-pkg-cache: true
   test:
     name: test
+    env:
+      # Disable telemetry.
+      ENVD_ANALYTICS: false
     strategy:
       matrix:
         os: [ ubuntu-latest ]
@@ -74,6 +77,9 @@ jobs:
           path: coverage.out
   e2e-cli:
     name: e2e-cli
+    env:
+      # Disable telemetry.
+      ENVD_ANALYTICS: false
     strategy:
       matrix:
         os: [ ubuntu-latest ]
@@ -107,6 +113,9 @@ jobs:
           path: e2e-cli-coverage.out
   e2e-lang:
     name: e2e-lang
+    env:
+      # Disable telemetry.
+      ENVD_ANALYTICS: false
     strategy:
       matrix:
         os: [ ubuntu-latest ]
@@ -203,6 +212,9 @@ jobs:
         run: make
   e2e-doc:
     name: e2e-doc
+    env:
+      # Disable telemetry.
+      ENVD_ANALYTICS: false
     strategy:
       matrix:
         os: [ubuntu-latest]

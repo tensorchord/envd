@@ -131,10 +131,9 @@ func New() EnvdApp {
 		}
 
 		analytics := context.Bool(flag.FlagAnalytics)
-		if analytics {
-			if err := telemetry.Initialize(context.String("analytics-token")); err != nil {
-				return errors.Wrap(err, "failed to create telemetry client")
-			}
+		if err := telemetry.Initialize(analytics,
+			context.String("analytics-token")); err != nil {
+			return errors.Wrap(err, "failed to create telemetry client")
 		}
 
 		// TODO(gaocegege): Add a config struct to keep them.

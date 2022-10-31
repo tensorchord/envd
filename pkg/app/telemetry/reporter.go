@@ -37,6 +37,7 @@ type Reporter interface {
 type defaultReporter struct {
 	client        segmentio.Client
 	telemetryFile string
+	enabled       bool
 
 	UID string
 }
@@ -46,10 +47,11 @@ var (
 	once     sync.Once
 )
 
-func Initialize(token string) error {
+func Initialize(enabled bool, token string) error {
 	once.Do(func() {
 		reporter = &defaultReporter{
-			client: segmentio.New(token),
+			enabled: enabled,
+			client:  segmentio.New(token),
 		}
 	})
 	return reporter.init()
@@ -103,25 +105,27 @@ func (r *defaultReporter) init() error {
 	r.UID = string(uid)
 
 	logrus.WithField("UID", r.UID).Debug("telemetry initialization")
-	v := version.GetVersion()
-	logrus.Debug("sending telemetry")
-	if err := r.client.Enqueue(segmentio.Identify{
-		UserId: r.UID,
-		Context: &segmentio.Context{
-			OS: segmentio.OSInfo{
-				Name:    runtime.GOOS,
-				Version: runtime.GOARCH,
+	if r.enabled {
+		logrus.Debug("sending telemetry")
+		v := version.GetVersion()
+		if err := r.client.Enqueue(segmentio.Identify{
+			UserId: r.UID,
+			Context: &segmentio.Context{
+				OS: segmentio.OSInfo{
+					Name:    runtime.GOOS,
+					Version: runtime.GOARCH,
+				},
+				App: segmentio.AppInfo{
+					Name:    "envd-cli",
+					Version: v.Version,
+				},
 			},
-			App: segmentio.AppInfo{
-				Name:    "envd-cli",
-				Version: v.Version,
-			},
-		},
-		Timestamp: time.Now(),
-		Traits:    segmentio.NewTraits(),
-	}); err != nil {
-		logrus.Warn("telemetry failed")
-		return nil
+			Timestamp: time.Now(),
+			Traits:    segmentio.NewTraits(),
+		}); err != nil {
+			logrus.Warn("telemetry failed")
+			return nil
+		}
 	}
 	return nil
 }
@@ -139,19 +143,21 @@ func (r *defaultReporter) dumpTelemetry() error {
 }
 
 func (r *defaultReporter) Telemetry(command string, runner *string) {
-	logrus.WithFields(logrus.Fields{
-		"UID":     r.UID,
-		"command": command,
-	}).Debug("sending telemetry track event")
-	t := segmentio.Track{
-		UserId:     r.UID,
-		Event:      command,
-		Properties: segmentio.NewProperties(),
-	}
-	if runner != nil {
-		t.Properties = t.Properties.Set("runner", runner)
-	}
-	if err := r.client.Enqueue(t); err != nil {
-		logrus.Warn(err)
+	if r.enabled {
+		logrus.WithFields(logrus.Fields{
+			"UID":     r.UID,
+			"command": command,
+		}).Debug("sending telemetry track event")
+		t := segmentio.Track{
+			UserId:     r.UID,
+			Event:      command,
+			Properties: segmentio.NewProperties(),
+		}
+		if runner != nil {
+			t.Properties = t.Properties.Set("runner", runner)
+		}
+		if err := r.client.Enqueue(t); err != nil {
+			logrus.Warn(err)
+		}
 	}
 }
