@@ -164,8 +164,8 @@ func AddField(name string, value interface{}) TelemetryField {
 func (r *defaultReporter) Telemetry(command string, fields ...TelemetryField) {
 	if r.enabled {
 		logrus.WithFields(logrus.Fields{
-			"UID":      r.UID,
-			"command":  command,
+			"UID":     r.UID,
+			"command": command,
 		}).Debug("sending telemetry track event")
 		t := segmentio.Track{
 			UserId:     r.UID,
