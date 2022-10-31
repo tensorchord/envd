@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/olekukonko/tablewriter"

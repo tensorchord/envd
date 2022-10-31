@@ -150,8 +150,8 @@ func (r *defaultReporter) Telemetry(command string, runner *string, start time.T
 	if r.enabled {
 		duration := time.Since(start)
 		logrus.WithFields(logrus.Fields{
-			"UID":     r.UID,
-			"command": command,
+			"UID":      r.UID,
+			"command":  command,
 			"duration": duration,
 		}).Debug("sending telemetry track event")
 		t := segmentio.Track{

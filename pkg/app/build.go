@@ -16,8 +16,8 @@ package app
 
 import (
 	"fmt"
-	"time"
 	"path/filepath"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
