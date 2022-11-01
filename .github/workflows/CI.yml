@@ -92,7 +92,7 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -128,7 +128,7 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
