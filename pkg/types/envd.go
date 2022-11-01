@@ -317,9 +317,9 @@ func parsePyPICommands(lst string) ([]string, error) {
 	return pkgs, err
 }
 
-func (c Context) GetSSHHostname() (string, error) {
+func (c Context) GetSSHHostname(sshdHost string) (string, error) {
 	if c.RunnerAddress == nil {
-		return "localhost", nil
+		return sshdHost, nil
 	}
 
 	// TODO(gaocegege): Check ENVD_SERVER_HOST.
