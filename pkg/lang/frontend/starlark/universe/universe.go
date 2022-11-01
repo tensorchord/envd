@@ -62,9 +62,10 @@ func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
 func ruleFuncRun(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var commands *starlark.List
+	mountHost := false
 
 	if err := starlark.UnpackArgs(ruleRun,
-		args, kwargs, "commands?", &commands); err != nil {
+		args, kwargs, "commands", &commands, "mount_host?", &mountHost); err != nil {
 		return nil, err
 	}
 
@@ -73,8 +74,8 @@ func ruleFuncRun(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 
-	logger.Debugf("rule `%s` is invoked, commands=%v", ruleRun, goCommands)
-	if err := ir.Run(goCommands); err != nil {
+	logger.Debugf("rule `%s` is invoked, commands=%v, mount_host=%t", ruleRun, goCommands, mountHost)
+	if err := ir.Run(goCommands, mountHost); err != nil {
 		return nil, err
 	}
 

@@ -255,6 +255,7 @@ func (e dockerEngine) GenerateSSHConfig(name, iface, privateKeyPath string,
 func (e dockerEngine) Attach(name, iface, privateKeyPath string,
 	startResult *StartResult) error {
 	opt := ssh.DefaultOptions()
+	opt.Server = iface
 	opt.PrivateKeyPath = privateKeyPath
 	opt.Port = startResult.SSHPort
 	sshClient, err := ssh.NewClient(opt)
@@ -363,7 +364,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.SSHPortInContainer))
 	hostConfig.PortBindings[natPort] = []nat.PortBinding{
 		{
-			HostIP:   localhost,
+			HostIP:   so.SshdHost,
 			HostPort: strconv.Itoa(sshPortInHost),
 		},
 	}
@@ -384,7 +385,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.JupyterPortInContainer))
 		hostConfig.PortBindings[natPort] = []nat.PortBinding{
 			{
-				HostIP:   localhost,
+				HostIP:   Localhost,
 				HostPort: strconv.Itoa(jupyterPortInHost),
 			},
 		}
@@ -400,7 +401,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.RStudioServerPortInContainer))
 		hostConfig.PortBindings[natPort] = []nat.PortBinding{
 			{
-				HostIP:   localhost,
+				HostIP:   Localhost,
 				HostPort: strconv.Itoa(rStudioPortInHost),
 			},
 		}
@@ -419,7 +420,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 			natPort := nat.Port(fmt.Sprintf("%d/tcp", item.EnvdPort))
 			hostConfig.PortBindings[natPort] = []nat.PortBinding{
 				{
-					HostIP:   localhost,
+					HostIP:   item.ListeningAddr,
 					HostPort: strconv.Itoa(item.HostPort),
 				},
 			}
@@ -631,11 +632,11 @@ func labels(name string, g ir.Graph,
 	res[types.ContainerLabelSSHPort] = strconv.Itoa(sshPortInHost)
 	if g.JupyterConfig != nil {
 		res[types.ContainerLabelJupyterAddr] =
-			fmt.Sprintf("http://%s:%d", localhost, jupyterPortInHost)
+			fmt.Sprintf("http://%s:%d", Localhost, jupyterPortInHost)
 	}
 	if g.RStudioServerConfig != nil {
 		res[types.ContainerLabelRStudioServerAddr] =
-			fmt.Sprintf("http://%s:%d", localhost, rstudioServerPortInHost)
+			fmt.Sprintf("http://%s:%d", Localhost, rstudioServerPortInHost)
 	}
 
 	return res

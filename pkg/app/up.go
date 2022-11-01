@@ -23,6 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -99,6 +100,11 @@ var CommandUp = &cli.Command{
 			Usage: "Force rebuild and run the container although the previous container is running",
 			Value: false,
 		},
+		&cli.StringFlag{
+			Name:  "host",
+			Usage: "Assign the host address for environment ssh acesss server listening",
+			Value: envd.Localhost,
+		},
 		// https://github.com/urfave/cli/issues/1134#issuecomment-1191407527
 		&cli.StringFlag{
 			Name:    "export-cache",
@@ -129,6 +135,13 @@ func up(clicontext *cli.Context) error {
 	// Always push image to registry when envd-server is the runner.
 	if c.Runner == types.RunnerTypeEnvdServer {
 		buildOpt.OutputOpts = fmt.Sprintf("type=image,name=%s,push=true", buildOpt.Tag)
+	}
+	start := time.Now()
+	// Unable to modify sshd host when runner is envd-server.
+	if c.Runner == types.RunnerTypeEnvdServer {
+		if clicontext.String("host") != envd.Localhost {
+			return errors.New("Failed to modify the sshd host when runner is envd-server.")
+		}
 	}
 
 	ctr := filepath.Base(buildOpt.BuildContextDir)
@@ -175,7 +188,6 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create the docker client")
 	}
-
 	startOptions := envd.StartOptions{
 		EnvironmentName: filepath.Base(buildOpt.BuildContextDir),
 		BuildContext:    buildOpt.BuildContextDir,
@@ -183,6 +195,7 @@ func up(clicontext *cli.Context) error {
 		NumGPU:          numGPU,
 		Forced:          clicontext.Bool("force"),
 		Timeout:         clicontext.Duration("timeout"),
+		SshdHost:        clicontext.String("host"),
 	}
 	if c.Runner != types.RunnerTypeEnvdServer {
 		startOptions.EngineSource = envd.EngineSource{
@@ -202,7 +215,7 @@ func up(clicontext *cli.Context) error {
 	logrus.Debugf("container %s is running", res.Name)
 
 	logrus.Debugf("add entry %s to SSH config.", ctr)
-	hostname, err := c.GetSSHHostname()
+	hostname, err := c.GetSSHHostname(startOptions.SshdHost)
 	if err != nil {
 		return errors.Wrap(err, "failed to get the ssh hostname")
 	}
@@ -216,6 +229,10 @@ func up(clicontext *cli.Context) error {
 		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
+	telemetry.GetReporter().Telemetry(
+		"up",
+		telemetry.AddField("runner", c.Runner),
+		telemetry.AddField("duration", time.Since(start).Seconds()))
 
 	if !detach {
 		if err := engine.Attach(ctr, hostname,

@@ -12,13 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package flag
+package app
 
-const (
-	FlagCacheDir           = "cache-dir"
-	FlagBuildkitdImage     = "buildkitd-image"
-	FlagDebug              = "debug"
-	FlagAnalytics          = "analytics-enabled"
-	FlagBuildContext       = "build-context"
-	FlagDockerOrganization = "docker-organization"
+import (
+	"github.com/urfave/cli/v2"
 )
+
+var CommandDebug = &cli.Command{
+	Name:        "debug",
+	Category:    CategoryOther,
+	Aliases:     []string{"b"},
+	Usage:       "Debug commands",
+	Description: ``,
+
+	Subcommands: []*cli.Command{
+		CommandDebugLLB,
+	},
+}

@@ -117,7 +117,6 @@ func JuliaPackageServer(url string) error {
 
 func Shell(shell string) error {
 	DefaultGraph.Shell = shell
-	DefaultGraph.SystemPackages = append(DefaultGraph.SystemPackages, shell)
 	return nil
 }
 
@@ -134,9 +133,11 @@ func RStudioServer() error {
 	return nil
 }
 
-func Run(commands []string) error {
-	// TODO(gaocegege): Support order-based exec.
-	DefaultGraph.Exec = append(DefaultGraph.Exec, commands)
+func Run(commands []string, mount bool) error {
+	DefaultGraph.Exec = append(DefaultGraph.Exec, RunBuildCommand{
+		Commands:  commands,
+		MountHost: mount,
+	})
 	return nil
 }
 
@@ -212,11 +213,12 @@ func RuntimeDaemon(commands [][]string) {
 	DefaultGraph.RuntimeDaemon = append(DefaultGraph.RuntimeDaemon, commands...)
 }
 
-func RuntimeExpose(envdPort, hostPort int, serviceName string) error {
+func RuntimeExpose(envdPort, hostPort int, serviceName string, listeningAddr string) error {
 	DefaultGraph.RuntimeExpose = append(DefaultGraph.RuntimeExpose, ExposeItem{
-		EnvdPort:    envdPort,
-		HostPort:    hostPort,
-		ServiceName: serviceName,
+		EnvdPort:      envdPort,
+		HostPort:      hostPort,
+		ServiceName:   serviceName,
+		ListeningAddr: listeningAddr,
 	})
 	return nil
 }

@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	localhost = "127.0.0.1"
+	Localhost = "127.0.0.1"
 )
 
 var (
@@ -37,6 +37,7 @@ type StartOptions struct {
 	NumGPU          int
 	Timeout         time.Duration
 	Forced          bool
+	SshdHost        string
 
 	EngineSource
 }

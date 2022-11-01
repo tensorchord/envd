@@ -56,8 +56,8 @@ var BaseEnvironment = []struct {
 }{
 	{"DEBIAN_FRONTEND", "noninteractive"},
 	{"PATH", DefaultPathEnvUnix},
-	{"LANG", "C.UTF-8"},
-	{"LC_ALL", "C.UTF-8"},
+	{"LANG", "en_US.UTF-8"},
+	{"LC_ALL", "en_US.UTF-8"},
 }
 var BaseAptPackage = []string{
 	"bash-static",
@@ -81,6 +81,7 @@ var BaseAptPackage = []string{
 	"sudo",
 	"vim",
 	"zsh",
+	"locales",
 }
 
 type EnvdImage struct {
@@ -316,9 +317,9 @@ func parsePyPICommands(lst string) ([]string, error) {
 	return pkgs, err
 }
 
-func (c Context) GetSSHHostname() (string, error) {
+func (c Context) GetSSHHostname(sshdHost string) (string, error) {
 	if c.RunnerAddress == nil {
-		return "localhost", nil
+		return sshdHost, nil
 	}
 
 	// TODO(gaocegege): Check ENVD_SERVER_HOST.

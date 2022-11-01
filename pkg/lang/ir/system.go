@@ -35,13 +35,12 @@ import (
 func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
 	if g.UbuntuAPTSource != nil {
 		logrus.WithField("source", *g.UbuntuAPTSource).Debug("using custom APT source")
-		aptSource := llb.Scratch().
+		aptSource := root.
 			File(llb.Mkdir(filepath.Dir(aptSourceFilePath), 0755, llb.WithParents(true)),
 				llb.WithCustomName("[internal] setting apt source")).
 			File(llb.Mkfile(aptSourceFilePath, 0644, []byte(*g.UbuntuAPTSource)),
 				llb.WithCustomName("[internal] setting apt source"))
-		return llb.Merge([]llb.State{root, aptSource},
-			llb.WithCustomName("[internal] setting apt source"))
+		return aptSource
 	}
 	return root
 }
@@ -52,11 +51,11 @@ func (g Graph) compileRun(root llb.State) llb.State {
 	}
 
 	workingDir := g.getWorkingDir()
-	stage := root
+	stage := root.AddEnv("PATH", types.DefaultPathEnvUnix)
 	for _, execGroup := range g.Exec {
 		var sb strings.Builder
 		sb.WriteString("set -euo pipefail\n")
-		for _, c := range execGroup {
+		for _, c := range execGroup.Commands {
 			sb.WriteString(c + "\n")
 		}
 
@@ -66,11 +65,11 @@ func (g Graph) compileRun(root llb.State) llb.State {
 		// TODO(gaocegege): Maybe we should make it readonly,
 		// but these cases then cannot be supported:
 		// run(commands=["git clone xx.git"])
-		stage = stage.
-			Run(llb.Shlex(cmdStr),
-				llb.AddEnv("PATH", types.DefaultPathEnvUnix),
-				llb.Dir(workingDir),
-				llb.AddMount(workingDir, llb.Local(flag.FlagBuildContext))).Root()
+		run := stage.Dir(workingDir).Run(llb.Shlex(cmdStr))
+		if execGroup.MountHost {
+			run.AddMount(workingDir, llb.Local(flag.FlagBuildContext))
+		}
+		stage = run.Root()
 	}
 	return stage
 }
@@ -157,9 +156,10 @@ func (g *Graph) preparePythonBase(root llb.State) llb.State {
 	sb.WriteString("&& rm -rf /var/lib/apt/lists/* ")
 	// shell prompt
 	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
+	sb.WriteString("&& locale-gen en_US.UTF-8")
 
 	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
-		llb.WithCustomName("[internal] install system packages"))
+		llb.WithCustomName("[internal] install built-in packages"))
 
 	return run.Root()
 }
@@ -223,8 +223,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get extra sources")
 	}
-	aptStage := g.compileUbuntuAPT(source)
-	final := g.compileUserGroup(aptStage)
+	final := g.compileUserGroup(source)
 	return final, nil
 }
 

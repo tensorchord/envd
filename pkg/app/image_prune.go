@@ -24,6 +24,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/docker"
 )
 
@@ -34,6 +35,7 @@ var CommandPruneImages = &cli.Command{
 }
 
 func pruneImages(clicontext *cli.Context) error {
+	telemetry.GetReporter().Telemetry("image_prune", telemetry.AddField("runner", "docker"))
 
 	cli, err := docker.NewClient(clicontext.Context)
 	if err != nil {

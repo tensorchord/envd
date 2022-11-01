@@ -87,13 +87,16 @@ func (m *generalManager) AuthGetCurrent() (types.AuthConfig, error) {
 }
 
 func (m *generalManager) AuthCreate(ac types.AuthConfig, use bool) error {
+	exist := false
 	for _, a := range m.auth.Auth {
 		if a.Name == ac.Name {
 			// Auth should be idempotent. Thus do not return error here.
-			return nil
+			exist = true
 		}
 	}
-	m.auth.Auth = append(m.auth.Auth, ac)
+	if !exist {
+		m.auth.Auth = append(m.auth.Auth, ac)
+	}
 	if use {
 		return m.AuthUse(ac.Name)
 	}

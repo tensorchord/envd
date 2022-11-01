@@ -17,11 +17,13 @@ package app
 import (
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/docker"
 	"github.com/tensorchord/envd/pkg/envd"
@@ -103,6 +105,10 @@ func build(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	defer func(start time.Time) {
+		telemetry.GetReporter().Telemetry(
+			"build", telemetry.AddField("duration", time.Since(start).Seconds()))
+	}(time.Now())
 
 	logger := logrus.WithFields(logrus.Fields{
 		"build-context": opt.BuildContextDir,

@@ -22,10 +22,11 @@ import (
 	"github.com/moby/buildkit/client/llb"
 )
 
-func (g Graph) compileRLang(aptStage llb.State) (llb.State, error) {
+func (g Graph) compileRLang(baseStage llb.State) (llb.State, error) {
 	if err := g.compileJupyter(); err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
 	}
+	aptStage := g.compileUbuntuAPT(baseStage)
 	builtinSystemStage := aptStage
 
 	sshStage, err := g.copySSHKey(builtinSystemStage)

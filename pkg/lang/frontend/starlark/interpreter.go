@@ -85,14 +85,25 @@ func (s *generalInterpreter) load(thread *starlark.Thread, module string) (starl
 }
 
 func (s *generalInterpreter) exec(thread *starlark.Thread, module string) (starlark.StringDict, error) {
+	// There are two cases:
+	// 1. module exists
+	// 2. there's an explicit `nil` placeholder for module in s.cache
+	// 3. module does not exist in s.cache
 	e, ok := s.cache[module]
+
+	// Case 1.
 	if e != nil {
 		return e.globals, e.err
 	}
+
+	// Case 2.
+	// There is an explicit `nil` for module, which means we are in the middle of exec module.
 	if ok {
-		return nil, errors.Newf("Detect cycling import during parsing %s", module)
+		return nil, errors.Newf("Detected cycle import during parsing %s", module)
 	}
 
+	// Case 3.
+	// Add a placeholder to indicate "load in progress".
 	s.cache[module] = nil
 
 	if !strings.HasPrefix(module, universe.GitPrefix) {
@@ -109,6 +120,9 @@ func (s *generalInterpreter) exec(thread *starlark.Thread, module string) (starl
 		globals, err := s.loadGitModule(thread, path)
 		e = &entry{globals, err}
 	}
+
+	// Update the cache.
+	s.cache[module] = e
 
 	return e.globals, e.err
 }

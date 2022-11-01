@@ -21,6 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
@@ -71,6 +72,8 @@ func destroy(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the current context")
 	}
+	telemetry.GetReporter().Telemetry("destroy", telemetry.AddField("runner", context.Runner))
+
 	opt := envd.Options{Context: context}
 	envdEngine, err := envd.New(clicontext.Context, opt)
 	if err != nil {

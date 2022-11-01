@@ -56,7 +56,7 @@ type Graph struct {
 	VSCodePlugins   []vscode.Plugin
 	UserDirectories []string
 
-	Exec       [][]string
+	Exec       []RunBuildCommand
 	Copy       []CopyInfo
 	Mount      []MountInfo
 	HTTP       []HTTPInfo
@@ -126,14 +126,20 @@ type GitConfig struct {
 }
 
 type ExposeItem struct {
-	EnvdPort    int
-	HostPort    int
-	ServiceName string
+	EnvdPort      int
+	HostPort      int
+	ServiceName   string
+	ListeningAddr string
 }
 
 type JupyterConfig struct {
 	Token string
 	Port  int64
+}
+
+type RunBuildCommand struct {
+	Commands  []string
+	MountHost bool
 }
 
 const (

@@ -56,7 +56,7 @@ func NewGraph() *Graph {
 		RPackages:       []string{},
 		JuliaPackages:   []string{},
 		SystemPackages:  []string{},
-		Exec:            [][]string{},
+		Exec:            []RunBuildCommand{},
 		UserDirectories: []string{},
 		Shell:           shellBASH,
 		CondaConfig:     conda,
@@ -296,7 +296,10 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	run := g.compileRun(copy)
 	git := g.compileGit(run)
 	user := g.compileUserOwn(git)
-	entrypoint := g.compileEntrypoint(user)
+	entrypoint, err := g.compileEntrypoint(user)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
+	}
 	g.Writer.Finish()
 	return entrypoint, nil
 }
