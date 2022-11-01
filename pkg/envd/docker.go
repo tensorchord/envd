@@ -580,12 +580,14 @@ func (e dockerEngine) GPUEnabled(ctx context.Context) (bool, error) {
 		return false, errors.Wrap(err, "failed to get docker info")
 	}
 	logrus.WithField("info", info).Debug("docker info")
-	if strings.HasSuffix(info.KernelVersion, "WSL2") {
+	nv := info.Runtimes["nvidia"]
+	if nv.Path != "" {
+		return true, nil
+	} else if strings.HasSuffix(info.KernelVersion, "WSL2") {
 		logrus.Warn("We couldn't detect if your runtime support GPU on WSL2, we will continue to run your environment.")
 		return true, nil
 	} else {
-		nv := info.Runtimes["nvidia"]
-		return nv.Path != "", nil
+		return false, nil
 	}
 }
 
