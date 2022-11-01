@@ -112,6 +112,8 @@ jobs:
             ${{ runner.OS }}-
       - uses: actions-ecosystem/action-get-latest-tag@v1
         id: get-latest-tag
+      - name: setup podman
+        run: sudo apt install podman && systemctl --user start podman.socket && systemctl --user status podman.socket
       - name: e2e test
         run: make e2e-cli-test
         env:

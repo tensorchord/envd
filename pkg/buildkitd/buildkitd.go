@@ -113,16 +113,26 @@ func (c generalClient) Close() error {
 // that can be used to connect to it.
 func (c *generalClient) maybeStart(ctx context.Context,
 	runningTimeout, connectingTimeout time.Duration) (string, error) {
-	if c.driver == types.BuilderTypeDocker {
+	if c.driver == types.BuilderTypeDocker || c.driver == types.BuilderTypePodman {
 		dockerClient, err := docker.NewClient(ctx)
 		if err != nil {
 			return "", err
 		}
+
 		opt := envd.Options{
 			Context: &types.Context{
 				Runner: types.RunnerTypeDocker,
 			},
 		}
+
+		if c.driver == types.BuilderTypePodman {
+			opt = envd.Options{
+				Context: &types.Context{
+					Runner: types.RunnerTypePodman,
+				},
+			}
+		}
+
 		engine, err := envd.New(ctx, opt)
 		if err != nil {
 			return "", err
