@@ -42,9 +42,10 @@ func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 	pl := platforms.Normalize(platforms.DefaultSpec())
 	img := v1.Image{
 		Config: v1.ImageConfig{
-			Labels:       labels,
-			WorkingDir:   "/",
-			Env:          append(env, "PATH="+DefaultPathEnv(pl.OS)),
+			Labels:     labels,
+			WorkingDir: "/",
+			Env: append(env,
+				"PATH="+DefaultPathEnv(pl.OS), "LC_ALL=en_US.UTF-8"),
 			ExposedPorts: ports,
 			Entrypoint:   entrypoint,
 		},

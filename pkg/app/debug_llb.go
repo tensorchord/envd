@@ -69,7 +69,7 @@ var CommandDebugLLB = &cli.Command{
 }
 
 func debugLLB(clicontext *cli.Context) error {
-	telemetry.GetReporter().Telemetry("debug-llb", nil)
+	telemetry.GetReporter().Telemetry("debug-llb")
 	opt, err := ParseBuildOpt(clicontext)
 	if err != nil {
 		return err
