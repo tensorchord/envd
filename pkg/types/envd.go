@@ -56,8 +56,8 @@ var BaseEnvironment = []struct {
 }{
 	{"DEBIAN_FRONTEND", "noninteractive"},
 	{"PATH", DefaultPathEnvUnix},
-	{"LANG", "C.UTF-8"},
-	{"LC_ALL", "C.UTF-8"},
+	{"LANG", "en_US.UTF-8"},
+	{"LC_ALL", "en_US.UTF-8"},
 }
 var BaseAptPackage = []string{
 	"bash-static",
@@ -81,6 +81,7 @@ var BaseAptPackage = []string{
 	"sudo",
 	"vim",
 	"zsh",
+	"locales",
 }
 
 type EnvdImage struct {

@@ -156,6 +156,7 @@ func (g *Graph) preparePythonBase(root llb.State) llb.State {
 	sb.WriteString("&& rm -rf /var/lib/apt/lists/* ")
 	// shell prompt
 	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
+	sb.WriteString("&& locale-gen en_US.UTF-8")
 
 	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
 		llb.WithCustomName("[internal] install built-in packages"))
