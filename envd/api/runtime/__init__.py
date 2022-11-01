@@ -42,7 +42,12 @@ def command(commands: Dict[str, str]):
     """
 
 
-def expose(envd_port: str, host_port: Optional[str], service: Optional[str], listen_addr: Optional[str]):
+def expose(
+    envd_port: str,
+    host_port: Optional[str],
+    service: Optional[str],
+    listen_addr: Optional[str],
+):
     """Expose port to host
     Proposal: https://github.com/tensorchord/envd/pull/780
 
