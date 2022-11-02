@@ -581,7 +581,14 @@ func (e dockerEngine) GPUEnabled(ctx context.Context) (bool, error) {
 	}
 	logrus.WithField("info", info).Debug("docker info")
 	nv := info.Runtimes["nvidia"]
-	return nv.Path != "", nil
+	if nv.Path != "" {
+		return true, nil
+	} else if strings.HasSuffix(info.KernelVersion, "WSL2") {
+		logrus.Warn("We couldn't detect if your runtime support GPU on WSL2, we will continue to run your environment.")
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
 
 func (e dockerEngine) GetImage(ctx context.Context, image string) (dockertypes.ImageSummary, error) {
