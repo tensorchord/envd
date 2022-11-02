@@ -187,7 +187,7 @@ func (g Graph) Labels() (map[string]string, error) {
 	}
 	labels[types.ImageLabelRepo] = string(repoInfo)
 
-	labels[types.ContainerLabelName] = string(g.EnvironmentName)
+	labels[types.ImageLabelEnvironmentName] = string(g.EnvironmentName)
 	return labels, nil
 }
 
