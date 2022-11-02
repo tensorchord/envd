@@ -94,7 +94,7 @@ jobs:
         run: |
           brew install docker
           colima start
-          echo 'DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"' >> $GITHUB_ENV
+          echo "DOCKER_HOST=unix://$HOME/.colima/default/docker.sock" >> $GITHUB_ENV
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -138,7 +138,7 @@ jobs:
         run: |
           brew install docker
           colima start
-          echo 'DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"' >> $GITHUB_ENV
+          echo "DOCKER_HOST=unix://$HOME/.colima/default/docker.sock" >> $GITHUB_ENV
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
