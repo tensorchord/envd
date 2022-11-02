@@ -5,16 +5,16 @@ def build():
 def build_gpu_11_2():
     """tensorflow"""
     base(os="ubuntu20.04", language="python3")
-    install.cuda(version="11.2.0", cudnn="8")
+    install.cuda(version="11.2.2", cudnn="8")
 
 
 def build_gpu_11_3():
     """pytorch"""
     base(os="ubuntu20.04", language="python3")
-    install.cuda(version="11.3.0", cudnn="8")
+    install.cuda(version="11.3.1", cudnn="8")
 
 
 def build_gpu_11_6():
     """pytorch"""
     base(os="ubuntu20.04", language="python3")
-    install.cuda(version="11.6.0", cudnn="8")
+    install.cuda(version="11.6.2", cudnn="8")

@@ -29,4 +29,4 @@ custom_channels:
     )
     base(os="ubuntu20.04", language="python3.8")
     install.python_packages(name=["flask"])
-    install.cuda(version="11.2.0", cudnn="8")
+    install.cuda(version="11.2.2", cudnn="8")
