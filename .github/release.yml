@@ -1,0 +1,25 @@
+changelog:
+  exclude:
+    authors:
+      - dependabot
+      - github-actions
+  categories:
+    - title: Exciting New Features 🎉
+      labels:
+        - feature
+
+    - title: Bug Fix 🛠
+      labels:
+        - bug
+    
+    - title: Documentation 🖊️
+      labels:
+        - document
+
+    - title: Code Refactor 🏗️
+      labels:
+        - refactor
+
+    - title: Others
+      labels:
+        - chore    
