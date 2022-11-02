@@ -1,0 +1,11 @@
+labels:
+  'bug':
+    - '\bfix'
+  'feature':
+    - '\bfeat'
+  'chore':
+    - '\bchore'
+  'document':
+    - '\bdoc[s]'
+  'refactor':
+    - '\brefact'
