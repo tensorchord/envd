@@ -97,6 +97,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -133,6 +135,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
