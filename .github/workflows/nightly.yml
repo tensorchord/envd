@@ -90,8 +90,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up docker
-        uses: docker-practice/actions-setup-docker@master
         if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew install docker
+          colima start
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -131,8 +133,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up docker
-        uses: docker-practice/actions-setup-docker@master
         if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew install docker
+          colima start
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
