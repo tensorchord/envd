@@ -23,7 +23,7 @@ def build():
 
 def build_gpu():
     base_env()
-    install.cuda(version="11.2.0", cudnn="8")
+    install.cuda(version="11.2.2", cudnn="8")
     install.python_packages(
         [
             "torch",

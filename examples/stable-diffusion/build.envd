@@ -8,7 +8,7 @@ def build():
             "diffusers",
         ]
     )
-    install.cuda(version="11.2.0", cudnn="8")
+    install.cuda(version="11.2.2", cudnn="8")
     runtime.mount(
         host_path="~/.cache/huggingface", envd_path="/home/envd/.cache/huggingface"
     )
