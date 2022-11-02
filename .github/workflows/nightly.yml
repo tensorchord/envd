@@ -2,7 +2,7 @@ name: nightly
 
 on:
   schedule:
-    - cron: '0 2 * * *' # UTC 2:00 every day
+    - cron: "0 2 * * *" # UTC 2:00 every day
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -46,7 +46,7 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -94,7 +94,7 @@ jobs:
         run: |
           brew install docker
           colima start
-          echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock" >> $GITHUB_ENV
+          echo 'DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"' >> $GITHUB_ENV
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -138,7 +138,7 @@ jobs:
         run: |
           brew install docker
           colima start
-          echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock" >> $GITHUB_ENV
+          echo 'DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"' >> $GITHUB_ENV
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -206,7 +206,7 @@ jobs:
     name: build
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
