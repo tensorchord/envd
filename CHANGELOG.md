@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.5-alpha.2 (2022-11-03)
+
+ * [46d24fd](https://github.com/tensorchord/envd/commit/46d24fd1331b1b0e223cb2d2223e17d648080bf1) fix: horust cache (#1151)
+
+### Contributors
+
+ * Keming
+
 ## v0.2.5-alpha.1 (2022-11-03)
 
  * [28d73f9](https://github.com/tensorchord/envd/commit/28d73f9c1633f74363adcb20c41519863e993f4b) feat: Fetch base image metadata (#1148)
