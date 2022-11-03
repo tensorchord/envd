@@ -85,7 +85,7 @@ var BaseAptPackage = []string{
 }
 
 type EnvdImage struct {
-	types.ImageSummary
+	servertypes.ImageMeta
 
 	EnvdManifest `json:",inline,omitempty"`
 }
@@ -168,15 +168,35 @@ type AuthConfig struct {
 	IdentityToken string `json:"identity_token,omitempty"`
 }
 
-func NewImage(image types.ImageSummary) (*EnvdImage, error) {
+func NewImageFromSummary(image types.ImageSummary) (*EnvdImage, error) {
 	img := EnvdImage{
-		ImageSummary: image,
+		ImageMeta: servertypes.ImageMeta{
+			Digest:  image.ID,
+			Created: image.Created,
+			Size:    image.Size,
+			Labels:  image.Labels,
+		},
+	}
+	if len(image.RepoTags) > 0 {
+		img.Name = image.RepoTags[0]
 	}
 	m, err := newManifest(image.Labels)
 	if err != nil {
 		return nil, err
 	}
 	img.EnvdManifest = m
+	return &img, nil
+}
+
+func NewImageFromMeta(meta servertypes.ImageMeta) (*EnvdImage, error) {
+	img := EnvdImage{
+		ImageMeta: meta,
+	}
+	manifest, err := newManifest(img.Labels)
+	if err != nil {
+		return nil, err
+	}
+	img.EnvdManifest = manifest
 	return &img, nil
 }
 
@@ -250,7 +270,7 @@ func NewDependencyFromContainerJSON(ctr types.ContainerJSON) (*Dependency, error
 	return NewDependencyFromLabels(ctr.Config.Labels)
 }
 
-func NewDependencyFromImage(img types.ImageSummary) (*Dependency, error) {
+func NewDependencyFromImageSummary(img types.ImageSummary) (*Dependency, error) {
 	return NewDependencyFromLabels(img.Labels)
 }
 
@@ -270,13 +290,6 @@ func NewPortBindingFromContainerJSON(ctr types.ContainerJSON) []PortBinding {
 		})
 	}
 	return ports
-}
-
-func GetImageName(image EnvdImage) string {
-	if len(image.ImageSummary.RepoTags) != 0 {
-		return image.ImageSummary.RepoTags[0]
-	}
-	return "<none>"
 }
 
 func NewDependencyFromLabels(label map[string]string) (*Dependency, error) {
