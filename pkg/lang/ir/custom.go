@@ -22,7 +22,8 @@ import (
 )
 
 // nolint:unparam
-func (g Graph) compileCustomPython(aptStage llb.State) (llb.State, error) {
+func (g Graph) compileCustomPython(baseStage llb.State) (llb.State, error) {
+	aptStage := g.compileUbuntuAPT(baseStage)
 	pypiMirrorStage := g.compilePyPIIndex(aptStage)
 
 	builtinSystemStage := pypiMirrorStage
@@ -43,7 +44,7 @@ func (g Graph) compileCustomPyPIPackages(root llb.State) llb.State {
 	// Compose the package install command.
 	var sb strings.Builder
 	// Always use the conda's pip.
-	sb.WriteString("pip install")
+	sb.WriteString(`pip install`)
 	for _, pkg := range g.PyPIPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}
