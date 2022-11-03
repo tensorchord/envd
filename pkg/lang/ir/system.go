@@ -15,6 +15,7 @@
 package ir
 
 import (
+	"context"
 	_ "embed"
 	"fmt"
 	"os"
@@ -23,6 +24,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
+	"github.com/moby/buildkit/client/llb/imagemetaresolver"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -187,8 +189,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 	v := version.GetVersionForImageTag()
 	// Do not update user permission in the base image.
 	if g.Image != nil {
-		logger.WithField("image", *g.Image).Debugf("using custom base image")
-		return llb.Image(*g.Image), nil
+		return g.customBase()
 	} else if g.CUDA == nil {
 		switch g.Language.Name {
 		case "r":
@@ -225,6 +226,30 @@ func (g *Graph) compileBase() (llb.State, error) {
 	}
 	final := g.compileUserGroup(source)
 	return final, nil
+}
+
+// customBase get the image and the set the image metadata to graph.
+func (g *Graph) customBase() (llb.State, error) {
+	if g.Image == nil {
+		return llb.State{}, fmt.Errorf("failed to get the image")
+	}
+	logrus.WithField("image", *g.Image).Debugf("using custom base image")
+
+	// Fix https://github.com/tensorchord/envd/issues/1147.
+	// Fetch the image metadata from base image.
+	base := llb.Image(*g.Image,
+		llb.WithMetaResolver(imagemetaresolver.Default()))
+	envs, err := base.Env(context.Background())
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get the image metadata")
+	}
+
+	// Set the environment variables to RuntimeEnviron to keep it in the resulting image.
+	for _, e := range envs {
+		kv := strings.Split(e, "=")
+		g.RuntimeEnviron[kv[0]] = kv[1]
+	}
+	return base, nil
 }
 
 func (g Graph) copySSHKey(root llb.State) (llb.State, error) {

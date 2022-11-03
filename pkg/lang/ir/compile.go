@@ -112,7 +112,14 @@ func CompileEntrypoint(buildContextDir string) ([]string, error) {
 }
 
 func CompileEnviron() []string {
-	return DefaultGraph.EnvString()
+	if DefaultGraph.Image != nil {
+		return DefaultGraph.EnvString()
+	}
+	// Add PATH and LC_ALL.
+	return append(DefaultGraph.EnvString(),
+		"PATH="+types.DefaultPathEnv(),
+		"LC_ALL=en_US.UTF-8",
+	)
 }
 
 func (g Graph) GPUEnabled() bool {
