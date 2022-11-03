@@ -168,6 +168,10 @@ type AuthConfig struct {
 	IdentityToken string `json:"identity_token,omitempty"`
 }
 
+func DefaultPathEnv() string {
+	return DefaultPathEnvUnix
+}
+
 func NewImageFromSummary(image types.ImageSummary) (*EnvdImage, error) {
 	img := EnvdImage{
 		ImageMeta: servertypes.ImageMeta{

@@ -43,6 +43,9 @@ require (
 
 require (
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
+	github.com/containerd/ttrpc v1.1.0 // indirect
+	github.com/klauspost/compress v1.15.11 // indirect
+	github.com/moby/locker v1.0.1 // indirect
 	github.com/op/go-logging v0.0.0-20160211212156-b2cb9fa56473 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/segmentio/backo-go v1.0.0 // indirect
