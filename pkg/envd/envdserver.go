@@ -60,7 +60,15 @@ func (e envdServerEngine) Destroy(ctx context.Context, name string) (string, err
 }
 
 func (e *envdServerEngine) ListImageDependency(ctx context.Context, image string) (*types.Dependency, error) {
-	return nil, errors.New("not implemented")
+	img, err := e.GetImage(ctx, image)
+	if err != nil {
+		return nil, err
+	}
+	dep, err := types.NewDependencyFromLabels(img.Labels)
+	if err != nil {
+		return nil, err
+	}
+	return dep, nil
 }
 
 func (e *envdServerEngine) GetImage(ctx context.Context, image string) (types.EnvdImage, error) {
