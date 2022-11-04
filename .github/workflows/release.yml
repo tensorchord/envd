@@ -154,11 +154,11 @@ jobs:
           - build_func: build
             tag_suffix: ""
           - build_func: build_gpu_11_2
-            tag_suffix: "-cuda-11.2.0-cudnn-8"
+            tag_suffix: "-cuda-11.2.2-cudnn-8"
           - build_func: build_gpu_11_3
-            tag_suffix: "-cuda-11.3.0-cudnn-8"
+            tag_suffix: "-cuda-11.3.1-cudnn-8"
           - build_func: build_gpu_11_6
-            tag_suffix: "-cuda-11.6.0-cudnn-8"
+            tag_suffix: "-cuda-11.6.2-cudnn-8"
     needs: image_publish
     steps:
     - uses: actions/checkout@v3
