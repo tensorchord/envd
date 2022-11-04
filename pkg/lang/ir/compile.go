@@ -304,7 +304,8 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	run := g.compileRun(copy)
 	git := g.compileGit(run)
 	user := g.compileUserOwn(git)
-	entrypoint, err := g.compileEntrypoint(user)
+	mount := g.compileMountDir(user)
+	entrypoint, err := g.compileEntrypoint(mount)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
 	}
