@@ -268,3 +268,14 @@ func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 			llb.WithCustomName("[internal] install ssh keys"))
 	return run, nil
 }
+
+func (g Graph) compileMountDir(root llb.State) llb.State {
+	mount := root
+	for _, m := range g.Mount {
+		mount = mount.File(llb.Mkdir(m.Destination, 0755, llb.WithParents(true),
+			llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomNamef("[internal] create dir for runtime.mount %s", m.Destination),
+		)
+	}
+	return mount
+}
