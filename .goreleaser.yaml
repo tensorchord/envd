@@ -67,50 +67,9 @@ changelog:
       - '^docs:'
       - '^test:'
       - '^chore:'
-dockers:
-- image_templates:
-  - "tensorchord/envd-from-scratch:v{{ .Version }}-amd64"
-  use: buildx
-  dockerfile: base-images/envd/envd.Dockerfile
-  ids:
-  - envd
-  build_flag_templates:
-  - "--platform=linux/amd64"
-- image_templates:
-  - "tensorchord/envd-from-scratch:v{{ .Version }}-arm64v8"
-  use: buildx
-  goarch: arm64
-  ids:
-  - envd
-  dockerfile: base-images/envd/envd.Dockerfile
-  build_flag_templates:
-  - "--platform=linux/arm64/v8"
-- image_templates:
-  - "tensorchord/envd-sshd-from-scratch:v{{ .Version }}-amd64"
-  use: buildx
-  dockerfile: base-images/envd-sshd/envd-sshd.Dockerfile
-  ids:
-  - envd-sshd
-  build_flag_templates:
-  - "--platform=linux/amd64"
-- image_templates:
-  - "tensorchord/envd-sshd-from-scratch:v{{ .Version }}-arm64v8"
-  use: buildx
-  goarch: arm64
-  ids:
-  - envd-sshd
-  dockerfile: base-images/envd-sshd/envd-sshd.Dockerfile
-  build_flag_templates:
-  - "--platform=linux/arm64/v8"
-docker_manifests:
-- name_template: tensorchord/envd-sshd-from-scratch:v{{ .Version }}
-  image_templates:
-  - tensorchord/envd-sshd-from-scratch:v{{ .Version }}-amd64
-  - tensorchord/envd-sshd-from-scratch:v{{ .Version }}-arm64v8
-- name_template: tensorchord/envd-from-scratch:v{{ .Version }}
-  image_templates:
-  - tensorchord/envd-from-scratch:v{{ .Version }}-amd64
-  - tensorchord/envd-from-scratch:v{{ .Version }}-arm64v8
+release:
+  skip_upload: true
+
 # See https://github.com/tensorchord/envd/issues/908
 # brews:
 #   - name: envd

@@ -12,7 +12,6 @@ on:
 
 jobs:
   goreleaser:
-    if: github.repository == 'tensorchord/envd'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,11 +22,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.18
-      - name: Docker Login
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERIO_USERNAME }}
-          password: ${{ secrets.DOCKERIO_TOKEN }}
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v3
         with:
@@ -43,7 +37,32 @@ jobs:
           retention-days: 1
           path: |
             dist/envd_linux_amd64_v1/envd
-            dist/envd_darwin_amd64_v1/envd
+            dist/envd_darwin_amd64_v1/envd      
+          if-no-files-found: error
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - name: Prepare publish manifest
+        run: |
+          mkdir manifest
+          mv dist/envd_linux_arm64/envd manifest/envd_${{ steps.get_version.outputs.VERSION }}_Linux_arm64
+          mv dist/envd_linux_amd64_v1/envd manifest/envd_${{ steps.get_version.outputs.VERSION }}_Linux_x86_64
+          mv dist/envd_linux_386/envd manifest/envd_${{ steps.get_version.outputs.VERSION }}_Linux_i386
+          mv dist/envd_darwin_amd64_v1/envd manifest/envd_${{ steps.get_version.outputs.VERSION }}_Darwin_x86_64
+          mv dist/envd_darwin_arm64/envd manifest/envd_${{ steps.get_version.outputs.VERSION }}_Darwin_arm64
+          mv dist/envd-sshd_linux_amd64_v1/envd-sshd manifest/envd-sshd_${{ steps.get_version.outputs.VERSION }}_Linux_x86_64
+          mv dist/envd-sshd_linux_arm64/envd-sshd manifest/envd-sshd_${{ steps.get_version.outputs.VERSION }}_Linux_arm64
+          mv dist/envd-sshd_linux_386/envd-sshd manifest/envd-sshd_${{ steps.get_version.outputs.VERSION }}_Linux_i386
+          mv dist/envd-sshd_darwin_amd64_v1/envd-sshd manifest/envd-sshd_${{ steps.get_version.outputs.VERSION }}_Darwin_x86_64
+          mv dist/envd-sshd_darwin_arm64/envd-sshd manifest/envd-sshd_${{ steps.get_version.outputs.VERSION }}_Darwin_arm64
+          mv dist/checksums.txt manifest/checksums.txt
+      - name: Upload publish manifest
+        uses: actions/upload-artifact@v3
+        with:
+          name: release_${{ steps.get_version.outputs.VERSION }}
+          retention-days: 1
+          path: |
+            manifest/
           if-no-files-found: error
   pypi_publish:
     needs: goreleaser
@@ -192,3 +211,36 @@ jobs:
       env:
         BUILD_FUNC: ${{ matrix.build_func }}
         TAG_SUFFIX: ${{ matrix.TAG_SUFFIX }}
+  publish-release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    needs: goreleaser
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - name: Download manifest
+        uses: actions/download-artifact@v3
+        with:
+          name: release_${{ steps.get_version.outputs.VERSION }}
+          path: manifest/
+      - name: zip all files
+        run: |
+          cd manifest
+          chmod +x ../hack/zip.sh
+          ../hack/zip.sh
+      - run: cd ..
+      - run: make release-notes VERSION=${{ steps.get_version.outputs.VERSION }}
+      - name: publish to github
+        uses: softprops/action-gh-release@v1
+        with: 
+          body_path: release-notes
+          files: |
+            manifest/*.gz
+            manifest/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          
+          
