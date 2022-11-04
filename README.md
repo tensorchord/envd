@@ -1,5 +1,6 @@
 <div align="center">
-<img src="https://user-images.githubusercontent.com/52693877/190860902-ac07b00d-4441-47d4-b1d4-beff74926134.gif" alt="this slowpoke moves"/>
+<img src="https://user-images.githubusercontent.com/12974685/200007223-cd94fe9a-266d-4bbd-ac23-e71043d0c3dc.svg#gh-light-mode-only" alt="envd cat wink"/>
+<img src="https://user-images.githubusercontent.com/12974685/200007265-4e47ff2c-c2a0-4e77-baaa-760ee8728388.svg#gh-dark-mode-only" alt="envd cat wink"/>
 
 <p>Development environment for AI/ML</p>
 </div>
