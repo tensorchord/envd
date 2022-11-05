@@ -15,7 +15,8 @@
 <a href='https://coveralls.io/github/tensorchord/envd?branch=main'><img src='https://coveralls.io/repos/github/tensorchord/envd/badge.svg?branch=main' alt='Coverage Status' /></a>
 </p>
 
-<p><img src="https://user-images.githubusercontent.com/52693877/193411608-01864ed9-84e2-4ea8-b978-8cfe09d394ca.png" alt="explain"/></p>
+<p><img src="https://user-images.githubusercontent.com/52693877/193411608-01864ed9-84e2-4ea8-b978-8cfe09d394ca.png#gh-light-mode-only" alt="explain"/></p>
+<p><img src="https://user-images.githubusercontent.com/16186646/200111649-771d3214-dd23-49fa-a3d8-761a88f805bf.svg#gh-dark-mode-only" alt="explain"/></p>
 
 ## What is envd?
 
