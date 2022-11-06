@@ -230,6 +230,3 @@ envd-lint:
 
 envd-fmt:
 	black --include '(\.envd|\.py|\.ipynb)$$' .
-
-release-notes: /dev/null
-	version=$(VERSION) envsubst < hack/release-notes.md > release-notes

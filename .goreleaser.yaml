@@ -60,13 +60,21 @@ snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
-  filters:
-    exclude:
-      - '^build:'
-      - '^ci:'
-      - '^docs:'
-      - '^test:'
-      - '^chore:'
+  groups:
+    - title: 'Exciting New Features 🎉'
+      regexp: "^[fF]eat.*"
+      order: 0
+    - title: 'Bug Fix 🛠'
+      regexp: "^([fF]ix|bug).*"
+      order: 1
+    - title: 'Refactor 🏗️'
+      regexp: "^refact.*"
+      order: 2
+    - title: 'Documentation 🖊️'
+      regexp: "^docs.*"
+      order: 3
+    - title: 'Others:'
+      order: 999
 dockers:
 - image_templates:
   - "tensorchord/envd-from-scratch:v{{ .Version }}-amd64"
@@ -111,8 +119,6 @@ docker_manifests:
   image_templates:
   - tensorchord/envd-from-scratch:v{{ .Version }}-amd64
   - tensorchord/envd-from-scratch:v{{ .Version }}-arm64v8
-release:
-  skip_upload: true
 
 # See https://github.com/tensorchord/envd/issues/908
 # brews:
