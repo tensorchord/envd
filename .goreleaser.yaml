@@ -119,7 +119,6 @@ docker_manifests:
   image_templates:
   - tensorchord/envd-from-scratch:v{{ .Version }}-amd64
   - tensorchord/envd-from-scratch:v{{ .Version }}-arm64v8
-
 # See https://github.com/tensorchord/envd/issues/908
 # brews:
 #   - name: envd

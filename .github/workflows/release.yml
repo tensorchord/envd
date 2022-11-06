@@ -43,7 +43,7 @@ jobs:
           retention-days: 1
           path: |
             dist/envd_linux_amd64_v1/envd
-            dist/envd_darwin_amd64_v1/envd      
+            dist/envd_darwin_amd64_v1/envd
           if-no-files-found: error
   pypi_publish:
     needs: goreleaser
@@ -192,3 +192,4 @@ jobs:
       env:
         BUILD_FUNC: ${{ matrix.build_func }}
         TAG_SUFFIX: ${{ matrix.TAG_SUFFIX }}
+        
