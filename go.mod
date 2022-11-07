@@ -30,7 +30,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.13.0
 	github.com/stretchr/testify v1.8.1
-	github.com/tensorchord/envd-server v0.0.6
+	github.com/tensorchord/envd-server v0.0.7
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
 	github.com/urfave/cli/v2 v2.23.0
@@ -130,4 +130,3 @@ require (
 
 // Copied from buildkit to make github.com/tonistiigi/fsutil happy.
 replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220224222438-c78f6963a1c0+incompatible
-replace github.com/tensorchord/envd-server => /home/keming/TensorChord/server
