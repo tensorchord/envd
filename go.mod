@@ -33,7 +33,7 @@ require (
 	github.com/tensorchord/envd-server v0.0.6
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
-	github.com/urfave/cli/v2 v2.23.0
+	github.com/urfave/cli/v2 v2.23.4
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.0.0-20221010152910-d6f0a8c073c2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
