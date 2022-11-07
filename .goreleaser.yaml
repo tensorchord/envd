@@ -62,16 +62,16 @@ changelog:
   sort: asc
   groups:
     - title: 'Exciting New Features 🎉'
-      regexp: "^[fF]eat.*"
+      regexp: "^.*feat.*"
       order: 0
     - title: 'Bug Fix 🛠'
-      regexp: "^([fF]ix|bug).*"
+      regexp: "^.*(Fix|fix|bug).*"
       order: 1
     - title: 'Refactor 🏗️'
-      regexp: "^refact.*"
+      regexp: "^.*refact.*"
       order: 2
     - title: 'Documentation 🖊️'
-      regexp: "^docs.*"
+      regexp: "^.*docs.*"
       order: 3
     - title: 'Others:'
       order: 999
