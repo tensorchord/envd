@@ -8,6 +8,7 @@ def build():
             "diffusers",
         ]
     )
+    # if you need run in cuda enviroment, you can add this line below, change cuda and cudnn version to your owner
     install.cuda(version="11.2.2", cudnn="8")
     runtime.mount(
         host_path="~/.cache/huggingface", envd_path="/home/envd/.cache/huggingface"
