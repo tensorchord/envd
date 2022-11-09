@@ -85,19 +85,15 @@ var BaseAptPackage = []string{
 }
 
 type EnvdImage struct {
-	servertypes.ImageMeta
+	servertypes.ImageMeta `json:",inline,omitempty"`
 
 	EnvdManifest `json:",inline,omitempty"`
 }
 
 type EnvdEnvironment struct {
-	Image string `json:"image,omitempty"`
-	Name  string `json:"name,omitempty"`
+	servertypes.Environment `json:",inline,omitempty"`
 
-	Status            string  `json:"status,omitempty"`
-	JupyterAddr       *string `json:"jupyter_addr,omitempty"`
-	RStudioServerAddr *string `json:"rstudio_server_addr,omitempty"`
-	EnvdManifest      `json:",inline,omitempty"`
+	EnvdManifest `json:",inline,omitempty"`
 }
 
 type EnvdManifest struct {
@@ -206,17 +202,19 @@ func NewImageFromMeta(meta servertypes.ImageMeta) (*EnvdImage, error) {
 
 func NewEnvironmentFromContainer(ctr types.Container) (*EnvdEnvironment, error) {
 	env := EnvdEnvironment{
-		Image:  ctr.Image,
-		Status: ctr.Status,
+		Environment: servertypes.Environment{
+			Spec:   servertypes.EnvironmentSpec{Image: ctr.Image},
+			Status: servertypes.EnvironmentStatus{Phase: ctr.Status},
+		},
 	}
 	if name, ok := ctr.Labels[ContainerLabelName]; ok {
 		env.Name = name
 	}
 	if jupyterAddr, ok := ctr.Labels[ContainerLabelJupyterAddr]; ok {
-		env.JupyterAddr = &jupyterAddr
+		env.Service.JupyterAddr = &jupyterAddr
 	}
 	if rstudioServerAddr, ok := ctr.Labels[ContainerLabelRStudioServerAddr]; ok {
-		env.RStudioServerAddr = &rstudioServerAddr
+		env.Service.RStudioServerAddr = &rstudioServerAddr
 	}
 
 	m, err := newManifest(ctr.Labels)
@@ -229,15 +227,7 @@ func NewEnvironmentFromContainer(ctr types.Container) (*EnvdEnvironment, error) 
 
 func NewEnvironmentFromServer(ctr servertypes.Environment) (*EnvdEnvironment, error) {
 	env := EnvdEnvironment{
-		Image:  ctr.Spec.Image,
-		Status: ctr.Status.Phase,
-		Name:   ctr.Name,
-	}
-	if jupyterAddr, ok := ctr.Labels[ContainerLabelJupyterAddr]; ok {
-		env.JupyterAddr = &jupyterAddr
-	}
-	if rstudioServerAddr, ok := ctr.Labels[ContainerLabelRStudioServerAddr]; ok {
-		env.RStudioServerAddr = &rstudioServerAddr
+		Environment: ctr,
 	}
 
 	m, err := newManifest(ctr.Labels)
