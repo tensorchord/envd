@@ -211,10 +211,10 @@ func NewEnvironmentFromContainer(ctr types.Container) (*EnvdEnvironment, error) 
 		env.Name = name
 	}
 	if jupyterAddr, ok := ctr.Labels[ContainerLabelJupyterAddr]; ok {
-		env.Service.JupyterAddr = &jupyterAddr
+		env.Status.JupyterAddr = &jupyterAddr
 	}
 	if rstudioServerAddr, ok := ctr.Labels[ContainerLabelRStudioServerAddr]; ok {
-		env.Service.RStudioServerAddr = &rstudioServerAddr
+		env.Status.RStudioServerAddr = &rstudioServerAddr
 	}
 
 	m, err := newManifest(ctr.Labels)

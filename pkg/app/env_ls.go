@@ -96,11 +96,11 @@ func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
 
 func endpointOrNone(env types.EnvdEnvironment) string {
 	var res strings.Builder
-	if env.Service.JupyterAddr != nil {
-		res.WriteString(fmt.Sprintf("jupyter: %s", *env.Service.JupyterAddr))
+	if env.Status.JupyterAddr != nil {
+		res.WriteString(fmt.Sprintf("jupyter: %s", *env.Status.JupyterAddr))
 	}
-	if env.Service.RStudioAddr != nil {
-		res.WriteString(fmt.Sprintf("rstudio: %s", *env.Service.RStudioAddr))
+	if env.Status.RStudioServerAddr != nil {
+		res.WriteString(fmt.Sprintf("rstudio: %s", *env.Status.RStudioServerAddr))
 	}
 	return res.String()
 }
