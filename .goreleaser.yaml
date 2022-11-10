@@ -60,13 +60,21 @@ snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
-  filters:
-    exclude:
-      - '^build:'
-      - '^ci:'
-      - '^docs:'
-      - '^test:'
-      - '^chore:'
+  groups:
+    - title: 'Exciting New Features 🎉'
+      regexp: "^.*feat.*"
+      order: 0
+    - title: 'Bug Fix 🛠'
+      regexp: "^.*(Fix|fix|bug).*"
+      order: 1
+    - title: 'Refactor 🏗️'
+      regexp: "^.*refact.*"
+      order: 2
+    - title: 'Documentation 🖊️'
+      regexp: "^.*docs.*"
+      order: 3
+    - title: 'Others:'
+      order: 999
 dockers:
 - image_templates:
   - "tensorchord/envd-from-scratch:v{{ .Version }}-amd64"

@@ -112,7 +112,14 @@ func CompileEntrypoint(buildContextDir string) ([]string, error) {
 }
 
 func CompileEnviron() []string {
-	return DefaultGraph.EnvString()
+	if DefaultGraph.Image != nil {
+		return DefaultGraph.EnvString()
+	}
+	// Add PATH and LC_ALL.
+	return append(DefaultGraph.EnvString(),
+		"PATH="+types.DefaultPathEnv(),
+		"LC_ALL=en_US.UTF-8",
+	)
 }
 
 func (g Graph) GPUEnabled() bool {
@@ -187,6 +194,7 @@ func (g Graph) Labels() (map[string]string, error) {
 	}
 	labels[types.ImageLabelRepo] = string(repoInfo)
 
+	labels[types.ImageLabelContainerName] = string(g.EnvironmentName)
 	return labels, nil
 }
 
@@ -296,7 +304,8 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 	run := g.compileRun(copy)
 	git := g.compileGit(run)
 	user := g.compileUserOwn(git)
-	entrypoint, err := g.compileEntrypoint(user)
+	mount := g.compileMountDir(user)
+	entrypoint, err := g.compileEntrypoint(mount)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
 	}

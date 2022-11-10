@@ -17,7 +17,7 @@ def build_gpu():
     base(os="ubuntu20.04", language="python3")
 
     # install cuda
-    install.cuda(version="11.2.0", cudnn="8")
+    install.cuda(version="11.2.2", cudnn="8")
 
     # Add the packages you are using here
     install.python_packages(["numpy"])

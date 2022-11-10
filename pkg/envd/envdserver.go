@@ -39,7 +39,19 @@ type envdServerEngine struct {
 }
 
 func (e *envdServerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) {
-	return nil, errors.New("not implemented")
+	resp, err := e.ImageList(ctx, e.IdentityToken)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to list image")
+	}
+	images := []types.EnvdImage{}
+	for _, meta := range resp.Items {
+		image, err := types.NewImageFromMeta(meta)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create envd image")
+		}
+		images = append(images, *image)
+	}
+	return images, nil
 }
 
 func (e envdServerEngine) Destroy(ctx context.Context, name string) (string, error) {
@@ -48,15 +60,31 @@ func (e envdServerEngine) Destroy(ctx context.Context, name string) (string, err
 }
 
 func (e *envdServerEngine) ListImageDependency(ctx context.Context, image string) (*types.Dependency, error) {
-	return nil, errors.New("not implemented")
+	img, err := e.GetImage(ctx, image)
+	if err != nil {
+		return nil, err
+	}
+	dep, err := types.NewDependencyFromLabels(img.Labels)
+	if err != nil {
+		return nil, err
+	}
+	return dep, nil
 }
 
-func (e *envdServerEngine) GetImage(ctx context.Context, image string) (dockertypes.ImageSummary, error) {
-	return dockertypes.ImageSummary{}, errors.New("not implemented")
+func (e *envdServerEngine) GetImage(ctx context.Context, image string) (types.EnvdImage, error) {
+	resp, err := e.ImageGet(ctx, e.IdentityToken, image)
+	if err != nil {
+		return types.EnvdImage{}, errors.Wrapf(err, "failed to get the image: %s", image)
+	}
+	img, err := types.NewImageFromMeta(resp.ImageMeta)
+	if err != nil {
+		return types.EnvdImage{}, errors.Wrapf(err, "failed to convert the image from image meta", image)
+	}
+	return *img, nil
 }
 
 func (e envdServerEngine) PruneImage(ctx context.Context) (dockertypes.ImagesPruneReport, error) {
-	return dockertypes.ImagesPruneReport{}, errors.New("not implemented")
+	return dockertypes.ImagesPruneReport{}, errors.New("not implemented for envd-server")
 }
 
 func (e *envdServerEngine) GetInfo(ctx context.Context) (*types.EnvdInfo, error) {

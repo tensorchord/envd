@@ -62,12 +62,12 @@ def r_packages(name: List[str]):
     """
 
 
-def cuda(version: str, cudnn: Optional[str] = None):
+def cuda(version: str, cudnn: Optional[str] = "8"):
     """Install CUDA dependency
 
     Args:
-        version (str): CUDA version, such as '11.6'
-        cudnn (optional, str): CUDNN version, such as '6'
+        version (str): CUDA version, such as '11.6.2'
+        cudnn (optional, str): CUDNN version, such as '8'
     """
 
 

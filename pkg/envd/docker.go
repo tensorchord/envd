@@ -70,7 +70,7 @@ func (e dockerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) 
 
 	envdImgs := make([]types.EnvdImage, 0)
 	for _, img := range images {
-		envdImg, err := types.NewImage(img)
+		envdImg, err := types.NewImageFromSummary(img)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create envd image from the docker image")
 		}
@@ -161,7 +161,7 @@ func (e dockerEngine) ListImageDependency(ctx context.Context, image string) (*t
 	}
 
 	img := images[0]
-	dep, err := types.NewDependencyFromImage(img)
+	dep, err := types.NewDependencyFromImageSummary(img)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create dependency from image")
 	}
@@ -299,7 +299,6 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	}
 	config := &container.Config{
 		Image:        so.Image,
-		User:         "envd",
 		ExposedPorts: nat.PortSet{},
 	}
 	base := fileutil.EnvdHomeDir(filepath.Base(so.BuildContext))
@@ -526,10 +525,8 @@ func (e dockerEngine) getContainerTag(ctx context.Context, name string) ([]strin
 		return tags, err
 	}
 	for _, img := range images {
-		for _, tag := range img.ImageSummary.RepoTags {
-			if strings.HasPrefix(tag, fmt.Sprintf("%s:", name)) {
-				tags = append(tags, tag)
-			}
+		if strings.HasPrefix(img.Name, fmt.Sprintf("%s:", name)) {
+			tags = append(tags, img.Name)
 		}
 	}
 	if len(tags) == 0 {
@@ -581,21 +578,32 @@ func (e dockerEngine) GPUEnabled(ctx context.Context) (bool, error) {
 	}
 	logrus.WithField("info", info).Debug("docker info")
 	nv := info.Runtimes["nvidia"]
-	return nv.Path != "", nil
+	if nv.Path != "" {
+		return true, nil
+	} else if strings.HasSuffix(info.KernelVersion, "WSL2") {
+		logrus.Warn("We couldn't detect if your runtime support GPU on WSL2, we will continue to run your environment.")
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
 
-func (e dockerEngine) GetImage(ctx context.Context, image string) (dockertypes.ImageSummary, error) {
+func (e dockerEngine) GetImage(ctx context.Context, image string) (types.EnvdImage, error) {
 	images, err := e.ImageList(ctx, dockertypes.ImageListOptions{
 		Filters: dockerFiltersWithName(image),
 	})
 	if err != nil {
-		return dockertypes.ImageSummary{}, err
+		return types.EnvdImage{}, err
 	}
 	if len(images) == 0 {
-		return dockertypes.ImageSummary{},
+		return types.EnvdImage{},
 			errors.Errorf("image %s not found", image)
 	}
-	return images[0], nil
+	img, err := types.NewImageFromSummary(images[0])
+	if err != nil {
+		return types.EnvdImage{}, err
+	}
+	return *img, nil
 }
 
 func (e dockerEngine) PruneImage(ctx context.Context) (dockertypes.ImagesPruneReport, error) {

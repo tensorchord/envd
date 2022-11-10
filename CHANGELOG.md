@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.2.5-alpha.2 (2022-11-03)
+
+ * [46d24fd](https://github.com/tensorchord/envd/commit/46d24fd1331b1b0e223cb2d2223e17d648080bf1) fix: horust cache (#1151)
+
+### Contributors
+
+ * Keming
+
+## v0.2.5-alpha.1 (2022-11-03)
+
+ * [28d73f9](https://github.com/tensorchord/envd/commit/28d73f9c1633f74363adcb20c41519863e993f4b) feat: Fetch base image metadata (#1148)
+ * [a2aa9fe](https://github.com/tensorchord/envd/commit/a2aa9fe6ecfd3ddeb1e8073b4768898e2952a812) feat: add environment name as label (#1135)
+ * [bc1c513](https://github.com/tensorchord/envd/commit/bc1c51356b5e94ef28e818acc65aef87833ef705) Bug/add support for wsl2 (#1134)
+ * [5053054](https://github.com/tensorchord/envd/commit/505305407f7375ed9ddf30014f72dee82f33e600) feat(cli): Add alias rm to envd image remove (#1136)
+ * [7bf8c00](https://github.com/tensorchord/envd/commit/7bf8c00dfd8c34cc5552590b67b1e69eecaf5a51) feat: expose support listen addr (#1128)
+ * [8776a25](https://github.com/tensorchord/envd/commit/8776a259de0b15d1a8bc7e76473b9a49e44e7890) fix: Fix zsh tab issue (#1129)
+ * [cff88a9](https://github.com/tensorchord/envd/commit/cff88a9ac759eee48508eab65802f1adc77b9ecb) fix: Fix the order to make conda cache always work (#1126)
+ * [07768b7](https://github.com/tensorchord/envd/commit/07768b7af8d9f39639a91ba156e3274889840c50) feat: record cmd duration in telemetry (#1122)
+ * [0bdca3c](https://github.com/tensorchord/envd/commit/0bdca3c2d54d0eea8ee6b3a14641ae5563971b0e) fix: Remove cwd in conda to enable remote cache (#1125)
+ * [535e26a](https://github.com/tensorchord/envd/commit/535e26a0a0d9d3855317d34dcf209e4d8d08efe9) feat(debug): Add llb export (#1124)
+ * [d693254](https://github.com/tensorchord/envd/commit/d693254c1a8b19e02aca85934818a4e7b6dde661) fix: Disable telemetry in CI (#1116)
+ * [3cba45e](https://github.com/tensorchord/envd/commit/3cba45e36496cd6010d9b07acbb0c7d34826f828) chore(deps): bump github.com/urfave/cli/v2 from 2.20.3 to 2.23.0 (#1119)
+ * [57a63e0](https://github.com/tensorchord/envd/commit/57a63e015c813a0a446768b00c83039923ce0df3) chore(deps): bump pypa/cibuildwheel from 2.11.1 to 2.11.2 (#1115)
+ * [77b3d84](https://github.com/tensorchord/envd/commit/77b3d84741f990e9cf0b3a8f9bd56abe40fcd895) chore(deps): bump github.com/onsi/gomega from 1.22.1 to 1.23.0 (#1117)
+
+### Contributors
+
+ * Ce Gao
+ * Isaac
+ * Jinjing Zhou
+ * Keming
+ * dependabot[bot]
+ * nullday
+
 ## v0.2.4-alpha.17 (2022-10-29)
 
  * [197b6c6](https://github.com/tensorchord/envd/commit/197b6c612891f0b7bc95b4b1f12a7daacbe7e51f) feat: Add telemetry with the help of segment.io (#1113)
