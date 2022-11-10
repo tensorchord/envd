@@ -31,6 +31,7 @@ import (
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -270,7 +271,10 @@ func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 }
 
 func (g Graph) compileMountDir(root llb.State) llb.State {
-	mount := root
+	// create the ENVD_WORKDIR as a placeholder (envd-server may not mount this dir)
+	workDir := fileutil.EnvdHomeDir(g.EnvironmentName)
+	mount := root.File(llb.Mkdir(workDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
+		llb.WithCustomNamef("[internal] create work dir: %s", workDir))
 	for _, m := range g.Mount {
 		mount = mount.File(llb.Mkdir(m.Destination, 0755, llb.WithParents(true),
 			llb.WithUIDGID(g.uid, g.gid)),
