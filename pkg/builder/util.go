@@ -41,6 +41,7 @@ func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 	img := v1.Image{
 		Config: v1.ImageConfig{
 			Labels:       labels,
+			User:         "envd",
 			WorkingDir:   "/",
 			Env:          env,
 			ExposedPorts: ports,
