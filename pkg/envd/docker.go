@@ -299,7 +299,6 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	}
 	config := &container.Config{
 		Image:        so.Image,
-		User:         "envd",
 		ExposedPorts: nat.PortSet{},
 	}
 	base := fileutil.EnvdHomeDir(filepath.Base(so.BuildContext))
