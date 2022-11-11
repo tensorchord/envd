@@ -368,6 +368,9 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 }
 
 func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
+	if ir.DefaultGraph.HTTP != nil || ir.DefaultGraph.Repo != (types.RepoInfo{}) {
+		return true
+	}
 	depsFiles := []string{
 		b.ConfigFilePath,
 	}
