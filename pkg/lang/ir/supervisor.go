@@ -99,7 +99,7 @@ func (g Graph) compileEntrypoint(root llb.State) (llb.State, error) {
 
 	if g.RuntimeDaemon != nil {
 		for i, command := range g.RuntimeDaemon {
-			entrypoint = g.addNewProcess(entrypoint, fmt.Sprintf("daemon_%d", i), fmt.Sprintf("%s &\n", strings.Join(command, " ")), deps)
+			entrypoint = g.addNewProcess(entrypoint, fmt.Sprintf("daemon_%d", i), strings.Join(command, " "), deps)
 		}
 	}
 
