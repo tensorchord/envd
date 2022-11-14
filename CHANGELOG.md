@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.5-alpha.4 (2022-11-14)
+
+ * [4a7d6cc](https://github.com/tensorchord/envd/commit/4a7d6cca18d9a033c02c1ef235570f64ef987300) fix: daemon command (#1185)
+
+### Contributors
+
+ * Keming
+
 ## v0.2.5-alpha.3 (2022-11-14)
 
  * [212f996](https://github.com/tensorchord/envd/commit/212f9966d12f2322fe8c97d14db093448399119e) chore(deps): bump github.com/urfave/cli/v2 from 2.23.4 to 2.23.5 (#1188)
