@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.5-alpha.5 (2022-11-14)
+
+ * [731b6f8](https://github.com/tensorchord/envd/commit/731b6f8271a77096d9a29a03e353e0388f825485) fix: github action release cache command (#1197)
+
+### Contributors
+
+ * Keming
+
 ## v0.2.5-alpha.4 (2022-11-14)
 
  * [4a7d6cc](https://github.com/tensorchord/envd/commit/4a7d6cca18d9a033c02c1ef235570f64ef987300) fix: daemon command (#1185)
