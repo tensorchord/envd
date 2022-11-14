@@ -45,15 +45,19 @@ envdlib = include("https://github.com/tensorchord/envdlib")
 
 def build():
     base(os="ubuntu20.04", language="python")
-    envdlib.tensorboard(8888)
+    envdlib.tensorboard(host_port=8888)
 ```
 
 <details>
   <summary><code>envdlib.tensorboard</code> is defined in <a href="https://github.com/tensorchord/envdlib/blob/main/src/monitoring.envd">github.com/tensorchord/envdlib</a></summary>
 
 ```python
-def tensorboard(envd_port=6006, envd_dir="/home/envd/logs",
-        host_port=0, host_dir="/var/log/tensorboard"):
+def tensorboard(
+    envd_port=6006,
+    envd_dir="/home/envd/logs",
+    host_port=0,
+    host_dir="/tmp",
+):
     """Configure TensorBoard.
 
     Make sure you have permission for `host_dir`
@@ -72,13 +76,11 @@ def tensorboard(envd_port=6006, envd_dir="/home/envd/logs",
             [
                 "tensorboard",
                 "--logdir",
-                "/home/envd/logs",
+                envd_dir,
                 "--port",
                 str(envd_port),
                 "--host",
                 "0.0.0.0",
-                ">>tensorboard.log",
-                "2>&1",
             ],
         ]
     )
