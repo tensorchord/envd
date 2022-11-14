@@ -190,6 +190,7 @@ jobs:
     - name: Build and push
       run: |
         sudo -u runneradmin id
+        sudo usermod -aG docker runneradmin
         sudo -u runneradmin bash ./base-images/remote-cache/build-and-push-remote-cache.sh
       env:
         BUILD_FUNC: ${{ matrix.build_func }}
