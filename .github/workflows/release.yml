@@ -188,7 +188,9 @@ jobs:
         username: ${{ secrets.DOCKERIO_USERNAME }}
         password: ${{ secrets.DOCKERIO_TOKEN }}
     - name: Build and push
-      run: ./base-images/remote-cache/build-and-push-remote-cache.sh
+      run: 
+        sudo -u runneradmin id
+        sudo -u runneradmin bash ./base-images/remote-cache/build-and-push-remote-cache.sh
       env:
         BUILD_FUNC: ${{ matrix.build_func }}
         TAG_SUFFIX: ${{ matrix.TAG_SUFFIX }}
