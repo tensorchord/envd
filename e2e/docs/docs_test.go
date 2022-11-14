@@ -16,6 +16,7 @@ package docs
 
 import (
 	"fmt"
+	"net/http"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -84,4 +85,25 @@ var _ = Describe("check examples in documentation", func() {
 		})
 	}
 
+	It("should be able to use envdlib", func() {
+		path := "testdata/envdlib"
+		args := append(baseArgs, []string{
+			"up", "--path", path, "-f", "build.envd", "--detach", "--force",
+		}...)
+		e2e.ResetEnvdApp()
+		envdApp := app.New()
+		err := envdApp.Run(args)
+		Expect(err).To(Succeed())
+
+		// check the port
+		resp, err := http.Get("http://localhost:8888")
+		Expect(err).To(Succeed())
+		Expect(resp.StatusCode).To(Equal(200))
+
+		destroyArgs := append(baseArgs, []string{
+			"destroy", "--path", path,
+		}...)
+		err = envdApp.Run(destroyArgs)
+		Expect(err).NotTo(Succeed())
+	})
 })
