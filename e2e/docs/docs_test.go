@@ -17,6 +17,7 @@ package docs
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -96,14 +97,16 @@ var _ = Describe("check examples in documentation", func() {
 		Expect(err).To(Succeed())
 
 		// check the port
-		resp, err := http.Get("http://localhost:8888")
+		time.Sleep(time.Second * 2)
+		resp, err := http.Get("http://127.0.0.1:8888")
 		Expect(err).To(Succeed())
+		defer resp.Body.Close()
 		Expect(resp.StatusCode).To(Equal(200))
 
 		destroyArgs := append(baseArgs, []string{
 			"destroy", "--path", path,
 		}...)
 		err = envdApp.Run(destroyArgs)
-		Expect(err).NotTo(Succeed())
+		Expect(err).To(Succeed())
 	})
 })
