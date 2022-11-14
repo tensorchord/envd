@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.5-alpha.6 (2022-11-14)
+
+ * [5462d30](https://github.com/tensorchord/envd/commit/5462d30a556f91741b770e4b4b24c1fd639f5299) fix: release CI add runneradmin to docker group (#1199)
+
+### Contributors
+
+ * Keming
+
 ## v0.2.5-alpha.5 (2022-11-14)
 
  * [731b6f8](https://github.com/tensorchord/envd/commit/731b6f8271a77096d9a29a03e353e0388f825485) fix: github action release cache command (#1197)
