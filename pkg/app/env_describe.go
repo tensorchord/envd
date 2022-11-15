@@ -15,6 +15,8 @@
 package app
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -22,6 +24,8 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
+
+	servertypes "github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
@@ -70,14 +74,41 @@ func getEnvironmentDescriptions(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to list dependencies")
 	}
 
+	images, err := envdEngine.ListImage(clicontext.Context)
+	if err != nil {
+		return errors.Wrap(err, "Failed to list image")
+	}
+
+	var portMap = make(map[string]string)
+	for _, image := range images {
+		environmentPorts, err := parseEnvironmentPort(image.Labels[types.ImageLabelPorts])
+		if err != nil {
+			return errors.Wrap(err, "Error parsing environment ports")
+		}
+		for _, environmentPort := range environmentPorts {
+			portMap[fmt.Sprint(environmentPort.Port)] = environmentPort.Name
+		}
+	}
+
 	ports, err := envdEngine.ListEnvPortBinding(clicontext.Context, envName)
 	if err != nil {
 		return errors.Wrap(err, "failed to list port bindings")
 	}
 
+	for index, label := range ports {
+		label.Name = portMap[label.Port]
+		ports[index] = label
+	}
+
 	renderDependencies(os.Stdout, dep)
 	renderPortBindings(os.Stdout, ports)
 	return nil
+}
+
+func parseEnvironmentPort(lst string) ([]servertypes.EnvironmentPort, error) {
+	var pkgs []servertypes.EnvironmentPort
+	err := json.Unmarshal([]byte(lst), &pkgs)
+	return pkgs, err
 }
 
 func createTable(w io.Writer, headers []string) *tablewriter.Table {
@@ -103,13 +134,14 @@ func renderPortBindings(w io.Writer, ports []types.PortBinding) {
 	if ports == nil {
 		return
 	}
-	table := createTable(w, []string{"Container Port", "Protocol", "Host IP", "Host Port"})
+	table := createTable(w, []string{"Name", "Container Port", "Protocol", "Host IP", "Host Port"})
 	for _, port := range ports {
-		row := make([]string, 4)
-		row[0] = port.Port
-		row[1] = port.Protocol
-		row[2] = port.HostIP
-		row[3] = port.HostPort
+		row := make([]string, 5)
+		row[0] = port.Name
+		row[1] = port.Port
+		row[2] = port.Protocol
+		row[3] = port.HostIP
+		row[4] = port.HostPort
 		table.Append(row)
 	}
 	table.Render()

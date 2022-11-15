@@ -152,6 +152,7 @@ type RepoInfo struct {
 }
 
 type PortBinding struct {
+	Name     string
 	Port     string
 	Protocol string
 	HostIP   string
