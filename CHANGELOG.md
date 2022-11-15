@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.5-alpha.7 (2022-11-15)
+
+ * [3fa3070](https://github.com/tensorchord/envd/commit/3fa307098a585b524804bd0beff6697e68440b42) feat: support build owner (#1202)
+
+### Contributors
+
+ * Keming
+
 ## v0.2.5-alpha.6 (2022-11-14)
 
  * [5462d30](https://github.com/tensorchord/envd/commit/5462d30a556f91741b770e4b4b24c1fd639f5299) fix: release CI add runneradmin to docker group (#1199)
