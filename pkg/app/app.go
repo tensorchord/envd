@@ -70,6 +70,13 @@ func New() EnvdApp {
 			Value:  "tensorchord",
 			Hidden: true,
 		},
+		&cli.StringFlag{
+			Name:    flag.FlagBuildOwner,
+			Usage:   "owner (uid:gid) in the built image",
+			Value:   "",
+			EnvVars: []string{"ENVD_BUILD_OWNER"},
+			Hidden:  true,
+		},
 	}
 
 	internalApp.Commands = []*cli.Command{
@@ -139,6 +146,7 @@ func New() EnvdApp {
 
 		// TODO(gaocegege): Add a config struct to keep them.
 		viper.Set(flag.FlagBuildkitdImage, context.String(flag.FlagBuildkitdImage))
+		viper.Set(flag.FlagBuildOwner, context.String(flag.FlagBuildOwner))
 		viper.Set(flag.FlagDebug, debugEnabled)
 		viper.Set(flag.FlagAnalytics, analytics)
 		viper.Set(flag.FlagDockerOrganization,

@@ -23,9 +23,13 @@ import (
 	"os/user"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/cockroachdb/errors"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
+	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -62,6 +66,28 @@ func parseLanguage(l string) (string, *string, error) {
 }
 
 func getUIDGID() (int, int, error) {
+	owner := viper.GetString(flag.FlagBuildOwner)
+	if len(owner) > 0 {
+		logrus.WithField("flag", owner).Info("use owner")
+		ids := strings.Split(owner, ":")
+		if len(ids) > 2 {
+			return 0, 0, errors.Newf("wrong format for owner (uid:gid): %s", owner)
+		}
+		uid, err := strconv.Atoi(ids[0])
+		if err != nil {
+			logrus.Info(err)
+			return 0, 0, errors.Wrap(err, "failed to get uid")
+		}
+		// if omit gid, will use the uid as gid
+		if len(ids) == 1 {
+			return uid, uid, nil
+		}
+		gid, err := strconv.Atoi(ids[1])
+		if err != nil {
+			return 0, 0, errors.Wrap(err, "failed to get gid")
+		}
+		return uid, gid, nil
+	}
 	user, err := user.Current()
 	if err != nil {
 		return 0, 0, errors.Wrap(err, "failed to get uid/gid")
