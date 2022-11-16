@@ -32,7 +32,6 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
 
-	servertypes "github.com/tensorchord/envd-server/api/types"
 	envdconfig "github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
@@ -193,30 +192,10 @@ func (e dockerEngine) ListEnvPortBinding(ctx context.Context, env string) ([]typ
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get container")
 	}
-	ports := types.NewPortBindingFromContainerJSON(ctr)
-	images, err := e.ListImage(ctx)
+
+	ports, err := types.NewPortBindingFromContainerJSON(ctr)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to list image")
-	}
-
-	var portMap = make(map[string]string)
-	for _, image := range images {
-		if strings.HasPrefix(image.Name, fmt.Sprintf("%s:", env)) {
-			var environmentPorts []servertypes.EnvironmentPort
-			err := json.Unmarshal([]byte(image.Labels[types.ImageLabelPorts]), &environmentPorts)
-			if err != nil {
-				return nil, errors.Wrap(err, "Error parsing environment ports")
-			}
-
-			for _, environmentPort := range environmentPorts {
-				portMap[fmt.Sprint(environmentPort.Port)] = environmentPort.Name
-			}
-		}
-	}
-
-	for index, label := range ports {
-		label.Name = portMap[label.Port]
-		ports[index] = label
+		return nil, errors.Wrap(err, "failed to get port binding from container json")
 	}
 
 	return ports, nil
