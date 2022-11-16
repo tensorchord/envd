@@ -15,8 +15,6 @@
 package app
 
 import (
-	"encoding/json"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -24,8 +22,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
-
-	servertypes "github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
@@ -74,41 +70,14 @@ func getEnvironmentDescriptions(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to list dependencies")
 	}
 
-	images, err := envdEngine.ListImage(clicontext.Context)
-	if err != nil {
-		return errors.Wrap(err, "Failed to list image")
-	}
-
-	var portMap = make(map[string]string)
-	for _, image := range images {
-		environmentPorts, err := parseEnvironmentPort(image.Labels[types.ImageLabelPorts])
-		if err != nil {
-			return errors.Wrap(err, "Error parsing environment ports")
-		}
-		for _, environmentPort := range environmentPorts {
-			portMap[fmt.Sprint(environmentPort.Port)] = environmentPort.Name
-		}
-	}
-
 	ports, err := envdEngine.ListEnvPortBinding(clicontext.Context, envName)
 	if err != nil {
 		return errors.Wrap(err, "failed to list port bindings")
 	}
 
-	for index, label := range ports {
-		label.Name = portMap[label.Port]
-		ports[index] = label
-	}
-
 	renderDependencies(os.Stdout, dep)
 	renderPortBindings(os.Stdout, ports)
 	return nil
-}
-
-func parseEnvironmentPort(lst string) ([]servertypes.EnvironmentPort, error) {
-	var pkgs []servertypes.EnvironmentPort
-	err := json.Unmarshal([]byte(lst), &pkgs)
-	return pkgs, err
 }
 
 func createTable(w io.Writer, headers []string) *tablewriter.Table {
