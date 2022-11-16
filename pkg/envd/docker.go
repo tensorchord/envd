@@ -192,7 +192,12 @@ func (e dockerEngine) ListEnvPortBinding(ctx context.Context, env string) ([]typ
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get container")
 	}
-	ports := types.NewPortBindingFromContainerJSON(ctr)
+
+	ports, err := types.NewPortBindingFromContainerJSON(ctr)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get port binding from container json")
+	}
+
 	return ports, nil
 }
 

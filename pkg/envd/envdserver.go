@@ -219,6 +219,7 @@ func (e *envdServerEngine) ListEnvPortBinding(
 	// TODO(gaocegege): Remove hard coded.
 	res := []types.PortBinding{
 		{
+			Name:     "ssh",
 			Port:     "2222",
 			Protocol: "TCP",
 			HostIP:   "localhost",

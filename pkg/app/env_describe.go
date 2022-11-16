@@ -103,13 +103,14 @@ func renderPortBindings(w io.Writer, ports []types.PortBinding) {
 	if ports == nil {
 		return
 	}
-	table := createTable(w, []string{"Container Port", "Protocol", "Host IP", "Host Port"})
+	table := createTable(w, []string{"Name", "Container Port", "Protocol", "Host IP", "Host Port"})
 	for _, port := range ports {
-		row := make([]string, 4)
-		row[0] = port.Port
-		row[1] = port.Protocol
-		row[2] = port.HostIP
-		row[3] = port.HostPort
+		row := make([]string, 5)
+		row[0] = port.Name
+		row[1] = port.Port
+		row[2] = port.Protocol
+		row[3] = port.HostIP
+		row[4] = port.HostPort
 		table.Append(row)
 	}
 	table.Render()
