@@ -148,6 +148,7 @@ type RepoInfo struct {
 }
 
 type PortBinding struct {
+	Name     string
 	Port     string
 	Protocol string
 	HostIP   string
@@ -268,7 +269,18 @@ func NewDependencyFromImageSummary(img types.ImageSummary) (*Dependency, error) 
 	return NewDependencyFromLabels(img.Labels)
 }
 
-func NewPortBindingFromContainerJSON(ctr types.ContainerJSON) []PortBinding {
+func NewPortBindingFromContainerJSON(ctr types.ContainerJSON) ([]PortBinding, error) {
+	var labels []servertypes.EnvironmentPort
+	err := json.Unmarshal([]byte(ctr.Config.Labels[ImageLabelPorts]), &labels)
+	if err != nil {
+		return nil, err
+	}
+
+	var portMap = make(map[string]string)
+	for _, label := range labels {
+		portMap[fmt.Sprint(label.Port)] = label.Name
+	}
+
 	config := ctr.HostConfig.PortBindings
 	var ports []PortBinding
 	for port, bindings := range config {
@@ -277,13 +289,15 @@ func NewPortBindingFromContainerJSON(ctr types.ContainerJSON) []PortBinding {
 		}
 		binding := bindings[len(bindings)-1]
 		ports = append(ports, PortBinding{
+			Name:     portMap[port.Port()],
 			Port:     port.Port(),
 			Protocol: port.Proto(),
 			HostIP:   binding.HostIP,
 			HostPort: binding.HostPort,
 		})
 	}
-	return ports
+
+	return ports, nil
 }
 
 func NewDependencyFromLabels(label map[string]string) (*Dependency, error) {
