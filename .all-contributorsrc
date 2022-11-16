@@ -499,6 +499,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "MyFRA",
+      "name": "To My",
+      "avatar_url": "https://avatars.githubusercontent.com/u/60420319?v=4",
+      "profile": "http://myfra.vercel.app",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
