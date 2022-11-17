@@ -271,10 +271,14 @@ func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 }
 
 func (g Graph) compileMountDir(root llb.State) llb.State {
-	// create the ENVD_WORKDIR as a placeholder (envd-server may not mount this dir)
-	workDir := fileutil.EnvdHomeDir(g.EnvironmentName)
-	mount := root.File(llb.Mkdir(workDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
-		llb.WithCustomNamef("[internal] create work dir: %s", workDir))
+	mount := root
+	if g.Image == nil {
+		// create the ENVD_WORKDIR as a placeholder (envd-server may not mount this dir)
+		workDir := fileutil.EnvdHomeDir(g.EnvironmentName)
+		mount = root.File(llb.Mkdir(workDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomNamef("[internal] create work dir: %s", workDir))
+	}
+
 	for _, m := range g.Mount {
 		mount = mount.File(llb.Mkdir(m.Destination, 0755, llb.WithParents(true),
 			llb.WithUIDGID(g.uid, g.gid)),

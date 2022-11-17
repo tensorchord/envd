@@ -25,10 +25,7 @@ import (
 func (g Graph) compileCustomPython(baseStage llb.State) (llb.State, error) {
 	aptStage := g.compileUbuntuAPT(baseStage)
 	pypiMirrorStage := g.compilePyPIIndex(aptStage)
-
-	builtinSystemStage := pypiMirrorStage
-
-	systemStage := g.compileCustomSystemPackages(builtinSystemStage)
+	systemStage := g.compileCustomSystemPackages(pypiMirrorStage)
 	pypiStage := g.compileCustomPyPIPackages(systemStage)
 
 	return pypiStage, nil
@@ -69,7 +66,7 @@ func (g Graph) compileCustomSystemPackages(root llb.State) llb.State {
 
 	// Compose the package install command.
 	var sb strings.Builder
-	sb.WriteString("apt-get update && apt-get install -y --no-install-recommends")
+	sb.WriteString("apt-get update && apt-get install -y --no-install-recommends --no-install-suggests --fix-missing")
 
 	for _, pkg := range g.SystemPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
