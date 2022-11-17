@@ -42,12 +42,22 @@ require (
 )
 
 require (
+	github.com/aymanbagabas/go-osc52 v1.0.3 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
+	github.com/charmbracelet/bubbletea v0.23.1
 	github.com/containerd/ttrpc v1.1.0 // indirect
 	github.com/klauspost/compress v1.15.11 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/moby/locker v1.0.1 // indirect
+	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
+	github.com/muesli/cancelreader v0.2.2 // indirect
+	github.com/muesli/reflow v0.3.0 // indirect
+	github.com/muesli/termenv v0.13.0 // indirect
 	github.com/op/go-logging v0.0.0-20160211212156-b2cb9fa56473 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/segmentio/backo-go v1.0.0 // indirect
 )
 
@@ -90,7 +100,7 @@ require (
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
+	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
