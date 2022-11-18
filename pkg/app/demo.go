@@ -35,14 +35,15 @@ var CommandDemo = &cli.Command{
 
 func demoCommand(clicontext *cli.Context) error {
 
-	startQuestion(LanguageInput())
-	if selectionMap[LabelLanguage][0] == "python" {
-		startQuestion(PythonPackageInput())
-	} else if selectionMap[LabelLanguage][0] == "r" {
+	startQuestion(LanguageChoice())
+	languageChoice := selectionMap[LabelLanguage][0]
+	if languageChoice == "python" {
+		startQuestion(PythonPackageChoice())
+	} else if languageChoice == "r" {
 		startQuestion(RPackageChoice())
 	}
 	startQuestion(CudaChoice())
-	if selectionMap["Cuda"][0] == "Yes" {
+	if selectionMap[LabelCudaChoice][0] == "Yes" {
 		startQuestion(CudaVersionChoice())
 	}
 
@@ -55,14 +56,13 @@ func demoCommand(clicontext *cli.Context) error {
 	return nil
 }
 
-func startQuestion(input input) tea.Model {
+func startQuestion(input input) {
 	p := tea.NewProgram(InitModel(input))
-	m, err := p.Run()
+	_, err := p.Run()
 	if err != nil {
 		fmt.Printf("There was an error generating build.envd: %v", err)
 		os.Exit(1)
 	}
-	return m
 }
 
 var selectionMap = make(map[string][]string)
@@ -78,6 +78,7 @@ const (
 const (
 	LabelLanguage      string = "Language"
 	LabelCuda          string = "Cuda"
+	LabelCudaChoice    string = "Cuda Choice"
 	LabelPythonPackage string = "Python Package"
 	LabelRPackage      string = "R Package"
 )
@@ -96,7 +97,7 @@ type input struct {
 	options   []string
 }
 
-func LanguageInput() input {
+func LanguageChoice() input {
 	return input{
 		prompt:    "Choose a programming language",
 		inputType: SINGLE_SELECT,
@@ -109,7 +110,7 @@ func LanguageInput() input {
 	}
 }
 
-func PythonPackageInput() input {
+func PythonPackageChoice() input {
 	return input{
 		prompt:    "Choose your python packages",
 		inputType: MULTIPLE_SELECT,
@@ -137,7 +138,7 @@ func CudaChoice() input {
 	return input{
 		prompt:    "Include Cuda?",
 		inputType: SINGLE_SELECT,
-		label:     "Cuda",
+		label:     LabelCudaChoice,
 		options: []string{
 			"Yes",
 			"No",
@@ -183,7 +184,7 @@ func (m model) View() string {
 		s += "Press space to select"
 	}
 
-	return s + "\n"
+	return s
 }
 
 func (m model) Init() tea.Cmd {
@@ -195,21 +196,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-
 		switch msg.String() {
-
 		case "ctrl+c", "q":
 			os.Exit(0)
 		case "up", "k":
 			if m.cursor > 0 {
 				m.cursor--
 			}
-
 		case "down", "j":
 			if m.cursor < len(choices)-1 {
 				m.cursor++
 			}
-
 		case " ":
 			if m.input.inputType == MULTIPLE_SELECT {
 				_, ok := m.selected[m.cursor]
@@ -245,7 +242,7 @@ func generateFile(clicontext *cli.Context) error {
 	buf.WriteString(fmt.Sprintf("    base(os=\"ubuntu20.04\", language=\"%s\")\n", selectionMap[LabelLanguage][0]))
 	buf.WriteString(generatePackagesStr("python", selectionMap[LabelPythonPackage]))
 	buf.WriteString(generatePackagesStr("r", selectionMap[LabelRPackage]))
-	if selectionMap[LabelCuda][0] == "Yes" {
+	if selectionMap[LabelCudaChoice][0] == "Yes" {
 		buf.WriteString(fmt.Sprintf("    cuda(version=\"%s\", cudann=\"8\")\n", selectionMap[LabelCuda][0]))
 	}
 
@@ -262,11 +259,11 @@ func generateFile(clicontext *cli.Context) error {
 	return nil
 }
 
-func generatePackagesStr(packageName string, packages []string) string {
+func generatePackagesStr(name string, packages []string) string {
 	if len(packages) == 0 {
 		return ""
 	}
-	s := fmt.Sprintf("    install.%s_packages(name = [\n", packageName)
+	s := fmt.Sprintf("    install.%s_packages(name = [\n", name)
 	for i, p := range packages {
 		s += fmt.Sprintf("        \"%s\"", p)
 		if i != len(packages)-1 {
