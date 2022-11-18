@@ -15,12 +15,13 @@
 package app
 
 import (
+	"bytes"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/cockroachdb/errors"
 	cli "github.com/urfave/cli/v2"
 )
 
@@ -34,16 +35,19 @@ var CommandDemo = &cli.Command{
 func demoCommand(clicontext *cli.Context) error {
 
 	p := tea.NewProgram(InitModel())
-	_, err := p.Run()
+	m, err := p.Run()
 	if err != nil {
 		fmt.Printf("There was an error generating build.envd: %v", err)
 		os.Exit(1)
 	}
-
+	finalModel := m.(model)
+	err = generateFile(clicontext, finalModel.selections)
+	if err != nil {
+		fmt.Printf("There was an error generating build.envd: %v", err)
+		os.Exit(1)
+	}
 	fmt.Println("Generated build.envd file!")
-
 	return nil
-
 }
 
 const (
@@ -133,15 +137,15 @@ func InitChoice() []input {
 		label:     LabelLanguage,
 		options: []inputnode{
 			{
-				label: "Python",
+				label: "python",
 				next:  &pythonPackageChoice,
 			},
 			{
-				label: "R",
+				label: "r",
 				next:  &RPackageChoice,
 			},
 			{
-				label: "Julia",
+				label: "julia",
 			},
 		},
 	}
@@ -268,39 +272,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func NewPythonEnvFromCli(dir string) (*pythonEnv, error) {
-	requirements := ""
-	condaEnv := ""
-	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			return nil
-		}
-		relPath, err := filepath.Rel(dir, path)
-		if err != nil {
-			return err
-		}
-		if d.Name() == "requirements.txt" && len(requirements) <= 0 {
-			requirements = relPath
-			return nil
-		}
-		if isCondaEnvFile(d.Name()) && len(condaEnv) <= 0 {
-			condaEnv = relPath
-		}
-		return nil
-	})
+func generateFile(clicontext *cli.Context, selections map[string][]string) error {
+	var buf bytes.Buffer
+	buf.WriteString("def build():\n")
+	// buf.WriteString(fmt.Sprintf("    base(os=\"ubuntu20.04\", language=\"%s\")\n", selections[LabelLanguage][0]))
+
+	buildEnvdContent := buf.Bytes()
+	buildContext, err := filepath.Abs(clicontext.Path("path"))
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &pythonEnv{
-		pythonVersion: "python", // use the default one
-		requirements:  requirements,
-		condaEnv:      condaEnv,
-		indent:        "    ",
-		notebook:      false,
-	}, nil
+	filePath := filepath.Join(buildContext, "build.envd")
+	fmt.Println("File Path", filePath)
+	err = os.WriteFile(filePath, buildEnvdContent, 0644)
+	if err != nil {
+		return errors.Wrap(err, "Failed to create build.envd")
+	}
+	return nil
 }
 
 func (m model) renderMultipleChoice() string {
