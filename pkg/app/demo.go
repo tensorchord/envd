@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/cockroachdb/errors"
 	cli "github.com/urfave/cli/v2"
 )
@@ -34,21 +35,39 @@ var CommandDemo = &cli.Command{
 
 func demoCommand(clicontext *cli.Context) error {
 
-	p := tea.NewProgram(InitModel())
+	startQuestion(LanguageInput())
+	if selectionMap[LabelLanguage][0] == "python" {
+		startQuestion(PythonPackageInput())
+	} else if selectionMap[LabelLanguage][0] == "r" {
+		startQuestion(RPackageChoice())
+	}
+	startQuestion(CudaChoice())
+	if selectionMap["Cuda"][0] == "Yes" {
+		startQuestion(CudaVersionChoice())
+	}
+
+	err := generateFile(clicontext)
+	if err != nil {
+		return errors.Wrap(err, "error generating build.envd")
+	}
+
+	fmt.Println("Successfully generated build.envd file!")
+	return nil
+}
+
+func startQuestion(input input) tea.Model {
+	p := tea.NewProgram(InitModel(input))
 	m, err := p.Run()
 	if err != nil {
 		fmt.Printf("There was an error generating build.envd: %v", err)
 		os.Exit(1)
 	}
-	finalModel := m.(model)
-	err = generateFile(clicontext, finalModel.selections)
-	if err != nil {
-		fmt.Printf("There was an error generating build.envd: %v", err)
-		os.Exit(1)
-	}
-	fmt.Println("Generated build.envd file!")
-	return nil
+	return m
 }
+
+var selectionMap = make(map[string][]string)
+var itemStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#999999"))
+var selectedItemStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#4dff4d"))
 
 const (
 	SINGLE_SELECT   string = "single select"
@@ -64,173 +83,115 @@ const (
 )
 
 type model struct {
-	step         int
-	inputs       []input
-	currentInput *input
-	cursor       int
-	selected     map[int]struct{}
-	prevText     string
-	selections   map[string][]string
+	step     int
+	cursor   int
+	selected map[int]struct{}
+	input    input
 }
 
 type input struct {
 	prompt    string
 	inputType string
 	label     string
-	options   []inputnode
-	next      *input
+	options   []string
 }
 
-type inputnode struct {
-	label string
-	// value string
-	next *input
-}
-
-func InitChoice() []input {
-	condaChoice := input{
-		prompt:    "Include Conda?",
-		inputType: SINGLE_SELECT,
-		label:     "Conda",
-		options: []inputnode{
-			{
-				label: "Yes",
-			},
-			{
-				label: "No",
-			},
-		},
-	}
-
-	pythonPackageChoice := input{
-		prompt:    "Choose your python packages",
-		inputType: MULTIPLE_SELECT,
-		label:     LabelPythonPackage,
-		options: []inputnode{
-			{
-				label: "numpy",
-			},
-			{
-				label: "tensorflow",
-			},
-		},
-		next: &condaChoice,
-	}
-
-	RPackageChoice := input{
-		prompt:    "Choose your R packages",
-		inputType: MULTIPLE_SELECT,
-		label:     LabelRPackage,
-		options: []inputnode{
-			{
-				label: "remotes",
-			},
-			{
-				label: "rlang",
-			},
-		},
-	}
-
-	languageChoice := input{
+func LanguageInput() input {
+	return input{
 		prompt:    "Choose a programming language",
 		inputType: SINGLE_SELECT,
 		label:     LabelLanguage,
-		options: []inputnode{
-			{
-				label: "python",
-				next:  &pythonPackageChoice,
-			},
-			{
-				label: "r",
-				next:  &RPackageChoice,
-			},
-			{
-				label: "julia",
-			},
+		options: []string{
+			"python",
+			"r",
+			"julia",
 		},
-	}
-
-	cudaVersion := input{
-		prompt:    "Choose a cuda version",
-		inputType: SINGLE_SELECT,
-		label:     LabelCuda,
-		options: []inputnode{
-			{
-				label: "11.0",
-			},
-			{
-				label: "10.2",
-			},
-			{
-				label: "10.1",
-			},
-		},
-	}
-
-	cudaChoice := input{
-		prompt:    "Include Cuda?",
-		inputType: SINGLE_SELECT,
-		label:     "Cuda",
-		options: []inputnode{
-			{
-				label: "Yes",
-				next:  &cudaVersion,
-			},
-			{
-				label: "No",
-			},
-		},
-	}
-
-	return []input{
-		languageChoice,
-		cudaChoice,
 	}
 }
 
-func InitModel() model {
-	choices := InitChoice()
+func PythonPackageInput() input {
+	return input{
+		prompt:    "Choose your python packages",
+		inputType: MULTIPLE_SELECT,
+		label:     LabelPythonPackage,
+		options: []string{
+			"numpy",
+			"tensorflow",
+		},
+	}
+}
+
+func RPackageChoice() input {
+	return input{
+		prompt:    "Choose your r packages",
+		inputType: MULTIPLE_SELECT,
+		label:     LabelRPackage,
+		options: []string{
+			"remotes",
+			"rlang",
+		},
+	}
+}
+
+func CudaChoice() input {
+	return input{
+		prompt:    "Include Cuda?",
+		inputType: SINGLE_SELECT,
+		label:     "Cuda",
+		options: []string{
+			"Yes",
+			"No",
+		},
+	}
+}
+
+func CudaVersionChoice() input {
+	return input{
+		prompt:    "Choose a cuda version",
+		inputType: SINGLE_SELECT,
+		label:     LabelCuda,
+		options: []string{
+			"11.0",
+			"10.2",
+			"10.1",
+		},
+	}
+}
+
+func InitModel(input input) model {
 	return model{
-		inputs:       choices,
-		step:         0,
-		selected:     make(map[int]struct{}),
-		currentInput: &choices[0],
-		prevText:     "",
-		selections:   make(map[string][]string),
+		input:    input,
+		step:     0,
+		selected: make(map[int]struct{}),
 	}
 }
 
 func (m model) View() string {
-	if m.currentInput == nil {
-		return ""
-	}
+	s := m.input.prompt
 
-	s := m.currentInput.prompt
-
-	switch m.currentInput.inputType {
+	switch m.input.inputType {
 	case SINGLE_SELECT, MULTIPLE_SELECT:
 		s += m.renderMultipleChoice()
 
 	case INPUT:
-		// TODO: implement input
+		// TODO: implement input if needed
 
 	}
 
 	s += "\nPress q to quit. "
-	if m.currentInput.inputType == MULTIPLE_SELECT {
+	if m.input.inputType == MULTIPLE_SELECT {
 		s += "Press space to select"
 	}
 
-	return fmt.Sprintf("%s%s\n", m.prevText, s)
+	return s + "\n"
 }
 
 func (m model) Init() tea.Cmd {
-	// Just return `nil`, which means "no I/O right now, please."
 	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	choices := m.currentInput.options
+	choices := m.input.options
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -238,8 +199,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 
 		case "ctrl+c", "q":
-			return m, tea.Quit
-
+			os.Exit(0)
 		case "up", "k":
 			if m.cursor > 0 {
 				m.cursor--
@@ -251,7 +211,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case " ":
-			if m.currentInput.inputType == MULTIPLE_SELECT {
+			if m.input.inputType == MULTIPLE_SELECT {
 				_, ok := m.selected[m.cursor]
 				if ok {
 					delete(m.selected, m.cursor)
@@ -260,22 +220,34 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		case "enter":
-			selected := m.getSelectedOptions()
-			m.prevText += renderSelection(m.currentInput.prompt, selected)
-			m = m.iterate()
-			if m.currentInput == nil {
-				return m, tea.Quit
+			if m.input.inputType == SINGLE_SELECT {
+				m.selected[m.cursor] = struct{}{}
 			}
+			selectionMap[m.input.label] = []string{choices[m.cursor]}
+			m.addSelection()
+			return m, tea.Quit
 		}
 	}
 
 	return m, nil
 }
 
-func generateFile(clicontext *cli.Context, selections map[string][]string) error {
+func (m model) addSelection() {
+	selectionMap[m.input.label] = []string{}
+	for i := range m.selected {
+		selectionMap[m.input.label] = append(selectionMap[m.input.label], m.input.options[i])
+	}
+}
+
+func generateFile(clicontext *cli.Context) error {
 	var buf bytes.Buffer
 	buf.WriteString("def build():\n")
-	// buf.WriteString(fmt.Sprintf("    base(os=\"ubuntu20.04\", language=\"%s\")\n", selections[LabelLanguage][0]))
+	buf.WriteString(fmt.Sprintf("    base(os=\"ubuntu20.04\", language=\"%s\")\n", selectionMap[LabelLanguage][0]))
+	buf.WriteString(generatePackagesStr("python", selectionMap[LabelPythonPackage]))
+	buf.WriteString(generatePackagesStr("r", selectionMap[LabelRPackage]))
+	if selectionMap[LabelCuda][0] == "Yes" {
+		buf.WriteString(fmt.Sprintf("    cuda(version=\"%s\", cudann=\"8\")\n", selectionMap[LabelCuda][0]))
+	}
 
 	buildEnvdContent := buf.Bytes()
 	buildContext, err := filepath.Abs(clicontext.Path("path"))
@@ -283,7 +255,6 @@ func generateFile(clicontext *cli.Context, selections map[string][]string) error
 		return err
 	}
 	filePath := filepath.Join(buildContext, "build.envd")
-	fmt.Println("File Path", filePath)
 	err = os.WriteFile(filePath, buildEnvdContent, 0644)
 	if err != nil {
 		return errors.Wrap(err, "Failed to create build.envd")
@@ -291,66 +262,43 @@ func generateFile(clicontext *cli.Context, selections map[string][]string) error
 	return nil
 }
 
+func generatePackagesStr(packageName string, packages []string) string {
+	if len(packages) == 0 {
+		return ""
+	}
+	s := fmt.Sprintf("    install.%s_packages(name = [\n", packageName)
+	for i, p := range packages {
+		s += fmt.Sprintf("        \"%s\"", p)
+		if i != len(packages)-1 {
+			s += ", "
+		}
+		s += "\n"
+	}
+	s += "    ])\n"
+	return s
+}
+
 func (m model) renderMultipleChoice() string {
 	s := "\n\n"
-	for i, choice := range m.currentInput.options {
-
+	for i, choice := range m.input.options {
 		cursor := " "
+		style := itemStyle
 		if m.cursor == i {
 			cursor = ">"
+			style = selectedItemStyle
 		}
-		if m.currentInput.inputType == MULTIPLE_SELECT {
+
+		if m.input.inputType == MULTIPLE_SELECT {
 			checked := " "
 			if _, ok := m.selected[i]; ok {
 				checked = "x"
 			}
-			s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice.label)
-		} else {
-			s += fmt.Sprintf("%s  %s\n", cursor, choice.label)
+			s += style.Render((fmt.Sprintf("%s [%s] %s", cursor, checked, choice))) + "\n"
+		}
+
+		if m.input.inputType == SINGLE_SELECT {
+			s += style.Render(fmt.Sprintf("%s %s", cursor, choice)) + "\n"
 		}
 	}
 	return s
-}
-
-func (m model) iterate() model {
-	m.selections[m.currentInput.label] = m.getSelectedOptions()
-	currentChoice := m.currentInput.options[m.cursor]
-	m.selected = make(map[int]struct{})
-	if currentChoice.next == nil {
-		if m.currentInput.next != nil {
-			m.currentInput = m.currentInput.next
-		} else {
-			m.step++
-			if m.step >= len(m.inputs) {
-				m.currentInput = nil
-				return m
-			}
-			m.currentInput = &m.inputs[m.step]
-
-		}
-	} else {
-		m.currentInput = currentChoice.next
-	}
-	return m
-}
-
-func (m model) getSelectedOptions() []string {
-	var selected []string
-	for i := range m.selected {
-		if _, ok := m.selected[i]; ok {
-			selected = append(selected, m.currentInput.options[i].label)
-		}
-	}
-	if m.currentInput.inputType == SINGLE_SELECT {
-		selected = append(selected, m.currentInput.options[m.cursor].label)
-	}
-	return selected
-}
-
-func renderSelection(prompt string, labels []string) string {
-	s := prompt + "\n"
-	for _, label := range labels {
-		s += label + "\n"
-	}
-	return s + "\n"
 }
