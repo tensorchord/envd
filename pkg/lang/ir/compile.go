@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
@@ -58,6 +59,7 @@ func NewGraph() *Graph {
 		SystemPackages:  []string{},
 		Exec:            []RunBuildCommand{},
 		UserDirectories: []string{},
+		RuntimeEnvPaths: []string{types.DefaultPathEnv()},
 		Shell:           shellBASH,
 		CondaConfig:     conda,
 		RuntimeGraph:    runtimeGraph,
@@ -117,7 +119,7 @@ func CompileEnviron() []string {
 	}
 	// Add PATH and LC_ALL.
 	return append(DefaultGraph.EnvString(),
-		"PATH="+types.DefaultPathEnv(),
+		"PATH="+strings.Join(DefaultGraph.RuntimeEnvPaths, ":"),
 		"LC_ALL=en_US.UTF-8",
 	)
 }

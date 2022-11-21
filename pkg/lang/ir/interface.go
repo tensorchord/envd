@@ -223,10 +223,11 @@ func RuntimeExpose(envdPort, hostPort int, serviceName string, listeningAddr str
 	return nil
 }
 
-func RuntimeEnviron(env map[string]string) {
+func RuntimeEnviron(env map[string]string, path []string) {
 	for k, v := range env {
 		DefaultGraph.RuntimeEnviron[k] = v
 	}
+	DefaultGraph.RuntimeEnvPaths = append(DefaultGraph.RuntimeEnvPaths, path...)
 }
 
 func RuntimeInitScript(commands []string) {

@@ -79,15 +79,16 @@ def daemon(commands: List[List[str]]):
     """
 
 
-def environ(env: Dict[str, str]):
+def environ(env: Dict[str, str], extra_path: List[str]):
     """Add runtime environments
 
     Args:
         env (Dict[str, str]): environment name to value
+        extra_path (List[str]): additional PATH
 
     Example usage:
     ```
-    runtime.environ(env={"ENVD_MODE": "DEV"})
+    runtime.environ(env={"ENVD_MODE": "DEV"}, extra_path=["/usr/bin/go/bin"])
     ```
     """
 
