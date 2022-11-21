@@ -202,25 +202,29 @@ jobs:
       - name: Install bins
         run: |
           go install github.com/mattn/goveralls@latest
-          go install github.com/wadey/gocovmerge@latest
       - name: Get coverage report
         uses: actions/download-artifact@v3
         with:
           name: coverage-out
-          path: coverage.out
+          path: merge
+      
       - name: Get cli e2e coverage report
         uses: actions/download-artifact@v3
         with:
           name: e2e-cli-coverage-out
-          path: e2e-cli-coverage.out
+          path: merge
       - name: Get language e2e coverage report
         uses: actions/download-artifact@v3
         with:
           name: e2e-lang-coverage-out
-          path: e2e-lang-coverage.out
-      # - name: Send coverage
-      #   env:
-      #     COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     gocovmerge e2e-coverage.out coverage.out > final.out
-      #     goveralls -coverprofile=final.out -service=github
+          path: merge
+      - name: Merge all coverage reports
+        uses: cutecutecat/go-cover-merge@v1
+        with:
+          input_dir: merge
+          output_file: final.out
+      - name: Send coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          goveralls -coverprofile=final.out -service=github
