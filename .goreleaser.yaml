@@ -59,6 +59,7 @@ checksum:
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
+  use: github
   sort: asc
   groups:
     - title: 'Exciting New Features 🎉'
