@@ -136,22 +136,30 @@ func ruleFuncExpose(thread *starlark.Thread, _ *starlark.Builtin,
 func ruleFuncEnviron(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var env starlark.IterableMapping
+	var path *starlark.List
 
-	if err := starlark.UnpackArgs(ruleCommand, args, kwargs, "env", &env); err != nil {
+	if err := starlark.UnpackArgs(ruleCommand, args, kwargs,
+		"env?", &env, "extra_path?", &path); err != nil {
 		return nil, err
 	}
 
 	envMap := make(map[string]string)
-	for _, tuple := range env.Items() {
-		if len(tuple) != 2 {
-			return nil, errors.Newf("invalid env (%s)", tuple.String())
+	if env != nil {
+		for _, tuple := range env.Items() {
+			if len(tuple) != 2 {
+				return nil, errors.Newf("invalid env (%s)", tuple.String())
+			}
+			envMap[tuple[0].(starlark.String).GoString()] = tuple[1].(starlark.String).GoString()
 		}
-
-		envMap[tuple[0].(starlark.String).GoString()] = tuple[1].(starlark.String).GoString()
 	}
 
-	logger.Debugf("rule `%s` is invoked, env: %v", ruleEnviron, envMap)
-	ir.RuntimeEnviron(envMap)
+	pathList, err := starlarkutil.ToStringSlice(path)
+	if err != nil {
+		return nil, err
+	}
+
+	logger.Debugf("rule `%s` is invoked, env: %v, extra_path: %v", ruleEnviron, envMap, pathList)
+	ir.RuntimeEnviron(envMap, pathList)
 	return starlark.None, nil
 }
 
