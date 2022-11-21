@@ -2,7 +2,6 @@ linters:
   enable:
     - gofmt
     - bodyclose
-    - deadcode
     - errcheck
     - goimports
     - errorlint
@@ -14,11 +13,9 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
-    - structcheck
     - typecheck
     - unparam
     - unused
-    - varcheck
 linters-settings:
   goimports:
     local-prefixes: github.com/tensorchord/envd/
