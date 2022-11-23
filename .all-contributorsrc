@@ -519,6 +519,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "suyanhanx",
+      "name": "Suyan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24221472?v=4",
+      "profile": "http://suyan.moe",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
