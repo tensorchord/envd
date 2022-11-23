@@ -22,18 +22,7 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func Base(os, language, image string) error {
-	l, version, err := parseLanguage(language)
-	if err != nil {
-		return err
-	}
-	DefaultGraph.Language = Language{
-		Name:    l,
-		Version: version,
-	}
-	if len(os) > 0 {
-		DefaultGraph.OS = os
-	}
+func Base(image string) error {
 	if image != "" {
 		DefaultGraph.Image = &image
 	}
