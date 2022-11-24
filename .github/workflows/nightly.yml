@@ -93,7 +93,7 @@ jobs:
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           brew install docker
-          colima start
+          colima start --cpu 3 --memory 14
           echo "DOCKER_HOST=unix://$HOME/.colima/default/docker.sock" >> $GITHUB_ENV
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -137,7 +137,7 @@ jobs:
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           brew install docker
-          colima start
+          colima start --cpu 3 --memory 14
           echo "DOCKER_HOST=unix://$HOME/.colima/default/docker.sock" >> $GITHUB_ENV
       - name: Setup Go
         uses: actions/setup-go@v3
