@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.2.5-alpha.8 (2022-11-23)
+
+ * [2f37901](https://github.com/tensorchord/envd/commit/2f379016002e58c3a87b2a8b2e2afd6ffc6ab9b9) feat: support add new dir to runtime PATH (#1218)
+ * [e85f062](https://github.com/tensorchord/envd/commit/e85f0620ad76379e22fdf36f70697b1f8d71444b) feat: merge coverage file and report to goverall (#1211)
+ * [7f10440](https://github.com/tensorchord/envd/commit/7f10440a8163f4d23964783fdf83c2e03c66e4f9) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.5.0 to 2.5.1 (#1213)
+ * [6db3f15](https://github.com/tensorchord/envd/commit/6db3f152325b674ea67e24fc4ee694f99ea206c3) chore(deps): bump github.com/tensorchord/envd-server from 0.0.8 to 0.0.9 (#1212)
+ * [5efb0b1](https://github.com/tensorchord/envd/commit/5efb0b12b98e3000d0ddc6ef015734e65411ac80) fix: only mkdir /home/envd/* when image==nil (#1208)
+ * [8c8c3f3](https://github.com/tensorchord/envd/commit/8c8c3f33ada10013b350071a1a36529d993053c4) feat: add name to `envd envs describe` (#1201)
+
+### Contributors
+
+ * Alex Xi
+ * Keming
+ * cutecutecat
+ * dependabot[bot]
+
 ## v0.2.5-alpha.7 (2022-11-15)
 
  * [3fa3070](https://github.com/tensorchord/envd/commit/3fa307098a585b524804bd0beff6697e68440b42) feat: support build owner (#1202)
