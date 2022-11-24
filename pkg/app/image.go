@@ -90,14 +90,14 @@ func renderImages(imgs []types.EnvdImage, w io.Writer) {
 
 	for _, img := range imgs {
 		envRow := make([]string, 8)
-		envRow[0] = types.GetImageName(img)
+		envRow[0] = img.Name
 		envRow[1] = stringOrNone(img.BuildContext)
 		envRow[2] = strconv.FormatBool(img.GPU)
 		envRow[3] = stringOrNone(img.CUDA)
 		envRow[4] = stringOrNone(img.CUDNN)
-		envRow[5] = stringid.TruncateID(img.ImageSummary.ID)
-		envRow[6] = createdSinceString(img.ImageSummary.Created)
-		envRow[7] = units.HumanSizeWithPrecision(float64(img.ImageSummary.Size), 3)
+		envRow[5] = stringid.TruncateID(img.Digest)
+		envRow[6] = createdSinceString(img.Created)
+		envRow[7] = units.HumanSizeWithPrecision(float64(img.Size), 3)
 		table.Append(envRow)
 	}
 	table.Render()

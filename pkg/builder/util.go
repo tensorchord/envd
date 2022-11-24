@@ -28,8 +28,6 @@ import (
 	gatewayclient "github.com/moby/buildkit/frontend/gateway/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
-
-	"github.com/tensorchord/envd/pkg/types"
 )
 
 const (
@@ -42,10 +40,10 @@ func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 	pl := platforms.Normalize(platforms.DefaultSpec())
 	img := v1.Image{
 		Config: v1.ImageConfig{
-			Labels:     labels,
-			WorkingDir: "/",
-			Env: append(env,
-				"PATH="+DefaultPathEnv(pl.OS), "LC_ALL=en_US.UTF-8"),
+			Labels:       labels,
+			User:         "envd",
+			WorkingDir:   "/",
+			Env:          env,
 			ExposedPorts: ports,
 			Entrypoint:   entrypoint,
 		},
@@ -61,13 +59,6 @@ func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 		return "", err
 	}
 	return string(data), nil
-}
-
-func DefaultPathEnv(os string) string {
-	if os == "windows" {
-		return types.DefaultPathEnvWindows
-	}
-	return types.DefaultPathEnvUnix
 }
 
 func parseImportCacheCSV(s string) (gatewayclient.CacheOptionsEntry, error) {

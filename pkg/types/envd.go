@@ -39,7 +39,7 @@ const (
 	// image
 	PythonBaseImage = "ubuntu:20.04"
 	// supervisor
-	HorustImage      = "tensorchord/horust:v0.1.0"
+	HorustImage      = "tensorchord/horust:v0.2.0"
 	HorustServiceDir = "/etc/horust/services"
 	HorustLogDir     = "/var/log/horust"
 	// env
@@ -85,19 +85,15 @@ var BaseAptPackage = []string{
 }
 
 type EnvdImage struct {
-	types.ImageSummary
+	servertypes.ImageMeta `json:",inline,omitempty"`
 
 	EnvdManifest `json:",inline,omitempty"`
 }
 
 type EnvdEnvironment struct {
-	Image string `json:"image,omitempty"`
-	Name  string `json:"name,omitempty"`
+	servertypes.Environment `json:",inline,omitempty"`
 
-	Status            string  `json:"status,omitempty"`
-	JupyterAddr       *string `json:"jupyter_addr,omitempty"`
-	RStudioServerAddr *string `json:"rstudio_server_addr,omitempty"`
-	EnvdManifest      `json:",inline,omitempty"`
+	EnvdManifest `json:",inline,omitempty"`
 }
 
 type EnvdManifest struct {
@@ -152,6 +148,7 @@ type RepoInfo struct {
 }
 
 type PortBinding struct {
+	Name     string
 	Port     string
 	Protocol string
 	HostIP   string
@@ -168,9 +165,21 @@ type AuthConfig struct {
 	IdentityToken string `json:"identity_token,omitempty"`
 }
 
-func NewImage(image types.ImageSummary) (*EnvdImage, error) {
+func DefaultPathEnv() string {
+	return DefaultPathEnvUnix
+}
+
+func NewImageFromSummary(image types.ImageSummary) (*EnvdImage, error) {
 	img := EnvdImage{
-		ImageSummary: image,
+		ImageMeta: servertypes.ImageMeta{
+			Digest:  image.ID,
+			Created: image.Created,
+			Size:    image.Size,
+			Labels:  image.Labels,
+		},
+	}
+	if len(image.RepoTags) > 0 {
+		img.Name = image.RepoTags[0]
 	}
 	m, err := newManifest(image.Labels)
 	if err != nil {
@@ -180,19 +189,33 @@ func NewImage(image types.ImageSummary) (*EnvdImage, error) {
 	return &img, nil
 }
 
+func NewImageFromMeta(meta servertypes.ImageMeta) (*EnvdImage, error) {
+	img := EnvdImage{
+		ImageMeta: meta,
+	}
+	manifest, err := newManifest(img.Labels)
+	if err != nil {
+		return nil, err
+	}
+	img.EnvdManifest = manifest
+	return &img, nil
+}
+
 func NewEnvironmentFromContainer(ctr types.Container) (*EnvdEnvironment, error) {
 	env := EnvdEnvironment{
-		Image:  ctr.Image,
-		Status: ctr.Status,
+		Environment: servertypes.Environment{
+			Spec:   servertypes.EnvironmentSpec{Image: ctr.Image},
+			Status: servertypes.EnvironmentStatus{Phase: ctr.Status},
+		},
 	}
 	if name, ok := ctr.Labels[ContainerLabelName]; ok {
 		env.Name = name
 	}
 	if jupyterAddr, ok := ctr.Labels[ContainerLabelJupyterAddr]; ok {
-		env.JupyterAddr = &jupyterAddr
+		env.Status.JupyterAddr = &jupyterAddr
 	}
 	if rstudioServerAddr, ok := ctr.Labels[ContainerLabelRStudioServerAddr]; ok {
-		env.RStudioServerAddr = &rstudioServerAddr
+		env.Status.RStudioServerAddr = &rstudioServerAddr
 	}
 
 	m, err := newManifest(ctr.Labels)
@@ -205,15 +228,7 @@ func NewEnvironmentFromContainer(ctr types.Container) (*EnvdEnvironment, error) 
 
 func NewEnvironmentFromServer(ctr servertypes.Environment) (*EnvdEnvironment, error) {
 	env := EnvdEnvironment{
-		Image:  ctr.Spec.Image,
-		Status: ctr.Status.Phase,
-		Name:   ctr.Name,
-	}
-	if jupyterAddr, ok := ctr.Labels[ContainerLabelJupyterAddr]; ok {
-		env.JupyterAddr = &jupyterAddr
-	}
-	if rstudioServerAddr, ok := ctr.Labels[ContainerLabelRStudioServerAddr]; ok {
-		env.RStudioServerAddr = &rstudioServerAddr
+		Environment: ctr,
 	}
 
 	m, err := newManifest(ctr.Labels)
@@ -250,11 +265,22 @@ func NewDependencyFromContainerJSON(ctr types.ContainerJSON) (*Dependency, error
 	return NewDependencyFromLabels(ctr.Config.Labels)
 }
 
-func NewDependencyFromImage(img types.ImageSummary) (*Dependency, error) {
+func NewDependencyFromImageSummary(img types.ImageSummary) (*Dependency, error) {
 	return NewDependencyFromLabels(img.Labels)
 }
 
-func NewPortBindingFromContainerJSON(ctr types.ContainerJSON) []PortBinding {
+func NewPortBindingFromContainerJSON(ctr types.ContainerJSON) ([]PortBinding, error) {
+	var labels []servertypes.EnvironmentPort
+	err := json.Unmarshal([]byte(ctr.Config.Labels[ImageLabelPorts]), &labels)
+	if err != nil {
+		return nil, err
+	}
+
+	var portMap = make(map[string]string)
+	for _, label := range labels {
+		portMap[fmt.Sprint(label.Port)] = label.Name
+	}
+
 	config := ctr.HostConfig.PortBindings
 	var ports []PortBinding
 	for port, bindings := range config {
@@ -263,20 +289,15 @@ func NewPortBindingFromContainerJSON(ctr types.ContainerJSON) []PortBinding {
 		}
 		binding := bindings[len(bindings)-1]
 		ports = append(ports, PortBinding{
+			Name:     portMap[port.Port()],
 			Port:     port.Port(),
 			Protocol: port.Proto(),
 			HostIP:   binding.HostIP,
 			HostPort: binding.HostPort,
 		})
 	}
-	return ports
-}
 
-func GetImageName(image EnvdImage) string {
-	if len(image.ImageSummary.RepoTags) != 0 {
-		return image.ImageSummary.RepoTags[0]
-	}
-	return "<none>"
+	return ports, nil
 }
 
 func NewDependencyFromLabels(label map[string]string) (*Dependency, error) {

@@ -40,7 +40,6 @@ working-directory = "${%[3]s}"
 
 [environment]
 keep-env = true
-re-export = [ "PATH", "SHELL", "USER", "%[3]s", "ENVD_AUTHORIZED_KEYS_PATH", "ENVD_HOST_KEY" ]
 
 [restart]
 strategy = "on-failure"
@@ -54,10 +53,12 @@ wait = "5s"
 
 func (g Graph) installHorust(root llb.State) llb.State {
 	horust := root.
-		File(llb.Copy(llb.Image(types.HorustImage), "/", "/usr/local/bin", llb.WithUIDGID(g.uid, g.gid)),
+		File(llb.Copy(llb.Image(types.HorustImage), "/", "/usr/local/bin"),
 			llb.WithCustomName("[internal] install horust")).
-		File(llb.Mkdir(types.HorustServiceDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid))).
-		File(llb.Mkdir(types.HorustLogDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)))
+		File(llb.Mkdir(types.HorustServiceDir, 0755, llb.WithParents(true)),
+			llb.WithCustomNamef("[internal] mkdir for horust service: %s", types.HorustServiceDir)).
+		File(llb.Mkdir(types.HorustLogDir, 0777, llb.WithParents(true)),
+			llb.WithCustomNamef("[internal] mkdir for horust log: %s", types.HorustLogDir))
 	return horust
 }
 
@@ -98,7 +99,7 @@ func (g Graph) compileEntrypoint(root llb.State) (llb.State, error) {
 
 	if g.RuntimeDaemon != nil {
 		for i, command := range g.RuntimeDaemon {
-			entrypoint = g.addNewProcess(entrypoint, fmt.Sprintf("daemon_%d", i), fmt.Sprintf("%s &\n", strings.Join(command, " ")), deps)
+			entrypoint = g.addNewProcess(entrypoint, fmt.Sprintf("daemon_%d", i), strings.Join(command, " "), deps)
 		}
 	}
 

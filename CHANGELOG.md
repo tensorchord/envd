@@ -1,5 +1,111 @@
 # Changelog
 
+## v0.2.5-alpha.8 (2022-11-23)
+
+ * [2f37901](https://github.com/tensorchord/envd/commit/2f379016002e58c3a87b2a8b2e2afd6ffc6ab9b9) feat: support add new dir to runtime PATH (#1218)
+ * [e85f062](https://github.com/tensorchord/envd/commit/e85f0620ad76379e22fdf36f70697b1f8d71444b) feat: merge coverage file and report to goverall (#1211)
+ * [7f10440](https://github.com/tensorchord/envd/commit/7f10440a8163f4d23964783fdf83c2e03c66e4f9) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.5.0 to 2.5.1 (#1213)
+ * [6db3f15](https://github.com/tensorchord/envd/commit/6db3f152325b674ea67e24fc4ee694f99ea206c3) chore(deps): bump github.com/tensorchord/envd-server from 0.0.8 to 0.0.9 (#1212)
+ * [5efb0b1](https://github.com/tensorchord/envd/commit/5efb0b12b98e3000d0ddc6ef015734e65411ac80) fix: only mkdir /home/envd/* when image==nil (#1208)
+ * [8c8c3f3](https://github.com/tensorchord/envd/commit/8c8c3f33ada10013b350071a1a36529d993053c4) feat: add name to `envd envs describe` (#1201)
+
+### Contributors
+
+ * Alex Xi
+ * Keming
+ * cutecutecat
+ * dependabot[bot]
+
+## v0.2.5-alpha.7 (2022-11-15)
+
+ * [3fa3070](https://github.com/tensorchord/envd/commit/3fa307098a585b524804bd0beff6697e68440b42) feat: support build owner (#1202)
+
+### Contributors
+
+ * Keming
+
+## v0.2.5-alpha.6 (2022-11-14)
+
+ * [5462d30](https://github.com/tensorchord/envd/commit/5462d30a556f91741b770e4b4b24c1fd639f5299) fix: release CI add runneradmin to docker group (#1199)
+
+### Contributors
+
+ * Keming
+
+## v0.2.5-alpha.5 (2022-11-14)
+
+ * [731b6f8](https://github.com/tensorchord/envd/commit/731b6f8271a77096d9a29a03e353e0388f825485) fix: github action release cache command (#1197)
+
+### Contributors
+
+ * Keming
+
+## v0.2.5-alpha.4 (2022-11-14)
+
+ * [4a7d6cc](https://github.com/tensorchord/envd/commit/4a7d6cca18d9a033c02c1ef235570f64ef987300) fix: daemon command (#1185)
+
+### Contributors
+
+ * Keming
+
+## v0.2.5-alpha.3 (2022-11-14)
+
+ * [212f996](https://github.com/tensorchord/envd/commit/212f9966d12f2322fe8c97d14db093448399119e) chore(deps): bump github.com/urfave/cli/v2 from 2.23.4 to 2.23.5 (#1188)
+ * [c4854e8](https://github.com/tensorchord/envd/commit/c4854e842a7cee0f2600f5c6eb8d19ca3510369d) chore(deps): bump github.com/onsi/gomega from 1.24.0 to 1.24.1 (#1189)
+ * [62b7b2f](https://github.com/tensorchord/envd/commit/62b7b2f204aa5b53688a2b0356d8a746a5fac1e4) chore(deps): bump github.com/moby/buildkit from 0.10.5 to 0.10.6 (#1190)
+ * [b1eb44e](https://github.com/tensorchord/envd/commit/b1eb44e4cc80b3422122429d3f29e5d7ffcaf3d6) fix: pre-create the workdir (#1174)
+ * [66d9cb0](https://github.com/tensorchord/envd/commit/66d9cb061a033220814813a349fc12495927aef2) fix: Move user to image config (#1173)
+ * [dd9dd30](https://github.com/tensorchord/envd/commit/dd9dd3083b363d1d698060255892e6a132b8182a) refact: move env to server (#1172)
+ * [2d37b48](https://github.com/tensorchord/envd/commit/2d37b48736c5ba34ea0800c925c31c0c3ff40f13) fix stable diffusion demo via b/c huggingface api change (#1170)
+ * [c364958](https://github.com/tensorchord/envd/commit/c364958c1d21d25a7cb782413f6666bd666f7dd1) feat: support envd-server image (#1150)
+ * [f9e7c67](https://github.com/tensorchord/envd/commit/f9e7c67a0f16c802fa2aa75a562f77e6f17baef9) chore(deps): bump github.com/spf13/viper from 1.13.0 to 1.14.0 (#1164)
+ * [5c9ac69](https://github.com/tensorchord/envd/commit/5c9ac69a584463cf906b27d0ccd200403d7f4974) chore(deps): bump github.com/onsi/gomega from 1.23.0 to 1.24.0 (#1163)
+ * [d1de890](https://github.com/tensorchord/envd/commit/d1de8906326ee10a1021dbff80892d8f0c74e637) chore(deps): bump github.com/urfave/cli/v2 from 2.23.0 to 2.23.4 (#1162)
+ * [ad5ce11](https://github.com/tensorchord/envd/commit/ad5ce117bdc4433f8894c4b813748d33c6edbd96) chore(deps): bump dependabot/fetch-metadata from 1.3.4 to 1.3.5 (#1161)
+ * [6b7a0e9](https://github.com/tensorchord/envd/commit/6b7a0e94937d5e0532139d519e424ccb16bd9de1) fix: cuda tag in image cache (#1156)
+ * [1af3449](https://github.com/tensorchord/envd/commit/1af3449ce72e218350c3d4fa19aee64f98ced970) fix: pre mkdir for runtime mount (#1153)
+
+### Contributors
+
+ * Ce Gao
+ * Keming
+ * dependabot[bot]
+ * xieydd
+
+## v0.2.5-alpha.2 (2022-11-03)
+
+ * [46d24fd](https://github.com/tensorchord/envd/commit/46d24fd1331b1b0e223cb2d2223e17d648080bf1) fix: horust cache (#1151)
+
+### Contributors
+
+ * Keming
+
+## v0.2.5-alpha.1 (2022-11-03)
+
+ * [28d73f9](https://github.com/tensorchord/envd/commit/28d73f9c1633f74363adcb20c41519863e993f4b) feat: Fetch base image metadata (#1148)
+ * [a2aa9fe](https://github.com/tensorchord/envd/commit/a2aa9fe6ecfd3ddeb1e8073b4768898e2952a812) feat: add environment name as label (#1135)
+ * [bc1c513](https://github.com/tensorchord/envd/commit/bc1c51356b5e94ef28e818acc65aef87833ef705) Bug/add support for wsl2 (#1134)
+ * [5053054](https://github.com/tensorchord/envd/commit/505305407f7375ed9ddf30014f72dee82f33e600) feat(cli): Add alias rm to envd image remove (#1136)
+ * [7bf8c00](https://github.com/tensorchord/envd/commit/7bf8c00dfd8c34cc5552590b67b1e69eecaf5a51) feat: expose support listen addr (#1128)
+ * [8776a25](https://github.com/tensorchord/envd/commit/8776a259de0b15d1a8bc7e76473b9a49e44e7890) fix: Fix zsh tab issue (#1129)
+ * [cff88a9](https://github.com/tensorchord/envd/commit/cff88a9ac759eee48508eab65802f1adc77b9ecb) fix: Fix the order to make conda cache always work (#1126)
+ * [07768b7](https://github.com/tensorchord/envd/commit/07768b7af8d9f39639a91ba156e3274889840c50) feat: record cmd duration in telemetry (#1122)
+ * [0bdca3c](https://github.com/tensorchord/envd/commit/0bdca3c2d54d0eea8ee6b3a14641ae5563971b0e) fix: Remove cwd in conda to enable remote cache (#1125)
+ * [535e26a](https://github.com/tensorchord/envd/commit/535e26a0a0d9d3855317d34dcf209e4d8d08efe9) feat(debug): Add llb export (#1124)
+ * [d693254](https://github.com/tensorchord/envd/commit/d693254c1a8b19e02aca85934818a4e7b6dde661) fix: Disable telemetry in CI (#1116)
+ * [3cba45e](https://github.com/tensorchord/envd/commit/3cba45e36496cd6010d9b07acbb0c7d34826f828) chore(deps): bump github.com/urfave/cli/v2 from 2.20.3 to 2.23.0 (#1119)
+ * [57a63e0](https://github.com/tensorchord/envd/commit/57a63e015c813a0a446768b00c83039923ce0df3) chore(deps): bump pypa/cibuildwheel from 2.11.1 to 2.11.2 (#1115)
+ * [77b3d84](https://github.com/tensorchord/envd/commit/77b3d84741f990e9cf0b3a8f9bd56abe40fcd895) chore(deps): bump github.com/onsi/gomega from 1.22.1 to 1.23.0 (#1117)
+
+### Contributors
+
+ * Ce Gao
+ * Isaac
+ * Jinjing Zhou
+ * Keming
+ * dependabot[bot]
+ * nullday
+
 ## v0.2.4-alpha.17 (2022-10-29)
 
  * [197b6c6](https://github.com/tensorchord/envd/commit/197b6c612891f0b7bc95b4b1f12a7daacbe7e51f) feat: Add telemetry with the help of segment.io (#1113)

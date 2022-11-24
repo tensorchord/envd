@@ -26,7 +26,7 @@ import (
 
 var CommandRemoveImage = &cli.Command{
 	Name:    "remove",
-	Aliases: []string{"r"},
+	Aliases: []string{"r", "rm"},
 	Usage:   "Remove an envd image",
 	Flags: []cli.Flag{
 		&cli.StringFlag{

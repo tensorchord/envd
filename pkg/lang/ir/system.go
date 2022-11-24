@@ -15,6 +15,7 @@
 package ir
 
 import (
+	"context"
 	_ "embed"
 	"fmt"
 	"os"
@@ -23,12 +24,14 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
+	"github.com/moby/buildkit/client/llb/imagemetaresolver"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/version"
 )
 
@@ -187,8 +190,7 @@ func (g *Graph) compileBase() (llb.State, error) {
 	v := version.GetVersionForImageTag()
 	// Do not update user permission in the base image.
 	if g.Image != nil {
-		logger.WithField("image", *g.Image).Debugf("using custom base image")
-		return llb.Image(*g.Image), nil
+		return g.customBase()
 	} else if g.CUDA == nil {
 		switch g.Language.Name {
 		case "r":
@@ -227,6 +229,30 @@ func (g *Graph) compileBase() (llb.State, error) {
 	return final, nil
 }
 
+// customBase get the image and the set the image metadata to graph.
+func (g *Graph) customBase() (llb.State, error) {
+	if g.Image == nil {
+		return llb.State{}, fmt.Errorf("failed to get the image")
+	}
+	logrus.WithField("image", *g.Image).Debugf("using custom base image")
+
+	// Fix https://github.com/tensorchord/envd/issues/1147.
+	// Fetch the image metadata from base image.
+	base := llb.Image(*g.Image,
+		llb.WithMetaResolver(imagemetaresolver.Default()))
+	envs, err := base.Env(context.Background())
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to get the image metadata")
+	}
+
+	// Set the environment variables to RuntimeEnviron to keep it in the resulting image.
+	for _, e := range envs {
+		kv := strings.Split(e, "=")
+		g.RuntimeEnviron[kv[0]] = kv[1]
+	}
+	return base, nil
+}
+
 func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 	public := DefaultGraph.PublicKeyPath
 	bdat, err := os.ReadFile(public)
@@ -242,4 +268,22 @@ func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 			0644, []byte(dat+" envd"), llb.WithUIDGID(g.uid, g.gid)),
 			llb.WithCustomName("[internal] install ssh keys"))
 	return run, nil
+}
+
+func (g Graph) compileMountDir(root llb.State) llb.State {
+	mount := root
+	if g.Image == nil {
+		// create the ENVD_WORKDIR as a placeholder (envd-server may not mount this dir)
+		workDir := fileutil.EnvdHomeDir(g.EnvironmentName)
+		mount = root.File(llb.Mkdir(workDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomNamef("[internal] create work dir: %s", workDir))
+	}
+
+	for _, m := range g.Mount {
+		mount = mount.File(llb.Mkdir(m.Destination, 0755, llb.WithParents(true),
+			llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomNamef("[internal] create dir for runtime.mount %s", m.Destination),
+		)
+	}
+	return mount
 }

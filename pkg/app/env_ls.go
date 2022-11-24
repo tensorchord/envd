@@ -84,11 +84,11 @@ func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
 		envRow[0] = env.Name
 		envRow[1] = endpointOrNone(env)
 		envRow[2] = fmt.Sprintf("%s.envd", env.Name)
-		envRow[3] = env.Image
+		envRow[3] = env.Spec.Image
 		envRow[4] = strconv.FormatBool(env.GPU)
 		envRow[5] = stringOrNone(env.CUDA)
 		envRow[6] = stringOrNone(env.CUDNN)
-		envRow[7] = env.Status
+		envRow[7] = env.Status.Phase
 		table.Append(envRow)
 	}
 	table.Render()
@@ -96,11 +96,11 @@ func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
 
 func endpointOrNone(env types.EnvdEnvironment) string {
 	var res strings.Builder
-	if env.JupyterAddr != nil {
-		res.WriteString(fmt.Sprintf("jupyter: %s", *env.JupyterAddr))
+	if env.Status.JupyterAddr != nil {
+		res.WriteString(fmt.Sprintf("jupyter: %s", *env.Status.JupyterAddr))
 	}
-	if env.RStudioServerAddr != nil {
-		res.WriteString(fmt.Sprintf("rstudio: %s", *env.RStudioServerAddr))
+	if env.Status.RStudioServerAddr != nil {
+		res.WriteString(fmt.Sprintf("rstudio: %s", *env.Status.RStudioServerAddr))
 	}
 	return res.String()
 }

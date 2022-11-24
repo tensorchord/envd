@@ -407,7 +407,8 @@
       "profile": "https://elon.fun/",
       "contributions": [
         "doc",
-        "bug"
+        "bug",
+        "code"
       ]
     },
     {
@@ -462,6 +463,70 @@
       "profile": "http://fatelei.github.io",
       "contributions": [
         "code"
+      ]
+    },
+    {
+      "login": "nasnoisaac",
+      "name": "Isaac ",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11145462?v=4",
+      "profile": "https://github.com/nasnoisaac",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "xieydd",
+      "name": "xieydd",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20329697?v=4",
+      "profile": "https://github.com/xieydd",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "AlexXi19",
+      "name": "Alex Xi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/68758451?v=4",
+      "profile": "http://alexhxi.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "dqhl76",
+      "name": "dqhl76",
+      "avatar_url": "https://avatars.githubusercontent.com/u/69136320?v=4",
+      "profile": "https://github.com/dqhl76",
+      "contributions": [
+        "doc",
+        "code"
+      ]
+    },
+    {
+      "login": "MyFRA",
+      "name": "To My",
+      "avatar_url": "https://avatars.githubusercontent.com/u/60420319?v=4",
+      "profile": "http://myfra.vercel.app",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "cutecutecat",
+      "name": "cutecutecat",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19801166?v=4",
+      "profile": "https://github.com/cutecutecat",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "suyanhanx",
+      "name": "Suyan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24221472?v=4",
+      "profile": "http://suyan.moe",
+      "contributions": [
+        "doc"
       ]
     }
   ],

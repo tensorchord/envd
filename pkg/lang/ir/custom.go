@@ -22,12 +22,10 @@ import (
 )
 
 // nolint:unparam
-func (g Graph) compileCustomPython(aptStage llb.State) (llb.State, error) {
+func (g Graph) compileCustomPython(baseStage llb.State) (llb.State, error) {
+	aptStage := g.compileUbuntuAPT(baseStage)
 	pypiMirrorStage := g.compilePyPIIndex(aptStage)
-
-	builtinSystemStage := pypiMirrorStage
-
-	systemStage := g.compileCustomSystemPackages(builtinSystemStage)
+	systemStage := g.compileCustomSystemPackages(pypiMirrorStage)
 	pypiStage := g.compileCustomPyPIPackages(systemStage)
 
 	return pypiStage, nil
@@ -43,7 +41,7 @@ func (g Graph) compileCustomPyPIPackages(root llb.State) llb.State {
 	// Compose the package install command.
 	var sb strings.Builder
 	// Always use the conda's pip.
-	sb.WriteString("pip install")
+	sb.WriteString(`pip install`)
 	for _, pkg := range g.PyPIPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))
 	}
@@ -68,7 +66,7 @@ func (g Graph) compileCustomSystemPackages(root llb.State) llb.State {
 
 	// Compose the package install command.
 	var sb strings.Builder
-	sb.WriteString("apt-get update && apt-get install -y --no-install-recommends")
+	sb.WriteString("apt-get update && apt-get install -y --no-install-recommends --no-install-suggests --fix-missing")
 
 	for _, pkg := range g.SystemPackages {
 		sb.WriteString(fmt.Sprintf(" %s", pkg))

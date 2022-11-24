@@ -1,0 +1,6 @@
+envdlib = include("https://github.com/tensorchord/envdlib")
+
+
+def build():
+    base(os="ubuntu20.04", language="python")
+    envdlib.tensorboard(host_port=8888)
