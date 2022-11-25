@@ -2,7 +2,7 @@
 <img src="https://user-images.githubusercontent.com/12974685/200007223-cd94fe9a-266d-4bbd-ac23-e71043d0c3dc.svg#gh-light-mode-only" alt="envd cat wink"/>
 <img src="https://user-images.githubusercontent.com/12974685/200007265-4e47ff2c-c2a0-4e77-baaa-760ee8728388.svg#gh-dark-mode-only" alt="envd cat wink"/>
 
-<p>Development environment for AI/ML</p>
+<p>Reproducible development environment for Python, R and Julia</p>
 </div>
 
 <p align=center>
@@ -15,18 +15,18 @@
 <a href='https://coveralls.io/github/tensorchord/envd?branch=main'><img src='https://coveralls.io/repos/github/tensorchord/envd/badge.svg?branch=main' alt='Coverage Status' /></a>
 </p>
 
-<p><img src="https://user-images.githubusercontent.com/52693877/193411608-01864ed9-84e2-4ea8-b978-8cfe09d394ca.png#gh-light-mode-only" alt="explain"/></p>
-<p><img src="https://user-images.githubusercontent.com/16186646/200111649-771d3214-dd23-49fa-a3d8-761a88f805bf.svg#gh-dark-mode-only" alt="explain"/></p>
+<!-- <p><img src="https://user-images.githubusercontent.com/52693877/193411608-01864ed9-84e2-4ea8-b978-8cfe09d394ca.png#gh-light-mode-only" alt="explain"/></p>
+<p><img src="https://user-images.githubusercontent.com/16186646/200111649-771d3214-dd23-49fa-a3d8-761a88f805bf.svg#gh-dark-mode-only" alt="explain"/></p> -->
 
 ## What is envd?
 
-envd (`ɪnˈvdɪ`) is a command-line tool that helps you create the container-based development environment for AI/ML.
+envd (`ɪnˈvdɪ`) is a command-line tool that helps you create the container-based development environment for Python, R and Julia.
 
-Development environments are full of python and system dependencies, CUDA, BASH scripts, Dockerfiles, SSH configurations, Kubernetes YAMLs, and many other clunky things that are always breaking. envd is to solve the problem:
+Development environments are full of language-specific and system dependencies, CUDA, BASH scripts, Dockerfiles, SSH configurations, Kubernetes YAMLs, and many other clunky things that are always breaking. envd is the solution to the problem:
 
 1. Declare the list of dependencies (CUDA, python packages, your favorite IDE, and so on) in `build.envd`
 1. Simply run `envd up`.
-1. Develop in the isolated environment.
+1. Develop in an isolated environment.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/5100735/189058399-3865a039-9459-4e74-83dd-3ee2ecadfef5.svg" width="75%"/>
