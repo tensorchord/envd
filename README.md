@@ -127,7 +127,7 @@ Are you working on multiple projects, all of which need different versions of CU
 
 ## Who should use envd?
 
-We're focused on helping data scientists and teams that develop AI/ML models. And they may suffer from:
+We're focused on helping developers and teams. And they may suffer from:
 
 - building the development environments with Python/R/Julia, CUDA, Docker, SSH, and so on. Do you have a complicated Dockerfile or build script that sets up all your dev environments, but is always breaking?
 - Updating the environment. Do you always need to ask infrastructure engineers how to add a new Python/R/Julia package in the Dockerfile?
@@ -137,7 +137,7 @@ We're focused on helping data scientists and teams that develop AI/ML models. An
 
 **Talk with us**
 
-💬 Interested in talking with us about your experience building or managing AI/ML applications?
+💬 Interested in talking with us about your experience building or managing development environments?
 
 [**Set up a time to chat!**](https://forms.gle/9HDBHX5Y3fzuDCDAA)
 
