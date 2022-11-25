@@ -146,18 +146,22 @@ func (g *Graph) compileExtraSource(root llb.State) (llb.State, error) {
 	return llb.Merge(inputs, llb.WithCustomName("[internal] build source layers")), nil
 }
 
-func (g *Graph) compileLanguage(root llb.State) (llb.State, error) {
-	var lang llb.State
+func (g *Graph) compileLanguage(root llb.State) (lang llb.State, err error) {
 	switch g.Language.Name {
 	case "python":
-		lang = g.installPython(root)
+		lang, err = g.installPython(root)
 	case "r":
-		lang = g.installRLang(root)
+		lang, err = g.installRLang(root)
 	case "julia":
-		lang = g.installJulia(root)
+		lang, err = g.installJulia(root)
 	}
 
 	return lang, nil
+}
+
+func (g *Graph) compileLanguagePackages(root llb.State) (llb.State, error) {
+
+	return llb.State{}, nil
 }
 
 func (g *Graph) compileDevPackages(root llb.State) llb.State {

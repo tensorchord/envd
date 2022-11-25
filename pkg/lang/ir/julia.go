@@ -23,6 +23,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func (g Graph) installJulia(root llb.State) (llb.State, error) {
+	return llb.State{}, nil
+}
+
 func (g Graph) compileJulia(baseStage llb.State) (llb.State, error) {
 	if err := g.compileJupyter(); err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")

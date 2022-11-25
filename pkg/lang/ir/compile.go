@@ -281,13 +281,18 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 		return llb.State{}, errors.Wrap(err, "failed to compile extra source")
 	}
 
-	aptMirror := g.compileUbuntuAPT(base)
-	systemPackages := g.compileSystemPackages(aptMirror)
-	lang, err := g.compileLanguage(systemPackages)
+	lang, err := g.compileLanguage(base)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile language")
 	}
-	packages, err := g.compileLanguagePackages(lang)
+	aptMirror := g.compileUbuntuAPT(base)
+	systemPackages := g.compileSystemPackages(aptMirror)
+	merge := llb.Merge([]llb.State{
+		llb.Diff(base, source, llb.WithCustomName("[internal] prepare extra sources")),
+		llb.Diff(base, lang, llb.WithCustomName("[internal] prepare language")),
+		llb.Diff(base, systemPackages, llb.WithCustomName("[internal] install system packages")),
+	}, llb.WithCustomName("[internal] finish language environment and system packages"))
+	packages, err := g.compileLanguagePackages(merge)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile language")
 	}

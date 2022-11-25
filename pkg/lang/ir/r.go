@@ -22,6 +22,10 @@ import (
 	"github.com/moby/buildkit/client/llb"
 )
 
+func (g Graph) installRLang(root llb.State) (llb.State, error) {
+	return llb.State{}, nil
+}
+
 func (g Graph) compileRLang(baseStage llb.State) (llb.State, error) {
 	if err := g.compileJupyter(); err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
