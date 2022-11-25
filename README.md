@@ -29,7 +29,7 @@ Development environments are full of language-specific and system dependencies, 
 1. Develop in an isolated environment.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/5100735/189058399-3865a039-9459-4e74-83dd-3ee2ecadfef5.svg" width="75%"/>
+  <img src="https://user-images.githubusercontent.com/5100735/189058399-3865a039-9459-4e74-83dd-3ee2ecadfef5.svg" width="80%"/>
 </p>
 
 ## Why use `envd`?
