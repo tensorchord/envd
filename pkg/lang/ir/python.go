@@ -30,6 +30,18 @@ const (
 	pythonVersionDefault = "3.9"
 )
 
+func (g Graph) installPython(root llb.State) (py llb.State, err error) {
+	if g.CondaConfig != nil {
+		py, err = g.installConda(root)
+		if err != nil {
+			return
+		}
+		py = g.compileCondaShell(py)
+	}
+
+	return py, nil
+}
+
 func (g Graph) getAppropriatePythonVersion() (string, error) {
 	if g.Language.Version == nil {
 		return pythonVersionDefault, nil

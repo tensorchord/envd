@@ -81,9 +81,6 @@ func (g Graph) addNewProcess(root llb.State, name, command string, depends []str
 }
 
 func (g Graph) compileEntrypoint(root llb.State) (llb.State, error) {
-	if g.Image != nil {
-		return root, nil
-	}
 	if len(g.Entrypoint) > 0 {
 		return root, errors.New("`config.entrypoint` is only for custom image, maybe you need `runtime.init`")
 	}

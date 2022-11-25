@@ -50,21 +50,38 @@ var Module = &starlarkstruct.Module{
 
 func ruleFuncPython(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var version string
+
+	if err := starlark.UnpackArgs(rulePython, args, kwargs, "version", &version); err != nil {
+		return nil, err
+	}
+
+	logger.Debugf("rule `%s` is invoked, version=%s", rulePython, version)
+	if err := ir.Python(version); err != nil {
+		return nil, err
+	}
+
 	return starlark.None, nil
 }
 
 func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	logger.Debug("rule `%s` is invoked", ruleConda)
+	ir.Conda()
 	return starlark.None, nil
 }
 
 func ruleFuncRLang(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	logger.Debug("rule `%s` is invoked", ruleRLang)
+	ir.RLang()
 	return starlark.None, nil
 }
 
 func ruleFuncJulia(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	logger.Debug("rule `%s` is invoked", ruleJulia)
+	ir.Julia()
 	return starlark.None, nil
 }
 

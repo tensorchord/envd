@@ -37,6 +37,7 @@ func RegisterEnvdRules() {
 	starlark.Universe[ruleRun] = starlark.NewBuiltin(ruleRun, ruleFuncRun)
 	starlark.Universe[ruleGitConfig] = starlark.NewBuiltin(ruleGitConfig, ruleFuncGitConfig)
 	starlark.Universe[ruleInclude] = starlark.NewBuiltin(ruleInclude, ruleFuncInclude)
+	starlark.Universe[ruleDevTools] = starlark.NewBuiltin(ruleDevTools, ruleFuncDevTools)
 }
 
 func RegisterBuildContext(buildContextDir string) {
@@ -136,4 +137,12 @@ func ruleFuncInclude(thread *starlark.Thread, _ *starlark.Builtin,
 		Members: globals,
 	}
 	return module, nil
+}
+
+func ruleFuncDevTools(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	logger.Debugf("rule `%s` is invoked", ruleDevTools)
+
+	ir.DevTools()
+	return starlark.None, nil
 }

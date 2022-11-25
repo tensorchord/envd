@@ -42,9 +42,7 @@ func NewGraph() *Graph {
 		RuntimeEnviron:  make(map[string]string),
 	}
 	langVersion := languageVersionDefault
-	conda := &CondaConfig{}
 	return &Graph{
-		OS: osDefault,
 		Language: Language{
 			Name:    languageDefault,
 			Version: &langVersion,
@@ -61,7 +59,6 @@ func NewGraph() *Graph {
 		UserDirectories: []string{},
 		RuntimeEnvPaths: []string{types.DefaultPathEnv()},
 		Shell:           shellBASH,
-		CondaConfig:     conda,
 		RuntimeGraph:    runtimeGraph,
 	}
 }
@@ -268,49 +265,49 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 		"gid": g.gid,
 	}).Debug("compile LLB")
 
-	// TODO(gaocegege): Support more OS and langs.
-	aptStage, err := g.compileBase()
+	base, err := g.compileBaseImage()
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get the base image")
 	}
-	var merged llb.State
-	// Use custom logic when image is specified.
-	if g.Image != nil {
-		merged, err = g.compileCustomPython(aptStage)
+
+	if g.DevTools {
+		dev := g.compileDevPackages(base)
+		sshd := g.compileSSHD(dev)
+		base = g.compileUserGroup(sshd)
+	}
+
+	source, err := g.compileExtraSource(base)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile extra source")
+	}
+
+	aptMirror := g.compileUbuntuAPT(base)
+	systemPackages := g.compileSystemPackages(aptMirror)
+	lang, err := g.compileLanguage(systemPackages)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile language")
+	}
+	packages, err := g.compileLanguagePackages(lang)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile language")
+	}
+
+	copy := g.compileCopy(packages)
+
+	if g.DevTools {
+		prompt := g.compilePrompt(copy)
+		git := g.compileGit(prompt)
+		user := g.compileUserOwn(git)
+		copy, err = g.compileEntrypoint(user)
 		if err != nil {
-			return llb.State{}, errors.Wrap(err, "failed to compile custom python image")
-		}
-	} else {
-		switch g.Language.Name {
-		case "r":
-			merged, err = g.compileRLang(aptStage)
-			if err != nil {
-				return llb.State{}, errors.Wrap(err, "failed to compile r language")
-			}
-		case "python":
-			merged, err = g.compilePython(aptStage)
-			if err != nil {
-				return llb.State{}, errors.Wrap(err, "failed to compile python")
-			}
-		case "julia":
-			merged, err = g.compileJulia(aptStage)
-			if err != nil {
-				return llb.State{}, errors.Wrap(err, "failed to compile julia")
-			}
+			return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
 		}
 	}
 
-	prompt := g.compilePrompt(merged)
-	copy := g.compileCopy(prompt)
-	// TODO(gaocegege): Support order-based exec.
+	// it's necessary to exec `run`` with the desired user
 	run := g.compileRun(copy)
-	git := g.compileGit(run)
-	user := g.compileUserOwn(git)
-	mount := g.compileMountDir(user)
-	entrypoint, err := g.compileEntrypoint(mount)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
-	}
+	mount := g.compileMountDir(run)
+
 	g.Writer.Finish()
-	return entrypoint, nil
+	return mount, nil
 }

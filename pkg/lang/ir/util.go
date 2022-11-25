@@ -20,6 +20,7 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"os/user"
 	"regexp"
 	"strconv"
@@ -138,4 +139,26 @@ func GetDefaultGraphHash() string {
 	data := b.Bytes()
 	hashD := md5.Sum(data)
 	return hex.EncodeToString(hashD[:])
+}
+
+// GetCUDAImage finds the correct CUDA base image
+func GetCUDAImage(image, cuda *string, cudnn string, dev bool) *string {
+	// TODO: support CUDA 10
+	target := "runtime"
+	if dev {
+		target = "devel"
+	}
+
+	res := fmt.Sprintf("docker.io/nvidia:%s-cudnn%s-%s-%s", cuda, cudnn, target, image)
+	return &res
+}
+
+func GetPythonImage(version *string, dev bool) *string {
+	var res string
+	if dev {
+		res = fmt.Sprintf("docker.io/python:%s-buster", version)
+	} else {
+		res = fmt.Sprintf("docker.io/python:%s-slim-buster", version)
+	}
+	return &res
 }

@@ -29,11 +29,11 @@ type Graph struct {
 	uid int
 	gid int
 
-	OS string
 	Language
 	Image *string
 
 	Shell   string
+	DevTools bool
 	CUDA    *string
 	CUDNN   string
 	NumGPUs int

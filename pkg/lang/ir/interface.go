@@ -15,8 +15,11 @@
 package ir
 
 import (
+	"strings"
+
 	"github.com/cockroachdb/errors"
 	"github.com/opencontainers/go-digest"
+	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/types"
@@ -27,6 +30,41 @@ func Base(image string) error {
 		DefaultGraph.Image = &image
 	}
 	return nil
+}
+
+func Python(version string) error {
+	if strings.HasPrefix(version, "2") {
+		logrus.Debugf("envd doesn't support Python2: %s", version)
+		return errors.New("envd doesn't support this Python version")
+	}
+
+	DefaultGraph.Language = Language{
+		Name: "python",
+		Version: &version,
+	}
+	// enable conda by default
+	DefaultGraph.CondaConfig = &CondaConfig{}
+	return nil
+}
+
+func Conda() {
+	DefaultGraph.CondaConfig = &CondaConfig{}
+}
+
+func RLang() {
+	DefaultGraph.Language = Language{
+		Name: "r",
+	}
+}
+
+func Julia() {
+	DefaultGraph.Language = Language{
+		Name: "julia",
+	}
+}
+
+func DevTools() {
+	DefaultGraph.DevTools = true
 }
 
 func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {

@@ -40,9 +40,17 @@ func (g *Graph) compileUserOwn(root llb.State) llb.State {
 
 // compileUserGroup creates user `envd`
 func (g *Graph) compileUserGroup(root llb.State) llb.State {
-	if g.Image != nil {
-		return root
+	if g.Language.Name == "r" {
+		// r-base image already has GID 1000.
+		// It is a trick, we actually use GID 1000
+		if g.gid == 1000 {
+			g.gid = 1001
+		}
+		if g.uid == 1000 {
+			g.uid = 1001
+		}
 	}
+
 	var res llb.ExecState
 	if g.uid == 0 {
 		res = root.
