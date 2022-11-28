@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.5-rc.1 (2022-11-28)
+
+ * [a4dad9b](https://github.com/tensorchord/envd/commit/a4dad9b212c41e07175f201e067f891c76277843) chore(deps): bump github.com/tensorchord/envd-server from 0.0.9 to 0.0.10 (#1235)
+
+### Contributors
+
+ * dependabot[bot]
+
 ## v0.2.5-alpha.8 (2022-11-23)
 
  * [2f37901](https://github.com/tensorchord/envd/commit/2f379016002e58c3a87b2a8b2e2afd6ffc6ab9b9) feat: support add new dir to runtime PATH (#1218)
