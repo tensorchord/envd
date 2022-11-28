@@ -26,13 +26,11 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/client/llb/imagemetaresolver"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
-	"github.com/tensorchord/envd/pkg/version"
 )
 
 func (g Graph) compileUbuntuAPT(root llb.State) llb.State {
@@ -92,12 +90,6 @@ func (g Graph) compileCopy(root llb.State) llb.State {
 	return result
 }
 
-func (g *Graph) compileCUDAPackages(org string) llb.State {
-	return g.compileDevPackages(llb.Image(fmt.Sprintf(
-		"docker.io/%s:%s-cudnn%s-devel-%s",
-		org, *g.CUDA, g.CUDNN, *g.Image)))
-}
-
 func (g Graph) compileSystemPackages(root llb.State) llb.State {
 	if len(g.SystemPackages) == 0 {
 		logrus.Debug("skip the apt since system package is not specified")
@@ -146,22 +138,37 @@ func (g *Graph) compileExtraSource(root llb.State) (llb.State, error) {
 	return llb.Merge(inputs, llb.WithCustomName("[internal] build source layers")), nil
 }
 
-func (g *Graph) compileLanguage(root llb.State) (lang llb.State, err error) {
+func (g *Graph) compileLanguage(root llb.State) (lang llb.State) {
 	switch g.Language.Name {
 	case "python":
-		lang, err = g.installPython(root)
+		lang = g.installPython(root)
 	case "r":
-		lang, err = g.installRLang(root)
+		lang = g.installRLang(root)
 	case "julia":
-		lang, err = g.installJulia(root)
+		lang = g.installJulia(root)
 	}
 
-	return lang, nil
+	return lang
 }
 
-func (g *Graph) compileLanguagePackages(root llb.State) (llb.State, error) {
-
-	return llb.State{}, nil
+func (g *Graph) compileLanguagePackages(root llb.State) (pack llb.State) {
+	switch g.Language.Name {
+	case "python":
+		index := g.compilePyPIIndex(root)
+		pypi := g.compilePyPIPackages(index)
+		channel := g.compileCondaChannel(root)
+		conda := g.compileCondaPackages(channel)
+		pack = llb.Merge([]llb.State{
+			root,
+			llb.Diff(root, pypi, llb.WithCustomName("[internal] PyPI packages")),
+			llb.Diff(root, conda, llb.WithCustomName("[internal] conda packages")),
+		}, llb.WithCustomName("[internal] Python packages"))
+	case "r":
+		pack = g.installRPackages(root)
+	case "julia":
+		pack = g.installJuliaPackages(root)
+	}
+	return pack
 }
 
 func (g *Graph) compileDevPackages(root llb.State) llb.State {
@@ -194,18 +201,15 @@ func (g Graph) compileSSHD(root llb.State) llb.State {
 }
 
 func (g *Graph) compileBaseImage() (llb.State, error) {
-	if *g.Image == defaultImage {
-		if g.CondaConfig == nil && g.Language.Name == "python" {
-			g.Image = GetPythonImage(g.Language.Version, g.DevTools)
-		}
-
-		if g.CUDA != nil{
+	if g.Image == defaultImage {
+		// TODO: find another way to install CUDA
+		if g.CUDA != nil {
 			g.Image = GetCUDAImage(g.Image, g.CUDA, g.CUDNN, g.DevTools)
 		}
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
-		"image":       g.Image,
+		"image":    g.Image,
 		"language": g.Language.Name,
 	})
 	if g.Language.Version != nil {
@@ -215,85 +219,7 @@ func (g *Graph) compileBaseImage() (llb.State, error) {
 
 	// Fix https://github.com/tensorchord/envd/issues/1147.
 	// Fetch the image metadata from base image.
-	base := llb.Image(*g.Image,
-		llb.WithMetaResolver(imagemetaresolver.Default()))
-	envs, err := base.Env(context.Background())
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get the image metadata")
-	}
-
-	// Set the environment variables to RuntimeEnviron to keep it in the resulting image.
-	for _, e := range envs {
-		kv := strings.Split(e, "=")
-		g.RuntimeEnviron[kv[0]] = kv[1]
-	}
-	return base, nil
-}
-
-func (g *Graph) compileBase() (llb.State, error) {
-	logger := logrus.WithFields(logrus.Fields{
-		"image":       g.Image,
-		"language": g.Language.Name,
-	})
-	if g.Language.Version != nil {
-		logger = logger.WithField("version", *g.Language.Version)
-	}
-	logger.Debug("compile base image")
-
-	var base llb.State
-	org := viper.GetString(flag.FlagDockerOrganization)
-	v := version.GetVersionForImageTag()
-	// Do not update user permission in the base image.
-	if g.Image != nil {
-		return g.customBase()
-	} else if g.CUDA == nil {
-		switch g.Language.Name {
-		case "r":
-			base = llb.Image(fmt.Sprintf("docker.io/%s/r-base:4.2-envd-%s", org, v))
-			// r-base image already has GID 1000.
-			// It is a trick, we actually use GID 1000
-			if g.gid == 1000 {
-				g.gid = 1001
-			}
-			if g.uid == 1000 {
-				g.uid = 1001
-			}
-		case "python":
-			base = g.compileDevPackages(llb.Image(types.PythonBaseImage))
-		case "julia":
-			base = llb.Image(fmt.Sprintf(
-				"docker.io/%s/julia:1.8rc1-ubuntu20.04-envd-%s", org, v))
-		}
-	} else {
-		base = g.compileCUDAPackages("nvidia/cuda")
-	}
-
-	// Install conda first.
-	condaStage, err := g.installConda(base)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to install conda")
-	}
-	supervisor := g.installHorust(condaStage)
-	sshdStage := g.compileSSHD(supervisor)
-	source, err := g.compileExtraSource(sshdStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get extra sources")
-	}
-	final := g.compileUserGroup(source)
-	return final, nil
-}
-
-// customBase get the image and the set the image metadata to graph.
-func (g *Graph) customBase() (llb.State, error) {
-	if g.Image == nil {
-		return llb.State{}, fmt.Errorf("failed to get the image")
-	}
-	logrus.WithField("image", *g.Image).Debugf("using custom base image")
-
-	// Fix https://github.com/tensorchord/envd/issues/1147.
-	// Fetch the image metadata from base image.
-	base := llb.Image(*g.Image,
-		llb.WithMetaResolver(imagemetaresolver.Default()))
+	base := llb.Image(g.Image, llb.WithMetaResolver(imagemetaresolver.Default()))
 	envs, err := base.Env(context.Background())
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get the image metadata")
@@ -326,7 +252,7 @@ func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 
 func (g Graph) compileMountDir(root llb.State) llb.State {
 	mount := root
-	if g.Image == nil {
+	if !g.DevTools {
 		// create the ENVD_WORKDIR as a placeholder (envd-server may not mount this dir)
 		workDir := fileutil.EnvdHomeDir(g.EnvironmentName)
 		mount = root.File(llb.Mkdir(workDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),

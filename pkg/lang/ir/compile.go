@@ -43,6 +43,7 @@ func NewGraph() *Graph {
 	}
 	langVersion := languageVersionDefault
 	return &Graph{
+		Image: defaultImage,
 		Language: Language{
 			Name:    languageDefault,
 			Version: &langVersion,
@@ -111,7 +112,7 @@ func CompileEntrypoint(buildContextDir string) ([]string, error) {
 }
 
 func CompileEnviron() []string {
-	if DefaultGraph.Image != nil {
+	if !DefaultGraph.DevTools {
 		return DefaultGraph.EnvString()
 	}
 	// Add PATH and LC_ALL.
@@ -200,8 +201,8 @@ func (g Graph) Labels() (map[string]string, error) {
 func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 	ports := make(map[string]struct{})
 
-	// do not expose ports for custom images
-	if g.Image != nil {
+	// only expose ports for dev env
+	if !g.DevTools {
 		return ports, nil
 	}
 
@@ -248,7 +249,7 @@ func (g Graph) DefaultCacheImporter() (*string, error) {
 }
 
 func (g *Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
-	if g.Image != nil {
+	if !g.DevTools {
 		return g.Entrypoint, nil
 	}
 	g.RuntimeEnviron[types.EnvdWorkDir] = fileutil.EnvdHomeDir(filepath.Base(buildContextDir))
@@ -270,43 +271,60 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 		return llb.State{}, errors.Wrap(err, "failed to get the base image")
 	}
 
+	// prepare dev env: stable operations should be done here to make it cache friendly
 	if g.DevTools {
 		dev := g.compileDevPackages(base)
 		sshd := g.compileSSHD(dev)
-		base = g.compileUserGroup(sshd)
+		horust := g.installHorust(sshd)
+		userGroup := g.compileUserGroup(horust)
+		shell, err := g.compileShell(userGroup)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to compile shell")
+		}
+		base = shell
 	}
 
-	source, err := g.compileExtraSource(base)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile extra source")
-	}
-
-	lang, err := g.compileLanguage(base)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile language")
-	}
+	lang := g.compileLanguage(base)
 	aptMirror := g.compileUbuntuAPT(base)
 	systemPackages := g.compileSystemPackages(aptMirror)
 	merge := llb.Merge([]llb.State{
-		llb.Diff(base, source, llb.WithCustomName("[internal] prepare extra sources")),
+		base,
 		llb.Diff(base, lang, llb.WithCustomName("[internal] prepare language")),
 		llb.Diff(base, systemPackages, llb.WithCustomName("[internal] install system packages")),
-	}, llb.WithCustomName("[internal] finish language environment and system packages"))
-	packages, err := g.compileLanguagePackages(merge)
+	}, llb.WithCustomName("[internal] language environment and system packages"))
+	packages := g.compileLanguagePackages(merge)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile language")
 	}
 
-	copy := g.compileCopy(packages)
+	source, err := g.compileExtraSource(packages)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile extra source")
+	}
+	copy := g.compileCopy(source)
 
+	// dev postprocessing: related to UID, which may not be cached
 	if g.DevTools {
 		prompt := g.compilePrompt(copy)
 		git := g.compileGit(prompt)
 		user := g.compileUserOwn(git)
-		copy, err = g.compileEntrypoint(user)
+		key, err := g.copySSHKey(user)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to copy ssh key")
+		}
+		entrypoint, err := g.compileEntrypoint(key)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
 		}
+		vscode, err := g.compileVSCode()
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to compile VSCode extensions")
+		}
+		copy = llb.Merge([]llb.State{
+			copy,
+			vscode,
+			entrypoint,
+		}, llb.WithCustomName("[internal] final dev environment"))
 	}
 
 	// it's necessary to exec `run`` with the desired user

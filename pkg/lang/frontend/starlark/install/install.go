@@ -33,15 +33,15 @@ var Module = &starlarkstruct.Module{
 	Members: starlark.StringDict{
 		// language
 		"python": starlark.NewBuiltin(rulePython, ruleFuncPython),
-		"conda": starlark.NewBuiltin(ruleConda, ruleFuncConda),
+		"conda":  starlark.NewBuiltin(ruleConda, ruleFuncConda),
 		"r_lang": starlark.NewBuiltin(ruleRLang, ruleFuncRLang),
-		"julia": starlark.NewBuiltin(ruleJulia, ruleFuncJulia),
+		"julia":  starlark.NewBuiltin(ruleJulia, ruleFuncJulia),
 		// packages
-		"apt_packages":      starlark.NewBuiltin(ruleSystemPackage, ruleFuncSystemPackage),
-		"python_packages":   starlark.NewBuiltin(rulePyPIPackage, ruleFuncPyPIPackage),
-		"conda_packages":    starlark.NewBuiltin(ruleCondaPackages, ruleFuncCondaPackage),
-		"r_packages":        starlark.NewBuiltin(ruleRPackage, ruleFuncRPackage),
-		"julia_packages":    starlark.NewBuiltin(ruleJuliaPackages, ruleFuncJuliaPackage),
+		"apt_packages":    starlark.NewBuiltin(ruleSystemPackage, ruleFuncSystemPackage),
+		"python_packages": starlark.NewBuiltin(rulePyPIPackage, ruleFuncPyPIPackage),
+		"conda_packages":  starlark.NewBuiltin(ruleCondaPackages, ruleFuncCondaPackage),
+		"r_packages":      starlark.NewBuiltin(ruleRPackage, ruleFuncRPackage),
+		"julia_packages":  starlark.NewBuiltin(ruleJuliaPackages, ruleFuncJuliaPackage),
 		// others
 		"cuda":              starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
 		"vscode_extensions": starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
@@ -50,9 +50,9 @@ var Module = &starlarkstruct.Module{
 
 func ruleFuncPython(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var version string
+	version := "3.8"
 
-	if err := starlark.UnpackArgs(rulePython, args, kwargs, "version", &version); err != nil {
+	if err := starlark.UnpackArgs(rulePython, args, kwargs, "version?", &version); err != nil {
 		return nil, err
 	}
 
@@ -66,21 +66,21 @@ func ruleFuncPython(thread *starlark.Thread, _ *starlark.Builtin,
 
 func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	logger.Debug("rule `%s` is invoked", ruleConda)
+	logger.Debugf("rule `%s` is invoked", ruleConda)
 	ir.Conda()
 	return starlark.None, nil
 }
 
 func ruleFuncRLang(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	logger.Debug("rule `%s` is invoked", ruleRLang)
+	logger.Debugf("rule `%s` is invoked", ruleRLang)
 	ir.RLang()
 	return starlark.None, nil
 }
 
 func ruleFuncJulia(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	logger.Debug("rule `%s` is invoked", ruleJulia)
+	logger.Debugf("rule `%s` is invoked", ruleJulia)
 	ir.Julia()
 	return starlark.None, nil
 }

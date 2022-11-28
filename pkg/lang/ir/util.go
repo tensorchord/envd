@@ -142,23 +142,21 @@ func GetDefaultGraphHash() string {
 }
 
 // GetCUDAImage finds the correct CUDA base image
-func GetCUDAImage(image, cuda *string, cudnn string, dev bool) *string {
+func GetCUDAImage(image string, cuda *string, cudnn string, dev bool) string {
 	// TODO: support CUDA 10
 	target := "runtime"
 	if dev {
 		target = "devel"
 	}
 
-	res := fmt.Sprintf("docker.io/nvidia:%s-cudnn%s-%s-%s", cuda, cudnn, target, image)
-	return &res
+	return fmt.Sprintf("docker.io/nvidia:%s-cudnn%s-%s-%s", *cuda, cudnn, target, image)
 }
 
-func GetPythonImage(version *string, dev bool) *string {
-	var res string
+// GetPythonImage returns the official Python image (without using conda)
+func GetPythonImage(version *string, dev bool) string {
 	if dev {
-		res = fmt.Sprintf("docker.io/python:%s-buster", version)
+		return fmt.Sprintf("docker.io/python:%s-buster", *version)
 	} else {
-		res = fmt.Sprintf("docker.io/python:%s-slim-buster", version)
+		return fmt.Sprintf("docker.io/python:%s-slim-buster", *version)
 	}
-	return &res
 }

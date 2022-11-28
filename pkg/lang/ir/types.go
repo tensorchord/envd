@@ -30,13 +30,13 @@ type Graph struct {
 	gid int
 
 	Language
-	Image *string
+	Image string
 
-	Shell   string
+	Shell    string
 	DevTools bool
-	CUDA    *string
-	CUDNN   string
-	NumGPUs int
+	CUDA     *string
+	CUDNN    string
+	NumGPUs  int
 
 	UbuntuAPTSource    *string
 	CRANMirrorURL      *string

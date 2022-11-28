@@ -73,10 +73,6 @@ func (g *Graph) compileCondaShell(root llb.State) llb.State {
 }
 
 func (g *Graph) compilePrompt(root llb.State) llb.State {
-	// skip this for customized image
-	if g.Image != nil {
-		return root
-	}
 	// starship config
 	config := root.
 		File(llb.Mkdir(defaultConfigDir, 0755, llb.WithParents(true)),
@@ -108,12 +104,10 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 	}
 	zshStage := root.
 		File(llb.Copy(llb.Local(flag.FlagCacheDir), "oh-my-zsh", ohMyZSHPath,
-			&llb.CopyInfo{CreateDestPath: true}, llb.WithUIDGID(g.uid, g.gid))).
-		File(llb.Mkfile(installPath,
-			0644, []byte(m.InstallScript()), llb.WithUIDGID(g.uid, g.gid)))
+			&llb.CopyInfo{CreateDestPath: true})).
+		File(llb.Mkfile(installPath, 0666, []byte(m.InstallScript())))
 	zshrc := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)),
 		llb.WithCustomName("[internal] install oh-my-zsh")).
-		File(llb.Mkfile(zshrcPath,
-			0644, []byte(m.ZSHRC()), llb.WithUIDGID(g.uid, g.gid)))
+		File(llb.Mkfile(zshrcPath, 0666, []byte(m.ZSHRC())))
 	return zshrc, nil
 }

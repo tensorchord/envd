@@ -27,7 +27,7 @@ import (
 
 func Base(image string) error {
 	if image != "" {
-		DefaultGraph.Image = &image
+		DefaultGraph.Image = image
 	}
 	return nil
 }
@@ -39,7 +39,7 @@ func Python(version string) error {
 	}
 
 	DefaultGraph.Language = Language{
-		Name: "python",
+		Name:    "python",
 		Version: &version,
 	}
 	// enable conda by default
