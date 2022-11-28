@@ -3,6 +3,9 @@
 before:
   hooks:
     - go mod tidy
+universal_binaries:
+  - id: envd
+    replace: false
 builds:
   - env:
       - CGO_ENABLED=0
