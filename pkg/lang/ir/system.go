@@ -138,17 +138,17 @@ func (g *Graph) compileExtraSource(root llb.State) (llb.State, error) {
 	return llb.Merge(inputs, llb.WithCustomName("[internal] build source layers")), nil
 }
 
-func (g *Graph) compileLanguage(root llb.State) (lang llb.State) {
+func (g *Graph) compileLanguage(root llb.State) (lang llb.State, err error) {
 	switch g.Language.Name {
 	case "python":
-		lang = g.installPython(root)
+		lang, err = g.installPython(root)
 	case "r":
-		lang = g.installRLang(root)
+		lang, err = g.installRLang(root)
 	case "julia":
-		lang = g.installJulia(root)
+		lang, err = g.installJulia(root)
 	}
 
-	return lang
+	return lang, err
 }
 
 func (g *Graph) compileLanguagePackages(root llb.State) (pack llb.State) {
@@ -156,13 +156,17 @@ func (g *Graph) compileLanguagePackages(root llb.State) (pack llb.State) {
 	case "python":
 		index := g.compilePyPIIndex(root)
 		pypi := g.compilePyPIPackages(index)
-		channel := g.compileCondaChannel(root)
-		conda := g.compileCondaPackages(channel)
-		pack = llb.Merge([]llb.State{
-			root,
-			llb.Diff(root, pypi, llb.WithCustomName("[internal] PyPI packages")),
-			llb.Diff(root, conda, llb.WithCustomName("[internal] conda packages")),
-		}, llb.WithCustomName("[internal] Python packages"))
+		if g.CondaConfig == nil {
+			pack = pypi
+		} else {
+			channel := g.compileCondaChannel(root)
+			conda := g.compileCondaPackages(channel)
+			pack = llb.Merge([]llb.State{
+				root,
+				llb.Diff(root, pypi, llb.WithCustomName("[internal] PyPI packages")),
+				llb.Diff(root, conda, llb.WithCustomName("[internal] conda packages")),
+			}, llb.WithCustomName("[internal] Python packages"))
+		}
 	case "r":
 		pack = g.installRPackages(root)
 	case "julia":

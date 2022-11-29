@@ -18,12 +18,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
 )
 
-func (g Graph) installJulia(root llb.State) llb.State {
-	return llb.State{}
+func (g Graph) installJulia(root llb.State) (llb.State, error) {
+	return llb.State{}, errors.New("not implemented")
 }
 
 func (g Graph) installJuliaPackages(root llb.State) llb.State {

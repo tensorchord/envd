@@ -284,7 +284,10 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 		base = shell
 	}
 
-	lang := g.compileLanguage(base)
+	lang, err := g.compileLanguage(base)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile language")
+	}
 	aptMirror := g.compileUbuntuAPT(base)
 	systemPackages := g.compileSystemPackages(aptMirror)
 	merge := llb.Merge([]llb.State{

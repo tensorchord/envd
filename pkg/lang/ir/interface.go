@@ -42,8 +42,6 @@ func Python(version string) error {
 		Name:    "python",
 		Version: &version,
 	}
-	// enable conda by default
-	DefaultGraph.CondaConfig = &CondaConfig{}
 	return nil
 }
 

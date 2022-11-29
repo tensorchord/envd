@@ -28,26 +28,39 @@ import (
 
 const (
 	pythonVersionDefault = "3.9"
+	microMambaPathPrefix = "/usr/local/bin"
+	microMambaImage      = "mambaorg/micromamba:1.0.0"
 )
 
-func (g Graph) installPython(root llb.State) llb.State {
+func (g Graph) installPython(root llb.State) (llb.State, error) {
 	if g.CondaConfig == nil {
-		return root
+		version, err := g.getAppropriatePythonVersion()
+		if err != nil {
+			return llb.State{}, err
+		}
+		install := root.File(llb.Copy(llb.Image(microMambaImage), "/bin/micromamba", microMambaPathPrefix),
+			llb.WithCustomName("[internal] copy micromamba")).
+			Run(llb.Shlex(fmt.Sprintf("bash -c \"%s/micromamba create -p /opt/conda/envs/envd -c conda-forge python=%s\"", microMambaPathPrefix, *g.Language.Version)),
+				llb.WithCustomNamef("[internal] create envd python=%s", version)).
+			Run(llb.Shlex(fmt.Sprintf("rm %s/micromamba", microMambaPathPrefix)),
+				llb.WithCustomName("[internal] rm micromamba")).Root()
+		python := g.compileAlternative(install)
+		return python, nil
 	}
 
-	// install Conda and create the env
+	// install Conda to create the env
 	py, err := g.installConda(root)
 	if err != nil {
-		return llb.State{}
+		return llb.State{}, nil
 	}
 	sh := g.compileCondaShell(py)
 	env, err := g.compileCondaEnvironment(sh)
 	if err != nil {
-		return llb.State{}
+		return llb.State{}, err
 	}
 
 	python := g.compileAlternative(env)
-	return python
+	return python, nil
 }
 
 func (g Graph) getAppropriatePythonVersion() (string, error) {

@@ -18,11 +18,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 )
 
-func (g Graph) installRLang(root llb.State) llb.State {
-	return llb.State{}
+func (g Graph) installRLang(root llb.State) (llb.State, error) {
+	return llb.State{}, errors.New("not implemented")
 }
 
 func (g Graph) installRPackages(root llb.State) llb.State {
