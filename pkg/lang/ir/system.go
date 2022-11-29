@@ -201,11 +201,9 @@ func (g Graph) compileSSHD(root llb.State) llb.State {
 }
 
 func (g *Graph) compileBaseImage() (llb.State, error) {
-	if g.Image == defaultImage {
-		// TODO: find another way to install CUDA
-		if g.CUDA != nil {
-			g.Image = GetCUDAImage(g.Image, g.CUDA, g.CUDNN, g.DevTools)
-		}
+	// TODO: find another way to install CUDA
+	if g.CUDA != nil {
+		g.Image = GetCUDAImage(g.Image, g.CUDA, g.CUDNN, g.DevTools)
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
