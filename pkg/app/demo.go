@@ -17,6 +17,7 @@ package app
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
@@ -31,11 +32,16 @@ var CommandDemo = &cli.Command{
 }
 
 func demoCommand(clicontext *cli.Context) error {
+	buildContext, err := filepath.Abs(clicontext.Path("path"))
+	if _, err := os.Stat(buildContext + "/build.envd"); !errors.Is(err, os.ErrNotExist) {
+		return errors.New("build.envd already exists")
+	}
 
 	startQuestion(LanguageChoice)
 	languageChoice := selectionMap[LabelLanguage][0]
 	if languageChoice == "python" {
 		startQuestion(PythonPackageChoice)
+		startQuestion(JupyterChoice)
 	} else if languageChoice == "r" {
 		startQuestion(RPackageChoice)
 	}
@@ -44,7 +50,7 @@ func demoCommand(clicontext *cli.Context) error {
 		startQuestion(CudaVersionChoice)
 	}
 
-	err := generateFile(clicontext)
+	err = generateFile(clicontext)
 	if err != nil {
 		return errors.Wrap(err, "error generating build.envd")
 	}
@@ -55,7 +61,10 @@ func demoCommand(clicontext *cli.Context) error {
 
 func startQuestion(input input) {
 	p := tea.NewProgram(InitModel(input))
-	_, err := p.Run()
+	m, err := p.Run()
+	if m.(model).exit {
+		os.Exit(0)
+	}
 	if err != nil {
 		fmt.Printf("There was an error generating build.envd: %v", err)
 		os.Exit(1)

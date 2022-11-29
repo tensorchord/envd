@@ -27,8 +27,8 @@ import (
 )
 
 var selectionMap = make(map[string][]string)
-var itemStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#999999"))
-var selectedItemStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#4dff4d"))
+var itemStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "0", Dark: "15"})
+var selectedItemStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "14", Light: "6"})
 
 const (
 	SINGLE_SELECT   string = "single select"
@@ -40,6 +40,7 @@ const (
 	LabelLanguage      string = "Language"
 	LabelCuda          string = "Cuda"
 	LabelCudaChoice    string = "Cuda Choice"
+	LabelJupyterChoice string = "Jupyter Choice"
 	LabelPythonPackage string = "Python Package"
 	LabelRPackage      string = "R Package"
 )
@@ -49,6 +50,7 @@ type model struct {
 	cursor   int
 	selected map[int]struct{}
 	input    input
+	exit     bool
 }
 
 type input struct {
@@ -104,9 +106,19 @@ var CudaVersionChoice = input{
 	inputType: SINGLE_SELECT,
 	label:     LabelCuda,
 	options: []string{
-		"11.0",
-		"10.2",
-		"10.1",
+		"11.6.2",
+		"11.3.1",
+		"11.2.2",
+	},
+}
+
+var JupyterChoice = input{
+	prompt:    "Include Jupyter?",
+	inputType: SINGLE_SELECT,
+	label:     LabelJupyterChoice,
+	options: []string{
+		"Yes",
+		"No",
 	},
 }
 
@@ -115,6 +127,7 @@ func InitModel(input input) model {
 		input:    input,
 		step:     0,
 		selected: make(map[int]struct{}),
+		exit:     false,
 	}
 }
 
@@ -149,7 +162,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
-			os.Exit(0)
+			m.exit = true
+			return m, tea.Quit
 		case "up", "k":
 			if m.cursor > 0 {
 				m.cursor--
@@ -196,6 +210,7 @@ func generateFile(clicontext *cli.Context) error {
 	if selectionMap[LabelCudaChoice][0] == "Yes" {
 		buf.WriteString(fmt.Sprintf("    cuda(version=\"%s\", cudann=\"8\")\n", selectionMap[LabelCuda][0]))
 	}
+	buf.WriteString(generateJupyterStr(selectionMap[LabelJupyterChoice][0]))
 
 	buildEnvdContent := buf.Bytes()
 	buildContext, err := filepath.Abs(clicontext.Path("path"))
@@ -224,6 +239,13 @@ func generatePackagesStr(name string, packages []string) string {
 	}
 	s += "    ])\n"
 	return s
+}
+
+func generateJupyterStr(jupyter string) string {
+	if jupyter == "Yes" {
+		return "    config.jupyter()\n"
+	}
+	return ""
 }
 
 func (m model) renderMultipleChoice() string {
