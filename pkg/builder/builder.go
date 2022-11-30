@@ -224,8 +224,9 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	b.logger.Debugf("final entrypoint: {%s}\n", ep)
 
 	env := ir.CompileEnviron()
+	dev := ir.IsDev()
 
-	data, err := ImageConfigStr(labels, ports, ep, env)
+	data, err := ImageConfigStr(labels, ports, ep, env, dev)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get image config")
 	}

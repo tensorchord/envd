@@ -43,13 +43,13 @@ var (
 	//go:embed install-conda.sh
 	installCondaBash string
 	//go:embed install-mamba.sh
-	installMambaBash  string
-	miniCondaChecksum = map[string]string{
-		"x86_64":  "4ee9c3aa53329cd7a63b49877c0babb49b19b7e5af29807b793a76bdb1d362b4",
-		"aarch64": "00c7127a8a8d3f4b9c2ab3391c661239d5b9a88eafe895fd0f3f2a8d9c0f4556",
-		"s390x":   "e5e5e89cdcef9332fe632cd25d318cf71f681eef029a24495c713b18e66a8018",
-		"ppc64le": "8ee1f8d17ef7c8cb08a85f7d858b1cb55866c06fcf7545b98c3b82e4d0277e66",
-	}
+	installMambaBash string
+	// miniCondaChecksum = map[string]string{
+	// 	"x86_64":  "4ee9c3aa53329cd7a63b49877c0babb49b19b7e5af29807b793a76bdb1d362b4",
+	// 	"aarch64": "00c7127a8a8d3f4b9c2ab3391c661239d5b9a88eafe895fd0f3f2a8d9c0f4556",
+	// 	"s390x":   "e5e5e89cdcef9332fe632cd25d318cf71f681eef029a24495c713b18e66a8018",
+	// 	"ppc64le": "8ee1f8d17ef7c8cb08a85f7d858b1cb55866c06fcf7545b98c3b82e4d0277e66",
+	// }
 )
 
 func (g Graph) compileCondaChannel(root llb.State) llb.State {
