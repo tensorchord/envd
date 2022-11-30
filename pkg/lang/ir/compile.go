@@ -116,6 +116,7 @@ func CompileEnviron() []string {
 	return append(DefaultGraph.EnvString(),
 		"PATH="+strings.Join(DefaultGraph.RuntimeEnvPaths, ":"),
 		"LC_ALL=en_US.UTF-8",
+		"LANG=C.UTF-8",
 	)
 }
 

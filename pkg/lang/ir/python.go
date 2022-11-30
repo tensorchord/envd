@@ -115,7 +115,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		// Compose the package install command.
 		var sb strings.Builder
 		// Always use the conda's pip.
-		sb.WriteString("/opt/conda/envs/envd/bin/python -m pip install")
+		sb.WriteString("python -m pip install")
 		for _, pkg := range g.PyPIPackages {
 			sb.WriteString(fmt.Sprintf(" %s", pkg))
 		}
@@ -140,7 +140,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		sb.WriteString(fmt.Sprintf("chown -R envd:envd %s\n", g.getWorkingDir())) // Change mount dir permission
 		envdCmd := strings.Builder{}
 		envdCmd.WriteString(fmt.Sprintf("cd %s\n", g.getWorkingDir()))
-		envdCmd.WriteString(fmt.Sprintf("/opt/conda/envs/envd/bin/python -m pip install -r  %s\n", *g.RequirementsFile))
+		envdCmd.WriteString(fmt.Sprintf("python -m pip install -r  %s\n", *g.RequirementsFile))
 
 		// Execute the command to write yaml file and conda env using envd user
 		sb.WriteString(fmt.Sprintf("sudo -i -u envd bash << EOF\n%s\nEOF\n", envdCmd.String()))
@@ -161,7 +161,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 
 	if len(g.PythonWheels) > 0 {
 		root = root.Dir(g.getWorkingDir())
-		cmdTemplate := "/opt/conda/envs/envd/bin/python -m pip install %s"
+		cmdTemplate := "python -m pip install %s"
 		for _, wheel := range g.PythonWheels {
 			run := root.Run(llb.Shlex(fmt.Sprintf(cmdTemplate, wheel)), llb.WithCustomNamef("pip install %s", wheel))
 			run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext), llb.Readonly)
