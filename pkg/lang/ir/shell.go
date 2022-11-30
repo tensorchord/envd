@@ -65,20 +65,15 @@ func (g *Graph) compileCondaShell(root llb.State) llb.State {
 	if g.DevTools {
 		findDir = fileutil.EnvdHomeDir
 	}
-	switch g.Shell {
-	case shellBASH:
-		run = root.Run(
-			llb.Shlex(
-				fmt.Sprintf(`bash -c 'echo "source %s/activate envd" >> %s'`,
-					condaBinDir, findDir(".bashrc"))),
-			llb.WithCustomName("[internal] add conda environment to bashrc"))
-	case shellZSH:
-		run = root.
-			Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.condaInitShell(g.Shell))),
-				llb.WithCustomNamef("[internal] initialize conda %s environment", g.Shell)).
-			Run(llb.Shlex(fmt.Sprintf(`bash -c 'echo "source %s/activate envd" >> %s'`, condaBinDir, findDir(".zshrc"))),
-				llb.WithCustomName("[internal] add conda environment to zshrc"))
+	rcPath := findDir(".bashrc")
+	if g.Shell == shellZSH {
+		rcPath = findDir(".zshrc")
 	}
+	run = root.
+		Run(llb.Shlexf("bash -c \"%s\"", g.condaInitShell(g.Shell)),
+			llb.WithCustomNamef("[internal] init conda %s env", g.Shell)).
+		Run(llb.Shlexf(`bash -c 'echo "source %s/activate envd" >> %s'`, condaBinDir, rcPath),
+			llb.WithCustomName("[internal] add conda environment to zshrc"))
 	return run.Root()
 }
 
