@@ -152,12 +152,3 @@ func GetCUDAImage(image string, cuda *string, cudnn string, dev bool) string {
 
 	return fmt.Sprintf("docker.io/nvidia:%s-cudnn%s-%s-%s", *cuda, cudnn, target, image)
 }
-
-// GetPythonImage returns the official Python image (without using conda)
-func GetPythonImage(version *string, dev bool) string {
-	if dev {
-		return fmt.Sprintf("docker.io/python:%s-buster", *version)
-	} else {
-		return fmt.Sprintf("docker.io/python:%s-slim-buster", *version)
-	}
-}

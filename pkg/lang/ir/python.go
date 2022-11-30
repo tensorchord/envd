@@ -30,6 +30,7 @@ const (
 	pythonVersionDefault = "3.9"
 	microMambaPathPrefix = "/usr/local/bin"
 	microMambaImage      = "mambaorg/micromamba:1.0.0"
+	certPath             = "/etc/ssl/certs"
 )
 
 func (g Graph) installPython(root llb.State) (llb.State, error) {
@@ -38,12 +39,17 @@ func (g Graph) installPython(root llb.State) (llb.State, error) {
 		if err != nil {
 			return llb.State{}, err
 		}
-		install := root.File(llb.Copy(llb.Image(microMambaImage), "/bin/micromamba", microMambaPathPrefix),
-			llb.WithCustomName("[internal] copy micromamba")).
-			Run(llb.Shlex(fmt.Sprintf("bash -c \"%s/micromamba create -p /opt/conda/envs/envd -c conda-forge python=%s\"", microMambaPathPrefix, *g.Language.Version)),
+		install := root.
+			File(llb.Mkdir(certPath, 0755, llb.WithParents(true)),
+				llb.WithCustomName("[internal] mkdir certs")).
+			File(llb.Copy(llb.Image(microMambaImage), fmt.Sprintf("%s/%s", certPath, "ca-certificates.crt"), certPath),
+				llb.WithCustomName("[internal] copy cert from mamba")).
+			File(llb.Copy(llb.Image(microMambaImage), "/bin/micromamba", microMambaPathPrefix),
+				llb.WithCustomName("[internal] copy micromamba binary")).
+			Run(llb.Shlex(fmt.Sprintf("bash -c \"%s/micromamba create -p /opt/conda/envs/envd -c conda-forge python=%s\"", microMambaPathPrefix, version)),
 				llb.WithCustomNamef("[internal] create envd python=%s", version)).
 			Run(llb.Shlex(fmt.Sprintf("rm %s/micromamba", microMambaPathPrefix)),
-				llb.WithCustomName("[internal] rm micromamba")).Root()
+				llb.WithCustomName("[internal] rm micromamba binary")).Root()
 		python := g.compileAlternative(install)
 		return python, nil
 	}
