@@ -28,28 +28,25 @@ import (
 )
 
 const (
-	buildImage          = "buildpack-deps:stable-curl"
+	builderImage        = "buildpack-deps:stable-curl"
 	condaVersionDefault = "py39_4.11.0"
 	// check the issue https://github.com/mamba-org/mamba/issues/1975
 	mambaVersionDefault = "0.25.1"
 	condaRootPrefix     = "/opt/conda"
 	condaBinDir         = "/opt/conda/bin"
+	condaSourcePath     = "/tmp/miniconda.sh"
 )
 
 var (
 	// this file can be used by both conda and mamba
 	// https://mamba.readthedocs.io/en/latest/user_guide/configuration.html#multiple-rc-files
 	condarc = "/opt/conda/.condarc"
-	//go:embed install-conda.sh
+	//go:embed get_conda.sh
+	downloadCondaBash string
+	//go:embed install_conda.sh
 	installCondaBash string
-	//go:embed install-mamba.sh
+	//go:embed install_mamba.sh
 	installMambaBash string
-	// miniCondaChecksum = map[string]string{
-	// 	"x86_64":  "4ee9c3aa53329cd7a63b49877c0babb49b19b7e5af29807b793a76bdb1d362b4",
-	// 	"aarch64": "00c7127a8a8d3f4b9c2ab3391c661239d5b9a88eafe895fd0f3f2a8d9c0f4556",
-	// 	"s390x":   "e5e5e89cdcef9332fe632cd25d318cf71f681eef029a24495c713b18e66a8018",
-	// 	"ppc64le": "8ee1f8d17ef7c8cb08a85f7d858b1cb55866c06fcf7545b98c3b82e4d0277e66",
-	// }
 )
 
 func (g Graph) compileCondaChannel(root llb.State) llb.State {
@@ -156,10 +153,26 @@ func (g Graph) installConda(root llb.State) (llb.State, error) {
 				llb.WithCustomName("[internal] install micro mamba"))
 		return run.Root(), nil
 	}
-	run := root.AddEnv("CONDA_VERSION", condaVersionDefault).
+	return installMiniConda(root), nil
+}
+
+func installMiniConda(root llb.State) llb.State {
+	base := llb.Image(builderImage)
+	builder := base.AddEnv("CONDA_VERSION", condaVersionDefault).
+		Run(llb.Shlexf("bash -c '%s'", downloadCondaBash),
+			llb.WithCustomName("[internal] download conda")).Root()
+	conda := root.
+		File(llb.Copy(builder, condaSourcePath, condaSourcePath),
+			llb.WithCustomName("copy conda from builder")).
 		File(llb.Mkdir(condaRootPrefix, 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] create conda directory")).
-		Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installCondaBash)),
-			llb.WithCustomName("[internal] install conda"))
-	return run.Root(), nil
+		Run(llb.Shlexf("bash -c '%s'", installCondaBash),
+			llb.WithCustomName("[internal] install conda")).Root().
+		File(llb.Rm(condaSourcePath), llb.WithCustomName("[internal] rm conda source file"))
+	return conda
 }
+
+// func installMicroMamba(root llb.State) llb.State {
+// 	base := llb.Image(builderImage)
+// 	builder := base.AddEnv()
+// }
