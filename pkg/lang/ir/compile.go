@@ -306,8 +306,7 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 
 	// dev postprocessing: related to UID, which may not be cached
 	if g.DevTools {
-		prompt := g.compilePrompt(copy)
-		git := g.compileGit(prompt)
+		git := g.compileGit(copy)
 		user := g.compileUserOwn(git)
 		key, err := g.copySSHKey(user)
 		if err != nil {
@@ -317,7 +316,8 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile shell")
 		}
-		entrypoint, err := g.compileEntrypoint(shell)
+		prompt := g.compilePrompt(shell)
+		entrypoint, err := g.compileEntrypoint(prompt)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
 		}

@@ -45,8 +45,10 @@ func Python(version string) error {
 	return nil
 }
 
-func Conda() {
-	DefaultGraph.CondaConfig = &CondaConfig{}
+func Conda(mamba bool) {
+	DefaultGraph.CondaConfig = &CondaConfig{
+		UseMicroMamba: mamba,
+	}
 }
 
 func RLang() {
@@ -175,9 +177,11 @@ func Git(name, email, editor string) error {
 	return nil
 }
 
-func CondaChannel(channel string, useMamba bool) error {
+func CondaChannel(channel string) error {
+	if DefaultGraph.CondaConfig == nil {
+		return errors.New("cannot config conda when conda is not installed")
+	}
 	DefaultGraph.CondaConfig.CondaChannel = &channel
-	DefaultGraph.CondaConfig.UseMicroMamba = useMamba
 	return nil
 }
 

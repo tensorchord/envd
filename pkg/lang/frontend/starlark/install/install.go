@@ -66,8 +66,14 @@ func ruleFuncPython(thread *starlark.Thread, _ *starlark.Builtin,
 
 func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	logger.Debugf("rule `%s` is invoked", ruleConda)
-	ir.Conda()
+	useMamba := false
+
+	if err := starlark.UnpackArgs(rulePython, args, kwargs, "use_mamba?", &useMamba); err != nil {
+		return nil, err
+	}
+
+	logger.Debugf("rule `%s` is invoked: use_mamba=%t", ruleConda, useMamba)
+	ir.Conda(useMamba)
 	return starlark.None, nil
 }
 

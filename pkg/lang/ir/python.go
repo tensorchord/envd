@@ -29,11 +29,10 @@ import (
 const (
 	pythonVersionDefault = "3.9"
 	microMambaPathPrefix = "/usr/local/bin"
-	microMambaImage      = "mambaorg/micromamba:1.0.0"
 	certPath             = "/etc/ssl/certs"
 )
 
-func (g Graph) installPython(root llb.State) (llb.State, error) {
+func (g *Graph) installPython(root llb.State) (llb.State, error) {
 	if g.CondaConfig == nil {
 		version, err := g.getAppropriatePythonVersion()
 		if err != nil {
@@ -55,10 +54,7 @@ func (g Graph) installPython(root llb.State) (llb.State, error) {
 	}
 
 	// install Conda to create the env
-	py, err := g.installConda(root)
-	if err != nil {
-		return llb.State{}, nil
-	}
+	py := g.installConda(root)
 	env, err := g.compileCondaEnvironment(py)
 	if err != nil {
 		return llb.State{}, err
@@ -123,7 +119,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		logrus.WithField("command", cmd).
 			Debug("Configure pip install statements")
 		run := root.
-			Run(llb.Shlex(sb.String()), llb.WithCustomNamef("pip install %s",
+			Run(llb.Shlex(sb.String()), llb.WithCustomNamef("[internal] pip install %s",
 				strings.Join(g.PyPIPackages, " ")))
 		// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 		run.AddMount(cacheDir, cache,

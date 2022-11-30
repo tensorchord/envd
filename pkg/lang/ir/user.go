@@ -31,12 +31,11 @@ func (g *Graph) compileUserOwn(root llb.State) llb.State {
 	if len(g.UserDirectories) == 0 {
 		return root.User("envd")
 	}
-	run := root.Run()
 	for _, dir := range g.UserDirectories {
-		run = root.Run(llb.Shlex(fmt.Sprintf("chown -R envd:envd %s", dir)),
-			llb.WithCustomNamef("[internal] configure user permissions for %s", dir))
+		root = root.Run(llb.Shlex(fmt.Sprintf("chown -R envd:envd %s", dir)),
+			llb.WithCustomNamef("[internal] configure user permissions for %s", dir)).Root()
 	}
-	return run.Root().User("envd")
+	return root.User("envd")
 }
 
 // compileUserGroup creates user `envd`
@@ -73,7 +72,7 @@ func (g *Graph) compileUserGroup(root llb.State) llb.State {
 				llb.WithCustomName("[internal] create user group envd")).
 			Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %d -g envd -s /bin/sh -m envd", g.uid)),
 				llb.WithCustomName("[internal] create user envd")).
-			Run(llb.Shlex("adduser envd sudo"),
+			Run(llb.Shlex("usermod -aG sudo envd"),
 				llb.WithCustomName("[internal] add user envd to sudoers")).
 			Run(llb.Shlex(fmt.Sprintf("install -d -o envd -g %d -m 0700 /home/envd/.config /home/envd/.cache", g.gid)),
 				llb.WithCustomName("[internal] mkdir config and cache dir"))
