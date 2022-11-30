@@ -50,7 +50,7 @@ var Module = &starlarkstruct.Module{
 
 func ruleFuncPython(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	version := "3.8"
+	version := ir.PythonVersionDefault
 
 	if err := starlark.UnpackArgs(rulePython, args, kwargs, "version?", &version); err != nil {
 		return nil, err

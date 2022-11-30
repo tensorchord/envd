@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	pythonVersionDefault = "3.9"
+	PythonVersionDefault = "3.9"
 	microMambaPathPrefix = "/usr/local/bin"
 	certPath             = "/etc/ssl/certs"
 )
@@ -66,12 +66,12 @@ func (g *Graph) installPython(root llb.State) (llb.State, error) {
 
 func (g Graph) getAppropriatePythonVersion() (string, error) {
 	if g.Language.Version == nil {
-		return pythonVersionDefault, nil
+		return PythonVersionDefault, nil
 	}
 
 	version := *g.Language.Version
 	if version == "3" || version == "" {
-		return pythonVersionDefault, nil
+		return PythonVersionDefault, nil
 	}
 	if strings.HasPrefix(version, "3.") {
 		return version, nil
