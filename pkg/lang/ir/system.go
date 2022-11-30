@@ -232,6 +232,8 @@ func (g *Graph) compileBaseImage() (llb.State, error) {
 		kv := strings.Split(e, "=")
 		g.RuntimeEnviron[kv[0]] = kv[1]
 	}
+	// TODO: inherit the USER from base
+	g.User = ""
 	return base, nil
 }
 

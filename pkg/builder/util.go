@@ -36,13 +36,14 @@ const (
 )
 
 func ImageConfigStr(labels map[string]string, ports map[string]struct{},
-	entrypoint []string, env []string, dev bool) (string, error) {
+	entrypoint []string, env []string, user string) (string, error) {
 	pl := platforms.Normalize(platforms.DefaultSpec())
 	img := v1.Image{
 		Config: v1.ImageConfig{
 			Labels:       labels,
 			WorkingDir:   "/",
 			Env:          env,
+			User:         user,
 			ExposedPorts: ports,
 			Entrypoint:   entrypoint,
 		},
@@ -52,9 +53,6 @@ func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 		RootFS: v1.RootFS{
 			Type: "layers",
 		},
-	}
-	if dev {
-		img.Config.User = "envd"
 	}
 	data, err := json.Marshal(img)
 	if err != nil {

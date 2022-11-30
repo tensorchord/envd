@@ -27,6 +27,7 @@ func (g *Graph) compileUserOwn(root llb.State) llb.State {
 		return root
 	}
 	g.RuntimeEnviron["USER"] = "envd"
+	g.User = "envd"
 	if len(g.UserDirectories) == 0 {
 		return root.User("envd")
 	}

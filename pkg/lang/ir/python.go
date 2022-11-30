@@ -59,8 +59,7 @@ func (g Graph) installPython(root llb.State) (llb.State, error) {
 	if err != nil {
 		return llb.State{}, nil
 	}
-	sh := g.compileCondaShell(py)
-	env, err := g.compileCondaEnvironment(sh)
+	env, err := g.compileCondaEnvironment(py)
 	if err != nil {
 		return llb.State{}, err
 	}

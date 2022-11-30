@@ -31,6 +31,7 @@ type Graph struct {
 
 	Language
 	Image string
+	User  string
 
 	Shell    string
 	DevTools bool

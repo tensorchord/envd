@@ -120,8 +120,8 @@ func CompileEnviron() []string {
 	)
 }
 
-func IsDev() bool {
-	return DefaultGraph.DevTools
+func GetUser() string {
+	return DefaultGraph.User
 }
 
 func (g Graph) GPUEnabled() bool {
@@ -279,11 +279,7 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 		sshd := g.compileSSHD(dev)
 		horust := g.installHorust(sshd)
 		userGroup := g.compileUserGroup(horust)
-		shell, err := g.compileShell(userGroup)
-		if err != nil {
-			return llb.State{}, errors.Wrap(err, "failed to compile shell")
-		}
-		base = shell
+		base = userGroup
 	}
 
 	lang, err := g.compileLanguage(base)
@@ -317,7 +313,11 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to copy ssh key")
 		}
-		entrypoint, err := g.compileEntrypoint(key)
+		shell, err := g.compileShell(key)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to compile shell")
+		}
+		entrypoint, err := g.compileEntrypoint(shell)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
 		}
