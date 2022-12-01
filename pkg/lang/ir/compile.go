@@ -326,9 +326,8 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 			return llb.State{}, errors.Wrap(err, "failed to compile VSCode extensions")
 		}
 		copy = llb.Merge([]llb.State{
-			copy,
-			vscode,
 			entrypoint,
+			vscode,
 		}, llb.WithCustomName("[internal] final dev environment"))
 	}
 
