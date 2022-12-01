@@ -69,13 +69,13 @@ func (g *Graph) compileUserGroup(root llb.State) llb.State {
 	} else {
 		res = root.
 			Run(llb.Shlex(fmt.Sprintf("groupadd -g %d envd", g.gid)),
-				llb.WithCustomName("[internal] create user group envd")).
+				llb.WithCustomNamef("[internal] create user group envd(g:%d)", g.gid)).
 			Run(llb.Shlex(fmt.Sprintf("useradd -p \"\" -u %d -g envd -s /bin/sh -m envd", g.uid)),
-				llb.WithCustomName("[internal] create user envd")).
+				llb.WithCustomNamef("[internal] create user envd(u:%d)", g.uid)).
 			Run(llb.Shlex("usermod -a -G sudo envd"),
 				llb.WithCustomName("[internal] add user envd to sudoers")).
 			Run(llb.Shlex(fmt.Sprintf("install -d -o envd -g %d -m 0700 /home/envd/.config /home/envd/.cache", g.gid)),
-				llb.WithCustomName("[internal] mkdir config and cache dir"))
+				llb.WithCustomName("[internal] mkdir config and cache"))
 	}
 	return res.Root()
 }

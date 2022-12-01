@@ -256,7 +256,7 @@ func (g Graph) copySSHKey(root llb.State) (llb.State, error) {
 
 func (g Graph) compileMountDir(root llb.State) llb.State {
 	mount := root
-	if !g.DevTools {
+	if g.DevTools {
 		// create the ENVD_WORKDIR as a placeholder (envd-server may not mount this dir)
 		workDir := fileutil.EnvdHomeDir(g.EnvironmentName)
 		mount = root.File(llb.Mkdir(workDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
