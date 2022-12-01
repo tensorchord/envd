@@ -2,8 +2,6 @@ module github.com/tensorchord/envd
 
 go 1.18
 
-// replace github.com/tensorchord/envd-server => /home/ubuntu/workspace/envd-server
-
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/alessio/shellescape v1.4.1
