@@ -17,8 +17,9 @@ package app
 import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
-	ac "github.com/tensorchord/envd/pkg/autocomplete"
 	"github.com/urfave/cli/v2"
+
+	ac "github.com/tensorchord/envd/pkg/autocomplete"
 )
 
 var CommandCompletion = &cli.Command{
