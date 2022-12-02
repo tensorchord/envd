@@ -17,6 +17,7 @@ package app
 import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
+	ac "github.com/tensorchord/envd/pkg/autocomplete"
 	"github.com/urfave/cli/v2"
 )
 
@@ -44,7 +45,19 @@ func completion(clicontext *cli.Context) error {
 	}
 
 	for i := 0; i < n; i++ {
-		logrus.Infof("[%d/%d] Install completion %s", i+1, n, shellList[i])
+		logrus.Infof("[%d/%d] Add completion %s", i+1, n, shellList[i])
+		switch shellList[i] {
+		case "zsh":
+			if err := ac.InsertZSHCompleteEntry(); err != nil {
+				return err
+			}
+		case "bash":
+			if err := ac.InsertBashCompleteEntry(); err != nil {
+				return err
+			}
+		default:
+			return errors.Errorf("unknown shell type %s (support type: {bash|zsh})", shellList[i])
+		}
 	}
 
 	return nil
