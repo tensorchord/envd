@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	builderImage        = "buildpack-deps:stable-curl"
+	builderImage        = "curlimages/curl:7.86.0"
 	condaVersionDefault = "py39_4.11.0"
 	microMambaImage     = "mambaorg/micromamba:1.0.0"
 	condaRootPrefix     = "/opt/conda"
@@ -162,7 +162,7 @@ func (g *Graph) installConda(root llb.State) llb.State {
 func (g Graph) installMiniConda(root llb.State) llb.State {
 	base := llb.Image(builderImage)
 	builder := base.AddEnv("CONDA_VERSION", condaVersionDefault).
-		Run(llb.Shlexf("bash -c '%s'", downloadCondaBash),
+		Run(llb.Shlexf("sh -c '%s'", downloadCondaBash),
 			llb.WithCustomName("[internal] download conda")).Root()
 	conda := root.
 		File(llb.Copy(builder, condaSourcePath, condaSourcePath),
