@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/pkg/namesgenerator"
@@ -171,18 +172,17 @@ func autocomplete(clicontext *cli.Context) error {
 	}
 
 	shell := os.Getenv("SHELL")
-	switch shell {
-	case "zsh":
+	if strings.Contains(shell, "zsh") {
 		logrus.Infof("Install zsh autocompletion")
 		if err := ac.InsertZSHCompleteEntry(); err != nil {
 			logrus.Warnf("Warning: %s\n", err.Error())
 		}
-	case "bash":
+	} else if strings.Contains(shell, "bash") {
 		logrus.Infof("Install bash autocompletion")
 		if err := ac.InsertBashCompleteEntry(); err != nil {
 			logrus.Warnf("Warning: %s\n", err.Error())
 		}
-	default:
+	} else {
 		logrus.Infof("Install bash autocompletion (fallback from \"%s\")", shell)
 		if err := ac.InsertBashCompleteEntry(); err != nil {
 			logrus.Warnf("Warning: %s\n", err.Error())
