@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.2.5-rc.4 (2022-12-02)
+
+
+### Contributors
+
+
+## v0.2.5-rc.3 (2022-12-02)
+
+
+### Contributors
+
+
+## v0.2.5-rc.2 (2022-12-02)
+
+ * [5cbed88](https://github.com/tensorchord/envd/commit/5cbed887e0aa6b0c766f48c0cf8effe85f49d20b) fix: put the binary under bin directly (#1254)
+ * [c7fd12b](https://github.com/tensorchord/envd/commit/c7fd12b9047b5c59e555a3d083cdf7cdef1449d6) bug: Update envd-server version to 0.0.11 (#1245)
+
+### Contributors
+
+ * Frost Ming
+ * Jinjing Zhou
+
 ## v0.2.5-rc.1 (2022-11-28)
 
  * [a4dad9b](https://github.com/tensorchord/envd/commit/a4dad9b212c41e07175f201e067f891c76277843) chore(deps): bump github.com/tensorchord/envd-server from 0.0.9 to 0.0.10 (#1235)
