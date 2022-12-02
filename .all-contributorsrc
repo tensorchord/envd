@@ -528,6 +528,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "frostming",
+      "name": "Frost Ming",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16336606?v=4",
+      "profile": "https://frostming.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
