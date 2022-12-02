@@ -258,7 +258,7 @@ func (g *Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
 	return []string{"horust"}, nil
 }
 
-func (g Graph) Compile(uid, gid int) (llb.State, error) {
+func (g *Graph) Compile(uid, gid int) (llb.State, error) {
 	g.uid = uid
 
 	// TODO(gaocegege): Remove the hack for https://github.com/tensorchord/envd/issues/370
