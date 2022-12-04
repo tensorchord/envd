@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.5-rc.7 (2022-12-04)
+
+
+### Contributors
+
+
 ## v0.2.5-rc.6 (2022-12-04)
 
  * [8594d10](https://github.com/tensorchord/envd/commit/8594d1044874ed2baa3bc74ef9b5e35f3766a6f7) fix: Update python setuptools to python3 (#1261)
