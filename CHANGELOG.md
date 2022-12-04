@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.5-rc.6 (2022-12-04)
+
+ * [8594d10](https://github.com/tensorchord/envd/commit/8594d1044874ed2baa3bc74ef9b5e35f3766a6f7) fix: Update python setuptools to python3 (#1261)
+
+### Contributors
+
+ * Ce Gao
+
 ## v0.2.5-rc.5 (2022-12-02)
 
  * [0042b24](https://github.com/tensorchord/envd/commit/0042b2481da98c6810e858069f769f3b7ef4808a) feat: add completion command (#1258)
