@@ -73,6 +73,21 @@ var CommandCreate = &cli.Command{
 			Usage: "Assign the host address for environment ssh acesss server listening",
 			Value: envd.Localhost,
 		},
+		&cli.StringFlag{
+			Name:  "cpu",
+			Usage: "Request CPU resources (number of cores), such as 0.5, 1, 2",
+			Value: "",
+		},
+		&cli.StringFlag{
+			Name:  "memory",
+			Usage: "Request Memory, such as 512M, 2G",
+			Value: "",
+		},
+		&cli.StringFlag{
+			Name:  "gpu",
+			Usage: "Request GPU resources (number of gpus), such as 1, 2",
+			Value: "",
+		},
 	},
 	Action: create,
 }
@@ -98,6 +113,9 @@ func create(clicontext *cli.Context) error {
 		SshdHost:        clicontext.String("host"),
 		Image:           clicontext.String("image"),
 		Timeout:         clicontext.Duration("timeout"),
+		NumMem:          clicontext.String("memory"),
+		NumCPU:          clicontext.String("cpu"),
+		NumGPU:          clicontext.Int("gpu"),
 		EnvironmentName: name,
 	}
 	if c.Runner == types.RunnerTypeEnvdServer {

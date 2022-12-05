@@ -35,6 +35,8 @@ type StartOptions struct {
 	EnvironmentName string
 	BuildContext    string
 	NumGPU          int
+	NumCPU          string
+	NumMem          string
 	Timeout         time.Duration
 	Forced          bool
 	SshdHost        string
