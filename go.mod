@@ -2,6 +2,8 @@ module github.com/tensorchord/envd
 
 go 1.18
 
+replace github.com/tensorchord/envd-server => /home/ubuntu/workspace/envd-server
+
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/alessio/shellescape v1.4.1
@@ -33,7 +35,7 @@ require (
 	github.com/tensorchord/envd-server v0.0.11
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
-	github.com/urfave/cli/v2 v2.23.5
+	github.com/urfave/cli/v2 v2.23.6
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.0.0-20221010152910-d6f0a8c073c2
 	golang.org/x/sync v0.1.0
