@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/pkg/namesgenerator"
@@ -170,16 +171,22 @@ func autocomplete(clicontext *cli.Context) error {
 		return nil
 	}
 
-	// Because this requires sudo, it should warn and not fail the rest of it.
-	err := ac.InsertBashCompleteEntry()
-	if err != nil {
-		logrus.Warnf("Warning: %s\n", err.Error())
-		err = nil
-	}
-	err = ac.InsertZSHCompleteEntry()
-	if err != nil {
-		logrus.Warnf("Warning: %s\n", err.Error())
-		err = nil
+	shell := os.Getenv("SHELL")
+	if strings.Contains(shell, "zsh") {
+		logrus.Infof("Install zsh autocompletion")
+		if err := ac.InsertZSHCompleteEntry(); err != nil {
+			logrus.Warnf("Warning: %s\n", err.Error())
+		}
+	} else if strings.Contains(shell, "bash") {
+		logrus.Infof("Install bash autocompletion")
+		if err := ac.InsertBashCompleteEntry(); err != nil {
+			logrus.Warnf("Warning: %s\n", err.Error())
+		}
+	} else {
+		logrus.Infof("Install bash autocompletion (fallback from \"%s\")", shell)
+		if err := ac.InsertBashCompleteEntry(); err != nil {
+			logrus.Warnf("Warning: %s\n", err.Error())
+		}
 	}
 
 	logrus.Info("You may have to restart your shell for autocomplete to get initialized (e.g. run \"exec $SHELL\")\n")

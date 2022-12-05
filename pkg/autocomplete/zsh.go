@@ -63,8 +63,7 @@ func InsertZSHCompleteEntry() error {
 	// check the system has zsh
 	_, err := exec.LookPath("zsh")
 	if err != nil {
-		log.L.Debugf("can't find zsh in this system, stop setting the zsh-completion.")
-		return nil
+		return errors.Errorf("can't find zsh in this system, stop setting the zsh-completion.")
 	}
 
 	// should be the same on linux and macOS
@@ -114,8 +113,7 @@ func InsertZSHCompleteEntry() error {
 
 	compEntry, err := zshCompleteEntry()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: unable to enable zsh-completion: %s\n", err)
-		return nil // zsh-completion isn't available, silently fail.
+		return errors.Wrapf(err, "Warning: unable to enable zsh-completion")
 	}
 
 	_, err = f.Write([]byte(compEntry))
