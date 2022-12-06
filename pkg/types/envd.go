@@ -161,8 +161,8 @@ type EnvdAuth struct {
 }
 
 type AuthConfig struct {
-	Name          string `json:"name,omitempty"`
-	IdentityToken string `json:"identity_token,omitempty"`
+	Name     string `json:"name,omitempty"`
+	JWTToken string `json:"jwt_token,omitempty"`
 }
 
 func DefaultPathEnv() string {
