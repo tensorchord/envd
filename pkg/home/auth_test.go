@@ -23,10 +23,10 @@ import (
 
 var _ = Describe("auth test", Ordered, func() {
 	defaultAuthName := "auth_name"
-	defaultIdentityToken := "default_token"
+	deafultJWTToken := "default_token"
 	ac := types.AuthConfig{
 		Name:     defaultAuthName,
-		JWTToken: defaultIdentityToken,
+		JWTToken: deafultJWTToken,
 	}
 
 	BeforeEach(func() {

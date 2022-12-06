@@ -65,8 +65,8 @@ func New(ctx context.Context, opt Options) (Engine, error) {
 			return nil, errors.Wrap(err, "failed to create the envd-server client")
 		}
 		return &envdServerEngine{
-			Client:        cli,
-			IdentityToken: ac.JWTToken,
+			Client:    cli,
+			Loginname: ac.Name,
 		}, nil
 	} else {
 		cli, err := client.NewClientWithOpts(

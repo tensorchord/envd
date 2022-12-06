@@ -35,7 +35,7 @@ import (
 
 type envdServerEngine struct {
 	*client.Client
-	IdentityToken string
+	Loginname string
 }
 
 func (e *envdServerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) {
@@ -121,7 +121,7 @@ func (e *envdServerEngine) ListEnvironment(ctx context.Context) ([]types.EnvdEnv
 }
 
 func (e envdServerEngine) GenerateSSHConfig(name, iface, privateKeyPath string, startResult *StartResult) (sshconfig.EntryOptions, error) {
-	username, err := sshname.Username(e.IdentityToken, startResult.Name)
+	username, err := sshname.Username(e.Loginname, startResult.Name)
 	if err != nil {
 		return sshconfig.EntryOptions{}, errors.Wrap(err, "failed to get the username")
 	}
@@ -139,7 +139,7 @@ func (e envdServerEngine) GenerateSSHConfig(name, iface, privateKeyPath string, 
 }
 
 func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult *StartResult) error {
-	username, err := sshname.Username(e.IdentityToken, startResult.Name)
+	username, err := sshname.Username(e.Loginname, startResult.Name)
 	if err != nil {
 		return errors.Wrap(err, "failed to get the username")
 	}
