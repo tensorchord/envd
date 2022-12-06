@@ -15,9 +15,6 @@
 package app
 
 import (
-	"bytes"
-	"embed"
-	"fmt"
 	"io/fs"
 	"path/filepath"
 	"strings"
@@ -27,9 +24,6 @@ import (
 
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
-
-//go:embed template
-var templatef embed.FS
 
 var CommandInit = &cli.Command{
 	Name:     "init",
@@ -70,14 +64,6 @@ func isValidLang(lang string) bool {
 	return false
 }
 
-type pythonEnv struct {
-	pythonVersion string
-	requirements  string
-	condaEnv      string
-	indent        string
-	notebook      bool
-}
-
 func InitPythonEnv(dir string) error {
 	requirements := ""
 	condaEnv := ""
@@ -111,24 +97,6 @@ func InitPythonEnv(dir string) error {
 	}
 	startQuestion(JupyterChoice)
 	return nil
-}
-
-func (pe *pythonEnv) generate() []byte {
-	var buf bytes.Buffer
-	buf.WriteString("def build():\n")
-	buf.WriteString(fmt.Sprintf("%sbase(os=\"ubuntu20.04\", language=\"%s\")\n", pe.indent, pe.pythonVersion))
-	if len(pe.requirements) > 0 {
-		buf.WriteString(fmt.Sprintf("%sinstall.python_packages(requirements=\"%s\")\n", pe.indent, pe.requirements))
-	} else {
-		buf.WriteString(generatePackagesStr("python", selectionMap[LabelPythonPackage]))
-	}
-	if len(pe.condaEnv) > 0 {
-		buf.WriteString(fmt.Sprintf("%sinstall.conda_packages(env_file=\"%s\")\n", pe.indent, pe.condaEnv))
-	}
-	if pe.notebook {
-		buf.WriteString(fmt.Sprintf("%sconfig.jupyter()\n", pe.indent))
-	}
-	return buf.Bytes()
 }
 
 // naive check
@@ -180,7 +148,10 @@ func initCommand(clicontext *cli.Context) error {
 		startQuestion(CudaVersionChoice)
 	}
 
-	generateFile(clicontext)
+	err = generateFile(clicontext)
+	if err != nil {
+		return nil
+	}
 
 	return nil
 }

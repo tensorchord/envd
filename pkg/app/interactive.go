@@ -262,13 +262,6 @@ func generatePackagesStr(name string, packages []string) string {
 	return s
 }
 
-func generateJupyterStr(jupyter string) string {
-	if jupyter == "Yes" {
-		return "    config.jupyter()\n"
-	}
-	return ""
-}
-
 func (m model) renderMultipleChoice() string {
 	s := "\n\n"
 	for i, choice := range m.input.options {
