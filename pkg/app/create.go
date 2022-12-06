@@ -120,7 +120,7 @@ func create(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the auth information")
 	}
-	username, err := sshname.Username(ac.IdentityToken, res.Name)
+	username, err := sshname.Username(ac.Name, res.Name)
 	if err != nil {
 		return errors.Wrap(err, "failed to get the username")
 	}

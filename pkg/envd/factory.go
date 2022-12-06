@@ -19,6 +19,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/client"
+	"github.com/sirupsen/logrus"
 	envdclient "github.com/tensorchord/envd-server/client"
 
 	"github.com/tensorchord/envd/pkg/home"
@@ -39,10 +40,18 @@ func New(ctx context.Context, opt Options) (Engine, error) {
 			return nil, errors.Wrap(err, "failed to get the auth information")
 		}
 
+		logger := logrus.WithFields(logrus.Fields{
+			"runner":     opt.Context.Runner,
+			"login-name": ac.Name,
+			"jwt-key":    ac.JWTToken,
+		})
+		logger.Debug("Creating envd server client")
 		// Get the runner host.
 		opts := []envdclient.Opt{
 			envdclient.WithTLSClientConfigFromEnv(),
+			envdclient.WithJWTToken(ac.Name, ac.JWTToken),
 		}
+
 		if opt.Context.RunnerAddress != nil {
 			opts = append(opts,
 				envdclient.WithHost(*opt.Context.RunnerAddress))
@@ -56,8 +65,8 @@ func New(ctx context.Context, opt Options) (Engine, error) {
 			return nil, errors.Wrap(err, "failed to create the envd-server client")
 		}
 		return &envdServerEngine{
-			Client:        cli,
-			IdentityToken: ac.IdentityToken,
+			Client:    cli,
+			Loginname: ac.Name,
 		}, nil
 	} else {
 		cli, err := client.NewClientWithOpts(
