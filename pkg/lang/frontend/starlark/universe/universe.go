@@ -37,7 +37,6 @@ func RegisterEnvdRules() {
 	starlark.Universe[ruleRun] = starlark.NewBuiltin(ruleRun, ruleFuncRun)
 	starlark.Universe[ruleGitConfig] = starlark.NewBuiltin(ruleGitConfig, ruleFuncGitConfig)
 	starlark.Universe[ruleInclude] = starlark.NewBuiltin(ruleInclude, ruleFuncInclude)
-	starlark.Universe[ruleDevTools] = starlark.NewBuiltin(ruleDevTools, ruleFuncDevTools)
 }
 
 func RegisterBuildContext(buildContextDir string) {
@@ -47,14 +46,15 @@ func RegisterBuildContext(buildContextDir string) {
 func ruleFuncBase(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var image string
+	var dev bool
 
-	if err := starlark.UnpackArgs(ruleBase, args, kwargs, "image", &image); err != nil {
+	if err := starlark.UnpackArgs(ruleBase, args, kwargs, "image?", &image, "dev?", &dev); err != nil {
 		return nil, err
 	}
 
-	logger.Debugf("rule `%s` is invoked, image=%s\n", ruleBase, image)
+	logger.Debugf("rule `%s` is invoked, image=%s, dev=%t\n", ruleBase, image, dev)
 
-	err := ir.Base(image)
+	err := ir.Base(image, dev)
 	return starlark.None, err
 }
 
@@ -137,12 +137,4 @@ func ruleFuncInclude(thread *starlark.Thread, _ *starlark.Builtin,
 		Members: globals,
 	}
 	return module, nil
-}
-
-func ruleFuncDevTools(thread *starlark.Thread, _ *starlark.Builtin,
-	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	logger.Debugf("rule `%s` is invoked", ruleDevTools)
-
-	ir.DevTools()
-	return starlark.None, nil
 }

@@ -62,7 +62,7 @@ func (g *Graph) compileShell(root llb.State) (_ llb.State, err error) {
 func (g *Graph) compileCondaShell(root llb.State) llb.State {
 	var run llb.ExecState
 	findDir := fileutil.DefaultHomeDir
-	if g.DevTools {
+	if g.Dev {
 		findDir = fileutil.EnvdHomeDir
 	}
 	rcPath := findDir(".bashrc")

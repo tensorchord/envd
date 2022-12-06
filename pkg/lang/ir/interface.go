@@ -25,10 +25,11 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func Base(image string) error {
+func Base(image string, dev bool) error {
 	if image != "" {
 		DefaultGraph.Image = image
 	}
+	DefaultGraph.Dev = dev
 	return nil
 }
 
@@ -61,10 +62,6 @@ func Julia() {
 	DefaultGraph.Language = Language{
 		Name: "julia",
 	}
-}
-
-func DevTools() {
-	DefaultGraph.DevTools = true
 }
 
 func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {

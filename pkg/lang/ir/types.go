@@ -33,11 +33,11 @@ type Graph struct {
 	Image string
 	User  string
 
-	Shell    string
-	DevTools bool
-	CUDA     *string
-	CUDNN    string
-	NumGPUs  int
+	Shell   string
+	Dev     bool
+	CUDA    *string
+	CUDNN   string
+	NumGPUs int
 
 	UbuntuAPTSource    *string
 	CRANMirrorURL      *string

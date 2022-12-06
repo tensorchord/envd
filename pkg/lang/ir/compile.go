@@ -204,7 +204,7 @@ func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 	ports := make(map[string]struct{})
 
 	// only expose ports for dev env
-	if !g.DevTools {
+	if !g.Dev {
 		return ports, nil
 	}
 
@@ -251,7 +251,7 @@ func (g Graph) DefaultCacheImporter() (*string, error) {
 }
 
 func (g *Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
-	if !g.DevTools {
+	if !g.Dev {
 		return g.Entrypoint, nil
 	}
 	g.RuntimeEnviron[types.EnvdWorkDir] = fileutil.EnvdHomeDir(filepath.Base(buildContextDir))
@@ -274,7 +274,7 @@ func (g *Graph) Compile(uid, gid int) (llb.State, error) {
 	}
 
 	// prepare dev env: stable operations should be done here to make it cache friendly
-	if g.DevTools {
+	if g.Dev {
 		dev := g.compileDevPackages(base)
 		sshd := g.compileSSHD(dev)
 		horust := g.installHorust(sshd)
@@ -305,7 +305,7 @@ func (g *Graph) Compile(uid, gid int) (llb.State, error) {
 	copy := g.compileCopy(source)
 
 	// dev postprocessing: related to UID, which may not be cached
-	if g.DevTools {
+	if g.Dev {
 		git := g.compileGit(copy)
 		user := g.compileUserOwn(git)
 		key, err := g.copySSHKey(user)
