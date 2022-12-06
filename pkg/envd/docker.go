@@ -269,7 +269,8 @@ func (e dockerEngine) Attach(name, iface, privateKeyPath string,
 	}
 	opt.Server = iface
 
-	if err := sshClient.Attach(); err != nil {
+	if err := sshClient.Attach(
+		ir.DefaultGraph.Shell, ir.DefaultGraph.EnvironmentName); err != nil {
 		return errors.Wrap(err, "failed to attach to the container")
 	}
 	return nil
