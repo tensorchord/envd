@@ -25,8 +25,8 @@ var _ = Describe("auth test", Ordered, func() {
 	defaultAuthName := "auth_name"
 	defaultIdentityToken := "default_token"
 	ac := types.AuthConfig{
-		Name:          defaultAuthName,
-		IdentityToken: defaultIdentityToken,
+		Name:     defaultAuthName,
+		JWTToken: defaultIdentityToken,
 	}
 
 	BeforeEach(func() {
