@@ -37,12 +37,14 @@ const (
 )
 
 const (
-	LabelLanguage      string = "Language"
-	LabelCuda          string = "Cuda"
-	LabelCudaChoice    string = "Cuda Choice"
-	LabelJupyterChoice string = "Jupyter Choice"
-	LabelPythonPackage string = "Python Package"
-	LabelRPackage      string = "R Package"
+	LabelLanguage          string = "Language"
+	LabelCuda              string = "Cuda"
+	LabelCudaChoice        string = "Cuda Choice"
+	LabelJupyterChoice     string = "Jupyter Choice"
+	LabelPythonPackage     string = "Python Package"
+	LabelRPackage          string = "R Package"
+	LabelCondaEnv          string = "Conda Env"
+	LabelPythonRequirement string = "Python Requirement"
 )
 
 type model struct {
@@ -201,16 +203,35 @@ func (m model) addSelection() {
 	}
 }
 
+func startQuestion(input input) {
+	p := tea.NewProgram(InitModel(input))
+	m, err := p.Run()
+	if m.(model).exit {
+		os.Exit(0)
+	}
+	if err != nil {
+		fmt.Printf("There was an error generating build.envd: %v", err)
+		os.Exit(1)
+	}
+}
 func generateFile(clicontext *cli.Context) error {
 	var buf bytes.Buffer
 	buf.WriteString("def build():\n")
 	buf.WriteString(fmt.Sprintf("    base(os=\"ubuntu20.04\", language=\"%s\")\n", selectionMap[LabelLanguage][0]))
 	buf.WriteString(generatePackagesStr("python", selectionMap[LabelPythonPackage]))
 	buf.WriteString(generatePackagesStr("r", selectionMap[LabelRPackage]))
+	if len(selectionMap[LabelPythonRequirement]) > 0 {
+		buf.WriteString(fmt.Sprintf("    install.python_packages(requirements=\"%s\")\n", selectionMap[LabelPythonRequirement][0]))
+	}
+	if len(selectionMap[LabelCondaEnv]) > 0 {
+		buf.WriteString(fmt.Sprintf("    install.conda_packages(env_file=\"%s\")\n", selectionMap[LabelCondaEnv][0]))
+	}
 	if selectionMap[LabelCudaChoice][0] == "Yes" {
 		buf.WriteString(fmt.Sprintf("    cuda(version=\"%s\", cudann=\"8\")\n", selectionMap[LabelCuda][0]))
 	}
-	buf.WriteString(generateJupyterStr(selectionMap[LabelJupyterChoice][0]))
+	if len(selectionMap[LabelJupyterChoice]) > 0 && selectionMap[LabelJupyterChoice][0] == "Yes" {
+		buf.WriteString("    config.jupyter()\n")
+	}
 
 	buildEnvdContent := buf.Bytes()
 	buildContext, err := filepath.Abs(clicontext.Path("path"))
