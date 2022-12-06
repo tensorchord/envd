@@ -27,6 +27,7 @@ import (
 	"github.com/tensorchord/envd-server/errdefs"
 	"github.com/tensorchord/envd-server/sshname"
 
+	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
@@ -180,7 +181,8 @@ func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult
 	}
 
 	go func() {
-		if err := sshClient.Attach(); err != nil {
+		if err := sshClient.Attach(ir.DefaultGraph.Shell,
+			ir.DefaultGraph.EnvironmentName); err != nil {
 			outputChannel <- errors.Wrap(err, "failed to attach to the container")
 		}
 		outputChannel <- nil

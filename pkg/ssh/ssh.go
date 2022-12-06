@@ -35,12 +35,11 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 	"golang.org/x/term"
 
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh/config"
 )
 
 type Client interface {
-	Attach() error
+	Attach(shell, envName string) error
 	ExecWithOutput(cmd string) ([]byte, error)
 	LocalForward(localAddress, targetAddress string) error
 	Close() error
@@ -181,7 +180,7 @@ func (c generalClient) ExecWithOutput(cmd string) ([]byte, error) {
 	return session.CombinedOutput(cmd)
 }
 
-func (c generalClient) Attach() error {
+func (c generalClient) Attach(shell, envName string) error {
 	// open session
 	session, err := c.cli.NewSession()
 	if err != nil {
@@ -263,13 +262,12 @@ func (c generalClient) Attach() error {
 		}
 	}()
 
-	// TODO(gaocegege): Refactor it to avoid direct access to DefaultGraph
-	cmd := shellescape.QuoteCommand([]string{ir.DefaultGraph.Shell})
+	cmd := shellescape.QuoteCommand([]string{shell})
 	logrus.Debugf("executing command over ssh: '%s'", cmd)
 	err = session.Run(cmd)
 	if err == nil {
 		logrus.Infof("Detached successfully. You can attach to the container with command `ssh %s.envd`\n",
-			ir.DefaultGraph.EnvironmentName)
+			envName)
 		return nil
 	}
 	if strings.Contains(err.Error(), "status 130") || strings.Contains(err.Error(), "4294967295") {
