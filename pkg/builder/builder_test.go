@@ -27,7 +27,7 @@ import (
 
 	mockbuildkitd "github.com/tensorchord/envd/pkg/buildkitd/mock"
 	"github.com/tensorchord/envd/pkg/home"
-	mockstarlark "github.com/tensorchord/envd/pkg/lang/frontend/starlark/v0/mock"
+	mockstarlark "github.com/tensorchord/envd/pkg/lang/frontend/starlark/mock"
 	v1 "github.com/tensorchord/envd/pkg/lang/ir/v0"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	compileuimock "github.com/tensorchord/envd/pkg/progress/compileui/mock"
