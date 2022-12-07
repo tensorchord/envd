@@ -1,4 +1,0 @@
-def build():
-    base(dev=True)
-    install.python()
-    install.python_packages(requirements="./requirements.txt")

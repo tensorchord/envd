@@ -1,8 +1,0 @@
-def build():
-    base(dev=True)
-    install.python()
-    install.python_packages(
-        name=[
-            "via",
-        ]
-    )

@@ -1,0 +1,9 @@
+# syntax=v1
+
+
+def build():
+    base(dev=True)
+    install.conda()
+    install.python()
+    install.python_packages(name=["ipython"])
+    install.apt_packages(name=["ripgrep"])

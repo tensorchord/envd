@@ -258,7 +258,7 @@ func (e dockerEngine) GenerateSSHConfig(name, iface, privateKeyPath string,
 }
 
 func (e dockerEngine) Attach(name, iface, privateKeyPath string,
-	startResult *StartResult) error {
+	startResult *StartResult, g ir.Graph) error {
 	opt := ssh.DefaultOptions()
 	opt.Server = iface
 	opt.PrivateKeyPath = privateKeyPath
@@ -270,7 +270,7 @@ func (e dockerEngine) Attach(name, iface, privateKeyPath string,
 	opt.Server = iface
 
 	if err := sshClient.Attach(
-		ir.DefaultGraph.Shell, ir.DefaultGraph.EnvironmentName); err != nil {
+		g.GetShell(), g.GetEnvironmentName()); err != nil {
 		return errors.Wrap(err, "failed to attach to the container")
 	}
 	return nil
@@ -310,13 +310,14 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	base := fileutil.EnvdHomeDir(filepath.Base(so.BuildContext))
 	config.WorkingDir = base
 
-	if so.DockerSource == nil {
+	if so.DockerSource == nil || so.DockerSource.Graph == nil {
 		return nil, errors.New("failed to get the docker-specific options")
 	}
+
 	g := so.DockerSource.Graph
 
 	mountOption := make([]mount.Mount, 0,
-		len(so.DockerSource.MountOptions)+len(g.Mount)+1)
+		len(so.DockerSource.MountOptions)+len(g.GetMount())+1)
 	for _, option := range so.DockerSource.MountOptions {
 		mStr := strings.Split(option, ":")
 		if len(mStr) != 2 {
@@ -333,7 +334,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 			Target: mStr[1],
 		})
 	}
-	for _, m := range g.Mount {
+	for _, m := range g.GetMount() {
 		logger.WithFields(logrus.Fields{
 			"mount-path":     m.Source,
 			"container-path": m.Destination,
@@ -377,9 +378,10 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	var jupyterPortInHost int
 	// TODO(gaocegege): Avoid specific logic to set the port.
 	// Add a func to builder to generate all the ports from the build process.
-	if g.JupyterConfig != nil {
-		if g.JupyterConfig.Port != 0 {
-			jupyterPortInHost = int(g.JupyterConfig.Port)
+	if g.GetJupyterConfig() != nil {
+		jc := g.GetJupyterConfig()
+		if jc.Port != 0 {
+			jupyterPortInHost = int(jc.Port)
 		} else {
 			var err error
 			jupyterPortInHost, err = netutil.GetFreePort()
@@ -397,7 +399,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		config.ExposedPorts[natPort] = struct{}{}
 	}
 	var rStudioPortInHost int
-	if g.RStudioServerConfig != nil {
+	if g.GetRStudioServerConfig() != nil {
 		var err error
 		rStudioPortInHost, err = netutil.GetFreePort()
 		if err != nil {
@@ -413,8 +415,9 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		config.ExposedPorts[natPort] = struct{}{}
 	}
 
-	if len(g.RuntimeExpose) > 0 {
-		for _, item := range g.RuntimeExpose {
+	if len(g.GetExposedPorts()) > 0 {
+
+		for _, item := range g.GetExposedPorts() {
 			var err error
 			if item.HostPort == 0 {
 				item.HostPort, err = netutil.GetFreePort()
@@ -438,7 +441,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		hostConfig.DeviceRequests = deviceRequests(so.NumGPU)
 	}
 
-	config.Labels = labels(so.EnvironmentName, g,
+	config.Labels = e.labels(g, so.EnvironmentName,
 		sshPortInHost, jupyterPortInHost, rStudioPortInHost)
 
 	logger = logger.WithFields(logrus.Fields{
@@ -639,16 +642,16 @@ func deviceRequests(count int) []container.DeviceRequest {
 	}
 }
 
-func labels(name string, g ir.Graph,
+func (e dockerEngine) labels(g ir.Graph, name string,
 	sshPortInHost, jupyterPortInHost, rstudioServerPortInHost int) map[string]string {
 	res := make(map[string]string)
 	res[types.ContainerLabelName] = name
 	res[types.ContainerLabelSSHPort] = strconv.Itoa(sshPortInHost)
-	if g.JupyterConfig != nil {
+	if g.GetJupyterConfig() != nil {
 		res[types.ContainerLabelJupyterAddr] =
 			fmt.Sprintf("http://%s:%d", Localhost, jupyterPortInHost)
 	}
-	if g.RStudioServerConfig != nil {
+	if g.GetRStudioServerConfig() != nil {
 		res[types.ContainerLabelRStudioServerAddr] =
 			fmt.Sprintf("http://%s:%d", Localhost, rstudioServerPortInHost)
 	}

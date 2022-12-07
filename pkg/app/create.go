@@ -27,7 +27,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/lang/ir"
+	v0 "github.com/tensorchord/envd/pkg/lang/ir/v0"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
@@ -177,8 +177,9 @@ func create(clicontext *cli.Context) error {
 		}
 
 		go func() {
-			if err := sshClient.Attach(ir.DefaultGraph.Shell,
-				ir.DefaultGraph.EnvironmentName); err != nil {
+			// TODO(gaocegege): Avoid the hard code.
+			if err := sshClient.Attach(v0.DefaultGraph.GetShell(),
+				v0.DefaultGraph.GetEnvironmentName()); err != nil {
 				outputChannel <- errors.Wrap(err, "failed to attach to the container")
 			}
 			outputChannel <- nil
