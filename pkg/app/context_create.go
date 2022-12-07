@@ -35,7 +35,7 @@ var CommandContextCreate = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "builder",
-			Usage: "Builder to use (docker-container, kube-pod, tcp, unix)",
+			Usage: "Builder to use (docker-container, podman-container, kube-pod, tcp, unix)",
 			Value: string(types.BuilderTypeDocker),
 		},
 		&cli.StringFlag{
@@ -45,7 +45,7 @@ var CommandContextCreate = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "runner",
-			Usage: "Runner to use(docker, envd-server)",
+			Usage: "Runner to use(docker, podman, envd-server)",
 			Value: string(types.RunnerTypeDocker),
 		},
 		&cli.StringFlag{

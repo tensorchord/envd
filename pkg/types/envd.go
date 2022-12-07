@@ -125,6 +125,7 @@ type BuilderType string
 
 const (
 	BuilderTypeDocker           BuilderType = "docker-container"
+	BuilderTypePodman           BuilderType = "podman-container"
 	BuilderTypeKubernetes       BuilderType = "kube-pod"
 	BuilderTypeTCP              BuilderType = "tcp"
 	BuilderTypeUNIXDomainSocket BuilderType = "unix"
@@ -134,6 +135,7 @@ type RunnerType string
 
 const (
 	RunnerTypeDocker     RunnerType = "docker"
+	RunnerTypePodman     RunnerType = "podman"
 	RunnerTypeEnvdServer RunnerType = "envd-server"
 )
 

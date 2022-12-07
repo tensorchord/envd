@@ -15,6 +15,7 @@
 package cli
 
 import (
+	"os"
 	"os/exec"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -99,6 +100,59 @@ var _ = Describe("home context", func() {
 		})
 
 		AfterAll(func() {
+			err := home.GetManager().ContextUse(defaultContext)
+			Expect(err).NotTo(HaveOccurred())
+			err = home.GetManager().ContextRemove(testContext)
+			Expect(err).NotTo(HaveOccurred())
+			contexts, err := home.GetManager().ContextList()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(contexts.Current).To(Equal(defaultContext))
+		})
+	})
+
+	Describe("add a podman context", Ordered, func() {
+		testContext := "envd_home_test"
+		testBuilder := types.BuilderTypePodman
+		testBuilderAddress := "envd_buildkitd"
+		testRunner := types.RunnerTypePodman
+		c := types.Context{
+			Name:           testContext,
+			Builder:        testBuilder,
+			BuilderAddress: testBuilderAddress,
+			Runner:         testRunner,
+		}
+		originalEnv := os.Getenv("DOCKER_HOST")
+		BeforeAll(func() {
+			os.Setenv("DOCKER_HOST", "unix://"+os.Getenv("XDG_RUNTIME_DIR")+"/podman/podman.sock")
+			err := home.GetManager().ContextCreate(c, true)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should find a new context", func() {
+			contexts, err := home.GetManager().ContextList()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(contexts.Current).To(Equal(testContext))
+		})
+
+		Describe("connect buildkit through podman-container", Ordered, func() {
+			buildContext := "testdata/build-test"
+
+			It("should be able to build image with podman context", func() {
+				args := []string{"envd.test", "--debug", "build", "--path", buildContext}
+				envdApp := app.New()
+				e2e.ResetEnvdApp()
+				err := envdApp.Run(args)
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		It("fail to delete the current context", func() {
+			err := home.GetManager().ContextRemove(testContext)
+			Expect(err).To(HaveOccurred())
+		})
+
+		AfterAll(func() {
+			os.Setenv("DOCKER_HOST", originalEnv)
 			err := home.GetManager().ContextUse(defaultContext)
 			Expect(err).NotTo(HaveOccurred())
 			err = home.GetManager().ContextRemove(testContext)
