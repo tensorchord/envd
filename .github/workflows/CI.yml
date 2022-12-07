@@ -263,6 +263,8 @@ jobs:
       - test
       - e2e-cli
       - e2e-lang
+      - e2e-cli-v1
+      - e2e-lang-v1
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
