@@ -23,50 +23,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (g Graph) compileJulia(baseStage llb.State) (llb.State, error) {
-	if err := g.compileJupyter(); err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
-	}
-
-	aptStage := g.compileUbuntuAPT(baseStage)
-	builtinSystemStage := aptStage
-
-	sshStage, err := g.copySSHKey(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
-	}
-	diffSSHStage := llb.Diff(builtinSystemStage, sshStage, llb.WithCustomName("install ssh keys"))
-
-	shellStage, err := g.compileShell(builtinSystemStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile shell")
-	}
-	diffShellStage := llb.Diff(builtinSystemStage, shellStage, llb.WithCustomName("install shell"))
-
-	systemStage := llb.Diff(builtinSystemStage, g.compileSystemPackages(builtinSystemStage),
-		llb.WithCustomName("install system packages"))
-
-	juliaStage := llb.Diff(builtinSystemStage,
-		g.installJuliaPackages(builtinSystemStage), llb.WithCustomName("install julia packages"))
-
-	vscodeStage, err := g.compileVSCode()
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
-	}
-
-	var merged llb.State
-	if vscodeStage != nil {
-		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, diffShellStage,
-			diffSSHStage, juliaStage, *vscodeStage,
-		}, llb.WithCustomName("[internal] generating the image"))
-	} else {
-		merged = llb.Merge([]llb.State{
-			builtinSystemStage, systemStage, diffShellStage,
-			diffSSHStage, juliaStage,
-		}, llb.WithCustomName("[internal] generating the image"))
-	}
-	return merged, nil
+func (g Graph) installJulia(root llb.State) (llb.State, error) {
+	return llb.State{}, errors.New("not implemented")
 }
 
 func (g Graph) installJuliaPackages(root llb.State) llb.State {
@@ -93,7 +51,6 @@ func (g Graph) installJuliaPackages(root llb.State) llb.State {
 	if g.JuliaPackageServer != nil {
 		root = root.AddEnv("JULIA_PKG_SERVER", *g.JuliaPackageServer)
 	}
-	root = root.AddEnv("PATH", "/usr/local/julia/bin")
 	run := root.
 		Run(llb.Shlex(cmd), llb.WithCustomNamef("install julia packages"))
 

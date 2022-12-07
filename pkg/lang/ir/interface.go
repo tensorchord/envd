@@ -15,29 +15,53 @@
 package ir
 
 import (
+	"strings"
+
 	"github.com/cockroachdb/errors"
 	"github.com/opencontainers/go-digest"
+	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func Base(os, language, image string) error {
-	l, version, err := parseLanguage(language)
-	if err != nil {
-		return err
-	}
-	DefaultGraph.Language = Language{
-		Name:    l,
-		Version: version,
-	}
-	if len(os) > 0 {
-		DefaultGraph.OS = os
-	}
+func Base(image string, dev bool) error {
 	if image != "" {
-		DefaultGraph.Image = &image
+		DefaultGraph.Image = image
+	}
+	DefaultGraph.Dev = dev
+	return nil
+}
+
+func Python(version string) error {
+	if strings.HasPrefix(version, "2") {
+		logrus.Debugf("envd doesn't support Python2: %s", version)
+		return errors.New("envd doesn't support this Python version")
+	}
+
+	DefaultGraph.Language = Language{
+		Name:    "python",
+		Version: &version,
 	}
 	return nil
+}
+
+func Conda(mamba bool) {
+	DefaultGraph.CondaConfig = &CondaConfig{
+		UseMicroMamba: mamba,
+	}
+}
+
+func RLang() {
+	DefaultGraph.Language = Language{
+		Name: "r",
+	}
+}
+
+func Julia() {
+	DefaultGraph.Language = Language{
+		Name: "julia",
+	}
 }
 
 func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {
@@ -150,9 +174,11 @@ func Git(name, email, editor string) error {
 	return nil
 }
 
-func CondaChannel(channel string, useMamba bool) error {
+func CondaChannel(channel string) error {
+	if DefaultGraph.CondaConfig == nil {
+		return errors.New("cannot config conda when conda is not installed")
+	}
 	DefaultGraph.CondaConfig.CondaChannel = &channel
-	DefaultGraph.CondaConfig.UseMicroMamba = useMamba
 	return nil
 }
 

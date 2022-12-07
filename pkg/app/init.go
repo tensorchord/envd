@@ -107,7 +107,7 @@ func NewPythonEnv(dir string) (*pythonEnv, error) {
 		return nil, err
 	}
 	return &pythonEnv{
-		pythonVersion: "python", // use the default one
+		pythonVersion: "", // use the default one
 		requirements:  requirements,
 		condaEnv:      condaEnv,
 		indent:        "    ",
@@ -118,7 +118,8 @@ func NewPythonEnv(dir string) (*pythonEnv, error) {
 func (pe *pythonEnv) generate() []byte {
 	var buf bytes.Buffer
 	buf.WriteString("def build():\n")
-	buf.WriteString(fmt.Sprintf("%sbase(os=\"ubuntu20.04\", language=\"%s\")\n", pe.indent, pe.pythonVersion))
+	buf.WriteString(fmt.Sprintf("%sbase(dev=True)\n", pe.indent))
+	buf.WriteString(fmt.Sprintf("%sinstall.python(version=\"%s\")\n", pe.indent, pe.pythonVersion))
 	if len(pe.requirements) > 0 {
 		buf.WriteString(fmt.Sprintf("%sinstall.python_packages(requirements=\"%s\")\n", pe.indent, pe.requirements))
 	}

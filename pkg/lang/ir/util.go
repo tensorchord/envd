@@ -20,6 +20,7 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"os/user"
 	"regexp"
 	"strconv"
@@ -138,4 +139,16 @@ func GetDefaultGraphHash() string {
 	data := b.Bytes()
 	hashD := md5.Sum(data)
 	return hex.EncodeToString(hashD[:])
+}
+
+// GetCUDAImage finds the correct CUDA base image
+// refer to https://hub.docker.com/r/nvidia/cuda/tags
+func GetCUDAImage(image string, cuda *string, cudnn string, dev bool) string {
+	// TODO: support CUDA 10
+	target := "runtime"
+	if dev {
+		target = "devel"
+	}
+
+	return fmt.Sprintf("docker.io/nvidia:%s-cudnn%s-%s-%s", *cuda, cudnn, target, image)
 }

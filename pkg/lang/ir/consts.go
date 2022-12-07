@@ -17,7 +17,7 @@ package ir
 import "github.com/tensorchord/envd/pkg/util/fileutil"
 
 const (
-	osDefault              = "ubuntu20.04"
+	defaultImage           = "ubuntu:20.04"
 	languageDefault        = "python"
 	languageVersionDefault = "3"
 	CUDNNVersionDefault    = "8"

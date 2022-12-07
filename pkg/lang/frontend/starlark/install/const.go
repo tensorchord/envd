@@ -15,11 +15,20 @@
 package install
 
 const (
+	// language
+	rulePython = "install.python"
+	ruleConda  = "install.conda"
+	ruleRLang  = "install.r_lang"
+	ruleJulia  = "install.julia"
+
+	// packages
 	ruleSystemPackage = "install.apt_packages"
 	rulePyPIPackage   = "install.python_packages"
+	ruleCondaPackages = "install.conda_packages"
 	ruleRPackage      = "install.r_packages"
-	ruleCUDA          = "install.cuda"
-	ruleVSCode        = "install.vscode_extensions"
-	ruleConda         = "install.conda_packages"
-	ruleJulia         = "install.julia_packages"
+	ruleJuliaPackages = "install.julia_packages"
+
+	// others
+	ruleCUDA   = "install.cuda"
+	ruleVSCode = "install.vscode_extensions"
 )

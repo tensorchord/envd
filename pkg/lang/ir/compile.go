@@ -42,9 +42,8 @@ func NewGraph() *Graph {
 		RuntimeEnviron:  make(map[string]string),
 	}
 	langVersion := languageVersionDefault
-	conda := &CondaConfig{}
 	return &Graph{
-		OS: osDefault,
+		Image: defaultImage,
 		Language: Language{
 			Name:    languageDefault,
 			Version: &langVersion,
@@ -61,7 +60,6 @@ func NewGraph() *Graph {
 		UserDirectories: []string{},
 		RuntimeEnvPaths: []string{types.DefaultPathEnv()},
 		Shell:           shellBASH,
-		CondaConfig:     conda,
 		RuntimeGraph:    runtimeGraph,
 	}
 }
@@ -114,14 +112,16 @@ func CompileEntrypoint(buildContextDir string) ([]string, error) {
 }
 
 func CompileEnviron() []string {
-	if DefaultGraph.Image != nil {
-		return DefaultGraph.EnvString()
-	}
 	// Add PATH and LC_ALL.
 	return append(DefaultGraph.EnvString(),
 		"PATH="+strings.Join(DefaultGraph.RuntimeEnvPaths, ":"),
 		"LC_ALL=en_US.UTF-8",
+		"LANG=C.UTF-8",
 	)
+}
+
+func GetUser() string {
+	return DefaultGraph.User
 }
 
 func (g Graph) GPUEnabled() bool {
@@ -203,8 +203,8 @@ func (g Graph) Labels() (map[string]string, error) {
 func (g Graph) ExposedPorts() (map[string]struct{}, error) {
 	ports := make(map[string]struct{})
 
-	// do not expose ports for custom images
-	if g.Image != nil {
+	// only expose ports for dev env
+	if !g.Dev {
 		return ports, nil
 	}
 
@@ -251,14 +251,14 @@ func (g Graph) DefaultCacheImporter() (*string, error) {
 }
 
 func (g *Graph) GetEntrypoint(buildContextDir string) ([]string, error) {
-	if g.Image != nil {
+	if !g.Dev {
 		return g.Entrypoint, nil
 	}
 	g.RuntimeEnviron[types.EnvdWorkDir] = fileutil.EnvdHomeDir(filepath.Base(buildContextDir))
 	return []string{"horust"}, nil
 }
 
-func (g Graph) Compile(uid, gid int) (llb.State, error) {
+func (g *Graph) Compile(uid, gid int) (llb.State, error) {
 	g.uid = uid
 
 	// TODO(gaocegege): Remove the hack for https://github.com/tensorchord/envd/issues/370
@@ -268,49 +268,73 @@ func (g Graph) Compile(uid, gid int) (llb.State, error) {
 		"gid": g.gid,
 	}).Debug("compile LLB")
 
-	// TODO(gaocegege): Support more OS and langs.
-	aptStage, err := g.compileBase()
+	base, err := g.compileBaseImage()
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get the base image")
 	}
-	var merged llb.State
-	// Use custom logic when image is specified.
-	if g.Image != nil {
-		merged, err = g.compileCustomPython(aptStage)
-		if err != nil {
-			return llb.State{}, errors.Wrap(err, "failed to compile custom python image")
-		}
-	} else {
-		switch g.Language.Name {
-		case "r":
-			merged, err = g.compileRLang(aptStage)
-			if err != nil {
-				return llb.State{}, errors.Wrap(err, "failed to compile r language")
-			}
-		case "python":
-			merged, err = g.compilePython(aptStage)
-			if err != nil {
-				return llb.State{}, errors.Wrap(err, "failed to compile python")
-			}
-		case "julia":
-			merged, err = g.compileJulia(aptStage)
-			if err != nil {
-				return llb.State{}, errors.Wrap(err, "failed to compile julia")
-			}
-		}
+
+	// prepare dev env: stable operations should be done here to make it cache friendly
+	if g.Dev {
+		dev := g.compileDevPackages(base)
+		sshd := g.compileSSHD(dev)
+		horust := g.installHorust(sshd)
+		userGroup := g.compileUserGroup(horust)
+		base = userGroup
 	}
 
-	prompt := g.compilePrompt(merged)
-	copy := g.compileCopy(prompt)
-	// TODO(gaocegege): Support order-based exec.
-	run := g.compileRun(copy)
-	git := g.compileGit(run)
-	user := g.compileUserOwn(git)
-	mount := g.compileMountDir(user)
-	entrypoint, err := g.compileEntrypoint(mount)
+	lang, err := g.compileLanguage(base)
 	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
+		return llb.State{}, errors.Wrap(err, "failed to compile language")
 	}
+	aptMirror := g.compileUbuntuAPT(base)
+	systemPackages := g.compileSystemPackages(aptMirror)
+	merge := llb.Merge([]llb.State{
+		base,
+		llb.Diff(base, lang, llb.WithCustomName("[internal] prepare language")),
+		llb.Diff(base, systemPackages, llb.WithCustomName("[internal] install system packages")),
+	}, llb.WithCustomName("[internal] language environment and system packages"))
+	packages := g.compileLanguagePackages(merge)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile language")
+	}
+
+	source, err := g.compileExtraSource(packages)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to compile extra source")
+	}
+	copy := g.compileCopy(source)
+
+	// dev postprocessing: related to UID, which may not be cached
+	if g.Dev {
+		git := g.compileGit(copy)
+		user := g.compileUserOwn(git)
+		key, err := g.copySSHKey(user)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to copy ssh key")
+		}
+		shell, err := g.compileShell(key)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to compile shell")
+		}
+		prompt := g.compilePrompt(shell)
+		entrypoint, err := g.compileEntrypoint(prompt)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
+		}
+		vscode, err := g.compileVSCode()
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to compile VSCode extensions")
+		}
+		copy = llb.Merge([]llb.State{
+			entrypoint,
+			vscode,
+		}, llb.WithCustomName("[internal] final dev environment"))
+	}
+
+	// it's necessary to exec `run`` with the desired user
+	run := g.compileRun(copy)
+	mount := g.compileMountDir(run)
+
 	g.Writer.Finish()
-	return entrypoint, nil
+	return mount, nil
 }

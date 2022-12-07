@@ -28,21 +28,32 @@ import (
 )
 
 const (
+	builderImage        = "curlimages/curl:7.86.0"
 	condaVersionDefault = "py39_4.11.0"
-	// check the issue https://github.com/mamba-org/mamba/issues/1975
-	mambaVersionDefault = "0.25.1"
+	microMambaImage     = "mambaorg/micromamba:1.0.0"
 	condaRootPrefix     = "/opt/conda"
 	condaBinDir         = "/opt/conda/bin"
+	condaSourcePath     = "/tmp/miniconda.sh"
+
+	mambaRc = `
+channels:
+    - conda-forge
+`
+	mambaActivate = `
+#!/bin/sh
+eval "$(/opt/conda/bin/micromamba shell hook --shell=bash)" || return $?
+micromamba activate "$@"
+`
 )
 
 var (
 	// this file can be used by both conda and mamba
 	// https://mamba.readthedocs.io/en/latest/user_guide/configuration.html#multiple-rc-files
 	condarc = "/opt/conda/.condarc"
-	//go:embed install-conda.sh
+	//go:embed get_conda.sh
+	downloadCondaBash string
+	//go:embed install_conda.sh
 	installCondaBash string
-	//go:embed install-mamba.sh
-	installMambaBash string
 )
 
 func (g Graph) compileCondaChannel(root llb.State) llb.State {
@@ -112,8 +123,9 @@ func (g *Graph) compileCondaPackages(root llb.State) llb.State {
 
 	cmd := sb.String()
 	run = root.Dir(g.getWorkingDir()).
+		AddEnv("MAMBA_ROOT_PREFIX", condaRootPrefix).
 		Run(llb.Shlex(cmd), llb.WithCustomNamef("[internal] %s %s",
-			cmd, strings.Join(g.CondaPackages, " ")))
+			cmd, strings.Join(g.CondaConfig.CondaPackages, " ")))
 	run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext))
 	run.AddMount(cacheDir, cacheMount,
 		llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache-conda"))
@@ -140,19 +152,50 @@ func (g Graph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 }
 
 // nolint:unparam
-func (g Graph) installConda(root llb.State) (llb.State, error) {
+func (g *Graph) installConda(root llb.State) llb.State {
 	if g.CondaConfig.UseMicroMamba {
-		run := root.AddEnv("MAMBA_BIN_DIR", condaBinDir).
-			AddEnv("MAMBA_ROOT_PREFIX", condaRootPrefix).
-			AddEnv("MAMBA_VERSION", mambaVersionDefault).
-			Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installMambaBash)),
-				llb.WithCustomName("[internal] install micro mamba"))
-		return run.Root(), nil
+		return g.installMicroMamba(root)
 	}
-	run := root.AddEnv("CONDA_VERSION", condaVersionDefault).
+	return g.installMiniConda(root)
+}
+
+func (g Graph) installMiniConda(root llb.State) llb.State {
+	base := llb.Image(builderImage)
+	builder := base.AddEnv("CONDA_VERSION", condaVersionDefault).
+		Run(llb.Shlexf("sh -c '%s'", downloadCondaBash),
+			llb.WithCustomName("[internal] download conda")).Root()
+	conda := root.
+		File(llb.Copy(builder, condaSourcePath, condaSourcePath),
+			llb.WithCustomName("copy conda from builder")).
 		File(llb.Mkdir(condaRootPrefix, 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] create conda directory")).
-		Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installCondaBash)),
-			llb.WithCustomName("[internal] install conda"))
-	return run.Root(), nil
+		Run(llb.Shlexf("bash -c '%s'", installCondaBash),
+			llb.WithCustomName("[internal] install conda")).Root().
+		File(llb.Rm(condaSourcePath), llb.WithCustomName("[internal] rm conda source file"))
+	return conda
+}
+
+func (g *Graph) installMicroMamba(root llb.State) llb.State {
+	g.RuntimeEnviron["MAMBA_ROOT_PREFIX"] = condaRootPrefix
+	g.RuntimeEnviron["MAMBA_TARGET_PREFIX"] = condaRootPrefix
+	mamba := root.
+		AddEnv("MAMBA_ROOT_PREFIX", condaRootPrefix).
+		AddEnv("MAMBA_TARGET_PREFIX", condaRootPrefix).
+		File(llb.Mkdir(certPath, 0755, llb.WithParents(true)),
+			llb.WithCustomName("[internal] mkdir certs")).
+		File(llb.Copy(llb.Image(microMambaImage), fmt.Sprintf("%s/%s", certPath, "ca-certificates.crt"), certPath),
+			llb.WithCustomName("[internal] copy cert from mamba")).
+		File(llb.Mkdir(condaBinDir, 0755, llb.WithParents(true)),
+			llb.WithCustomName("[internal] create mamba path")).
+		File(llb.Copy(llb.Image(microMambaImage), "/bin/micromamba", condaBinDir),
+			llb.WithCustomName("[internal] copy micromamba binary")).
+		File(llb.Mkfile(fmt.Sprintf("%s/.mambarc", condaRootPrefix), 0644, []byte(mambaRc)),
+			llb.WithCustomName("[internal] create the mamba rc file")).
+		File(llb.Mkfile(fmt.Sprintf("%s/activate", condaBinDir), 0755, []byte(mambaActivate)),
+			llb.WithCustomName("[internal] create the mamba activate file")).
+		Run(llb.Shlexf("update-alternatives --install /usr/bin/conda conda %s/micromamba 1", condaBinDir),
+			llb.WithCustomName("[internal] update alternative micromamba to conda")).
+		Run(llb.Shlexf("bash -c \"%s/micromamba shell init --shell bash\"", condaBinDir),
+			llb.WithCustomName("[internal] init micromamba for bash")).Root()
+	return mamba
 }

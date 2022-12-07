@@ -14,14 +14,5 @@ elif [ "${UNAME_M}" = "ppc64le" ]; then \
 	SHA256SUM="8ee1f8d17ef7c8cb08a85f7d858b1cb55866c06fcf7545b98c3b82e4d0277e66"; \
 fi && \
 wget "${MINICONDA_URL}" -O /tmp/miniconda.sh && \
-echo "${SHA256SUM} /tmp/miniconda.sh" > /tmp/shasum && \
-if [ "${CONDA_VERSION}" != "latest" ]; then sha256sum --check --status /tmp/shasum; fi && \
-mkdir -p /opt && \
-sh /tmp/miniconda.sh -b -u -p /opt/conda && \
-rm /tmp/miniconda.sh /tmp/shasum && \
-echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-echo "conda activate base" >> ~/.bashrc && \
-echo -e "channels:\n  - conda-forge" > /opt/conda/.condarc && \
-find /opt/conda/ -follow -type f -name '*.a' -delete && \
-find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
-/opt/conda/bin/conda clean -afy
+echo "${SHA256SUM}  /tmp/miniconda.sh" > /tmp/shasum && \
+if [ "${CONDA_VERSION}" != "latest" ]; then sha256sum -c -s /tmp/shasum; fi

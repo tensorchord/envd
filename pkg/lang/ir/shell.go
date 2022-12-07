@@ -44,39 +44,40 @@ disabled = false
 `
 )
 
-func (g *Graph) compileShell(root llb.State) (llb.State, error) {
+func (g *Graph) compileShell(root llb.State) (_ llb.State, err error) {
+	g.RuntimeEnviron["SHELL"] = "/usr/bin/bash"
 	if g.Shell == shellZSH {
 		g.RuntimeEnviron["SHELL"] = "/usr/bin/zsh"
-		return g.compileZSH(root)
+		root, err = g.compileZSH(root)
+		if err != nil {
+			return llb.State{}, err
+		}
 	}
-	g.RuntimeEnviron["SHELL"] = "/usr/bin/bash"
+	if g.CondaConfig != nil {
+		root = g.compileCondaShell(root)
+	}
 	return root, nil
 }
 
 func (g *Graph) compileCondaShell(root llb.State) llb.State {
 	var run llb.ExecState
-	switch g.Shell {
-	case shellBASH:
-		run = root.Run(
-			llb.Shlex(
-				fmt.Sprintf(`bash -c 'echo "source %s/activate envd" >> %s'`,
-					condaBinDir, fileutil.EnvdHomeDir(".bashrc"))),
-			llb.WithCustomName("[internal] add conda environment to bashrc"))
-	case shellZSH:
-		run = root.Run(
-			llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.condaInitShell(g.Shell))),
-			llb.WithCustomNamef("[internal] initialize conda %s environment", g.Shell)).Run(
-			llb.Shlex(fmt.Sprintf(`bash -c 'echo "source %s/activate envd" >> %s'`, condaBinDir, fileutil.EnvdHomeDir(".zshrc"))),
-			llb.WithCustomName("[internal] add conda environment to zshrc"))
+	findDir := fileutil.DefaultHomeDir
+	if g.Dev {
+		findDir = fileutil.EnvdHomeDir
 	}
+	rcPath := findDir(".bashrc")
+	if g.Shell == shellZSH {
+		rcPath = findDir(".zshrc")
+	}
+	run = root.
+		Run(llb.Shlexf("bash -c \"%s\"", g.condaInitShell(g.Shell)),
+			llb.WithCustomNamef("[internal] init conda %s env", g.Shell)).
+		Run(llb.Shlexf(`bash -c 'echo "source %s/activate envd" >> %s'`, condaBinDir, rcPath),
+			llb.WithCustomName("[internal] add conda environment to zshrc"))
 	return run.Root()
 }
 
 func (g *Graph) compilePrompt(root llb.State) llb.State {
-	// skip this for customized image
-	if g.Image != nil {
-		return root
-	}
 	// starship config
 	config := root.
 		File(llb.Mkdir(defaultConfigDir, 0755, llb.WithParents(true)),
@@ -108,12 +109,10 @@ func (g Graph) compileZSH(root llb.State) (llb.State, error) {
 	}
 	zshStage := root.
 		File(llb.Copy(llb.Local(flag.FlagCacheDir), "oh-my-zsh", ohMyZSHPath,
-			&llb.CopyInfo{CreateDestPath: true}, llb.WithUIDGID(g.uid, g.gid))).
-		File(llb.Mkfile(installPath,
-			0644, []byte(m.InstallScript()), llb.WithUIDGID(g.uid, g.gid)))
+			&llb.CopyInfo{CreateDestPath: true})).
+		File(llb.Mkfile(installPath, 0666, []byte(m.InstallScript())))
 	zshrc := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)),
 		llb.WithCustomName("[internal] install oh-my-zsh")).
-		File(llb.Mkfile(zshrcPath,
-			0644, []byte(m.ZSHRC()), llb.WithUIDGID(g.uid, g.gid)))
+		File(llb.Mkfile(zshrcPath, 0666, []byte(m.ZSHRC())))
 	return zshrc, nil
 }
