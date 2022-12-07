@@ -24,6 +24,6 @@ var _ = Describe("Starlark", func() {
 		filename := "testdata/test.envd"
 		hash, err := GetEnvdProgramHash(filename)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(hash).To(Equal("cff1c81818116d42"))
+		Expect(hash).To(Equal("1292b11c2ac16f70"))
 	})
 })
