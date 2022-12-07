@@ -43,11 +43,11 @@ func NewGraph() ir.Graph {
 		RuntimeEnviron:  make(map[string]string),
 	}
 	return &generalGraph{
-		Image: defaultImage,
+		Image:    defaultImage,
 		Language: ir.Language{},
-		CUDA:    nil,
-		CUDNN:   CUDNNVersionDefault,
-		NumGPUs: 0,
+		CUDA:     nil,
+		CUDNN:    CUDNNVersionDefault,
+		NumGPUs:  0,
 
 		PyPIPackages:    []string{},
 		RPackages:       []string{},
