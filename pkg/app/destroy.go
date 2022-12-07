@@ -74,7 +74,9 @@ func destroy(clicontext *cli.Context) error {
 	}
 	telemetry.GetReporter().Telemetry("destroy", telemetry.AddField("runner", context.Runner))
 
-	opt := envd.Options{Context: context}
+	opt := envd.Options{
+		Context: context,
+	}
 	envdEngine, err := envd.New(clicontext.Context, opt)
 	if err != nil {
 		return errors.Wrap(err, "failed to create envd engine")

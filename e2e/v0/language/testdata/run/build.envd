@@ -1,0 +1,11 @@
+def build():
+    base(os="ubuntu20.04", language="python3")
+    shell("zsh")
+    run(
+        commands=[
+            "mkdir test",
+            "cd test",
+            "ls",
+            "pwd",
+        ]
+    )

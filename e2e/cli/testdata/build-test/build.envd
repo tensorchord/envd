@@ -1,4 +1,0 @@
-def build():
-    base(dev=True)
-    install.conda()
-    install.python()

@@ -193,7 +193,7 @@ e2e-cli-test:
 		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
 		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
 		-X $(ROOT)/pkg/version.developmentFlag=true" \
-		-race -v -timeout 20m -coverpkg=./pkg/... -coverprofile=e2e-cli-coverage.out ./e2e/cli
+		-race -v -timeout 20m -coverpkg=./pkg/... -coverprofile=e2e-cli-coverage.out ./e2e/v0/cli
 
 e2e-lang-test:
 	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
@@ -202,7 +202,7 @@ e2e-lang-test:
 		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
 		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
 		-X $(ROOT)/pkg/version.developmentFlag=true" \
-		-race -v -timeout 20m -coverpkg=./pkg/... -coverprofile=e2e-lang-coverage.out ./e2e/language
+		-race -v -timeout 20m -coverpkg=./pkg/... -coverprofile=e2e-lang-coverage.out ./e2e/v0/language
 
 e2e-doc-test:
 	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
@@ -211,8 +211,34 @@ e2e-doc-test:
 		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
 		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
 		-X $(ROOT)/pkg/version.developmentFlag=true" \
-		-race -v -timeout 60m -coverpkg=./pkg/... -coverprofile=e2e-doc-coverage.out ./e2e/docs
+		-race -v -timeout 60m -coverpkg=./pkg/... -coverprofile=e2e-doc-coverage.out ./e2e/v0/docs
 
+e2e-cli-test-v1:
+	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
+		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
+		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
+		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
+		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
+		-X $(ROOT)/pkg/version.developmentFlag=true" \
+		-race -v -timeout 20m -coverpkg=./pkg/... -coverprofile=e2e-cli-v1-coverage.out ./e2e/v1/cli
+
+e2e-lang-test-v1:
+	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
+		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
+		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
+		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
+		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
+		-X $(ROOT)/pkg/version.developmentFlag=true" \
+		-race -v -timeout 20m -coverpkg=./pkg/... -coverprofile=e2e-lang-v1-coverage.out ./e2e/v1/language
+
+e2e-doc-test-v1:
+	@go test -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
+		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
+		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
+		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
+		-X $(ROOT)/pkg/version.gitTag="$(shell git describe --tags --abbrev=0)" \
+		-X $(ROOT)/pkg/version.developmentFlag=true" \
+		-race -v -timeout 60m -coverpkg=./pkg/... -coverprofile=e2e-doc-v1-coverage.out ./e2e/v1/docs
 
 clean:  ## Clean the outputs and artifacts
 	@-rm -vrf ${OUTPUT_DIR}

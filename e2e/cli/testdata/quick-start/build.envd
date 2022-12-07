@@ -1,9 +1,0 @@
-def build():
-    base(dev=True)
-    install.python()
-    install.python_packages(
-        name=[
-            "numpy",
-        ]
-    )
-    shell("zsh")
