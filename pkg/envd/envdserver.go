@@ -36,7 +36,6 @@ import (
 
 type envdServerEngine struct {
 	*client.Client
-	graph     ir.Graph
 	Loginname string
 }
 
