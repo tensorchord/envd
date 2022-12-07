@@ -24,7 +24,6 @@ import (
 	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -105,7 +104,7 @@ func run(clicontext *cli.Context) error {
 		if err := builder.Interpret(); err != nil {
 			return errors.Wrap(err, "failed to interpret the build file")
 		}
-		if cmd, ok := ir.DefaultGraph.RuntimeCommands[command]; !ok {
+		if cmd, ok := builder.GetGraph().GetRuntimeCommands()[command]; !ok {
 			return errors.Newf("command %s does not exist", command)
 		} else {
 			resultCommand = cmd

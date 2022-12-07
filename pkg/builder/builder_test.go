@@ -27,8 +27,8 @@ import (
 
 	mockbuildkitd "github.com/tensorchord/envd/pkg/buildkitd/mock"
 	"github.com/tensorchord/envd/pkg/home"
-	mockstarlark "github.com/tensorchord/envd/pkg/lang/frontend/starlark/mock"
-	"github.com/tensorchord/envd/pkg/lang/ir"
+	mockstarlark "github.com/tensorchord/envd/pkg/lang/frontend/starlark/v0/mock"
+	v1 "github.com/tensorchord/envd/pkg/lang/ir/v0"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	compileuimock "github.com/tensorchord/envd/pkg/progress/compileui/mock"
 	"github.com/tensorchord/envd/pkg/progress/progresswriter"
@@ -70,7 +70,7 @@ var _ = Describe("Builder", func() {
 
 				ctrlWriter := gomock.NewController(GinkgoT())
 				w = compileuimock.NewMockWriter(ctrlWriter)
-				ir.DefaultGraph.Writer = w
+				v1.DefaultGraph.SetWriter(w)
 			})
 
 			When("build error", func() {

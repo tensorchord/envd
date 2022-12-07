@@ -1,0 +1,9 @@
+def build():
+    base(os="ubuntu20.04", language="python3")
+    install.python_packages(
+        name=[
+            "numpy",
+        ]
+    )
+    shell("zsh")
+    runtime.command(commands={"numpy": "python demo.py"})

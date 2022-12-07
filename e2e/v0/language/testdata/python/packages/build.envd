@@ -1,0 +1,2 @@
+def build():
+    install.python_packages(name=["via"])
