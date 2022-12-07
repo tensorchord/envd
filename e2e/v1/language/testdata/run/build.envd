@@ -1,0 +1,15 @@
+# syntax=v1
+
+
+def build():
+    base(dev=True)
+    install.python()
+    shell("zsh")
+    run(
+        commands=[
+            "mkdir test",
+            "cd test",
+            "ls",
+            "pwd",
+        ]
+    )

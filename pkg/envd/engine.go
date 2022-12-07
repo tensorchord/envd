@@ -20,6 +20,7 @@ import (
 
 	dockertypes "github.com/docker/docker/api/types"
 
+	"github.com/tensorchord/envd/pkg/lang/ir"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
 )
@@ -52,7 +53,8 @@ type EnvironmentClient interface {
 type SSHClient interface {
 	GenerateSSHConfig(name, iface, privateKeyPath string,
 		startResult *StartResult) (sshconfig.EntryOptions, error)
-	Attach(name, iface, privateKeyPath string, startResult *StartResult) error
+	Attach(name, iface, privateKeyPath string,
+		startResult *StartResult, g ir.Graph) error
 }
 
 type ImageClient interface {

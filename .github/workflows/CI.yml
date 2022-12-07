@@ -121,6 +121,42 @@ jobs:
         with:
           name: e2e-cli-coverage-out
           path: e2e-cli-coverage.out
+  e2e-cli-v1:
+    name: e2e-cli-v1
+    env:
+      # Disable telemetry.
+      ENVD_ANALYTICS: false
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Cache Go modules
+        uses: actions/cache@preview
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
+      - name: e2e test
+        run: make e2e-cli-test-v1
+        env:
+          GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-cli-v1-coverage-out
+          path: e2e-cli-v1-coverage.out
   e2e-lang:
     name: e2e-lang
     env:
@@ -157,6 +193,42 @@ jobs:
         with:
           name: e2e-lang-coverage-out
           path: e2e-lang-coverage.out
+  e2e-lang-v1:
+    name: e2e-lang-v1
+    env:
+      # Disable telemetry.
+      ENVD_ANALYTICS: false
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Cache Go modules
+        uses: actions/cache@preview
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
+      - name: e2e test
+        run: make e2e-lang-test-v1
+        env:
+          GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-lang-v1-coverage-out
+          path: e2e-lang-v1-coverage.out
   build:
     name: build
     env:
@@ -191,6 +263,8 @@ jobs:
       - test
       - e2e-cli
       - e2e-lang
+      - e2e-cli-v1
+      - e2e-lang-v1
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -207,7 +281,7 @@ jobs:
         with:
           name: coverage-out
           path: merge
-      
+
       - name: Get cli e2e coverage report
         uses: actions/download-artifact@v3
         with:
@@ -217,6 +291,16 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: e2e-lang-coverage-out
+          path: merge
+      - name: Get cli v1 e2e coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: e2e-cli-v1-coverage-out
+          path: merge
+      - name: Get language v1 e2e coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: e2e-lang-v1-coverage-out
           path: merge
       - name: Merge all coverage reports
         uses: cutecutecat/go-cover-merge@v1

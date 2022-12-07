@@ -36,12 +36,12 @@ const (
 )
 
 func ImageConfigStr(labels map[string]string, ports map[string]struct{},
-	entrypoint []string, env []string) (string, error) {
+	entrypoint []string, env []string, user string) (string, error) {
 	pl := platforms.Normalize(platforms.DefaultSpec())
 	img := v1.Image{
 		Config: v1.ImageConfig{
 			Labels:       labels,
-			User:         "envd",
+			User:         user,
 			WorkingDir:   "/",
 			Env:          env,
 			ExposedPorts: ports,

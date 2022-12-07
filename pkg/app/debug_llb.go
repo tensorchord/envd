@@ -28,6 +28,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	buildutil "github.com/tensorchord/envd/pkg/app/build"
 	"github.com/tensorchord/envd/pkg/app/telemetry"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
@@ -70,7 +71,7 @@ var CommandDebugLLB = &cli.Command{
 
 func debugLLB(clicontext *cli.Context) error {
 	telemetry.GetReporter().Telemetry("debug-llb")
-	opt, err := ParseBuildOpt(clicontext)
+	opt, err := buildutil.ParseBuildOpt(clicontext)
 	if err != nil {
 		return err
 	}
@@ -85,11 +86,11 @@ func debugLLB(clicontext *cli.Context) error {
 		"builder-options": opt,
 	}).Debug("starting debug llb command")
 
-	builder, err := GetBuilder(clicontext, opt)
+	builder, err := buildutil.GetBuilder(clicontext, opt)
 	if err != nil {
 		return err
 	}
-	if err = InterpretEnvdDef(builder); err != nil {
+	if err = buildutil.InterpretEnvdDef(builder); err != nil {
 		return err
 	}
 

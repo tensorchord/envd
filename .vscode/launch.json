@@ -7,7 +7,6 @@
       "request": "launch",
       "mode": "exec",
       "program": "${workspaceFolder}/debug-bin/envd",
-      "cwd": "directory containing build.envd",
       "args": [
         "up"
       ]

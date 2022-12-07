@@ -1,0 +1,15 @@
+# syntax=v1
+
+
+def build():
+    base(dev=True)
+    install.conda()
+    install.python()
+    config.conda_channel(
+        channel="""
+channels:
+  - defaults
+  - dglteam # dgllife in env.yaml only works if specify channels here
+    """
+    )
+    install.conda_packages(env_file="env.yaml")

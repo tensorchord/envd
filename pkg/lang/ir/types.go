@@ -16,68 +16,7 @@ package ir
 
 import (
 	"github.com/opencontainers/go-digest"
-
-	"github.com/tensorchord/envd/pkg/editor/vscode"
-	"github.com/tensorchord/envd/pkg/progress/compileui"
-	"github.com/tensorchord/envd/pkg/types"
 )
-
-// A Graph contains the state,
-// such as its call stack and thread-local storage.
-// TODO(gaocegeg): Refactor it to support order.
-type Graph struct {
-	uid int
-	gid int
-
-	OS string
-	Language
-	Image *string
-
-	Shell   string
-	CUDA    *string
-	CUDNN   string
-	NumGPUs int
-
-	UbuntuAPTSource    *string
-	CRANMirrorURL      *string
-	JuliaPackageServer *string
-	PyPIIndexURL       *string
-	PyPIExtraIndexURL  *string
-
-	PublicKeyPath string
-
-	PyPIPackages     []string
-	RequirementsFile *string
-	PythonWheels     []string
-	RPackages        []string
-	JuliaPackages    []string
-	SystemPackages   []string
-
-	VSCodePlugins   []vscode.Plugin
-	UserDirectories []string
-	RuntimeEnvPaths []string
-
-	Exec       []RunBuildCommand
-	Copy       []CopyInfo
-	Mount      []MountInfo
-	HTTP       []HTTPInfo
-	Entrypoint []string
-
-	Repo types.RepoInfo
-
-	*JupyterConfig
-	*GitConfig
-	*CondaConfig
-	*RStudioServerConfig
-
-	Writer compileui.Writer
-	// EnvironmentName is the base name of the environment.
-	// It is the BaseDir(BuildContextDir)
-	// e.g. mnist, streamlit-mnist
-	EnvironmentName string
-
-	RuntimeGraph
-}
 
 // The results during runtime should be maintained here
 type RuntimeGraph struct {
@@ -142,8 +81,3 @@ type RunBuildCommand struct {
 	Commands  []string
 	MountHost bool
 }
-
-const (
-	shellBASH = "bash"
-	shellZSH  = "zsh"
-)

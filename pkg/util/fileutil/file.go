@@ -182,6 +182,12 @@ func DownloadOrUpdateGitRepo(url string) (path string, err error) {
 	return path, nil
 }
 
+// EnvdHomeDir returns the envd user path inside the environment
 func EnvdHomeDir(path ...string) string {
 	return filepath.Join(append([]string{"/", "home", "envd"}, path...)...)
+}
+
+// DefaultHomeDir returns the default user path inside the environment
+func DefaultHomeDir(path ...string) string {
+	return filepath.Join(append([]string{"~"}, path...)...)
 }
