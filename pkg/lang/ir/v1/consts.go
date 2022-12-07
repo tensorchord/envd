@@ -18,8 +18,6 @@ import "github.com/tensorchord/envd/pkg/util/fileutil"
 
 const (
 	defaultImage           = "ubuntu:20.04"
-	languageDefault        = "python"
-	languageVersionDefault = "3"
 	CUDNNVersionDefault    = "8"
 
 	aptSourceFilePath = "/etc/apt/sources.list"
