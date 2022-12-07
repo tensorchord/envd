@@ -260,8 +260,8 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 				Image: so.Image,
 			},
 			Resources: servertypes.ResourceSpec{
-				Cpu:    so.NumCPU,
-				Gpu:    strconv.Itoa(so.NumGPU),
+				CPU:    so.NumCPU,
+				GPU:    strconv.Itoa(so.NumGPU),
 				Memory: so.NumMem,
 			},
 		},
