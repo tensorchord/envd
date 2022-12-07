@@ -138,7 +138,9 @@ func (g *generalGraph) compileExtraSource(root llb.State) (llb.State, error) {
 	return llb.Merge(inputs, llb.WithCustomName("[internal] build source layers")), nil
 }
 
-func (g *generalGraph) compileLanguage(root llb.State) (lang llb.State, err error) {
+func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
+	lang := root
+	var err error
 	switch g.Language.Name {
 	case "python":
 		lang, err = g.installPython(root)
@@ -151,7 +153,8 @@ func (g *generalGraph) compileLanguage(root llb.State) (lang llb.State, err erro
 	return lang, err
 }
 
-func (g *generalGraph) compileLanguagePackages(root llb.State) (pack llb.State) {
+func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
+	pack := root
 	switch g.Language.Name {
 	case "python":
 		index := g.compilePyPIIndex(root)

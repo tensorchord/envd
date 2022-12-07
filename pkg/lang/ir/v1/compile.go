@@ -42,16 +42,12 @@ func NewGraph() ir.Graph {
 		RuntimeCommands: make(map[string]string),
 		RuntimeEnviron:  make(map[string]string),
 	}
-	langVersion := languageVersionDefault
 	return &generalGraph{
-		Image: defaultImage,
-		Language: ir.Language{
-			Name:    languageDefault,
-			Version: &langVersion,
-		},
-		CUDA:    nil,
-		CUDNN:   CUDNNVersionDefault,
-		NumGPUs: 0,
+		Image:    defaultImage,
+		Language: ir.Language{},
+		CUDA:     nil,
+		CUDNN:    CUDNNVersionDefault,
+		NumGPUs:  0,
 
 		PyPIPackages:    []string{},
 		RPackages:       []string{},
