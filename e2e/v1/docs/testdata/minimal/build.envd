@@ -1,4 +1,7 @@
-def build():
+# syntax=v1
+
+
+ef build():
     base(dev=True)
     install.python()
     install.python_packages(

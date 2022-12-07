@@ -1,3 +1,6 @@
+# syntax=v1
+
+
 def build():
     base(dev=True)
     install.conda()

@@ -1,3 +1,6 @@
+# syntax=v1
+
+
 envdlib = include("https://github.com/tensorchord/envdlib")
 
 
