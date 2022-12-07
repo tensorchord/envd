@@ -107,7 +107,7 @@ func NewPythonEnv(dir string) (*pythonEnv, error) {
 		return nil, err
 	}
 	return &pythonEnv{
-		pythonVersion: "python", // use the default one
+		pythonVersion: "", // use the default one
 		requirements:  requirements,
 		condaEnv:      condaEnv,
 		indent:        "    ",
