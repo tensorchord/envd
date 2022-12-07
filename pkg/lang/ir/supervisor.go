@@ -82,7 +82,7 @@ func (g Graph) addNewProcess(root llb.State, name, command string, depends []str
 
 func (g Graph) compileEntrypoint(root llb.State) (llb.State, error) {
 	if len(g.Entrypoint) > 0 {
-		return root, errors.New("`config.entrypoint` is only for custom image, maybe you need `runtime.init`")
+		return root, errors.New("`config.entrypoint` is only for non-dev image, maybe you need `runtime.init`")
 	}
 	cmd := fmt.Sprintf("/var/envd/bin/envd-sshd --port %d --shell %s", config.SSHPortInContainer, g.Shell)
 	entrypoint := g.addNewProcess(root, "sshd", cmd, nil)

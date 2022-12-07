@@ -1,4 +1,4 @@
 def build():
     install.conda()
-    install.conda_packages(env_file="env.yaml")
     install.python()
+    install.conda_packages(env_file="env.yaml")

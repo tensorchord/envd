@@ -9,4 +9,3 @@ channels:
     """
     )
     install.conda_packages(env_file="env.yaml")
-    base(os="ubuntu20.04", language="python3.8")

@@ -58,19 +58,12 @@ func (g Graph) compileVSCode() (llb.State, error) {
 	return layer, nil
 }
 
-// nolint:unused
-func (g *Graph) compileJupyter() error {
+func (g *Graph) compileJupyter() {
 	if g.JupyterConfig == nil {
-		return nil
+		return
 	}
 
 	g.PyPIPackages = append(g.PyPIPackages, "jupyter")
-	switch g.Language.Name {
-	case "python":
-		return nil
-	default:
-		return errors.Newf("Jupyter is not supported in %s yet", g.Language.Name)
-	}
 }
 
 func (g Graph) generateJupyterCommand(workingDir string) []string {

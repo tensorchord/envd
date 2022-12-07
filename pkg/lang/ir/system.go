@@ -154,6 +154,7 @@ func (g *Graph) compileLanguage(root llb.State) (lang llb.State, err error) {
 func (g *Graph) compileLanguagePackages(root llb.State) (pack llb.State) {
 	switch g.Language.Name {
 	case "python":
+		g.compileJupyter()
 		index := g.compilePyPIIndex(root)
 		pypi := g.compilePyPIPackages(index)
 		if g.CondaConfig == nil {
