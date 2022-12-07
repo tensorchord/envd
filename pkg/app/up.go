@@ -239,6 +239,8 @@ func up(clicontext *cli.Context) error {
 			clicontext.Path("private-key"), res, builder.GetGraph()); err != nil {
 			return errors.Wrap(err, "failed to attach to the ssh target")
 		}
+		logrus.Infof("Detached successfully. You can attach to the container with command `ssh %s.envd`\n",
+			startOptions.EnvironmentName)
 	}
 
 	return nil
