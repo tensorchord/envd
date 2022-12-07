@@ -37,28 +37,27 @@ type EntryOptions struct {
 func AddEntry(eo EntryOptions) error {
 	eo.Name = buildHostname(eo.Name)
 	err := add(getSSHConfigPath(), eo)
-	logrus.Debugf("Config Path %s \n", getSSHConfigPath())
 	if err != nil {
 		return err
 	}
-	// if osutil.IsWsl() {
-	// 	logrus.Debug("Try adding entry to WSL's ssh-agent")
-	// 	winSshConfig, err := osutil.GetWslHostSshConfig()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	winKeyPath, err := osutil.CopyToWinEnvdHome(eo.PrivateKeyPath, 0600)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	// Add the entry to the WSL host SSH config
-	// 	logrus.Debugf("Adding entry to WSL's ssh-agent: %s", winSshConfig)
-	// 	eo.PrivateKeyPath = winKeyPath
-	// 	err = add(winSshConfig, eo)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
+	if osutil.IsWsl() {
+		logrus.Debug("Try adding entry to WSL's ssh-agent")
+		winSshConfig, err := osutil.GetWslHostSshConfig()
+		if err != nil {
+			return err
+		}
+		winKeyPath, err := osutil.CopyToWinEnvdHome(eo.PrivateKeyPath, 0600)
+		if err != nil {
+			return err
+		}
+		// Add the entry to the WSL host SSH config
+		logrus.Debugf("Adding entry to WSL's ssh-agent: %s", winSshConfig)
+		eo.PrivateKeyPath = winKeyPath
+		err = add(winSshConfig, eo)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
