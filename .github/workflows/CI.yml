@@ -5,16 +5,16 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/**'
-      - '**.go'
-      - 'Makefile'
-      - 'go.**'
+      - ".github/workflows/**"
+      - "**.go"
+      - "Makefile"
+      - "go.**"
   pull_request:
     paths:
-      - '.github/workflows/**'
-      - '**.go'
-      - 'Makefile'
-      - 'go.**'
+      - ".github/workflows/**"
+      - "**.go"
+      - "Makefile"
+      - "go.**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -92,11 +92,19 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up docker
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew install docker
+          colima start --cpu 3 --memory 14
+          echo "DOCKER_HOST=unix://$HOME/.colima/default/docker.sock" >> $GITHUB_ENV
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -110,7 +118,7 @@ jobs:
             ${{ runner.OS }}-build-${{ env.cache-name }}-
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
-      - uses: actions-ecosystem/action-get-latest-tag@v1
+      - uses: "WyriHaximus/github-action-get-previous-tag@v1"
         id: get-latest-tag
       - name: e2e test
         run: make e2e-cli-test
@@ -128,11 +136,19 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up docker
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew install docker
+          colima start --cpu 3 --memory 14
+          echo "DOCKER_HOST=unix://$HOME/.colima/default/docker.sock" >> $GITHUB_ENV
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -146,7 +162,7 @@ jobs:
             ${{ runner.OS }}-build-${{ env.cache-name }}-
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
-      - uses: actions-ecosystem/action-get-latest-tag@v1
+      - uses: "WyriHaximus/github-action-get-previous-tag@v1"
         id: get-latest-tag
       - name: e2e test
         run: make e2e-lang-test
@@ -207,7 +223,7 @@ jobs:
         with:
           name: coverage-out
           path: merge
-      
+
       - name: Get cli e2e coverage report
         uses: actions/download-artifact@v3
         with:
