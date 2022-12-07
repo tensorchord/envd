@@ -243,16 +243,18 @@ func (c generalClient) Attach() error {
 	}
 	logrus.Debug("waiting for shell to exit")
 	if err = session.Wait(); err != nil {
-		if e, ok := err.(*ssh.ExitError); ok {
-			switch e.ExitStatus() {
+		var ee *ssh.ExitError
+		if ok := errors.As(err, *ee); ok {
+			switch ee.ExitStatus() {
 			case 130:
 				return nil
 			case 137:
 				logrus.Warn(`Insufficient memory.`)
 			}
 		}
-		if e, ok := err.(*ssh.ExitMissingError); ok {
-			logrus.Debugf("exit status missing: %s", e)
+		var emr *ssh.ExitMissingError
+		if ok := errors.As(err, &emr); ok {
+			logrus.Debugf("exit status missing: %s", emr)
 			return nil
 		}
 		return errors.Wrap(err, "waiting for session failed")
