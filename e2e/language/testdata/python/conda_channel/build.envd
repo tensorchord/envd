@@ -1,4 +1,6 @@
 def build():
+    install.conda()
+    install.python()
     config.conda_channel(
         channel="""
 channels:
