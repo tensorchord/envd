@@ -29,19 +29,19 @@ import (
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
-func (g Graph) compileVSCode() (*llb.State, error) {
+func (g Graph) compileVSCode() (llb.State, error) {
 	if len(g.VSCodePlugins) == 0 {
-		return nil, nil
+		return llb.Scratch(), nil
 	}
 	inputs := []llb.State{}
 	for _, p := range g.VSCodePlugins {
 		vscodeClient, err := vscode.NewClient(vscode.MarketplaceVendorOpenVSX)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to create vscode client")
+			return llb.State{}, errors.Wrap(err, "failed to create vscode client")
 		}
 		g.Writer.LogVSCodePlugin(p, compileui.ActionStart, false)
 		if cached, err := vscodeClient.DownloadOrCache(p); err != nil {
-			return nil, err
+			return llb.State{}, err
 		} else {
 			g.Writer.LogVSCodePlugin(p, compileui.ActionEnd, cached)
 		}
@@ -55,21 +55,15 @@ func (g Graph) compileVSCode() (*llb.State, error) {
 		inputs = append(inputs, ext)
 	}
 	layer := llb.Merge(inputs, llb.WithCustomName("merging plugins for vscode"))
-	return &layer, nil
+	return layer, nil
 }
 
-func (g *Graph) compileJupyter() error {
+func (g *Graph) compileJupyter() {
 	if g.JupyterConfig == nil {
-		return nil
+		return
 	}
 
 	g.PyPIPackages = append(g.PyPIPackages, "jupyter")
-	switch g.Language.Name {
-	case "python":
-		return nil
-	default:
-		return errors.Newf("Jupyter is not supported in %s yet", g.Language.Name)
-	}
 }
 
 func (g Graph) generateJupyterCommand(workingDir string) []string {

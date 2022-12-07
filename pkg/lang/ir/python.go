@@ -27,92 +27,56 @@ import (
 )
 
 const (
-	pythonVersionDefault = "3.9"
+	PythonVersionDefault = "3.9"
+	microMambaPathPrefix = "/usr/local/bin"
+	certPath             = "/etc/ssl/certs"
 )
+
+func (g *Graph) installPython(root llb.State) (llb.State, error) {
+	if g.CondaConfig == nil {
+		version, err := g.getAppropriatePythonVersion()
+		if err != nil {
+			return llb.State{}, err
+		}
+		install := root.
+			File(llb.Mkdir(certPath, 0755, llb.WithParents(true)),
+				llb.WithCustomName("[internal] mkdir certs")).
+			File(llb.Copy(llb.Image(microMambaImage), fmt.Sprintf("%s/%s", certPath, "ca-certificates.crt"), certPath),
+				llb.WithCustomName("[internal] copy cert from mamba")).
+			File(llb.Copy(llb.Image(microMambaImage), "/bin/micromamba", microMambaPathPrefix),
+				llb.WithCustomName("[internal] copy micromamba binary")).
+			Run(llb.Shlex(fmt.Sprintf("bash -c \"%s/micromamba create -p /opt/conda/envs/envd -c conda-forge python=%s\"", microMambaPathPrefix, version)),
+				llb.WithCustomNamef("[internal] create envd python=%s", version)).
+			Run(llb.Shlex(fmt.Sprintf("rm %s/micromamba", microMambaPathPrefix)),
+				llb.WithCustomName("[internal] rm micromamba binary")).Root()
+		python := g.compileAlternative(install)
+		return python, nil
+	}
+
+	// install Conda to create the env
+	py := g.installConda(root)
+	env, err := g.compileCondaEnvironment(py)
+	if err != nil {
+		return llb.State{}, err
+	}
+
+	python := g.compileAlternative(env)
+	return python, nil
+}
 
 func (g Graph) getAppropriatePythonVersion() (string, error) {
 	if g.Language.Version == nil {
-		return pythonVersionDefault, nil
+		return PythonVersionDefault, nil
 	}
 
 	version := *g.Language.Version
 	if version == "3" || version == "" {
-		return pythonVersionDefault, nil
+		return PythonVersionDefault, nil
 	}
 	if strings.HasPrefix(version, "3.") {
 		return version, nil
 	}
 	return "", errors.Errorf("python version %s is not supported", version)
-}
-
-func (g Graph) compilePython(baseStage llb.State) (llb.State, error) {
-	if err := g.compileJupyter(); err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
-	}
-	aptStage := g.compileUbuntuAPT(baseStage)
-	systemStage := g.compileSystemPackages(aptStage)
-
-	condaEnvStage, err := g.compileCondaEnvironment(baseStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile conda environment")
-	}
-
-	// Conda affects shell and python, thus we cannot do it in parallel.
-	shellStage, err := g.compileShell(baseStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile shell")
-	}
-	condaShellStage := g.compileCondaShell(shellStage)
-
-	diffCondaEnvStage := llb.Diff(baseStage, condaEnvStage,
-		llb.WithCustomName("[internal] conda python environment"))
-	diffSystemStage := llb.Diff(baseStage, systemStage,
-		llb.WithCustomName("[internal] install system packages"))
-	diffShellStage := llb.Diff(baseStage, condaShellStage,
-		llb.WithCustomNamef("[internal] configure shell %s", g.Shell))
-	prePythonStage := llb.Merge([]llb.State{
-		diffSystemStage,
-		diffCondaEnvStage,
-		diffShellStage,
-		baseStage}, llb.WithCustomName("pre-python stage"))
-
-	condaChannelStage := g.compileCondaChannel(prePythonStage)
-
-	condaStage := llb.Diff(prePythonStage,
-		g.compileCondaPackages(condaChannelStage),
-		llb.WithCustomName("[internal] install conda packages"))
-
-	pypiMirrorStage := g.compilePyPIIndex(prePythonStage)
-
-	pypiStage := llb.Diff(prePythonStage,
-		g.compilePyPIPackages(pypiMirrorStage),
-		llb.WithCustomName("[internal] install PyPI packages"))
-
-	vscodeStage, err := g.compileVSCode()
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get vscode plugins")
-	}
-	sshStage, err := g.copySSHKey(prePythonStage)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to copy ssh keys")
-	}
-	diffSSHStage := llb.Diff(prePythonStage, sshStage,
-		llb.WithCustomName("[internal] install ssh key"))
-
-	var merged llb.State
-	if vscodeStage != nil {
-		merged = llb.Merge([]llb.State{
-			prePythonStage, condaStage, pypiStage,
-			diffSSHStage, *vscodeStage,
-		}, llb.WithCustomName("[internal] generating the image"))
-	} else {
-		merged = llb.Merge([]llb.State{
-			prePythonStage, condaStage,
-			diffSSHStage, pypiStage,
-		}, llb.WithCustomName("[internal] generating the image"))
-	}
-	merged = g.compileAlternative(merged)
-	return merged, nil
 }
 
 // Set the system default python to envd's python.
@@ -146,7 +110,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		// Compose the package install command.
 		var sb strings.Builder
 		// Always use the conda's pip.
-		sb.WriteString("/opt/conda/envs/envd/bin/python -m pip install")
+		sb.WriteString("python -m pip install")
 		for _, pkg := range g.PyPIPackages {
 			sb.WriteString(fmt.Sprintf(" %s", pkg))
 		}
@@ -155,7 +119,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		logrus.WithField("command", cmd).
 			Debug("Configure pip install statements")
 		run := root.
-			Run(llb.Shlex(sb.String()), llb.WithCustomNamef("pip install %s",
+			Run(llb.Shlex(sb.String()), llb.WithCustomNamef("[internal] pip install %s",
 				strings.Join(g.PyPIPackages, " ")))
 		// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
 		run.AddMount(cacheDir, cache,
@@ -171,7 +135,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 		sb.WriteString(fmt.Sprintf("chown -R envd:envd %s\n", g.getWorkingDir())) // Change mount dir permission
 		envdCmd := strings.Builder{}
 		envdCmd.WriteString(fmt.Sprintf("cd %s\n", g.getWorkingDir()))
-		envdCmd.WriteString(fmt.Sprintf("/opt/conda/envs/envd/bin/python -m pip install -r  %s\n", *g.RequirementsFile))
+		envdCmd.WriteString(fmt.Sprintf("python -m pip install -r  %s\n", *g.RequirementsFile))
 
 		// Execute the command to write yaml file and conda env using envd user
 		sb.WriteString(fmt.Sprintf("sudo -i -u envd bash << EOF\n%s\nEOF\n", envdCmd.String()))
@@ -192,7 +156,7 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 
 	if len(g.PythonWheels) > 0 {
 		root = root.Dir(g.getWorkingDir())
-		cmdTemplate := "/opt/conda/envs/envd/bin/python -m pip install %s"
+		cmdTemplate := "python -m pip install %s"
 		for _, wheel := range g.PythonWheels {
 			run := root.Run(llb.Shlex(fmt.Sprintf(cmdTemplate, wheel)), llb.WithCustomNamef("pip install %s", wheel))
 			run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext), llb.Readonly)
@@ -205,22 +169,22 @@ func (g Graph) compilePyPIPackages(root llb.State) llb.State {
 }
 
 func (g Graph) compilePyPIIndex(root llb.State) llb.State {
-	if g.PyPIIndexURL != nil {
-		logrus.WithField("index", *g.PyPIIndexURL).Debug("using custom PyPI index")
-		var extraIndex string
-		if g.PyPIExtraIndexURL != nil {
-			logrus.WithField("index", *g.PyPIIndexURL).Debug("using extra PyPI index")
-			extraIndex = "extra-index-url=" + *g.PyPIExtraIndexURL
-		}
-		content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIIndexURL, extraIndex)
-		dir := filepath.Dir(pypiIndexFilePath)
-		pypiMirror := root.
-			File(llb.Mkdir(dir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
-				llb.WithCustomNamef("[internal] setting PyPI index dir %s", dir)).
-			File(llb.Mkfile(pypiIndexFilePath,
-				0644, []byte(content), llb.WithUIDGID(g.uid, g.gid)),
-				llb.WithCustomNamef("[internal] setting PyPI index file %s", pypiIndexFilePath))
-		return pypiMirror
+	if g.PyPIIndexURL == nil {
+		return root
 	}
-	return root
+	logrus.WithField("index", *g.PyPIIndexURL).Debug("using custom PyPI index")
+	var extraIndex string
+	if g.PyPIExtraIndexURL != nil {
+		logrus.WithField("index", *g.PyPIIndexURL).Debug("using extra PyPI index")
+		extraIndex = "extra-index-url=" + *g.PyPIExtraIndexURL
+	}
+	content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIIndexURL, extraIndex)
+	dir := filepath.Dir(pypiIndexFilePath)
+	pypiMirror := root.
+		File(llb.Mkdir(dir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomNamef("[internal] setting PyPI index dir %s", dir)).
+		File(llb.Mkfile(pypiIndexFilePath,
+			0644, []byte(content), llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomNamef("[internal] setting PyPI index file %s", pypiIndexFilePath))
+	return pypiMirror
 }

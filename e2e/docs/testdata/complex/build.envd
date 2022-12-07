@@ -1,4 +1,7 @@
 def build():
+    base(dev=True)
+    install.conda()
+    install.python()
     config.apt_source(
         source="""
 deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
@@ -18,7 +21,6 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe mu
             "ms-python.python",
         ]
     )
-    base(os="ubuntu20.04", language="python3")
     install.python_packages(
         name=[
             "numpy",

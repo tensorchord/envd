@@ -217,7 +217,7 @@ func startQuestion(input input) {
 func generateFile(clicontext *cli.Context) error {
 	var buf bytes.Buffer
 	buf.WriteString("def build():\n")
-	buf.WriteString(fmt.Sprintf("    base(os=\"ubuntu20.04\", language=\"%s\")\n", selectionMap[LabelLanguage][0]))
+	buf.WriteString(fmt.Sprintf("    base(dev=True, os=\"ubuntu20.04\", language=\"%s\")\n", selectionMap[LabelLanguage][0]))
 	buf.WriteString(generatePackagesStr("python", selectionMap[LabelPythonPackage]))
 	buf.WriteString(generatePackagesStr("r", selectionMap[LabelRPackage]))
 	if len(selectionMap[LabelPythonRequirement]) > 0 {
