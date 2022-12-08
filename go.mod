@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
-	github.com/alessio/shellescape v1.4.1
 	github.com/cockroachdb/errors v1.9.0
 	github.com/containerd/console v1.0.3
 	github.com/containerd/containerd v1.6.3-0.20220401172941-5ff8fce1fcc6
