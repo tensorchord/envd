@@ -32,7 +32,7 @@ import (
 
 var CommandTop = &cli.Command{
 	Name:     "top",
-	Category: CategoryBasic,
+	Category: CategoryManagement,
 	Usage:    "Show statistics about the containers managed by the environment.",
 	Flags:    []cli.Flag{},
 	Action:   top,

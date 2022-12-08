@@ -25,7 +25,7 @@ import (
 
 var CommandPause = &cli.Command{
 	Name:     "pause",
-	Category: CategoryAdvanced,
+	Category: CategoryExpert,
 	Aliases:  []string{"p"},
 	Usage:    "Pause the envd environment",
 	Flags: []cli.Flag{
