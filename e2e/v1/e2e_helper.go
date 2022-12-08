@@ -106,7 +106,7 @@ func NewExample(path string, testcaseAbbr string) *Example {
 
 func (e *Example) Exec(cmd string) (string, error) {
 	args := []string{
-		"envd.test", "run", "--name", e.Name, "--raw", cmd,
+		"envd.test", "exec", "--name", e.Name, "--raw", cmd,
 	}
 
 	buffer := new(bytes.Buffer)
