@@ -34,7 +34,7 @@ import (
 
 var CommandBootstrap = &cli.Command{
 	Name:     "bootstrap",
-	Category: CategoryManagement,
+	Category: CategorySettings,
 	Usage:    "Bootstrap the envd installation",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{

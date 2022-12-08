@@ -25,6 +25,7 @@ import (
 	"github.com/tensorchord/envd-server/client"
 	cli "github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
@@ -32,10 +33,10 @@ import (
 )
 
 var CommandLogin = &cli.Command{
-	Name:     "login",
+	Name:     "auth",
 	Category: CategoryManagement,
-	Hidden:   true,
-	Usage:    "Login to the envd server.",
+	Hidden:   false,
+	Usage:    "Login to the envd server defined in the current context",
 	Action:   login,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
@@ -54,6 +55,18 @@ var CommandLogin = &cli.Command{
 }
 
 func login(clicontext *cli.Context) error {
+	c, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get current context")
+	}
+	if c.Runner == types.RunnerTypeDocker {
+		logrus.Warn("login is not needed for docker runner, skipping")
+		return nil
+	}
+	hostAddr := c.RunnerAddress
+
+	telemetry.GetReporter().Telemetry("auth", telemetry.AddField("runner", c.Runner))
+
 	publicKeyPath, err := fileutil.ConfigFile(config.PublicKeyFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to get the public key path")
@@ -62,7 +75,14 @@ func login(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to read the public key path")
 	}
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+
+	opts := []client.Opt{
+		client.FromEnv,
+	}
+	if hostAddr != nil {
+		opts = append(opts, client.WithHost(*hostAddr))
+	}
+	cli, err := client.NewClientWithOpts(opts...)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the envd-server client")
 	}

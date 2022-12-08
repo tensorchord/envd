@@ -17,6 +17,7 @@ package app
 const (
 	CategoryBasic      = "Basic Commands"
 	CategoryManagement = "Management Commands"
-	CategoryAdvanced   = "Advanced Commands"
+	CategoryExpert     = "Expert Commands"
+	CategorySettings   = "Setting Commands"
 	CategoryOther      = "Other Commands"
 )

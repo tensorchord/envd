@@ -16,140 +16,203 @@ package app
 
 import (
 	"fmt"
-	"path/filepath"
+	"strings"
+	"time"
 
+	"github.com/Pallinder/go-randomdata"
 	"github.com/cockroachdb/errors"
+	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/envd-server/sshname"
 	"github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/envd/pkg/builder"
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/ssh"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
+	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
+	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
-var CommandRun = &cli.Command{
-	Name:     "run",
-	Category: CategoryBasic,
-	Usage:    "Spawns a command installed into the environment.",
+var CommandCreate = &cli.Command{
+	Name:        "run",
+	Category:    CategoryBasic,
+	Aliases:     []string{"c"},
+	Usage:       "Run the envd environment from the existing image",
+	Hidden:      false,
+	Description: `run is only supported in envd-server runner currently`,
 	Flags: []cli.Flag{
-		&cli.PathFlag{
-			Name:    "name",
-			Usage:   "Name of the environment",
-			Aliases: []string{"n"},
+		&cli.StringFlag{
+			Name:        "image",
+			Usage:       "image name",
+			DefaultText: "PROJECT:dev",
+			Required:    true,
 		},
 		&cli.StringFlag{
-			Name:    "command",
-			Usage:   "Command defined in build.envd to execute",
-			Aliases: []string{"c"},
+			Name:  "name",
+			Usage: "environment name",
+		},
+		&cli.DurationFlag{
+			Name:  "timeout",
+			Usage: "Timeout of container creation",
+			Value: time.Second * 1800,
+		},
+		&cli.BoolFlag{
+			Name:  "detach",
+			Usage: "Detach from the container",
+			Value: false,
 		},
 		&cli.PathFlag{
-			Name:    "from",
-			Usage:   "Function to execute, format `file:func`",
-			Aliases: []string{"f"},
-			Value:   "build.envd:build",
-		},
-		&cli.PathFlag{
-			Name:    "path",
-			Usage:   "Path to the directory containing the build.envd",
-			Aliases: []string{"p"},
-			Value:   ".",
+			Name:    "private-key",
+			Usage:   "Path to the private key",
+			Aliases: []string{"k"},
+			Value:   sshconfig.GetPrivateKeyOrPanic(),
+			Hidden:  true,
 		},
 		&cli.StringFlag{
-			Name:    "raw",
-			Usage:   "Raw command to execute",
-			Aliases: []string{"r"},
+			Name:  "host",
+			Usage: "Assign the host address for environment ssh acesss server listening",
+			Value: envd.Localhost,
+		},
+		&cli.StringFlag{
+			Name:  "cpu",
+			Usage: "Request CPU resources (number of cores), such as 0.5, 1, 2",
+			Value: "",
+		},
+		&cli.StringFlag{
+			Name:  "memory",
+			Usage: "Request Memory, such as 512M, 2G",
+			Value: "",
+		},
+		&cli.StringFlag{
+			Name:  "gpu",
+			Usage: "Request GPU resources (number of gpus), such as 1, 2",
+			Value: "",
 		},
 	},
-
 	Action: run,
 }
 
 func run(clicontext *cli.Context) error {
-	name := clicontext.String("name")
-	command := clicontext.String("command")
-	rawCommand := clicontext.String("raw")
-	path := clicontext.String("path")
+	c, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get current context")
+	}
+	if c.Runner == types.RunnerTypeDocker {
+		return errors.Newf("docker runner is not supported for this command, please use `envd up`")
+	}
+	defer func(start time.Time) {
+		telemetry.GetReporter().Telemetry(
+			"run", telemetry.AddField("duration", time.Since(start).Seconds()),
+			telemetry.AddField("runner", c.Runner))
+	}(time.Now())
 
-	if command != "" && rawCommand != "" {
-		return errors.New("--raw and --command are mutually exclusive and may only be used once")
+	engine, err := envd.New(clicontext.Context, envd.Options{
+		Context: c,
+	})
+	if err != nil {
+		return err
 	}
 
-	resultCommand := rawCommand
-	if command != "" {
-		buildContext, err := filepath.Abs(path)
+	name := clicontext.String("name")
+	if name == "" {
+		name = strings.ToLower(randomdata.SillyName())
+	}
+	opt := envd.StartOptions{
+		SshdHost:        clicontext.String("host"),
+		Image:           clicontext.String("image"),
+		Timeout:         clicontext.Duration("timeout"),
+		NumMem:          clicontext.String("memory"),
+		NumCPU:          clicontext.String("cpu"),
+		NumGPU:          clicontext.Int("gpu"),
+		EnvironmentName: name,
+	}
+	if c.Runner == types.RunnerTypeEnvdServer {
+		opt.EnvdServerSource = &envd.EnvdServerSource{}
+	}
+	res, err := engine.StartEnvd(clicontext.Context, opt)
+	if err != nil {
+		return err
+	}
+
+	logrus.Debugf("container %s is running", res.Name)
+
+	logrus.Debugf("add entry %s to SSH config.", res.Name)
+	hostname, err := c.GetSSHHostname(opt.SshdHost)
+	if err != nil {
+		return errors.Wrap(err, "failed to get the ssh hostname")
+	}
+
+	ac, err := home.GetManager().AuthGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the auth information")
+	}
+	username, err := sshname.Username(ac.Name, res.Name)
+	if err != nil {
+		return errors.Wrap(err, "failed to get the username")
+	}
+	eo := sshconfig.EntryOptions{
+		Name:               res.Name,
+		IFace:              hostname,
+		Port:               res.SSHPort,
+		PrivateKeyPath:     clicontext.Path("private-key"),
+		EnableHostKeyCheck: false,
+		EnableAgentForward: false,
+		User:               username,
+	}
+	if err = sshconfig.AddEntry(eo); err != nil {
+		logrus.Infof("failed to add entry %s to your SSH config file: %s", res.Name, err)
+		return errors.Wrap(err, "failed to add entry to your SSH config file")
+	}
+
+	// TODO(gaocegege): Test why it fails.
+	if !clicontext.Bool("detach") {
+		outputChannel := make(chan error)
+		opt := ssh.DefaultOptions()
+		opt.PrivateKeyPath = clicontext.Path("private-key")
+		opt.Port = res.SSHPort
+		opt.AgentForwarding = false
+		opt.User = username
+		opt.Server = hostname
+
+		sshClient, err := ssh.NewClient(opt)
 		if err != nil {
-			return errors.Wrap(err, "failed to get absolute path of the build context")
+			outputChannel <- errors.Wrap(err, "failed to create the ssh client")
 		}
-		fileName, funcName, err := builder.ParseFromStr(clicontext.String("from"))
-		if err != nil {
+
+		ports := res.Ports
+
+		for _, p := range ports {
+			if p.Port == 2222 {
+				continue
+			}
+
+			// TODO(gaocegege): Use one remote port.
+			localPort, err := netutil.GetFreePort()
+			if err != nil {
+				return errors.Wrap(err, "failed to get a free port")
+			}
+			localAddress := fmt.Sprintf("%s:%d", "localhost", localPort)
+			remoteAddress := fmt.Sprintf("%s:%d", "localhost", p.Port)
+			logrus.Infof("service \"%s\" is listening at %s\n", p.Name, localAddress)
+			go func() {
+				if err := sshClient.LocalForward(localAddress, remoteAddress); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to local port")
+				}
+			}()
+		}
+
+		go func() {
+			// TODO(gaocegege): Avoid the hard code.
+			if err := sshClient.Attach(); err != nil {
+				outputChannel <- errors.Wrap(err, "failed to attach to the container")
+			}
+			outputChannel <- nil
+		}()
+
+		if err := <-outputChannel; err != nil {
 			return err
 		}
-		manifest, err := fileutil.FindFileAbsPath(buildContext, fileName)
-		if err != nil {
-			return errors.Wrap(err, "failed to get absolute path of the build file")
-		}
-		if manifest == "" {
-			return errors.Newf("build file %s does not exist", fileName)
-		}
-		opt := builder.Options{
-			ManifestFilePath: manifest,
-			BuildContextDir:  buildContext,
-			BuildFuncName:    funcName,
-		}
-		builder, err := builder.New(clicontext.Context, opt)
-		if err != nil {
-			return errors.Wrap(err, "failed to create the builder")
-		}
-		if err := builder.Interpret(); err != nil {
-			return errors.Wrap(err, "failed to interpret the build file")
-		}
-		if cmd, ok := builder.GetGraph().GetRuntimeCommands()[command]; !ok {
-			return errors.Newf("command %s does not exist", command)
-		} else {
-			resultCommand = cmd
-		}
-		// Get the environment name if `name` is not specified.
-		if name == "" {
-			name = filepath.Base(path)
-		}
-	}
-
-	// Check if the container is running.
-	context, err := home.GetManager().ContextGetCurrent()
-	if err != nil {
-		return errors.Wrap(err, "failed to get the current context")
-	}
-	envdOpt := envd.Options{
-		Context: context,
-	}
-	engine, err := envd.New(clicontext.Context, envdOpt)
-	if err != nil {
-		return errors.Wrap(err, "failed to create the docker client")
-	}
-	if isRunning, err :=
-		engine.IsRunning(clicontext.Context, name); err != nil {
-		return errors.Wrapf(
-			err, "failed to check if the environment %s is running", name)
-	} else if !isRunning {
-		return errors.Newf("the environment %s is not running", name)
-	}
-
-	opt, err := ssh.GetOptions(name)
-	if err != nil {
-		return errors.Wrap(err, "failed to get the ssh options")
-	}
-	// SSH into the container and execute the command.
-	sshClient, err := ssh.NewClient(*opt)
-	if err != nil {
-		return errors.Wrap(err, "failed to get the ssh client")
-	}
-	if bytes, err := sshClient.ExecWithOutput(resultCommand); err != nil {
-		fmt.Fprintln(clicontext.App.Writer, string(bytes))
-		return errors.Wrapf(err,
-			"failed to execute the command `%s`", resultCommand)
-	} else {
-		fmt.Fprint(clicontext.App.Writer, string(bytes))
 	}
 	return nil
 }
