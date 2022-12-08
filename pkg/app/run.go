@@ -101,11 +101,8 @@ func run(clicontext *cli.Context) error {
 	if c.Runner == types.RunnerTypeDocker {
 		return errors.Newf("docker runner is not supported for this command, please use `envd up`")
 	}
-	defer func(start time.Time) {
-		telemetry.GetReporter().Telemetry(
-			"run", telemetry.AddField("duration", time.Since(start).Seconds()),
-			telemetry.AddField("runner", c.Runner))
-	}(time.Now())
+	telemetry.GetReporter().Telemetry(
+		"run", telemetry.AddField("runner", c.Runner))
 
 	engine, err := envd.New(clicontext.Context, envd.Options{
 		Context: c,
