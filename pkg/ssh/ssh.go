@@ -26,9 +26,7 @@ import (
 	"io"
 	"net"
 	"os"
-	"strings"
 
-	"github.com/alessio/shellescape"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
@@ -39,7 +37,7 @@ import (
 )
 
 type Client interface {
-	Attach(shell, envName string) error
+	Attach() error
 	ExecWithOutput(cmd string) ([]byte, error)
 	LocalForward(localAddress, targetAddress string) error
 	Close() error
@@ -180,7 +178,7 @@ func (c generalClient) ExecWithOutput(cmd string) ([]byte, error) {
 	return session.CombinedOutput(cmd)
 }
 
-func (c generalClient) Attach(shell, envName string) error {
+func (c generalClient) Attach() error {
 	// open session
 	session, err := c.cli.NewSession()
 	if err != nil {
@@ -234,51 +232,36 @@ func (c generalClient) Attach(shell, envName string) error {
 		return errors.Newf("request for pseudo terminal failed: %w", err)
 	}
 
-	stdin, err := session.StdinPipe()
-	if err != nil {
-		return errors.Newf("unable to setup stdin for session: %w", err)
-	}
-	Copy(os.Stdin, stdin)
+	session.Stdout = os.Stdout
+	session.Stderr = os.Stderr
+	session.Stdin = os.Stdin
 
-	stdout, err := session.StdoutPipe()
+	logrus.Debug("starting shell")
+	err = session.Shell()
 	if err != nil {
-		return errors.Newf("unable to setup stdout for session: %w", err)
+		return errors.Wrap(err, "starting shell failed")
 	}
-
-	go func() {
-		if _, err := io.Copy(os.Stdout, stdout); err != nil {
-			logrus.Debugf("error while writing to stdOut: %s", err)
+	logrus.Debug("waiting for shell to exit")
+	if err = session.Wait(); err != nil {
+		var ee *ssh.ExitError
+		if ok := errors.As(err, *ee); ok {
+			switch ee.ExitStatus() {
+			case 130:
+				return nil
+			case 137:
+				logrus.Warn(`Insufficient memory.`)
+			}
 		}
-	}()
-
-	stderr, err := session.StderrPipe()
-	if err != nil {
-		return errors.Newf("unable to setup stderr for session: %w", err)
-	}
-
-	go func() {
-		if _, err := io.Copy(os.Stderr, stderr); err != nil {
-			logrus.Debugf("error while writing to stdOut: %s", err)
+		var emr *ssh.ExitMissingError
+		if ok := errors.As(err, &emr); ok {
+			logrus.Debugf("exit status missing: %s", emr)
+			return nil
 		}
-	}()
-
-	cmd := shellescape.QuoteCommand([]string{shell})
-	logrus.Debugf("executing command over ssh: '%s'", cmd)
-	err = session.Run(cmd)
-	if err == nil {
-		logrus.Infof("Detached successfully. You can attach to the container with command `ssh %s.envd`\n",
-			envName)
-		return nil
-	}
-	if strings.Contains(err.Error(), "status 130") || strings.Contains(err.Error(), "4294967295") {
-		return nil
-	}
-	if strings.Contains(err.Error(), "exit code 137") || strings.Contains(err.Error(), "exit status 137") {
-		logrus.Warn(`Insufficient memory.`)
+		return errors.Wrap(err, "waiting for session failed")
 	}
 
-	logrus.Debugf("command failed: %s", err)
-	return errors.Wrap(err, "command failed")
+	logrus.Debug("shell exited")
+	return nil
 }
 
 func (c generalClient) LocalForward(localAddress, targetAddress string) error {

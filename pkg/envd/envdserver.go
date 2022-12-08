@@ -37,7 +37,6 @@ import (
 
 type envdServerEngine struct {
 	*client.Client
-	graph     ir.Graph
 	Loginname string
 }
 
@@ -183,8 +182,7 @@ func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult
 	}
 
 	go func() {
-		if err := sshClient.Attach(e.graph.GetShell(),
-			e.graph.GetEnvironmentName()); err != nil {
+		if err := sshClient.Attach(); err != nil {
 			outputChannel <- errors.Wrap(err, "failed to attach to the container")
 		}
 		outputChannel <- nil
