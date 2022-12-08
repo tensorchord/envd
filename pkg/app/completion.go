@@ -24,7 +24,7 @@ import (
 
 var CommandCompletion = &cli.Command{
 	Name:     "completion",
-	Category: CategoryManagement,
+	Category: CategorySettings,
 	Usage:    "Install shell completion scripts for envd",
 	Flags: []cli.Flag{
 		&cli.StringSliceFlag{

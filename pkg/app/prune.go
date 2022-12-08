@@ -15,16 +15,19 @@
 package app
 
 import (
+	"time"
+
 	"github.com/cockroachdb/errors"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/buildkitd"
 	"github.com/tensorchord/envd/pkg/home"
 )
 
 var CommandPrune = &cli.Command{
 	Name:     "prune",
-	Category: CategoryManagement,
+	Category: CategorySettings,
 	Usage:    "Clean up the build cache",
 	Flags: []cli.Flag{
 		&cli.DurationFlag{
@@ -60,6 +63,10 @@ func prune(clicontext *cli.Context) error {
 			return errors.Wrap(err, "failed to clean internal cache")
 		}
 	}
+	defer func(start time.Time) {
+		telemetry.GetReporter().Telemetry(
+			"prune", telemetry.AddField("duration", time.Since(start).Seconds()))
+	}(time.Now())
 
 	keepDuration := clicontext.Duration("keep-duration")
 	keepStorage := clicontext.Float64("keep-storage")
