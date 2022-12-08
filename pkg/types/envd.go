@@ -147,6 +147,11 @@ type RepoInfo struct {
 	Description string `json:"description,omitempty"`
 }
 
+type OwnerInfo struct {
+	Uid int64 `json:"uid,omitempty"`
+	Gid int64 `json:"gid,omitempty"`
+}
+
 type PortBinding struct {
 	Name     string
 	Port     string
