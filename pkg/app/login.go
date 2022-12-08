@@ -33,7 +33,7 @@ import (
 )
 
 var CommandLogin = &cli.Command{
-	Name:     "auth",
+	Name:     "login",
 	Category: CategoryManagement,
 	Hidden:   false,
 	Usage:    "Login to the envd server defined in the current context",
