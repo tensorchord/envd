@@ -17,6 +17,7 @@ package envd
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -257,6 +258,11 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 			},
 			Spec: servertypes.EnvironmentSpec{
 				Image: so.Image,
+			},
+			Resources: servertypes.ResourceSpec{
+				CPU:    so.NumCPU,
+				GPU:    strconv.Itoa(so.NumGPU),
+				Memory: so.NumMem,
 			},
 		},
 	}
