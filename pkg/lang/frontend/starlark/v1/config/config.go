@@ -234,7 +234,7 @@ func ruleFuncOwner(thread *starlark.Thread, _ *starlark.Builtin,
 		envdGid = starlark.MakeInt(-1)
 	)
 
-	if err := starlark.UnpackArgs(ruleOwner, args, kwargs, "uid", &envdUid, "gid?", &envdGid); err != nil {
+	if err := starlark.UnpackArgs(ruleOwner, args, kwargs, "uid", &envdUid, "gid", &envdGid); err != nil {
 		return nil, err
 	}
 	uid, _ := envdUid.Int64()
