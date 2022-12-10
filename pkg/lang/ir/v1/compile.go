@@ -112,7 +112,7 @@ func (g *generalGraph) Compile(ctx context.Context, envName string, pub string) 
 	g.EnvironmentName = envName
 	g.PublicKeyPath = pub
 
-	uid, gid, err := getUIDGID()
+	uid, gid, err := g.getUIDGID()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get uid/gid")
 	}
