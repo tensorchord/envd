@@ -316,9 +316,11 @@ func NewDependencyFromLabels(label map[string]string) (*Dependency, error) {
 		}
 		packages := []string{}
 
-		for i, pkg := range lst {
-			if !strings.HasPrefix(pkg, "-") && (i == 0 || !strings.HasPrefix(lst[i-1], "-")) {
-				packages = append(packages, pkg)
+		for _, pkgs := range lst {
+			for i, pkg := range pkgs {
+				if !strings.HasPrefix(pkg, "-") && (i == 0 || !strings.HasPrefix(pkgs[i-1], "-")) {
+					packages = append(packages, pkg)
+				}
 			}
 		}
 		dep.PyPIPackages = packages
@@ -332,8 +334,8 @@ func parseAPTPackages(lst string) ([]string, error) {
 	return pkgs, err
 }
 
-func parsePyPICommands(lst string) ([]string, error) {
-	var pkgs []string
+func parsePyPICommands(lst string) ([][]string, error) {
+	var pkgs [][]string
 	err := json.Unmarshal([]byte(lst), &pkgs)
 	return pkgs, err
 }

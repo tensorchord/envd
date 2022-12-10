@@ -25,7 +25,7 @@ var _ = g.Describe("pypi label", func() {
 	g.When("pypi command contains slashes", func() {
 		g.It("should ignore such commands", func() {
 			labels := make(map[string]string)
-			s, _ := json.Marshal([]string{"numpy", "torch", "--extra-url", "https://download.pytorch.org/whl/torch_stable.html"})
+			s, _ := json.Marshal([][]string{{"numpy", "torch", "--extra-url", "https://download.pytorch.org/whl/torch_stable.html"}})
 			labels[ImageLabelPyPI] = string(s)
 			d, err := NewDependencyFromLabels(labels)
 			Expect(err).NotTo(HaveOccurred())

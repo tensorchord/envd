@@ -54,7 +54,7 @@ func NewGraph() ir.Graph {
 		CUDNN:   CUDNNVersionDefault,
 		NumGPUs: 0,
 
-		PyPIPackages:    []string{},
+		PyPIPackages:    [][]string{},
 		RPackages:       []string{},
 		JuliaPackages:   []string{},
 		SystemPackages:  []string{},

@@ -77,7 +77,7 @@ func Julia() {
 func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {
 	g := DefaultGraph.(*generalGraph)
 
-	g.PyPIPackages = append(g.PyPIPackages, deps...)
+	g.PyPIPackages = append(g.PyPIPackages, deps)
 	g.PythonWheels = append(g.PythonWheels, wheels...)
 
 	if requirementsFile != "" {
