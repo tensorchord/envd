@@ -25,8 +25,8 @@ import (
 // such as its call stack and thread-local storage.
 // TODO(gaocegeg): Refactor it to support order.
 type generalGraph struct {
-	uid int
-	gid int
+	uid int `default:"-1"`
+	gid int `default:"-1"`
 
 	ir.Language
 	Image string

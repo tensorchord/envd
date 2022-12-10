@@ -65,7 +65,10 @@ func parseLanguage(l string) (string, *string, error) {
 	}
 }
 
-func getUIDGID() (int, int, error) {
+func (g generalGraph) getUIDGID() (int, int, error) {
+	// Firstly check cli flag set uid and git.
+	// if not set, then use the config.owner statements in envd.build
+	// The current user is the last choice
 	owner := viper.GetString(flag.FlagBuildOwner)
 	if len(owner) > 0 {
 		logrus.WithField("flag", owner).Info("use owner")
@@ -87,6 +90,9 @@ func getUIDGID() (int, int, error) {
 			return 0, 0, errors.Wrap(err, "failed to get gid")
 		}
 		return uid, gid, nil
+	}
+	if g.uid != -1 && g.gid != -1 {
+		return g.gid, g.gid, nil
 	}
 	user, err := user.Current()
 	if err != nil {

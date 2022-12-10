@@ -25,4 +25,5 @@ const (
 	ruleRStudioServer      = "config.rstudio_server"
 	ruleEntrypoint         = "config.entrypoint"
 	ruleRepo               = "config.repo"
+	ruleOwner              = "config.owner"
 )

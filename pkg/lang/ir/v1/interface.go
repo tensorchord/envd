@@ -330,3 +330,9 @@ func Repo(url, description string) {
 		URL:         url,
 	}
 }
+
+func Owner(uid, gid int) {
+	g := DefaultGraph.(*generalGraph)
+	g.uid = uid
+	g.gid = gid
+}
