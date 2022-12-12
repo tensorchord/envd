@@ -24,7 +24,6 @@ import (
 	e2e "github.com/tensorchord/envd/e2e/v1"
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var _ = Describe("init project", Ordered, func() {
@@ -41,28 +40,19 @@ var _ = Describe("init project", Ordered, func() {
 		Expect(err).To(Succeed())
 	})
 
-	It("init python env", func() {
-		envdApp := app.New()
-		err := envdApp.Run([]string{"envd.test", "--debug", "init", "-p", path})
-		Expect(err).To(Succeed())
-		exist, err := fileutil.FileExists(filepath.Join(path, "build.envd"))
-		Expect(err).To(Succeed())
-		Expect(exist).To(BeTrue())
-	})
-
-	Describe("run init env", Ordered, func() {
-		var e *e2e.Example
-		BeforeAll(func() {
-			// have to use `path` inside ginkgo closure
-			e = e2e.NewExample(path, "init_test")
-			e.RunContainer()()
-		})
-		It("exec installed command inside container", func() {
-			_, err := e.Exec("via --help")
-			Expect(err).To(Succeed())
-			e.DestroyContainer()
-		})
-	})
+	// Describe("run init env", Ordered, func() {
+	// 	var e *e2e.Example
+	// 	BeforeAll(func() {
+	// 		// have to use `path` inside ginkgo closure
+	// 		e = e2e.NewExample(path, "init_test")
+	// 		e.RunContainer()()
+	// 	})
+	// 	It("exec installed command inside container", func() {
+	// 		_, err := e.Exec("via --help")
+	// 		Expect(err).To(Succeed())
+	// 		e.DestroyContainer()
+	// 	})
+	// })
 
 	AfterAll(func() {
 		os.RemoveAll(path)

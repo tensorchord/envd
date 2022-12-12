@@ -24,7 +24,6 @@ import (
 	e2e "github.com/tensorchord/envd/e2e/v0"
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var _ = Describe("init project", Ordered, func() {
@@ -41,14 +40,14 @@ var _ = Describe("init project", Ordered, func() {
 		Expect(err).To(Succeed())
 	})
 
-	It("init python env", func() {
-		envdApp := app.New()
-		err := envdApp.Run([]string{"envd.test", "--debug", "init", "-p", path})
-		Expect(err).To(Succeed())
-		exist, err := fileutil.FileExists(filepath.Join(path, "build.envd"))
-		Expect(err).To(Succeed())
-		Expect(exist).To(BeTrue())
-	})
+	// It("init python env", func() {
+	// 	envdApp := app.New()
+	// 	err := envdApp.Run([]string{"envd.test", "--debug", "init", "-p", path})
+	// 	Expect(err).To(Succeed())
+	// 	exist, err := fileutil.FileExists(filepath.Join(path, "build.envd"))
+	// 	Expect(err).To(Succeed())
+	// 	Expect(exist).To(BeTrue())
+	// })
 
 	Describe("run init env", Ordered, func() {
 		var e *e2e.Example
