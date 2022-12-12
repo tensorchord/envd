@@ -3,6 +3,9 @@
 before:
   hooks:
     - go mod tidy
+universal_binaries:
+  - id: envd
+    replace: false
 builds:
   - env:
       - CGO_ENABLED=0
@@ -59,6 +62,7 @@ checksum:
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
+  use: github
   sort: asc
   groups:
     - title: 'Exciting New Features 🎉'

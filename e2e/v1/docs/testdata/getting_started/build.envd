@@ -1,0 +1,14 @@
+# syntax=v1
+
+
+def build():
+    base(dev=True)
+    install.python()
+    # Configure pip index if needed.
+    # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
+    install.python_packages(
+        name=[
+            "numpy",
+        ]
+    )
+    shell("zsh")

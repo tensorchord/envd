@@ -82,6 +82,7 @@ func New() EnvdApp {
 	internalApp.Commands = []*cli.Command{
 		CommandBootstrap,
 		CommandCreate,
+		CommandCompletion,
 		CommandContext,
 		CommandBuild,
 		CommandDestroy,
@@ -104,7 +105,7 @@ func New() EnvdApp {
  Usage:
     envd up --path <path>
 
-    envd run --name <env-name> --command "pip list"{{if .VisibleCommands}}
+    envd build --path <path> --output type=image,name=<image>,push=true{{if .VisibleCommands}}
 
  Build and launch envd environments. Get more information at: https://envd.tensorchord.ai/.
  To get started with using envd, check out the getting started guide: https://envd.tensorchord.ai/guide/getting-started.html.

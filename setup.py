@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import os
-import shutil
 from setuptools.command.sdist import sdist
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
@@ -35,7 +34,7 @@ def build_envd_if_not_found():
                 errno = subprocess.call(
                     ["make", "build-release", "GIT_TAG={}".format(tag)]
                 )
-        except:
+        except OSError:
             logging.warning(".GIT_TAG_INFO not found")
             logging.info("start building envd from source")
             errno = subprocess.call(["make", "build-release"])
@@ -51,10 +50,7 @@ class EnvdBuildExt(build_ext):
         if not isinstance(ext, EnvdExtension):
             return super().build_extension(ext)
 
-        bin_path = os.path.join(self.build_lib, "envd", "bin")
         build_envd_if_not_found()
-        os.makedirs(bin_path, exist_ok=True)
-        shutil.copy("bin/envd", bin_path)
 
 
 class SdistCommand(sdist):
@@ -108,11 +104,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     python_requires=">=3.6",
-    entry_points={
-        "console_scripts": [
-            "envd=envd.cmd:envd",
-        ],
-    },
+    data_files=[("bin", ["bin/envd"])],
     classifiers=classifiers,
     zip_safe=False,
     ext_modules=[

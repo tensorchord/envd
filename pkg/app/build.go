@@ -15,21 +15,14 @@
 package app
 
 import (
-	"fmt"
-	"path/filepath"
 	"time"
 
-	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	buildutil "github.com/tensorchord/envd/pkg/app/build"
 	"github.com/tensorchord/envd/pkg/app/telemetry"
-	"github.com/tensorchord/envd/pkg/builder"
-	"github.com/tensorchord/envd/pkg/docker"
-	"github.com/tensorchord/envd/pkg/envd"
-	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandBuild = &cli.Command{
@@ -101,7 +94,7 @@ To build and push the image to a registry:
 }
 
 func build(clicontext *cli.Context) error {
-	opt, err := ParseBuildOpt(clicontext)
+	opt, err := buildutil.ParseBuildOpt(clicontext)
 	if err != nil {
 		return err
 	}
@@ -120,117 +113,12 @@ func build(clicontext *cli.Context) error {
 		"builder-options": opt,
 	}).Debug("starting build command")
 
-	builder, err := GetBuilder(clicontext, opt)
+	builder, err := buildutil.GetBuilder(clicontext, opt)
 	if err != nil {
 		return err
 	}
-	if err = InterpretEnvdDef(builder); err != nil {
+	if err = buildutil.InterpretEnvdDef(builder); err != nil {
 		return err
 	}
-	return BuildImage(clicontext, builder)
-}
-
-func DetectEnvironment(clicontext *cli.Context, buildOpt builder.Options) error {
-	context, err := home.GetManager().ContextGetCurrent()
-	if err != nil {
-		return errors.Wrap(err, "failed to get the current context")
-	}
-	opt := envd.Options{
-		Context: context,
-	}
-	engine, err := envd.New(clicontext.Context, opt)
-	if err != nil {
-		return errors.Wrap(err, "failed to create the docker client")
-	}
-	// detect if the current environment is running before building
-	ctr := filepath.Base(buildOpt.BuildContextDir)
-	running, err := engine.IsRunning(clicontext.Context, ctr)
-	if err != nil {
-		return err
-	}
-	force := clicontext.Bool("force")
-	if running && !force {
-		logrus.Errorf("detect container %s is running, please save your data and stop the running container if you need to envd up again.", ctr)
-		return errors.Newf("\"%s\" is stil running, please run `envd destroy --name %s` stop it first", ctr, ctr)
-	}
-	return nil
-}
-
-func GetBuilder(clicontext *cli.Context, opt builder.Options) (builder.Builder, error) {
-	builder, err := builder.New(clicontext.Context, opt)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create the builder")
-	}
-	return builder, nil
-}
-
-func InterpretEnvdDef(builder builder.Builder) error {
-	if err := builder.Interpret(); err != nil {
-		return errors.Wrap(err, "failed to interpret")
-	}
-	return nil
-}
-
-func BuildImage(clicontext *cli.Context, builder builder.Builder) error {
-	force := clicontext.Bool("force")
-	if err := builder.Build(clicontext.Context, force); err != nil {
-		return errors.Wrap(err, "failed to build the image")
-	}
-	return nil
-}
-
-func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
-	buildContext, err := filepath.Abs(clicontext.Path("path"))
-	if err != nil {
-		return builder.Options{}, errors.Wrap(err, "failed to get absolute path of the build context")
-	}
-	fileName, funcName, err := builder.ParseFromStr(clicontext.String("from"))
-	if err != nil {
-		return builder.Options{}, err
-	}
-
-	manifest, err := fileutil.FindFileAbsPath(buildContext, fileName)
-	if err != nil {
-		return builder.Options{}, errors.Wrap(err, "failed to get absolute path of the build file")
-	}
-	if manifest == "" {
-		return builder.Options{}, errors.New("file does not exist")
-	}
-
-	config := home.GetManager().ConfigFile()
-
-	tag := clicontext.String("tag")
-	if tag == "" {
-		logrus.Debug("tag not specified, using default")
-		tag = fmt.Sprintf("%s:%s", filepath.Base(buildContext), "dev")
-	}
-	// The current container engine is only Docker. It should be expanded to support other container engines.
-	tag, err = docker.NormalizeNamed(tag)
-	if err != nil {
-		return builder.Options{}, err
-	}
-	output := clicontext.String("output")
-	exportCache := clicontext.String("export-cache")
-	importCache := clicontext.String("import-cache")
-	useProxy := clicontext.Bool("use-proxy")
-
-	opt := builder.Options{
-		ManifestFilePath: manifest,
-		ConfigFilePath:   config,
-		BuildFuncName:    funcName,
-		BuildContextDir:  buildContext,
-		Tag:              tag,
-		OutputOpts:       output,
-		PubKeyPath:       clicontext.Path("public-key"),
-		ProgressMode:     "auto",
-		ExportCache:      exportCache,
-		ImportCache:      importCache,
-		UseHTTPProxy:     useProxy,
-	}
-
-	debug := clicontext.Bool("debug")
-	if debug {
-		opt.ProgressMode = "plain"
-	}
-	return opt, nil
+	return buildutil.BuildImage(clicontext, builder)
 }

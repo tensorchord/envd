@@ -18,18 +18,20 @@ import (
 	"io/fs"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	cli "github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandInit = &cli.Command{
 	Name:     "init",
-	Category: CategoryManagement,
+	Category: CategoryBasic,
 	Aliases:  []string{"i"},
-	Usage:    "Initializes the current directory with the build.envd file",
+	Usage:    "Automatically generate the build.envd",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     "lang",
@@ -124,6 +126,10 @@ func initCommand(clicontext *cli.Context) error {
 		startQuestion(LanguageChoice)
 		lang = selectionMap[LabelLanguage][0]
 	}
+	defer func(start time.Time) {
+		telemetry.GetReporter().Telemetry(
+			"init", telemetry.AddField("duration", time.Since(start).Seconds()))
+	}(time.Now())
 
 	filePath := filepath.Join(buildContext, "build.envd")
 	exists, err := fileutil.FileExists(filePath)

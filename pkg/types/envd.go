@@ -39,7 +39,7 @@ const (
 	// image
 	PythonBaseImage = "ubuntu:20.04"
 	// supervisor
-	HorustImage      = "tensorchord/horust:v0.1.0"
+	HorustImage      = "tensorchord/horust:v0.2.0"
 	HorustServiceDir = "/etc/horust/services"
 	HorustLogDir     = "/var/log/horust"
 	// env
@@ -147,6 +147,11 @@ type RepoInfo struct {
 	Description string `json:"description,omitempty"`
 }
 
+type OwnerInfo struct {
+	Uid int64 `json:"uid,omitempty"`
+	Gid int64 `json:"gid,omitempty"`
+}
+
 type PortBinding struct {
 	Name     string
 	Port     string
@@ -161,8 +166,8 @@ type EnvdAuth struct {
 }
 
 type AuthConfig struct {
-	Name          string `json:"name,omitempty"`
-	IdentityToken string `json:"identity_token,omitempty"`
+	Name     string `json:"name,omitempty"`
+	JWTToken string `json:"jwt_token,omitempty"`
 }
 
 func DefaultPathEnv() string {

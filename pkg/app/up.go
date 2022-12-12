@@ -23,10 +23,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	buildutil "github.com/tensorchord/envd/pkg/app/build"
 	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/lang/ir"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
 )
@@ -127,7 +127,7 @@ func up(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get the current context")
 	}
 
-	buildOpt, err := ParseBuildOpt(clicontext)
+	buildOpt, err := buildutil.ParseBuildOpt(clicontext)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse the build options")
 	}
@@ -153,17 +153,17 @@ func up(clicontext *cli.Context) error {
 	})
 	logger.Debug("starting up command")
 
-	builder, err := GetBuilder(clicontext, buildOpt)
+	builder, err := buildutil.GetBuilder(clicontext, buildOpt)
 	if err != nil {
 		return err
 	}
-	if err = InterpretEnvdDef(builder); err != nil {
+	if err = buildutil.InterpretEnvdDef(builder); err != nil {
 		return err
 	}
-	if err = DetectEnvironment(clicontext, buildOpt); err != nil {
+	if err = buildutil.DetectEnvironment(clicontext, buildOpt); err != nil {
 		return err
 	}
-	if err = BuildImage(clicontext, builder); err != nil {
+	if err = buildutil.BuildImage(clicontext, builder); err != nil {
 		return err
 	}
 
@@ -200,7 +200,7 @@ func up(clicontext *cli.Context) error {
 	if c.Runner != types.RunnerTypeEnvdServer {
 		startOptions.EngineSource = envd.EngineSource{
 			DockerSource: &envd.DockerSource{
-				Graph:        *ir.DefaultGraph,
+				Graph:        builder.GetGraph(),
 				MountOptions: clicontext.StringSlice("volume"),
 			},
 		}
@@ -236,9 +236,11 @@ func up(clicontext *cli.Context) error {
 
 	if !detach {
 		if err := engine.Attach(ctr, hostname,
-			clicontext.Path("private-key"), res); err != nil {
+			clicontext.Path("private-key"), res, builder.GetGraph()); err != nil {
 			return errors.Wrap(err, "failed to attach to the ssh target")
 		}
+		logrus.Infof("Detached successfully. You can attach to the container with command `ssh %s.envd`\n",
+			startOptions.EnvironmentName)
 	}
 
 	return nil

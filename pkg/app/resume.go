@@ -25,7 +25,7 @@ import (
 
 var CommandResume = &cli.Command{
 	Name:     "resume",
-	Category: CategoryAdvanced,
+	Category: CategoryExpert,
 	Aliases:  []string{"r"},
 	Usage:    "Resume the envd environment",
 	Flags: []cli.Flag{

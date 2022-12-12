@@ -15,7 +15,6 @@
 package autocomplete
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -63,8 +62,7 @@ func InsertBashCompleteEntry() error {
 		return errors.Wrapf(err, "failed checking if %s exists", dirPath)
 	}
 	if !dirPathExists {
-		fmt.Fprintf(os.Stderr, "Warning: unable to enable bash-completion: %s does not exist\n", dirPath)
-		return nil // bash-completion isn't available, silently fail.
+		return errors.Errorf("unable to enable bash-completion: %s does not exist", dirPath)
 	}
 
 	pathExists, err := fileutil.FileExists(path)
@@ -84,8 +82,7 @@ func InsertBashCompleteEntry() error {
 
 	bashEntry, err := bashCompleteEntry()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: unable to enable bash-completion: %s\n", err)
-		return nil // bash-completion isn't available, silently fail.
+		return errors.Wrapf(err, "unable to enable bash-completion")
 	}
 
 	_, err = f.Write([]byte(bashEntry))

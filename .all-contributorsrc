@@ -407,7 +407,8 @@
       "profile": "https://elon.fun/",
       "contributions": [
         "doc",
-        "bug"
+        "bug",
+        "code"
       ]
     },
     {
@@ -508,6 +509,51 @@
       "profile": "http://myfra.vercel.app",
       "contributions": [
         "doc"
+      ]
+    },
+    {
+      "login": "cutecutecat",
+      "name": "cutecutecat",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19801166?v=4",
+      "profile": "https://github.com/cutecutecat",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "suyanhanx",
+      "name": "Suyan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24221472?v=4",
+      "profile": "http://suyan.moe",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "frostming",
+      "name": "Frost Ming",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16336606?v=4",
+      "profile": "https://frostming.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "tisonkun",
+      "name": "tison",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18818196?v=4",
+      "profile": "https://tisonkun.org/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "oubotong",
+      "name": "x0oo0x",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26356127?v=4",
+      "profile": "https://oubotong.github.io/johan",
+      "contributions": [
+        "code"
       ]
     }
   ],

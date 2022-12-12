@@ -15,16 +15,17 @@
 package app
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"os"
+	"os/user"
 
 	"github.com/cockroachdb/errors"
+	"github.com/sirupsen/logrus"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 	"github.com/tensorchord/envd-server/client"
 	cli "github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
@@ -34,12 +35,38 @@ import (
 var CommandLogin = &cli.Command{
 	Name:     "login",
 	Category: CategoryManagement,
-	Hidden:   true,
-	Usage:    "Login to the envd server.",
+	Hidden:   false,
+	Usage:    "Login to the envd server defined in the current context",
 	Action:   login,
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:     "username",
+			Usage:    "the login name in envd server",
+			Aliases:  []string{"u"},
+			Required: false,
+		},
+		&cli.StringFlag{
+			Name:     "password",
+			Usage:    "password",
+			Aliases:  []string{"p"},
+			Required: false,
+		},
+	},
 }
 
 func login(clicontext *cli.Context) error {
+	c, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return errors.Wrap(err, "failed to get current context")
+	}
+	if c.Runner == types.RunnerTypeDocker {
+		logrus.Warn("login is not needed for docker runner, skipping")
+		return nil
+	}
+	hostAddr := c.RunnerAddress
+
+	telemetry.GetReporter().Telemetry("auth", telemetry.AddField("runner", c.Runner))
+
 	publicKeyPath, err := fileutil.ConfigFile(config.PublicKeyFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to get the public key path")
@@ -48,23 +75,64 @@ func login(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to read the public key path")
 	}
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+
+	opts := []client.Opt{
+		client.FromEnv,
+	}
+	if hostAddr != nil {
+		opts = append(opts, client.WithHost(*hostAddr))
+	}
+	cli, err := client.NewClientWithOpts(opts...)
 	if err != nil {
 		return errors.Wrap(err, "failed to create the envd-server client")
 	}
+
 	stringK := string(key)
-	it := GetMD5Hash(stringK)
-	req := servertypes.AuthRequest{
-		PublicKey:     stringK,
-		IdentityToken: it,
+	loginName := clicontext.String("username")
+	pwd := clicontext.String("password")
+
+	auth := true
+	if pwd == "" {
+		auth = false
+		logrus.Warn("The password is nil, skip the authentication. Please make sure that the server is running in no-auth mode")
+		if loginName == "" {
+			loginName, err = generateLoginName()
+			if err != nil {
+				return errors.Wrap(err, "failed to generate the login name")
+			}
+			logrus.Warnf("The login name is nil, use `%s` as the login name", loginName)
+		}
 	}
-	resp, err := cli.Auth(clicontext.Context, req)
-	if err != nil {
-		return errors.Wrap(err, "failed to get the response from envd-server client")
+	req := servertypes.AuthNRequest{
+		PublicKey: stringK,
+		LoginName: loginName,
+		Password:  []byte(pwd),
 	}
+
+	logger := logrus.WithFields(logrus.Fields{
+		"login_name":   loginName,
+		"auth-enabled": auth,
+	})
+
+	var resp servertypes.AuthNResponse
+
+	if auth {
+		logger.Debug("login request")
+		resp, err = cli.Login(clicontext.Context, req)
+		if err != nil {
+			return errors.Wrap(err, "failed to get the response from envd-server client")
+		}
+	} else {
+		logger.Debug("register request")
+		resp, err = cli.Register(clicontext.Context, req)
+		if err != nil {
+			return errors.Wrap(err, "failed to get the response from envd-server client")
+		}
+	}
+
 	if err := home.GetManager().AuthCreate(types.AuthConfig{
-		Name:          resp.IdentityToken,
-		IdentityToken: resp.IdentityToken,
+		Name:     resp.LoginName,
+		JWTToken: resp.IdentityToken,
 	}, true); err != nil {
 		return errors.Wrap(err, "failed to create the auth config")
 	}
@@ -72,8 +140,16 @@ func login(clicontext *cli.Context) error {
 	return nil
 }
 
-func GetMD5Hash(text string) string {
-	hasher := md5.New()
-	hasher.Write([]byte(text))
-	return hex.EncodeToString(hasher.Sum(nil))
+func generateLoginName() (string, error) {
+	hostname, err := os.Hostname()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get the hostname")
+	}
+
+	username, err := user.Current()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get the user")
+	}
+
+	return fmt.Sprintf("%s@%s", username.Username, hostname), nil
 }

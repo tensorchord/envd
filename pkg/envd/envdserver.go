@@ -17,6 +17,7 @@ package envd
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -27,6 +28,7 @@ import (
 	"github.com/tensorchord/envd-server/errdefs"
 	"github.com/tensorchord/envd-server/sshname"
 
+	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
@@ -35,11 +37,11 @@ import (
 
 type envdServerEngine struct {
 	*client.Client
-	IdentityToken string
+	Loginname string
 }
 
 func (e *envdServerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) {
-	resp, err := e.ImageList(ctx, e.IdentityToken)
+	resp, err := e.ImageList(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list image")
 	}
@@ -55,7 +57,7 @@ func (e *envdServerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, er
 }
 
 func (e envdServerEngine) Destroy(ctx context.Context, name string) (string, error) {
-	err := e.EnvironmentRemove(ctx, e.IdentityToken, name)
+	err := e.EnvironmentRemove(ctx, name)
 	return name, err
 }
 
@@ -72,7 +74,7 @@ func (e *envdServerEngine) ListImageDependency(ctx context.Context, image string
 }
 
 func (e *envdServerEngine) GetImage(ctx context.Context, image string) (types.EnvdImage, error) {
-	resp, err := e.ImageGet(ctx, e.IdentityToken, image)
+	resp, err := e.ImageGet(ctx, image)
 	if err != nil {
 		return types.EnvdImage{}, errors.Wrapf(err, "failed to get the image: %s", image)
 	}
@@ -104,7 +106,7 @@ func (e *envdServerEngine) ResumeEnvironment(ctx context.Context, env string) (s
 }
 
 func (e *envdServerEngine) ListEnvironment(ctx context.Context) ([]types.EnvdEnvironment, error) {
-	env, err := e.EnvironmentList(ctx, e.IdentityToken)
+	env, err := e.EnvironmentList(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get environment")
 	}
@@ -121,7 +123,7 @@ func (e *envdServerEngine) ListEnvironment(ctx context.Context) ([]types.EnvdEnv
 }
 
 func (e envdServerEngine) GenerateSSHConfig(name, iface, privateKeyPath string, startResult *StartResult) (sshconfig.EntryOptions, error) {
-	username, err := sshname.Username(e.IdentityToken, startResult.Name)
+	username, err := sshname.Username(e.Loginname, startResult.Name)
 	if err != nil {
 		return sshconfig.EntryOptions{}, errors.Wrap(err, "failed to get the username")
 	}
@@ -138,8 +140,8 @@ func (e envdServerEngine) GenerateSSHConfig(name, iface, privateKeyPath string, 
 	return eo, nil
 }
 
-func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult *StartResult) error {
-	username, err := sshname.Username(e.IdentityToken, startResult.Name)
+func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult *StartResult, g ir.Graph) error {
+	username, err := sshname.Username(e.Loginname, startResult.Name)
 	if err != nil {
 		return errors.Wrap(err, "failed to get the username")
 	}
@@ -199,7 +201,7 @@ func (e *envdServerEngine) ListEnvDependency(
 		"env": name,
 	})
 	logger.Debug("getting dependencies")
-	env, err := e.EnvironmentGet(ctx, e.IdentityToken, name)
+	env, err := e.EnvironmentGet(ctx, name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get environment")
 	}
@@ -212,7 +214,7 @@ func (e *envdServerEngine) ListEnvDependency(
 
 func (e *envdServerEngine) ListEnvPortBinding(
 	ctx context.Context, name string) ([]types.PortBinding, error) {
-	_, err := e.EnvironmentGet(ctx, e.IdentityToken, name)
+	_, err := e.EnvironmentGet(ctx, name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get environment")
 	}
@@ -238,7 +240,7 @@ func (e *envdServerEngine) CleanEnvdIfExists(ctx context.Context, name string, f
 		return nil
 	}
 
-	return e.EnvironmentRemove(ctx, e.IdentityToken, name)
+	return e.EnvironmentRemove(ctx, name)
 }
 
 // StartEnvd creates the container for the given tag and container name.
@@ -255,10 +257,15 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 			Spec: servertypes.EnvironmentSpec{
 				Image: so.Image,
 			},
+			Resources: servertypes.ResourceSpec{
+				CPU:    so.NumCPU,
+				GPU:    strconv.Itoa(so.NumGPU),
+				Memory: so.NumMem,
+			},
 		},
 	}
 
-	resp, err := e.EnvironmentCreate(ctx, e.IdentityToken, req)
+	resp, err := e.EnvironmentCreate(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create the environment")
 	}
@@ -278,7 +285,7 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 }
 
 func (e *envdServerEngine) IsRunning(ctx context.Context, name string) (bool, error) {
-	resp, err := e.EnvironmentGet(ctx, e.IdentityToken, name)
+	resp, err := e.EnvironmentGet(ctx, name)
 	if err != nil {
 		if errdefs.IsNotFound(err) {
 			return false, nil
@@ -290,7 +297,7 @@ func (e *envdServerEngine) IsRunning(ctx context.Context, name string) (bool, er
 }
 
 func (e *envdServerEngine) Exists(ctx context.Context, name string) (bool, error) {
-	_, err := e.EnvironmentGet(ctx, e.IdentityToken, name)
+	_, err := e.EnvironmentGet(ctx, name)
 	if err != nil {
 		if errdefs.IsNotFound(err) {
 			return false, nil

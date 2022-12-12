@@ -1,0 +1,10 @@
+# syntax=v1
+
+
+envdlib = include("https://github.com/tensorchord/envdlib")
+
+
+def build():
+    base(dev=True)
+    install.python()
+    envdlib.tensorboard(host_port=8888)
