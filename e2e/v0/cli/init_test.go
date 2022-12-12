@@ -49,19 +49,19 @@ var _ = Describe("init project", Ordered, func() {
 	// 	Expect(exist).To(BeTrue())
 	// })
 
-	Describe("run init env", Ordered, func() {
-		var e *e2e.Example
-		BeforeAll(func() {
-			// have to use `path` inside ginkgo closure
-			e = e2e.NewExample(path, "init_test")
-			e.RunContainer()()
-		})
-		It("exec installed command inside container", func() {
-			_, err := e.Exec("via --help")
-			Expect(err).To(Succeed())
-			e.DestroyContainer()
-		})
-	})
+	// Describe("run init env", Ordered, func() {
+	// 	var e *e2e.Example
+	// 	BeforeAll(func() {
+	// 		// have to use `path` inside ginkgo closure
+	// 		e = e2e.NewExample(path, "init_test")
+	// 		e.RunContainer()()
+	// 	})
+	// 	It("exec installed command inside container", func() {
+	// 		_, err := e.Exec("via --help")
+	// 		Expect(err).To(Succeed())
+	// 		e.DestroyContainer()
+	// 	})
+	// })
 
 	AfterAll(func() {
 		os.RemoveAll(path)
