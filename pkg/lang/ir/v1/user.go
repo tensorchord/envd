@@ -34,7 +34,12 @@ func (g *generalGraph) compileUserOwn(root llb.State) llb.State {
 		root = root.Run(llb.Shlex(fmt.Sprintf("chown -R envd:envd %s", dir)),
 			llb.WithCustomNamef("[internal] configure user permissions for %s", dir)).Root()
 	}
-	return root.User("envd").AddEnv("PATH", types.DefaultPathEnvUnix)
+	user := root.User("envd")
+	// re-add the env since it's a different user
+	for _, env := range types.BaseEnvironment {
+		user = user.AddEnv(env.Name, env.Value)
+	}
+	return user
 }
 
 // compileUserGroup creates user `envd`
