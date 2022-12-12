@@ -18,6 +18,8 @@ import (
 	"fmt"
 
 	"github.com/moby/buildkit/client/llb"
+
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 // compileUserOwn chown related directories
@@ -32,7 +34,7 @@ func (g *generalGraph) compileUserOwn(root llb.State) llb.State {
 		root = root.Run(llb.Shlex(fmt.Sprintf("chown -R envd:envd %s", dir)),
 			llb.WithCustomNamef("[internal] configure user permissions for %s", dir)).Root()
 	}
-	return root.User("envd")
+	return root.User("envd").AddEnv("PATH", types.DefaultPathEnvUnix)
 }
 
 // compileUserGroup creates user `envd`
