@@ -158,7 +158,7 @@ func initCommand(clicontext *cli.Context) error {
 
 	err = generateFile(clicontext)
 	if err != nil {
-		return nil
+		return errors.Wrapf(err, "Failed to create build.envd")
 	}
 
 	return nil
