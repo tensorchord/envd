@@ -125,6 +125,8 @@ func initCommand(clicontext *cli.Context) error {
 	if !isValidLang(lang) {
 		startQuestion(LanguageChoice)
 		lang = selectionMap[LabelLanguage][0]
+	} else {
+		selectionMap[LabelLanguage] = []string{lang}
 	}
 	defer func(start time.Time) {
 		telemetry.GetReporter().Telemetry(

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -29,6 +30,7 @@ import (
 var selectionMap = make(map[string][]string)
 var itemStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "0", Dark: "15"})
 var selectedItemStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Dark: "14", Light: "6"})
+var indentation = "    "
 
 const (
 	SINGLE_SELECT   string = "single select"
@@ -217,20 +219,20 @@ func startQuestion(input input) {
 func generateFile(clicontext *cli.Context) error {
 	var buf bytes.Buffer
 	buf.WriteString("def build():\n")
-	buf.WriteString(fmt.Sprintf("    base(os=\"ubuntu20.04\", language=\"%s\")\n", selectionMap[LabelLanguage][0]))
+	buf.WriteString(fmt.Sprintf("%sbase(os=\"ubuntu20.04\", language=\"%s\")\n", indentation, selectionMap[LabelLanguage][0]))
 	buf.WriteString(generatePackagesStr("python", selectionMap[LabelPythonPackage]))
 	buf.WriteString(generatePackagesStr("r", selectionMap[LabelRPackage]))
 	if len(selectionMap[LabelPythonRequirement]) > 0 {
-		buf.WriteString(fmt.Sprintf("    install.python_packages(requirements=\"%s\")\n", selectionMap[LabelPythonRequirement][0]))
+		buf.WriteString(fmt.Sprintf("%sinstall.python_packages(requirements=\"%s\")\n", indentation, selectionMap[LabelPythonRequirement][0]))
 	}
 	if len(selectionMap[LabelCondaEnv]) > 0 {
-		buf.WriteString(fmt.Sprintf("    install.conda_packages(env_file=\"%s\")\n", selectionMap[LabelCondaEnv][0]))
+		buf.WriteString(fmt.Sprintf("%sinstall.conda_packages(env_file=\"%s\")\n", indentation, selectionMap[LabelCondaEnv][0]))
 	}
 	if selectionMap[LabelCudaChoice][0] == "Yes" {
-		buf.WriteString(fmt.Sprintf("    cuda(version=\"%s\", cudann=\"8\")\n", selectionMap[LabelCuda][0]))
+		buf.WriteString(fmt.Sprintf("%scuda(version=\"%s\", cudann=\"8\")\n", indentation, selectionMap[LabelCuda][0]))
 	}
 	if len(selectionMap[LabelJupyterChoice]) > 0 && selectionMap[LabelJupyterChoice][0] == "Yes" {
-		buf.WriteString("    config.jupyter()\n")
+		buf.WriteString(fmt.Sprintf("%sconfig.jupyter()\n", indentation))
 	}
 
 	buildEnvdContent := buf.Bytes()
@@ -250,15 +252,15 @@ func generatePackagesStr(name string, packages []string) string {
 	if len(packages) == 0 {
 		return ""
 	}
-	s := fmt.Sprintf("    install.%s_packages(name = [\n", name)
+	s := fmt.Sprintf("%sinstall.%s_packages(name = [\n", indentation, name)
 	for i, p := range packages {
-		s += fmt.Sprintf("        \"%s\"", p)
+		s += fmt.Sprintf("%s\"%s\"", strings.Repeat(indentation, 2), p)
 		if i != len(packages)-1 {
 			s += ", "
 		}
 		s += "\n"
 	}
-	s += "    ])\n"
+	s += fmt.Sprintf("%s])\n", indentation)
 	return s
 }
 
