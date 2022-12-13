@@ -92,7 +92,7 @@ func (g generalGraph) getUIDGID() (int, int, error) {
 		return uid, gid, nil
 	}
 	if g.uid != -1 && g.gid != -1 {
-		return g.gid, g.gid, nil
+		return g.uid, g.gid, nil
 	}
 	user, err := user.Current()
 	if err != nil {
