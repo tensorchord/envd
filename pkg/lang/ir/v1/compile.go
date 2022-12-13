@@ -43,6 +43,8 @@ func NewGraph() ir.Graph {
 		RuntimeEnviron:  make(map[string]string),
 	}
 	return &generalGraph{
+		uid:      -1,
+		gid:      -1,
 		Image:    defaultImage,
 		Language: ir.Language{},
 		CUDA:     nil,

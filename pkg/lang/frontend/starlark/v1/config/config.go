@@ -230,20 +230,18 @@ func ruleFuncRepo(thread *starlark.Thread, _ *starlark.Builtin,
 func ruleFuncOwner(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var (
-		envdUid = starlark.MakeInt(-1)
-		envdGid = starlark.MakeInt(-1)
+		uid = -1
+		gid = -1
 	)
 
-	if err := starlark.UnpackArgs(ruleOwner, args, kwargs, "uid", &envdUid, "gid", &envdGid); err != nil {
+	if err := starlark.UnpackArgs(ruleOwner, args, kwargs, "uid", &uid, "gid", &gid); err != nil {
 		return nil, err
 	}
-	uid, _ := envdUid.Int64()
-	gid, _ := envdGid.Int64()
+
 	if uid < 0 || uid > 65535 || gid < 0 || gid > 65535 {
-		err := errors.New("get a wrong uid or gid")
-		return nil, err
+		return nil, errors.New("get a wrong uid or gid")
 	}
 	logger.Debugf("owner info: uid=%d, gid=%d", uid, gid)
-	ir.Owner(int(uid), int(gid))
+	ir.Owner(uid, gid)
 	return starlark.None, nil
 }
