@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
 	"github.com/moby/buildkit/util/system"
 	servertypes "github.com/tensorchord/envd-server/api/types"
@@ -310,14 +311,14 @@ func NewDependencyFromLabels(label map[string]string) (*Dependency, error) {
 	if pkgs, ok := label[ImageLabelAPT]; ok {
 		lst, err := parseAPTPackages(pkgs)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to parse apt packages")
 		}
 		dep.APTPackages = lst
 	}
 	if pypiCommands, ok := label[ImageLabelPyPI]; ok {
 		lst, err := parsePyPICommands(pypiCommands)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to parse pypi commands")
 		}
 		packages := []string{}
 
