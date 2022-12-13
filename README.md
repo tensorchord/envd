@@ -111,10 +111,17 @@ For example, the PyPI cache is shared across builds and thus the package will be
 
 ### Install and bootstrap `envd`
 
-`envd` can be installed with `pip` (only support Python3). After the installation, please run `envd bootstrap` to bootstrap.
+`envd` can be installed with `pip`, or you can download the binary [release](https://github.com/tensorchord/envd/releases) directly. After the installation, please run `envd bootstrap` to bootstrap.
 
 ```bash
-pip3 install --pre --upgrade envd
+# install with local pip
+pip install --pre --upgrade envd
+# or install with pipx
+pipx install envd --pip-args="--pre"
+# or download the latest release artifact with GitHub CLI
+bash -c "gh release download -R tensorchord/envd -p $(echo envd_\*_$(uname)_$(uname -p))"
+
+# bootstrap
 envd bootstrap
 ```
 
