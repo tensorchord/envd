@@ -41,6 +41,19 @@ symbol = "Py "
 [status]
 format = '[\[$status:$common_meaning$signal_name\]]($style) '
 disabled = false
+
+[git_branch]
+symbol = "git "
+
+[git_commit]
+tag_symbol = " tag "
+
+[git_status]
+ahead = ">"
+behind = "<"
+diverged = "<>"
+renamed = "r"
+deleted = "x"
 `
 )
 
