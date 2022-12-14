@@ -20,7 +20,7 @@ import (
 
 var CommandEnvironment = &cli.Command{
 	Name:     "envs",
-	Category: CategoryBasic,
+	Category: CategoryManagement,
 	Aliases:  []string{"env", "e"},
 	Usage:    "Manage envd environments",
 

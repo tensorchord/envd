@@ -15,35 +15,29 @@
 package app
 
 import (
-	"bytes"
-	"embed"
-	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	cli "github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
-//go:embed template
-var templatef embed.FS
-
 var CommandInit = &cli.Command{
 	Name:     "init",
-	Category: CategoryManagement,
+	Category: CategoryBasic,
 	Aliases:  []string{"i"},
-	Usage:    "Initializes the current directory with the build.envd file",
+	Usage:    "Automatically generate the build.envd",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     "lang",
 			Usage:    "language usage. Support Python, R, Julia",
 			Aliases:  []string{"l"},
 			Required: false,
-			Value:    "python",
 		},
 		&cli.BoolFlag{
 			Name:     "force",
@@ -72,15 +66,7 @@ func isValidLang(lang string) bool {
 	return false
 }
 
-type pythonEnv struct {
-	pythonVersion string
-	requirements  string
-	condaEnv      string
-	indent        string
-	notebook      bool
-}
-
-func NewPythonEnv(dir string) (*pythonEnv, error) {
+func InitPythonEnv(dir string) error {
 	requirements := ""
 	condaEnv := ""
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
@@ -99,36 +85,20 @@ func NewPythonEnv(dir string) (*pythonEnv, error) {
 			return nil
 		}
 		if isCondaEnvFile(d.Name()) && len(condaEnv) <= 0 {
-			condaEnv = relPath
+			selectionMap[LabelCondaEnv] = []string{relPath}
 		}
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &pythonEnv{
-		pythonVersion: "python", // use the default one
-		requirements:  requirements,
-		condaEnv:      condaEnv,
-		indent:        "    ",
-		notebook:      false,
-	}, nil
-}
 
-func (pe *pythonEnv) generate() []byte {
-	var buf bytes.Buffer
-	buf.WriteString("def build():\n")
-	buf.WriteString(fmt.Sprintf("%sbase(os=\"ubuntu20.04\", language=\"%s\")\n", pe.indent, pe.pythonVersion))
-	if len(pe.requirements) > 0 {
-		buf.WriteString(fmt.Sprintf("%sinstall.python_packages(requirements=\"%s\")\n", pe.indent, pe.requirements))
+	selectionMap[LabelPythonRequirement] = []string{requirements}
+	if len(requirements) == 0 {
+		startQuestion(PythonPackageChoice)
 	}
-	if len(pe.condaEnv) > 0 {
-		buf.WriteString(fmt.Sprintf("%sinstall.conda_packages(env_file=\"%s\")\n", pe.indent, pe.condaEnv))
-	}
-	if pe.notebook {
-		buf.WriteString(fmt.Sprintf("%sconfig.jupyter()\n", pe.indent))
-	}
-	return buf.Bytes()
+	startQuestion(JupyterChoice)
+	return nil
 }
 
 // naive check
@@ -144,14 +114,6 @@ func isCondaEnvFile(file string) bool {
 	return false
 }
 
-func initPythonEnv(dir string) ([]byte, error) {
-	env, err := NewPythonEnv(dir)
-	if err != nil {
-		return nil, err
-	}
-	return env.generate(), nil
-}
-
 func initCommand(clicontext *cli.Context) error {
 	lang := strings.ToLower(clicontext.String("lang"))
 	buildContext, err := filepath.Abs(clicontext.Path("path"))
@@ -159,9 +121,17 @@ func initCommand(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
 	if !isValidLang(lang) {
-		return errors.Errorf("invalid language (%s)", lang)
+		startQuestion(LanguageChoice)
+		lang = selectionMap[LabelLanguage][0]
+	} else {
+		selectionMap[LabelLanguage] = []string{lang}
 	}
+	defer func(start time.Time) {
+		telemetry.GetReporter().Telemetry(
+			"init", telemetry.AddField("duration", time.Since(start).Seconds()))
+	}(time.Now())
 
 	filePath := filepath.Join(buildContext, "build.envd")
 	exists, err := fileutil.FileExists(filePath)
@@ -172,18 +142,24 @@ func initCommand(clicontext *cli.Context) error {
 		return errors.Errorf("build.envd already exists, use --force to overwrite it")
 	}
 
-	var buildEnvdContent []byte
 	if lang == "python" {
-		buildEnvdContent, err = initPythonEnv(buildContext)
-	} else {
-		buildEnvdContent, err = templatef.ReadFile("template/" + lang + ".envd")
+		err = InitPythonEnv(buildContext)
+		if err != nil {
+			return err
+		}
+	} else if lang == "r" {
+		startQuestion(RPackageChoice)
 	}
-	if err != nil {
-		return err
+
+	startQuestion(CudaChoice)
+	if selectionMap[LabelCudaChoice][0] == "Yes" {
+		startQuestion(CudaVersionChoice)
 	}
-	err = os.WriteFile(filePath, buildEnvdContent, 0644)
+
+	err = generateFile(clicontext)
 	if err != nil {
 		return errors.Wrapf(err, "Failed to create build.envd")
 	}
+
 	return nil
 }

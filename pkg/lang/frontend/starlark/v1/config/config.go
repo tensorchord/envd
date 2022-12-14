@@ -45,6 +45,7 @@ var Module = &starlarkstruct.Module{
 		"rstudio_server": starlark.NewBuiltin(ruleRStudioServer, ruleFuncRStudioServer),
 		"entrypoint":     starlark.NewBuiltin(ruleEntrypoint, ruleFuncEntrypoint),
 		"repo":           starlark.NewBuiltin(ruleRepo, ruleFuncRepo),
+		"owner":          starlark.NewBuiltin(ruleOwner, ruleFuncOwner),
 	},
 }
 
@@ -223,5 +224,24 @@ func ruleFuncRepo(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("repo info: url=%s, description=%s", url, description)
 	ir.Repo(url, description)
+	return starlark.None, nil
+}
+
+func ruleFuncOwner(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var (
+		uid = -1
+		gid = -1
+	)
+
+	if err := starlark.UnpackArgs(ruleOwner, args, kwargs, "uid", &uid, "gid", &gid); err != nil {
+		return nil, err
+	}
+
+	if uid < 0 || uid > 65535 || gid < 0 || gid > 65535 {
+		return nil, errors.New("get a wrong uid or gid")
+	}
+	logger.Debugf("owner info: uid=%d, gid=%d", uid, gid)
+	ir.Owner(uid, gid)
 	return starlark.None, nil
 }

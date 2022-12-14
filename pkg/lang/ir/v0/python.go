@@ -143,24 +143,16 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 		llb.WithCustomName("[internal] setting pip cache mount permissions"))
 
 	if len(g.PyPIPackages) != 0 {
-		// Compose the package install command.
-		var sb strings.Builder
-		// Always use the conda's pip.
-		sb.WriteString("/opt/conda/envs/envd/bin/python -m pip install")
-		for _, pkg := range g.PyPIPackages {
-			sb.WriteString(fmt.Sprintf(" %s", pkg))
+		for _, packages := range g.PyPIPackages {
+			cmd := fmt.Sprintf("/opt/conda/envs/envd/bin/python -m pip install %s", strings.Join(packages, " "))
+			logrus.WithField("command", cmd).Debug("Configure pip install statements")
+			run := root.
+				Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s", strings.Join(packages, " ")))
+			// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
+			run.AddMount(cacheDir, cache,
+				llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
+			root = run.Root()
 		}
-
-		cmd := sb.String()
-		logrus.WithField("command", cmd).
-			Debug("Configure pip install statements")
-		run := root.
-			Run(llb.Shlex(sb.String()), llb.WithCustomNamef("pip install %s",
-				strings.Join(g.PyPIPackages, " ")))
-		// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
-		run.AddMount(cacheDir, cache,
-			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
-		root = run.Root()
 	}
 
 	if g.RequirementsFile != nil {

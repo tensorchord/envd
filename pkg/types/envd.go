@@ -17,8 +17,8 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
 	"github.com/moby/buildkit/util/system"
 	servertypes "github.com/tensorchord/envd-server/api/types"
@@ -145,6 +145,11 @@ type Dependency struct {
 type RepoInfo struct {
 	URL         string `json:"url,omitempty"`
 	Description string `json:"description,omitempty"`
+}
+
+type OwnerInfo struct {
+	Uid int64 `json:"uid,omitempty"`
+	Gid int64 `json:"gid,omitempty"`
 }
 
 type PortBinding struct {
@@ -305,23 +310,16 @@ func NewDependencyFromLabels(label map[string]string) (*Dependency, error) {
 	if pkgs, ok := label[ImageLabelAPT]; ok {
 		lst, err := parseAPTPackages(pkgs)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to parse apt packages")
 		}
 		dep.APTPackages = lst
 	}
 	if pypiCommands, ok := label[ImageLabelPyPI]; ok {
-		lst, err := parsePyPICommands(pypiCommands)
+		pkgs, err := parsePyPICommands(pypiCommands)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to parse pypi commands")
 		}
-		packages := []string{}
-
-		for i, pkg := range lst {
-			if !strings.HasPrefix(pkg, "-") && (i == 0 || !strings.HasPrefix(lst[i-1], "-")) {
-				packages = append(packages, pkg)
-			}
-		}
-		dep.PyPIPackages = packages
+		dep.PyPIPackages = pkgs
 	}
 	return &dep, nil
 }

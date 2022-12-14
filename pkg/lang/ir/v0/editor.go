@@ -63,7 +63,7 @@ func (g *generalGraph) compileJupyter() error {
 		return nil
 	}
 
-	g.PyPIPackages = append(g.PyPIPackages, "jupyter")
+	g.PyPIPackages = append(g.PyPIPackages, []string{"jupyter"})
 	switch g.Language.Name {
 	case "python":
 		return nil

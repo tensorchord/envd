@@ -77,7 +77,9 @@ func Julia() {
 func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {
 	g := DefaultGraph.(*generalGraph)
 
-	g.PyPIPackages = append(g.PyPIPackages, deps...)
+	if len(deps) > 0 {
+		g.PyPIPackages = append(g.PyPIPackages, deps)
+	}
 	g.PythonWheels = append(g.PythonWheels, wheels...)
 
 	if requirementsFile != "" {
@@ -329,4 +331,10 @@ func Repo(url, description string) {
 		Description: description,
 		URL:         url,
 	}
+}
+
+func Owner(uid, gid int) {
+	g := DefaultGraph.(*generalGraph)
+	g.uid = uid
+	g.gid = gid
 }

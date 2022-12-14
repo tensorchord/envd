@@ -43,13 +43,15 @@ func NewGraph() ir.Graph {
 		RuntimeEnviron:  make(map[string]string),
 	}
 	return &generalGraph{
+		uid:      -1,
+		gid:      -1,
 		Image:    defaultImage,
 		Language: ir.Language{},
 		CUDA:     nil,
 		CUDNN:    CUDNNVersionDefault,
 		NumGPUs:  0,
 
-		PyPIPackages:    []string{},
+		PyPIPackages:    [][]string{},
 		RPackages:       []string{},
 		JuliaPackages:   []string{},
 		SystemPackages:  []string{},
@@ -112,7 +114,7 @@ func (g *generalGraph) Compile(ctx context.Context, envName string, pub string) 
 	g.EnvironmentName = envName
 	g.PublicKeyPath = pub
 
-	uid, gid, err := getUIDGID()
+	uid, gid, err := g.getUIDGID()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get uid/gid")
 	}
@@ -152,7 +154,11 @@ func (g generalGraph) Labels() (map[string]string, error) {
 		return nil, err
 	}
 	labels[types.ImageLabelAPT] = string(str)
-	str, err = json.Marshal(g.PyPIPackages)
+	pyPackages := []string{}
+	for _, pkg := range g.PyPIPackages {
+		pyPackages = append(pyPackages, pkg...)
+	}
+	str, err = json.Marshal(pyPackages)
 	if err != nil {
 		return nil, err
 	}

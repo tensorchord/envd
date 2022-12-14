@@ -45,7 +45,7 @@ type generalGraph struct {
 
 	PublicKeyPath string
 
-	PyPIPackages     []string
+	PyPIPackages     [][]string
 	RequirementsFile *string
 	PythonWheels     []string
 	RPackages        []string

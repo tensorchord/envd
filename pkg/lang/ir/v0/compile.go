@@ -54,7 +54,7 @@ func NewGraph() ir.Graph {
 		CUDNN:   CUDNNVersionDefault,
 		NumGPUs: 0,
 
-		PyPIPackages:    []string{},
+		PyPIPackages:    [][]string{},
 		RPackages:       []string{},
 		JuliaPackages:   []string{},
 		SystemPackages:  []string{},
@@ -141,7 +141,11 @@ func (g generalGraph) Labels() (map[string]string, error) {
 		return nil, err
 	}
 	labels[types.ImageLabelAPT] = string(str)
-	str, err = json.Marshal(g.PyPIPackages)
+	pyPackages := []string{}
+	for _, pkg := range g.PyPIPackages {
+		pyPackages = append(pyPackages, pkg...)
+	}
+	str, err = json.Marshal(pyPackages)
 	if err != nil {
 		return nil, err
 	}
