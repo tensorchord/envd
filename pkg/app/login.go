@@ -106,7 +106,7 @@ func login(clicontext *cli.Context) error {
 	req := servertypes.AuthNRequest{
 		PublicKey: stringK,
 		LoginName: loginName,
-		Password:  []byte(pwd),
+		Password:  pwd,
 	}
 
 	logger := logrus.WithFields(logrus.Fields{

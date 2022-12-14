@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
+	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/cockroachdb/errors v1.9.0
 	github.com/containerd/console v1.0.3
 	github.com/containerd/containerd v1.6.3-0.20220401172941-5ff8fce1fcc6
@@ -29,7 +30,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.14.0
 	github.com/stretchr/testify v1.8.1
-	github.com/tensorchord/envd-server v0.0.14
+	github.com/tensorchord/envd-server v0.0.16
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
 	github.com/urfave/cli/v2 v2.23.7
@@ -38,13 +39,6 @@ require (
 	golang.org/x/sync v0.1.0
 	golang.org/x/term v0.3.0
 	golang.org/x/time v0.0.0-20220920022843-2ce7c2934d45
-)
-
-require (
-	github.com/atotto/clipboard v0.1.4 // indirect
-	github.com/charmbracelet/bubbles v0.14.0 // indirect
-	github.com/charmbracelet/lipgloss v0.6.0 // indirect
-	github.com/sahilm/fuzzy v0.1.0 // indirect
 )
 
 require (
