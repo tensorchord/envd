@@ -17,7 +17,6 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/moby/buildkit/util/system"
@@ -319,14 +318,7 @@ func NewDependencyFromLabels(label map[string]string) (*Dependency, error) {
 		if err != nil {
 			return nil, err
 		}
-		packages := []string{}
-
-		for i, pkg := range pkgs {
-			if !strings.HasPrefix(pkg, "-") && (i == 0 || !strings.HasPrefix(pkgs[i-1], "-")) {
-				packages = append(packages, pkg)
-			}
-		}
-		dep.PyPIPackages = packages
+		dep.PyPIPackages = pkgs
 	}
 	return &dep, nil
 }
