@@ -80,7 +80,7 @@ func InsertBashCompleteEntry() error {
 	}
 	defer f.Close()
 
-	bashEntry, err := bashCompleteEntry()
+	bashEntry, err := BashCompleteEntry()
 	if err != nil {
 		return errors.Wrapf(err, "unable to enable bash-completion")
 	}
@@ -92,6 +92,6 @@ func InsertBashCompleteEntry() error {
 	return nil
 }
 
-func bashCompleteEntry() (string, error) {
+func BashCompleteEntry() (string, error) {
 	return autocompleteBASH, nil
 }
