@@ -151,5 +151,5 @@ func generateLoginName() (string, error) {
 		return "", errors.Wrap(err, "failed to get the user")
 	}
 
-	return fmt.Sprintf("%s@%s", username.Username, hostname), nil
+	return fmt.Sprintf("%s-%s", username.Username, hostname), nil
 }
