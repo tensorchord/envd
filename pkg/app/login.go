@@ -106,7 +106,7 @@ func login(clicontext *cli.Context) error {
 	req := servertypes.AuthNRequest{
 		PublicKey: stringK,
 		LoginName: loginName,
-		Password:  []byte(pwd),
+		Password:  pwd,
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
@@ -151,5 +151,5 @@ func generateLoginName() (string, error) {
 		return "", errors.Wrap(err, "failed to get the user")
 	}
 
-	return fmt.Sprintf("%s@%s", username.Username, hostname), nil
+	return fmt.Sprintf("%s-%s", username.Username, hostname), nil
 }
