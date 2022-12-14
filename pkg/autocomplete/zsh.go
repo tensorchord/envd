@@ -111,7 +111,7 @@ func InsertZSHCompleteEntry() error {
 	}
 	defer f.Close()
 
-	compEntry, err := zshCompleteEntry()
+	compEntry, err := ZshCompleteEntry()
 	if err != nil {
 		return errors.Wrapf(err, "Warning: unable to enable zsh-completion")
 	}
@@ -141,7 +141,7 @@ func InsertZSHCompleteEntry() error {
 	return deleteZcompdump()
 }
 
-func zshCompleteEntry() (string, error) {
+func ZshCompleteEntry() (string, error) {
 	return autocompleteZSH, nil
 }
 
