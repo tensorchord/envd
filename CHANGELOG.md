@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.2.6 (2022-12-15)
+
+ * [31eec50](https://github.com/tensorchord/envd/commit/31eec501f898e35ca17f3a8399eaa99e3a2e9705) fix: v0 bashrc file (#1307)
+ * [1fec54e](https://github.com/tensorchord/envd/commit/1fec54e3ecbec248bcdd9b8d9f0bb484f270bf3a) doc: v1 (#1284)
+ * [47361c9](https://github.com/tensorchord/envd/commit/47361c99499f38550f13334dad004ad9f933d9ec) chore(vendor): Update envd server (#1305)
+ * [d90dbf8](https://github.com/tensorchord/envd/commit/d90dbf8c5f246fe7f0eac27dc8338ccde797457b) fix: Add more error info in env ls (#1301)
+ * [fc29fdd](https://github.com/tensorchord/envd/commit/fc29fdd5602fdcf6132bb58df50fad1ab3ecba94) feat: add option to output the completion script to terminal (#1303)
+ * [1cc8c48](https://github.com/tensorchord/envd/commit/1cc8c4899245b0a35f29fc7351e7406f68bcc5bf) fix: flatten pypi packages in the label (#1302)
+ * [0a416d1](https://github.com/tensorchord/envd/commit/0a416d1a5ad2fef5abecc44beac526ea33511540) doc: add more installation methods (#1300)
+ * [d0a803e](https://github.com/tensorchord/envd/commit/d0a803e99c8cb346ef1b68724ab6e6f241390f18) fix: init uid/gid in Graph (#1299)
+ * [db0396d](https://github.com/tensorchord/envd/commit/db0396d410f6f1e05f215269a63455bca73b3a0b) fix: make starship prompt pure text (#1296)
+ * [a24c4cb](https://github.com/tensorchord/envd/commit/a24c4cba6c11960bce2c174d61df22be150a3ccd) fix: Update svg and simplify readme (#1297)
+ * [935e55d](https://github.com/tensorchord/envd/commit/935e55d5907378ab967d4c767bff7ec3b0c0909a) Interactive cli (#1294)
+ * [3800ea2](https://github.com/tensorchord/envd/commit/3800ea2971ea260431fd8fc5ab22ad9b069d8251) fix: add PATH when switch to envd user (#1295)
+ * [382a6c1](https://github.com/tensorchord/envd/commit/382a6c150e30ea883c3229b37d851d85ead737bc) feat: install pypi packages in different groups (#1289)
+ * [c66f201](https://github.com/tensorchord/envd/commit/c66f201c90a3ffee039a13679c41e792a1ebeac5) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.5.1 to 2.6.0 (#1293)
+ * [d15c3ca](https://github.com/tensorchord/envd/commit/d15c3caf450009c4e94172b45474d8e268ac76e8) chore(deps): bump golang.org/x/term from 0.2.0 to 0.3.0 (#1292)
+ * [50a8bb6](https://github.com/tensorchord/envd/commit/50a8bb620c178adaa80ce59edea364759afbd5bc) chore(deps): bump github.com/urfave/cli/v2 from 2.23.6 to 2.23.7 (#1291)
+ * [99e8a15](https://github.com/tensorchord/envd/commit/99e8a15fd240d83810e2f4414bcb66d3addcb355) chore(deps): bump pypa/cibuildwheel from 2.11.2 to 2.11.3 (#1290)
+ * [f7f2b34](https://github.com/tensorchord/envd/commit/f7f2b34a80f616ae4db1c0fdb1c01f6583f4821f) Add config.owner to v1 syntax for setting UID and GID (#1286)
+ * [5c4aae9](https://github.com/tensorchord/envd/commit/5c4aae93f797a6ce504f3d09f6395e5492627703) fix: Remove graph access in ssh (#1281)
+ * [56d25a0](https://github.com/tensorchord/envd/commit/56d25a01dd37b2c069ae9b4492811c8571a1e714) feat: Support specify resource requirement when creating the environment (#1268)
+ * [4f82290](https://github.com/tensorchord/envd/commit/4f8229033995cb5919f08c6889515927942b96ff) feat: support no default language in v1 (#1278)
+ * [8e9cb2e](https://github.com/tensorchord/envd/commit/8e9cb2e7bcbaef7c86996d7376ca27af8e741ed0) feat: support serving (#1228)
+ * [8651444](https://github.com/tensorchord/envd/commit/865144482b380cf5d3d6d30dff55a45087aeabc4) Remove incorrect `sudo` command when installing system package (#1273)
+ * [235dde9](https://github.com/tensorchord/envd/commit/235dde905643e2eed7ba91e10423b92598d6a12a) fix: Remove ir direct access in ssh (#1271)
+ * [06b4880](https://github.com/tensorchord/envd/commit/06b488035a5c21a74c8727fc7d8e85f404a2bb00) feat: Add JWT and user/pwd in envd server context (#1243)
+ * [7badc67](https://github.com/tensorchord/envd/commit/7badc67fcf9be813d2124aed7f18acd855847e63) chore(deps): bump github.com/tensorchord/envd-server from 0.0.11 to 0.0.12 (#1266)
+ * [cefd1df](https://github.com/tensorchord/envd/commit/cefd1dfa8101a363a762921ec7439f64d1463e2a) chore(deps): bump github.com/urfave/cli/v2 from 2.23.5 to 2.23.6 (#1264)
+
+### Contributors
+
+ * Alex Xi
+ * Ce Gao
+ * Frost Ming
+ * Jinjing Zhou
+ * Keming
+ * dependabot[bot]
+ * nullday
+ * x0oo0x
+
 ## v0.2.5-rc.7 (2022-12-04)
 
 
