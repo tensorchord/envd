@@ -73,7 +73,6 @@ func (g *generalGraph) compileShell(root llb.State) (_ llb.State, err error) {
 }
 
 func (g *generalGraph) compileCondaShell(root llb.State) llb.State {
-	var run llb.ExecState
 	findDir := fileutil.DefaultHomeDir
 	if g.Dev {
 		findDir = fileutil.EnvdHomeDir
@@ -82,11 +81,11 @@ func (g *generalGraph) compileCondaShell(root llb.State) llb.State {
 	if g.Shell == shellZSH {
 		rcPath = findDir(".zshrc")
 	}
-	run = root.
+	run := root.
 		Run(llb.Shlexf("bash -c \"%s\"", g.condaInitShell(g.Shell)),
 			llb.WithCustomNamef("[internal] init conda %s env", g.Shell)).
 		Run(llb.Shlexf(`bash -c 'echo "source %s/activate envd" >> %s'`, condaBinDir, rcPath),
-			llb.WithCustomName("[internal] add conda environment to zshrc"))
+			llb.WithCustomNamef("[internal] add conda environment to %s", rcPath))
 	return run.Root()
 }
 
