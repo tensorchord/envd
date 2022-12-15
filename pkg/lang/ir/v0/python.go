@@ -62,13 +62,12 @@ func (g generalGraph) compilePython(baseStage llb.State) (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile shell")
 	}
-	condaShellStage := g.compileCondaShell(shellStage)
 
 	diffCondaEnvStage := llb.Diff(baseStage, condaEnvStage,
 		llb.WithCustomName("[internal] conda python environment"))
 	diffSystemStage := llb.Diff(baseStage, systemStage,
 		llb.WithCustomName("[internal] install system packages"))
-	diffShellStage := llb.Diff(baseStage, condaShellStage,
+	diffShellStage := llb.Diff(baseStage, shellStage,
 		llb.WithCustomNamef("[internal] configure shell %s", g.Shell))
 	prePythonStage := llb.Merge([]llb.State{
 		diffSystemStage,
@@ -112,7 +111,8 @@ func (g generalGraph) compilePython(baseStage llb.State) (llb.State, error) {
 		}, llb.WithCustomName("[internal] generating the image"))
 	}
 	merged = g.compileAlternative(merged)
-	return merged, nil
+	condaShell := g.compileCondaShell(merged)
+	return condaShell, nil
 }
 
 // Set the system default python to envd's python.
