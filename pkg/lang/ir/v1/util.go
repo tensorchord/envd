@@ -132,6 +132,7 @@ func GetCUDAImage(image string, cuda *string, cudnn string, dev bool) string {
 	if dev {
 		target = "devel"
 	}
+	imageTag := strings.Replace(image, ":", "", 1)
 
-	return fmt.Sprintf("docker.io/nvidia:%s-cudnn%s-%s-%s", *cuda, cudnn, target, image)
+	return fmt.Sprintf("docker.io/nvidia/cuda:%s-cudnn%s-%s-%s", *cuda, cudnn, target, imageTag)
 }

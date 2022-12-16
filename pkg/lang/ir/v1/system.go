@@ -232,7 +232,7 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 
 	// Set the environment variables to RuntimeEnviron to keep it in the resulting image.
 	for _, e := range envs {
-		kv := strings.Split(e, "=")
+		kv := strings.SplitN(e, "=", 2)
 		g.RuntimeEnviron[kv[0]] = kv[1]
 	}
 	// TODO: inherit the USER from base
