@@ -117,7 +117,7 @@ For example, the PyPI cache is shared across builds and thus the package will be
 # install with one command
 curl -sSfL https://envd.tensorchord.ai/install.sh | sudo sh
 # or install with pipx
-pipx install envd --pip-args="--pre"
+pipx install envd
 
 # bootstrap
 envd bootstrap
