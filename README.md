@@ -113,13 +113,15 @@ For example, the PyPI cache is shared across builds and thus the package will be
 
 `envd` can be installed with `pip`, or you can download the binary [release](https://github.com/tensorchord/envd/releases) directly. After the installation, please run `envd bootstrap` to bootstrap.
 
-```bash
-# install with one command
-curl -sSfL https://envd.tensorchord.ai/install.sh | sudo sh
-# or install with pipx
-pipx install envd
+One-line installation:
 
-# bootstrap
+```bash
+curl -sSfL https://envd.tensorchord.ai/install.sh | sudo bash
+```
+
+Bootstrap:
+
+```bash
 envd bootstrap
 ```
 
