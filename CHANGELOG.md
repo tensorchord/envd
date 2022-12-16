@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0 (2022-12-16)
+
+ * [30ff84d](https://github.com/tensorchord/envd/commit/30ff84d71155bd5bcf6d09df2d1d8effd95b130e) fix: v1 gpu base image name and envs (#1313)
+
+### Contributors
+
+ * Keming
+
 ## v0.2.6 (2022-12-15)
 
  * [31eec50](https://github.com/tensorchord/envd/commit/31eec501f898e35ca17f3a8399eaa99e3a2e9705) fix: v0 bashrc file (#1307)
