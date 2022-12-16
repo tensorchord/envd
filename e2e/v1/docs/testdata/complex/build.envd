@@ -3,6 +3,7 @@
 
 def build():
     base(dev=True)
+    install.cuda(version="11.2.2", cudnn="8")
     install.conda()
     install.python()
     config.apt_source(
@@ -29,7 +30,6 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe mu
             "numpy",
         ]
     )
-    install.cuda(version="11.2.2", cudnn="8")
     shell("zsh")
     install.apt_packages(name=["htop"])
     git_config(name="Ce Gao", email="cegao@tensorchord.ai", editor="vim")
