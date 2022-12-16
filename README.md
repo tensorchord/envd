@@ -125,7 +125,7 @@ Bootstrap:
 envd bootstrap
 ```
 
-Read the [documenation](https://envd.tensorchord.ai/guide/getting-started.html#install-and-bootstrap-envd) for more alternative installation methods.
+Read the [documentation](https://envd.tensorchord.ai/guide/getting-started.html#install-and-bootstrap-envd) for more alternative installation methods.
 
 > You can add `--dockerhub-mirror` or `-m` flag when running `envd bootstrap`, to configure the mirror for docker.io registry:
 >
