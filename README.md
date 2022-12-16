@@ -113,17 +113,19 @@ For example, the PyPI cache is shared across builds and thus the package will be
 
 `envd` can be installed with `pip`, or you can download the binary [release](https://github.com/tensorchord/envd/releases) directly. After the installation, please run `envd bootstrap` to bootstrap.
 
-```bash
-# install with local pip
-pip install --pre --upgrade envd
-# or install with pipx
-pipx install envd --pip-args="--pre"
-# or download the latest release artifact with GitHub CLI
-bash -c "gh release download -R tensorchord/envd -p $(echo envd_\*_$(uname)_$(uname -p))"
+One-line installation:
 
-# bootstrap
+```bash
+curl -sSfL https://envd.tensorchord.ai/install.sh | sudo bash
+```
+
+Bootstrap:
+
+```bash
 envd bootstrap
 ```
+
+Read the [documentation](https://envd.tensorchord.ai/guide/getting-started.html#install-and-bootstrap-envd) for more alternative installation methods.
 
 > You can add `--dockerhub-mirror` or `-m` flag when running `envd bootstrap`, to configure the mirror for docker.io registry:
 >
