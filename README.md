@@ -22,9 +22,9 @@
 
 envd (`ɪnˈvdɪ`) is a command-line tool that helps you create the container-based development environment for AI/ML.
 
-Development environments are full of python and system dependencies, CUDA, BASH scripts, Dockerfiles, SSH configurations, Kubernetes YAMLs, and many other clunky things that are always breaking. envd is to solve the problem:
+Development environments are full of Python and system dependencies, CUDA, BASH scripts, Dockerfiles, SSH configurations, Kubernetes YAMLs, and many other clunky things that are always breaking. envd is to solve the problem:
 
-1. Declare the list of dependencies (CUDA, python packages, your favorite IDE, and so on) in `build.envd`
+1. Declare the list of dependencies (CUDA, Python packages, your favorite IDE, and so on) in `build.envd`
 1. Simply run `envd up`.
 1. Develop in the isolated environment.
 
@@ -38,7 +38,7 @@ Environments built with `envd` provide the following features out-of-the-box:
 
 ❤️ **Knowledge reuse in your team**
 
-`envd` build functions can be reused. Use `include` function to import any git repositories. No more copy/paste Dockerfile instructions, let's reuse them.
+`envd` build functions can be reused. Use `include` function to import any Git repositories. No more copy/paste Dockerfile instructions, let's reuse them.
 
 ```python
 envdlib = include("https://github.com/tensorchord/envdlib")
@@ -88,9 +88,9 @@ def tensorboard(
 ```
 </details>
 
-⏱️ **Builtkit native, build up to 6x faster**
+⏱️ **BuildKit-native, build up to 6x faster**
 
-[Buildkit](https://github.com/moby/buildkit) supports parallel builds and software cache (e.g. pip index cache and apt cache). You can enjoy the benefits without knowledge of it.
+[BuildKit](https://github.com/moby/buildkit) supports parallel builds and software cache (e.g. pip index cache and apt cache). You can enjoy the benefits without knowledge of it.
 
 For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before.
 
