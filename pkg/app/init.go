@@ -129,7 +129,7 @@ func initCommand(clicontext *cli.Context) error {
 			lang = selectionMap[LabelLanguage][0]
 		} else {
 			lang = "python"
-			selectionMap[LabelLanguage][0] = lang
+			selectionMap[LabelLanguage] = []string{lang}
 		}
 	} else {
 		selectionMap[LabelLanguage] = []string{lang}
