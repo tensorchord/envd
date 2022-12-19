@@ -6,7 +6,7 @@ Build and run your service:
 
 ```bash
 envd build -t resnet:serving
-docker run --rm --gpus all -p 8000:8000 resnet
+docker run --rm --gpus all -p 8000:8000 resnet:serving
 ```
 
 Test with client:
