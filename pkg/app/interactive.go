@@ -24,6 +24,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/cockroachdb/errors"
+	"github.com/mattn/go-isatty"
 	"github.com/urfave/cli/v2"
 )
 
@@ -206,6 +207,11 @@ func (m model) addSelection() {
 }
 
 func startQuestion(input input) {
+	isTerminal := isatty.IsTerminal(os.Stdout.Fd())
+	if !isTerminal {
+		return
+	}
+
 	p := tea.NewProgram(InitModel(input))
 	m, err := p.Run()
 	if m.(model).exit {
@@ -228,7 +234,7 @@ func generateFile(clicontext *cli.Context) error {
 	if len(selectionMap[LabelCondaEnv]) > 0 {
 		buf.WriteString(fmt.Sprintf("%sinstall.conda_packages(env_file=\"%s\")\n", indentation, selectionMap[LabelCondaEnv][0]))
 	}
-	if selectionMap[LabelCudaChoice][0] == "Yes" {
+	if len(selectionMap[LabelCudaChoice]) > 0 && selectionMap[LabelCudaChoice][0] == "Yes" {
 		buf.WriteString(fmt.Sprintf("%scuda(version=\"%s\", cudann=\"8\")\n", indentation, selectionMap[LabelCuda][0]))
 	}
 	if len(selectionMap[LabelJupyterChoice]) > 0 && selectionMap[LabelJupyterChoice][0] == "Yes" {

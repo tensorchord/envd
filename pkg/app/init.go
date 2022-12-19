@@ -93,9 +93,10 @@ func InitPythonEnv(dir string) error {
 		return err
 	}
 
-	selectionMap[LabelPythonRequirement] = []string{requirements}
 	if len(requirements) == 0 {
 		startQuestion(PythonPackageChoice)
+	} else {
+		selectionMap[LabelPythonRequirement] = []string{requirements}
 	}
 	startQuestion(JupyterChoice)
 	return nil
@@ -124,7 +125,12 @@ func initCommand(clicontext *cli.Context) error {
 
 	if !isValidLang(lang) {
 		startQuestion(LanguageChoice)
-		lang = selectionMap[LabelLanguage][0]
+		if len(selectionMap[LabelLanguage]) > 0 {
+			lang = selectionMap[LabelLanguage][0]
+		} else {
+			lang = "python"
+			selectionMap[LabelLanguage] = []string{lang}
+		}
 	} else {
 		selectionMap[LabelLanguage] = []string{lang}
 	}
@@ -152,7 +158,7 @@ func initCommand(clicontext *cli.Context) error {
 	}
 
 	startQuestion(CudaChoice)
-	if selectionMap[LabelCudaChoice][0] == "Yes" {
+	if len(selectionMap[LabelCudaChoice]) > 0 && selectionMap[LabelCudaChoice][0] == "Yes" {
 		startQuestion(CudaVersionChoice)
 	}
 
