@@ -1,0 +1,19 @@
+# syntax=v1
+
+
+def build():
+    install.cuda(version="11.6.2")
+    install.python()
+    install.python_packages(
+        name=[
+            "torch --extra-index-url https://download.pytorch.org/whl/cu116",
+            "torchvision",
+            "numpy",
+            "Pillow",
+            "msgpack",
+            "mosec",
+        ]
+    )
+    io.copy("main.py", "/")
+    config.entrypoint(["python", "main.py"])
+
