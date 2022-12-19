@@ -47,6 +47,22 @@ var CommandDescribeEnvironment = &cli.Command{
 			Aliases: []string{"e"},
 			Value:   getCurrentDirOrPanic(),
 		},
+		&cli.StringFlag{
+			Name:     "format",
+			Usage:    "Format of output, could be \"json\" or \"table\", could be \"json\" or \"table\"",
+			Aliases:  []string{"p"},
+			Value:    "table",
+			Required: false,
+			Action: func(clicontext *cli.Context, v string) error {
+				switch v {
+				case
+					"table",
+					"json":
+					return nil
+				}
+				return errors.Errorf("Argument format only allows \"json\" and \"table\", found %v", v)
+			},
+		},
 	},
 	Action: getEnvironmentDescriptions,
 }
@@ -74,9 +90,15 @@ func getEnvironmentDescriptions(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to list port bindings")
 	}
+	format := clicontext.String("format")
+	switch format {
+	case "table":
+		renderTableDependencies(os.Stdout, dep)
+		renderTablePortBindings(os.Stdout, ports)
+	case "json":
+		return renderjsonEnvDesp(dep, ports)
+	}
 
-	renderDependencies(os.Stdout, dep)
-	renderPortBindings(os.Stdout, ports)
 	return nil
 }
 
@@ -99,7 +121,7 @@ func createTable(w io.Writer, headers []string) *tablewriter.Table {
 	return table
 }
 
-func renderPortBindings(w io.Writer, ports []types.PortBinding) {
+func renderTablePortBindings(w io.Writer, ports []types.PortBinding) {
 	if ports == nil {
 		return
 	}
@@ -116,7 +138,7 @@ func renderPortBindings(w io.Writer, ports []types.PortBinding) {
 	table.Render()
 }
 
-func renderDependencies(w io.Writer, dep *types.Dependency) {
+func renderTableDependencies(w io.Writer, dep *types.Dependency) {
 	if dep == nil {
 		return
 	}
@@ -134,4 +156,51 @@ func renderDependencies(w io.Writer, dep *types.Dependency) {
 		table.Append(envRow)
 	}
 	table.Render()
+}
+
+type envJsonDescribe struct {
+	Ports        []envJsonPort       `json:"ports,omitempty"`
+	Dependencies []envJsonDependency `json:"dependencies,omitempty"`
+}
+type envJsonPort struct {
+	Name          string `json:"name"`
+	ContainerPort string `json:"container_port"`
+	Protocol      string `json:"protocol"`
+	HostIP        string `json:"host_ip"`
+	HostPort      string `json:"host_port"`
+}
+
+type envJsonDependency struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+func renderjsonEnvDesp(dep *types.Dependency, ports []types.PortBinding) error {
+	output := envJsonDescribe{}
+
+	for _, port := range ports {
+		port := envJsonPort{
+			Name:          port.Name,
+			ContainerPort: port.Port,
+			Protocol:      port.Protocol,
+			HostIP:        port.HostIP,
+			HostPort:      port.HostPort,
+		}
+		output.Ports = append(output.Ports, port)
+	}
+	for _, p := range dep.PyPIPackages {
+		dependency := envJsonDependency{
+			Name: p,
+			Type: "Python",
+		}
+		output.Dependencies = append(output.Dependencies, dependency)
+	}
+	for _, p := range dep.APTPackages {
+		dependency := envJsonDependency{
+			Name: p,
+			Type: "APT",
+		}
+		output.Dependencies = append(output.Dependencies, dependency)
+	}
+	return PrintJson(output)
 }

@@ -28,8 +28,26 @@ import (
 )
 
 var CommandContextList = &cli.Command{
-	Name:   "ls",
-	Usage:  "List envd contexts",
+	Name:  "ls",
+	Usage: "List envd contexts",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:     "format",
+			Usage:    "Format of output, could be \"json\" or \"table\"",
+			Aliases:  []string{"f"},
+			Value:    "table",
+			Required: false,
+			Action: func(clicontext *cli.Context, v string) error {
+				switch v {
+				case
+					"table",
+					"json":
+					return nil
+				}
+				return errors.Errorf("Argument format only allows \"json\" and \"table\", found %v", v)
+			},
+		},
+	},
 	Action: contextList,
 }
 
@@ -38,11 +56,17 @@ func contextList(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to list context")
 	}
-	renderContext(contexts, os.Stdout)
+	format := clicontext.String("format")
+	switch format {
+	case "table":
+		renderTableContext(os.Stdout, contexts)
+	case "json":
+		return renderJsonContext(contexts)
+	}
 	return nil
 }
 
-func renderContext(contexts types.EnvdContext, w io.Writer) {
+func renderTableContext(w io.Writer, contexts types.EnvdContext) {
 	table := tablewriter.NewWriter(w)
 	table.SetHeader([]string{"context", "builder", "builder addr", "runner", "runner addr"})
 
@@ -74,4 +98,31 @@ func renderContext(contexts types.EnvdContext, w io.Writer) {
 		table.Append(envRow)
 	}
 	table.Render()
+}
+
+type contextJsonDisplay struct {
+	Context     string `json:"context"`
+	Builder     string `json:"builder"`
+	BuilderAddr string `json:"builder_addr"`
+	Runner      string `json:"runner"`
+	RunnerAddr  string `json:"runner_addr,omitempty"`
+	Current     bool   `json:"current"`
+}
+
+func renderJsonContext(contexts types.EnvdContext) error {
+	output := []contextJsonDisplay{}
+	for _, p := range contexts.Contexts {
+		item := contextJsonDisplay{
+			Context:     p.Name,
+			Builder:     string(p.Builder),
+			BuilderAddr: fmt.Sprintf("%s://%s", p.Builder, p.BuilderAddress),
+			Runner:      string(p.Runner),
+			Current:     p.Name == contexts.Current,
+		}
+		if p.RunnerAddress != nil {
+			item.RunnerAddr = *p.RunnerAddress
+		}
+		output = append(output, item)
+	}
+	return PrintJson(output)
 }

@@ -22,6 +22,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 var CommandDescribeImage = &cli.Command{
@@ -33,6 +34,22 @@ var CommandDescribeImage = &cli.Command{
 			Name:    "image",
 			Usage:   "Specify the image to use",
 			Aliases: []string{"i"},
+		},
+		&cli.StringFlag{
+			Name:     "format",
+			Usage:    "Format of output, could be \"json\" or \"table\"",
+			Aliases:  []string{"f"},
+			Value:    "table",
+			Required: false,
+			Action: func(clicontext *cli.Context, v string) error {
+				switch v {
+				case
+					"table",
+					"json":
+					return nil
+				}
+				return errors.Errorf("Argument format only allows \"json\" and \"table\", found %v", v)
+			},
 		},
 	},
 	Action: getImageDependency,
@@ -58,6 +75,12 @@ func getImageDependency(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to list dependencies")
 	}
-	renderDependencies(os.Stdout, dep)
+	format := clicontext.String("format")
+	switch format {
+	case "table":
+		renderTableDependencies(os.Stdout, dep)
+	case "json":
+		return renderjsonEnvDesp(dep, []types.PortBinding{})
+	}
 	return nil
 }

@@ -15,6 +15,8 @@
 package app
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -32,7 +34,6 @@ var CommandVersion = &cli.Command{
 	Category: CategoryOther,
 	Aliases:  []string{"v"},
 	Usage:    "Print envd version information",
-	Action:   printVersion,
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "short",
@@ -46,14 +47,42 @@ var CommandVersion = &cli.Command{
 			Value:   false,
 			Aliases: []string{"d"},
 		},
+		&cli.StringFlag{
+			Name:     "format",
+			Usage:    "Format of output, could be \"json\" or \"table\"",
+			Aliases:  []string{"f"},
+			Value:    "table",
+			Required: false,
+			Action: func(clicontext *cli.Context, v string) error {
+				switch v {
+				case
+					"table",
+					"json":
+					return nil
+				}
+				return errors.Errorf("Argument format only allows \"json\" and \"table\", found %v", v)
+			},
+		},
 	},
+	Action: printVersion,
 }
 
-func printVersion(ctx *cli.Context) error {
-	short := ctx.Bool("short")
-	detail := ctx.Bool("detail")
+func printVersion(clicontext *cli.Context) error {
+	format := clicontext.String("format")
+	switch format {
+	case "table":
+		return printTableVersion(clicontext)
+	case "json":
+		return printJsonVersion(clicontext)
+	}
+	return nil
+}
+
+func printTableVersion(clicontext *cli.Context) error {
+	short := clicontext.Bool("short")
+	detail := clicontext.Bool("detail")
 	ver := version.GetVersion()
-	detailVer, err := getDetailedVersion(ctx)
+	detailVer, err := getDetailedVersion(clicontext)
 	fmt.Printf("envd: %s\n", ver)
 	if short {
 		return nil
@@ -82,6 +111,60 @@ func printVersion(ctx *cli.Context) error {
 		}
 	}
 	return nil
+}
+
+type versionJson struct {
+	Envd              string `json:"envd"`
+	BuildDate         string `json:"build_date,omitempty"`
+	GitCommit         string `json:"git_commit,omitempty"`
+	GitTreeState      string `json:"git_tree_state,omitempty"`
+	GitTag            string `json:"git_tag,omitempty"`
+	GoVersion         string `json:"go_version,omitempty"`
+	Compiler          string `json:"compiler,omitempty"`
+	Platform          string `json:"platform,omitempty"`
+	OSType            string `json:"os_type,omitempty"`
+	OSVersion         string `json:"os_version,omitempty"`
+	KernelVersion     string `json:"kernel_version,omitempty"`
+	DockerHostVersion string `json:"docker_host_version,omitempty"`
+	ContainerRuntimes string `json:"container_runtimes,omitempty"`
+	DefaultRuntime    string `json:"default_runtime,omitempty"`
+}
+
+func printJsonVersion(clicontext *cli.Context) error {
+	short := clicontext.Bool("short")
+	detail := clicontext.Bool("detail")
+	ver := version.GetVersion()
+	detailVer, err := getDetailedVersion(clicontext)
+	output := versionJson{
+		Envd: version.GetVersion().String(),
+	}
+	if short {
+		return PrintJson(output)
+	}
+	output.BuildDate = ver.BuildDate
+	output.GitCommit = ver.GitCommit
+	output.GitTreeState = ver.GitTreeState
+	if ver.GitTag != "" {
+		output.GitTag = ver.GitTag
+	}
+	output.GoVersion = ver.GoVersion
+	output.Compiler = ver.Compiler
+	output.Platform = ver.Platform
+	if detail {
+		if err != nil {
+			fmt.Printf("Error in getting details from Docker Server: %s\n", err)
+		} else {
+			output.OSType = detailVer.OSType
+			if detailVer.OSVersion != "" {
+				output.OSVersion = detailVer.OSVersion
+			}
+			output.KernelVersion = detailVer.KernelVersion
+			output.DockerHostVersion = detailVer.DockerVersion
+			output.ContainerRuntimes = detailVer.ContainerRuntimes
+			output.DefaultRuntime = detailVer.DefaultRuntime
+		}
+	}
+	return PrintJson(output)
 }
 
 func getDetailedVersion(clicontext *cli.Context) (detailedVersion, error) {
@@ -134,4 +217,17 @@ func GetRuntimes(info *types.EnvdInfo) string {
 		keys = append(keys, k)
 	}
 	return "[" + strings.Join(keys, ",") + "]"
+}
+
+func PrintJson(v any) error {
+	buffer := &bytes.Buffer{}
+	encoder := json.NewEncoder(buffer)
+	// avoid escaped from <none> into "\u003cnone\u003e"
+	encoder.SetEscapeHTML(false)
+	err := encoder.Encode(v)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal json")
+	}
+	fmt.Print(buffer.String())
+	return nil
 }

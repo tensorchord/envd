@@ -49,7 +49,25 @@ var CommandListImage = &cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls", "l"},
 	Usage:   "List envd images",
-	Action:  getImage,
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:     "format",
+			Usage:    "Format of output, could be \"json\" or \"table\"",
+			Aliases:  []string{"f"},
+			Value:    "table",
+			Required: false,
+			Action: func(clicontext *cli.Context, v string) error {
+				switch v {
+				case
+					"table",
+					"json":
+					return nil
+				}
+				return errors.Errorf("Argument format only allows \"json\" and \"table\", found %v", v)
+			},
+		},
+	},
+	Action: getImage,
 }
 
 func getImage(clicontext *cli.Context) error {
@@ -64,15 +82,21 @@ func getImage(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	envs, err := envdEngine.ListImage(clicontext.Context)
+	imgs, err := envdEngine.ListImage(clicontext.Context)
 	if err != nil {
 		return err
 	}
-	renderImages(envs, os.Stdout)
+	format := clicontext.String("format")
+	switch format {
+	case "table":
+		renderTableImages(os.Stdout, imgs)
+	case "json":
+		return renderjsonImages(imgs)
+	}
 	return nil
 }
 
-func renderImages(imgs []types.EnvdImage, w io.Writer) {
+func renderTableImages(w io.Writer, imgs []types.EnvdImage) {
 	table := tablewriter.NewWriter(w)
 	table.SetHeader([]string{"Name", "Context", "GPU", "CUDA", "CUDNN", "Image ID", "Created", "Size"})
 
@@ -101,6 +125,35 @@ func renderImages(imgs []types.EnvdImage, w io.Writer) {
 		table.Append(envRow)
 	}
 	table.Render()
+}
+
+type imgJsonDisplay struct {
+	Name    string `json:"name"`
+	Context string `json:"endpoint,omitempty"`
+	GPU     bool   `json:"gpu"`
+	CUDA    string `json:"cuda,omitempty"`
+	CUDNN   string `json:"cudnn,omitempty"`
+	ImageID string `json:"image_id"`
+	Created string `json:"created"`
+	Size    string `json:"size"`
+}
+
+func renderjsonImages(imgs []types.EnvdImage) error {
+	output := []imgJsonDisplay{}
+	for _, img := range imgs {
+		item := imgJsonDisplay{
+			Name:    img.Name,
+			Context: img.BuildContext,
+			GPU:     img.GPU,
+			CUDA:    img.CUDA,
+			CUDNN:   img.CUDNN,
+			ImageID: stringid.TruncateID(img.Digest),
+			Created: createdSinceString(img.Created),
+			Size:    units.HumanSizeWithPrecision(float64(img.Size), 3),
+		}
+		output = append(output, item)
+	}
+	return PrintJson(output)
 }
 
 func stringOrNone(cuda string) string {

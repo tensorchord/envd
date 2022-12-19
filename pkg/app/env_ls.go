@@ -35,7 +35,25 @@ var CommandListEnv = &cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls", "l"},
 	Usage:   "List envd environments",
-	Action:  getEnvironment,
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:     "format",
+			Usage:    "Format of output, could be \"json\" or \"table\"",
+			Aliases:  []string{"f"},
+			Value:    "table",
+			Required: false,
+			Action: func(clicontext *cli.Context, v string) error {
+				switch v {
+				case
+					"table",
+					"json":
+					return nil
+				}
+				return errors.Errorf("Argument format only allows \"json\" and \"table\", found %v", v)
+			},
+		},
+	},
+	Action: getEnvironment,
 }
 
 func getEnvironment(clicontext *cli.Context) error {
@@ -56,11 +74,17 @@ func getEnvironment(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	renderEnvironments(envs, os.Stdout)
+	format := clicontext.String("format")
+	switch format {
+	case "table":
+		renderTableEnvironments(os.Stdout, envs)
+	case "json":
+		return renderjsonEnvironments(envs)
+	}
 	return nil
 }
 
-func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
+func renderTableEnvironments(w io.Writer, envs []types.EnvdEnvironment) {
 	table := tablewriter.NewWriter(w)
 	table.SetHeader([]string{
 		"Name", "Endpoint", "SSH Target", "Image",
@@ -92,6 +116,35 @@ func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
 		table.Append(envRow)
 	}
 	table.Render()
+}
+
+type envJsonDisplay struct {
+	Name      string `json:"name"`
+	Endpoint  string `json:"endpoint,omitempty"`
+	SSHTarget string `json:"ssh_target"`
+	Image     string `json:"image"`
+	GPU       bool   `json:"gpu"`
+	CUDA      string `json:"cuda,omitempty"`
+	CUDNN     string `json:"cudnn,omitempty"`
+	Status    string `json:"status"`
+}
+
+func renderjsonEnvironments(envs []types.EnvdEnvironment) error {
+	output := []envJsonDisplay{}
+	for _, env := range envs {
+		item := envJsonDisplay{
+			Name:      env.Name,
+			Endpoint:  endpointOrNone(env),
+			SSHTarget: fmt.Sprintf("%s.envd", env.Name),
+			Image:     env.Spec.Image,
+			GPU:       env.GPU,
+			CUDA:      env.CUDA,
+			CUDNN:     env.CUDNN,
+			Status:    env.Status.Phase,
+		}
+		output = append(output, item)
+	}
+	return PrintJson(output)
 }
 
 func endpointOrNone(env types.EnvdEnvironment) string {
