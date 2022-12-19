@@ -16,4 +16,3 @@ def build():
     )
     io.copy("main.py", "/")
     config.entrypoint(["python", "main.py"])
-

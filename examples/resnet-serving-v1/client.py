@@ -29,4 +29,3 @@ if prediction.status_code == 200:
     print(msgpack.unpackb(prediction.content))
 else:
     print(prediction.status_code, prediction.content)
-
