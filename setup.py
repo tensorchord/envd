@@ -16,6 +16,9 @@ import os
 from setuptools.command.sdist import sdist
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
+from wheel.bdist_wheel import bdist_wheel
+
+
 import subprocess
 import logging
 
@@ -51,6 +54,17 @@ class EnvdBuildExt(build_ext):
             return super().build_extension(ext)
 
         build_envd_if_not_found()
+
+
+class bdist_wheel_abi3(bdist_wheel):
+    def get_tag(self):
+        python, abi, plat = super().get_tag()
+
+        if python.startswith("cp"):
+            # on CPython, our wheels are abi3 and compatible back to 3.6
+            return "cp36", "abi3", plat
+
+        return python, abi, plat
 
 
 class SdistCommand(sdist):
@@ -110,5 +124,9 @@ setup(
     ext_modules=[
         EnvdExtension(name="envd", sources=["cmd/*"]),
     ],
-    cmdclass=dict(build_ext=EnvdBuildExt, sdist=SdistCommand),
+    cmdclass=dict(
+        build_ext=EnvdBuildExt,
+        sdist=SdistCommand,
+        bdist_wheel=bdist_wheel_abi3,
+    ),
 )
