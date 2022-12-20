@@ -135,14 +135,13 @@ func up(clicontext *cli.Context) error {
 	// Always push image to registry when envd-server is the runner.
 	if c.Runner == types.RunnerTypeEnvdServer {
 		buildOpt.OutputOpts = fmt.Sprintf("type=image,name=%s,push=true", buildOpt.Tag)
-	}
-	start := time.Now()
-	// Unable to modify sshd host when runner is envd-server.
-	if c.Runner == types.RunnerTypeEnvdServer {
+
+		// Unable to modify sshd host when runner is envd-server.
 		if clicontext.String("host") != envd.Localhost {
 			return errors.New("Failed to modify the sshd host when runner is envd-server.")
 		}
 	}
+	start := time.Now()
 
 	ctr := filepath.Base(buildOpt.BuildContextDir)
 	detach := clicontext.Bool("detach")
