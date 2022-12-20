@@ -20,6 +20,8 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/formatter"
+	"github.com/tensorchord/envd/pkg/app/formatter/json"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
@@ -35,22 +37,7 @@ var CommandDescribeImage = &cli.Command{
 			Usage:   "Specify the image to use",
 			Aliases: []string{"i"},
 		},
-		&cli.StringFlag{
-			Name:     "format",
-			Usage:    "Format of output, could be \"json\" or \"table\"",
-			Aliases:  []string{"f"},
-			Value:    "table",
-			Required: false,
-			Action: func(clicontext *cli.Context, v string) error {
-				switch v {
-				case
-					"table",
-					"json":
-					return nil
-				}
-				return errors.Errorf("Argument format only allows \"json\" and \"table\", found %v", v)
-			},
-		},
+		&formatter.FormatFlag,
 	},
 	Action: getImageDependency,
 }
@@ -78,9 +65,9 @@ func getImageDependency(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		renderTableDependencies(os.Stdout, dep)
+		renderDependencies(os.Stdout, dep)
 	case "json":
-		return renderjsonEnvDesp(dep, []types.PortBinding{})
+		return json.PrintEnvironmentDescriptions(dep, []types.PortBinding{})
 	}
 	return nil
 }
