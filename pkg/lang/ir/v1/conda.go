@@ -151,8 +151,12 @@ func (g generalGraph) compileCondaEnvironment(root llb.State) (llb.State, error)
 	return run.Root(), nil
 }
 
-// nolint:unparam
 func (g *generalGraph) installConda(root llb.State) llb.State {
+	if g.Dev {
+		// We only create envd user for dev env.
+		// This directory is related to conda envd env meta (used by `conda env config vars set key=value`)
+		g.UserDirectories = append(g.UserDirectories, fmt.Sprintf("%s/envs/envd/conda-meta", condaRootPrefix))
+	}
 	if g.CondaConfig.UseMicroMamba {
 		return g.installMicroMamba(root)
 	}

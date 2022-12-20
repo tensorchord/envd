@@ -140,7 +140,9 @@ func (g generalGraph) compileCondaEnvironment(root llb.State) (llb.State, error)
 }
 
 // nolint:unparam
-func (g generalGraph) installConda(root llb.State) (llb.State, error) {
+func (g *generalGraph) installConda(root llb.State) (llb.State, error) {
+	// this directory is related to conda envd env meta (used by `conda env config vars set key=value`)
+	g.UserDirectories = append(g.UserDirectories, fmt.Sprintf("%s/envs/envd/conda-meta", condaRootPrefix))
 	if g.CondaConfig.UseMicroMamba {
 		run := root.AddEnv("MAMBA_BIN_DIR", condaBinDir).
 			AddEnv("MAMBA_ROOT_PREFIX", condaRootPrefix).
