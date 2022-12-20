@@ -78,6 +78,7 @@ jobs:
       env:
         CIBW_ARCHS_MACOS: arm64, x86_64
         CIBW_ARCHS_LINUX: auto64
+        CIBW_SKIP: pp*
     - name: Build source distribution
       if: runner.os == 'Linux' # Only release source under linux to avoid conflict
       run: |
