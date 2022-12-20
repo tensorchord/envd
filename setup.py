@@ -56,7 +56,7 @@ class EnvdBuildExt(build_ext):
         build_envd_if_not_found()
 
 
-class bdist_wheel_abi3(bdist_wheel):
+class bdist_wheel_universal(bdist_wheel):
     def get_tag(self):
         *_, plat = super().get_tag()
         return "py2.py3", "none", plat
@@ -122,6 +122,6 @@ setup(
     cmdclass=dict(
         build_ext=EnvdBuildExt,
         sdist=SdistCommand,
-        bdist_wheel=bdist_wheel_abi3,
+        bdist_wheel=bdist_wheel_universal,
     ),
 )
