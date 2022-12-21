@@ -65,26 +65,14 @@ func (g generalGraph) copyAptSignature(root llb.State, name string, url string) 
 	return aptSign, filePath + fileName
 }
 
-func (g generalGraph) compileRLang(root llb.State) llb.State {
-
-	var sign = "https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
-	var aptConfig = ir.AptConfig{
-		Name:       "R-base",
-		Enabled:    "yes",
-		Types:      "deb",
-		URIs:       "https://cloud.r-project.org/bin/linux/ubuntu",
-		Suites:     "focal-cran40/",
-		Components: "",
-		Signed:     "R-base.asc",
-	}
-
-	var file = fmt.Sprintf("/etc/apt/sources.list.d/%s.sources", aptConfig.Name)
+func (g generalGraph) configRSrc(root llb.State, aptConfig ir.AptConfig, sign string) (llb.State, string) {
 
 	var enabled = fmt.Sprintf("Enabled: %s\n", aptConfig.Enabled)
 	var types = fmt.Sprintf("Types: %s\n", aptConfig.Types)
 	var uris = fmt.Sprintf("URIs: %s\n", aptConfig.URIs)
 	var suites = fmt.Sprintf("Suites: %s\n", aptConfig.Suites)
 	var components = fmt.Sprintf("Components: %s\n", aptConfig.Components)
+	var architecture = fmt.Sprintf("Architectures: %s\n", aptConfig.Arch)
 
 	aptSign, signPath := g.copyAptSignature(root, aptConfig.Name, sign)
 	var signature = fmt.Sprintf("Signed-By: %s\n", signPath)
@@ -96,16 +84,40 @@ func (g generalGraph) compileRLang(root llb.State) llb.State {
 	content.WriteString(suites)
 	content.WriteString(components)
 	content.WriteString(signature)
+	content.WriteString(architecture)
 
-	var aptSource = aptSign.
+	return aptSign, content.String()
+}
+
+func (g generalGraph) compileRLang(root llb.State) llb.State {
+
+	var sign = "https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
+	var aptConfig = ir.AptConfig{
+		Name:       "R-base",
+		Enabled:    "yes",
+		Types:      "deb",
+		URIs:       "https://cloud.r-project.org/bin/linux/ubuntu",
+		Suites:     "focal-cran40/",
+		Components: "",
+		Signed:     "R-base.asc",
+		Arch:       "",
+	}
+
+	var file = fmt.Sprintf("/etc/apt/sources.list.d/%s.sources", aptConfig.Name)
+
+	var aptSource llb.State
+	var content string
+	aptSource, content = g.configRSrc(root, aptConfig, sign)
+
+	aptRLang := aptSource.
 		File(llb.Mkdir("/etc/apt/sources.list.d/", 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] setting apt-source folder sources.list.d")).
-		File(llb.Mkfile(file, 0644, []byte(content.String())),
+		File(llb.Mkfile(file, 0644, []byte(content)),
 			llb.WithCustomName("[internal] setting apt-source file")).
-		Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", "echo 'APT::Sources::Use-Deb822 true;\n' >> /etc/apt/apt.conf")),
+		Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", "echo 'APT::Sources::Use-Deb822 true;' > /etc/apt/apt.conf")),
 			llb.WithCustomName("[internal] enabled Deb822 format apt-source file"))
 
-	return aptSource.Root()
+	return aptRLang.Root()
 
 }
 
@@ -209,7 +221,7 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 		lang, err = g.installPython(root)
 	case "r":
 		rSrc := g.compileRLang(root)
-		lang, err = g.installRLang(rSrc)
+		lang, _ = g.installRLang(rSrc)
 	case "julia":
 		lang, err = g.installJulia(root)
 	}

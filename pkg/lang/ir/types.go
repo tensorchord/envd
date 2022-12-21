@@ -90,4 +90,5 @@ type AptConfig struct {
 	Suites     string
 	Components string
 	Signed     string
+	Arch       string
 }
