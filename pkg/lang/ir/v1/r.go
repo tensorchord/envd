@@ -21,13 +21,13 @@ import (
 	"github.com/moby/buildkit/client/llb"
 )
 
-func (g generalGraph) installRLang(root llb.State) (llb.State, error) {
+func (g generalGraph) installRLang(root llb.State) llb.State {
 
 	installR := "apt-get update && apt-get install -y -t focal-cran40 r-base"
 
 	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", installR)),
 		llb.WithCustomNamef("[internal] installing r-base packages"))
-	return run.Root(), nil
+	return run.Root()
 }
 
 func (g generalGraph) installRPackages(root llb.State) llb.State {
