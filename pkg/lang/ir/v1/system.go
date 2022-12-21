@@ -47,28 +47,27 @@ func (g generalGraph) compileUbuntuAPT(root llb.State) llb.State {
 	return root
 }
 
-func (g generalGraph) copyAptSignature(root llb.State, sign string, url string) llb.State {
+func (g generalGraph) copyAptSignature(root llb.State, name string, url string) (llb.State, string) {
+	var fileName = fmt.Sprintf("%s.asc", name)
+	var filePath = "/etc/apt/keyrings"
+
 	base := llb.Image(builderImage)
 	builder := base.
-		File(llb.Mkdir("/etc/apt/keyrings", 0755, llb.WithParents(true)),
-			llb.WithCustomName("[internal] setting bulder apt-source signature folder")).
-		File(llb.Mkfile(sign, 0644, []byte("")),
-			llb.WithCustomName("[internal] creating apt-source signature file")).
-		Run(llb.Shlex(fmt.Sprintf("sh -c \"%s\"", "curl "+url+" >> "+sign)),
+		Run(llb.Shlex(fmt.Sprintf("sh -c \"curl %s >> %s\"", url, fileName)),
 			llb.WithCustomName("[internal] downloading apt-source signature in base image")).Root()
 
-	apt_Sign := root.
-		File(llb.Mkdir("/etc/apt/keyrings", 0755, llb.WithParents(true)),
-			llb.WithCustomName("[internal] etting target apt-source signature folder")).
-		File(llb.Copy(builder, sign, sign),
-			llb.WithCustomName("copy signature from builder"))
+	aptSign := root.
+		File(llb.Mkdir(filePath, 0755, llb.WithParents(true)),
+			llb.WithCustomName("[internal] setting target apt-source signature folder")).
+		File(llb.Copy(builder, fileName, filePath+fileName),
+			llb.WithCustomName("[internal] copy signature from builder"))
 
-	return apt_Sign
+	return aptSign, filePath + fileName
 }
 
-func (g generalGraph) compileR(root llb.State) llb.State {
+func (g generalGraph) compileRLang(root llb.State) llb.State {
 
-	var signature = "signed-by=https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
+	var sign = "https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
 	var aptConfig = ir.AptConfig{
 		Name:       "R-base",
 		Enabled:    "yes",
@@ -76,43 +75,35 @@ func (g generalGraph) compileR(root llb.State) llb.State {
 		URIs:       "https://cloud.r-project.org/bin/linux/ubuntu",
 		Suites:     "focal-cran40/",
 		Components: "",
-		Options:    []string{signature},
+		Signed:     "R-base.asc",
 	}
 
 	var file = fmt.Sprintf("/etc/apt/sources.list.d/%s.sources", aptConfig.Name)
-	var Enabled = fmt.Sprintf("Enabled: %s\n", aptConfig.Enabled)
-	var Types = fmt.Sprintf("Types: %s\n", aptConfig.Types)
-	var URIs = fmt.Sprintf("URIs: %s\n", aptConfig.URIs)
-	var Suites = fmt.Sprintf("Suites: %s\n", aptConfig.Suites)
-	var Components = fmt.Sprintf("Components: %s\n", aptConfig.Components)
 
-	var options string
-	var apt_Sign llb.State
-	if aptConfig.Options != nil {
-		for index, option := range aptConfig.Options {
-			var labels = strings.Split(option, "=")
-			if labels[0] == "signed-by" {
-				var sign = fmt.Sprintf("/etc/apt/keyrings/%s.asc", aptConfig.Name)
-				apt_Sign = g.copyAptSignature(root, sign, labels[1])
+	var enabled = fmt.Sprintf("Enabled: %s\n", aptConfig.Enabled)
+	var types = fmt.Sprintf("Types: %s\n", aptConfig.Types)
+	var uris = fmt.Sprintf("URIs: %s\n", aptConfig.URIs)
+	var suites = fmt.Sprintf("Suites: %s\n", aptConfig.Suites)
+	var components = fmt.Sprintf("Components: %s\n", aptConfig.Components)
 
-				var appendStr = fmt.Sprintf("%s: %s\n", labels[0], sign)
-				options = fmt.Sprintf("%s%s", options, appendStr)
-			} else {
-				var appendStr = fmt.Sprintf("%s: %s\n", labels[0], labels[1])
-				options = fmt.Sprintf("%s%s", options, appendStr)
-			}
-			logrus.Debugf("index: %d, options: %s", index, labels[0]+labels[1])
-		}
-	}
+	aptSign, signPath := g.copyAptSignature(root, aptConfig.Name, sign)
+	var signature = fmt.Sprintf("Signed-By: %s\n", signPath)
 
-	var content = fmt.Sprintf("%s%s%s%s%s%s", Enabled, Types, URIs, Suites, Components, options)
-	var aptSource = apt_Sign.
+	var content strings.Builder
+	content.WriteString(enabled)
+	content.WriteString(types)
+	content.WriteString(uris)
+	content.WriteString(suites)
+	content.WriteString(components)
+	content.WriteString(signature)
+
+	var aptSource = aptSign.
 		File(llb.Mkdir("/etc/apt/sources.list.d/", 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] setting apt-source folder sources.list.d")).
-		File(llb.Mkfile(file, 0644, []byte(content)),
+		File(llb.Mkfile(file, 0644, []byte(content.String())),
 			llb.WithCustomName("[internal] setting apt-source file")).
-		Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", "echo 'APT::Sources::Use-Deb822 true;' > /etc/apt/apt.conf")),
-			llb.WithCustomName("[internal] Enabled Deb822 format apt-source file"))
+		Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", "echo 'APT::Sources::Use-Deb822 true;\n' >> /etc/apt/apt.conf")),
+			llb.WithCustomName("[internal] enabled Deb822 format apt-source file"))
 
 	return aptSource.Root()
 
@@ -217,7 +208,7 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 	case "python":
 		lang, err = g.installPython(root)
 	case "r":
-		rSrc := g.compileR(root)
+		rSrc := g.compileRLang(root)
 		lang, err = g.installRLang(rSrc)
 	case "julia":
 		lang, err = g.installJulia(root)

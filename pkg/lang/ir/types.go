@@ -89,5 +89,5 @@ type AptConfig struct {
 	URIs       string
 	Suites     string
 	Components string
-	Options    []string
+	Signed     string
 }
