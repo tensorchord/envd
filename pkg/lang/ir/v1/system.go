@@ -114,7 +114,9 @@ func (g generalGraph) compileRLang(root llb.State) llb.State {
 			llb.WithCustomName("[internal] setting apt-source folder sources.list.d")).
 		File(llb.Mkfile(file, 0644, []byte(content)),
 			llb.WithCustomName("[internal] setting apt-source file")).
-		Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", "echo 'APT::Sources::Use-Deb822 true;\n' >> /etc/apt/apt.conf")),
+		File(llb.Mkfile("/etc/apt/apt.conf.d/DEB822.conf", 0644, []byte("")),
+			llb.WithCustomName("[internal] setting apt-conf file to support DEB822 format")).
+		Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", "echo 'APT::Sources::Use-Deb822 true;\n' > /etc/apt/apt.conf.d/DEB822.conf")),
 			llb.WithCustomName("[internal] enabled Deb822 format apt-source file"))
 
 	return aptRLang.Root()
