@@ -305,8 +305,7 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 		base = userGroup
 	}
 
-	aptCustom := g.compileUbuntuAPT_DEV(base)
-	lang, err := g.compileLanguage(aptCustom)
+	lang, err := g.compileLanguage(base)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile language")
 	}

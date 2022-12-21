@@ -151,3 +151,14 @@ def repo(url: str, description: str):
         url (str): repo URL
         description (str): repo description
     """
+
+
+def owner(uid: int, gid: int):
+    """Configure uid:gid as the environmen owner.
+    This can also be achieved by using flag `envd --owner uid:gid build` or environment
+        variable `ENVD_BUILD_OWNER=uid:gid envd build`
+
+    Args:
+        uid (int): UID
+        gid (int): GID
+    """

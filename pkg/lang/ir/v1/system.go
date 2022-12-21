@@ -66,7 +66,7 @@ func (g generalGraph) copyAptSignature(root llb.State, sign string, url string) 
 	return apt_Sign
 }
 
-func (g generalGraph) compileUbuntuAPT_DEV(root llb.State) llb.State {
+func (g generalGraph) compileR(root llb.State) llb.State {
 
 	var signature = "signed-by=https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
 	var aptConfig = ir.AptConfig{
@@ -77,14 +77,6 @@ func (g generalGraph) compileUbuntuAPT_DEV(root llb.State) llb.State {
 		Suites:     "focal-cran40/",
 		Components: "",
 		Options:    []string{signature},
-	}
-
-	if aptConfig.Types == "" {
-		aptConfig.Types = "deb"
-	}
-
-	if aptConfig.Enabled == "" {
-		aptConfig.Enabled = "yes"
 	}
 
 	var file = fmt.Sprintf("/etc/apt/sources.list.d/%s.sources", aptConfig.Name)
@@ -225,7 +217,8 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 	case "python":
 		lang, err = g.installPython(root)
 	case "r":
-		lang, err = g.installRLang(root)
+		rSrc := g.compileR(root)
+		lang, err = g.installRLang(rSrc)
 	case "julia":
 		lang, err = g.installJulia(root)
 	}
