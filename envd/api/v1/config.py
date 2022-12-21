@@ -151,3 +151,13 @@ def repo(url: str, description: str):
         url (str): repo URL
         description (str): repo description
     """
+
+
+def owner(uid: int, gid: int):
+    """Configure uid:gid as the environmen owner.
+
+    Args:
+        uid (int): UID
+        gid (int): GID
+    """
+
