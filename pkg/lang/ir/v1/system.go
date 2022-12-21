@@ -29,6 +29,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -44,6 +45,85 @@ func (g generalGraph) compileUbuntuAPT(root llb.State) llb.State {
 		return aptSource
 	}
 	return root
+}
+
+func (g generalGraph) copyAptSignature(root llb.State, sign string, url string) llb.State {
+	base := llb.Image(builderImage)
+	builder := base.
+		File(llb.Mkdir("/etc/apt/keyrings", 0755, llb.WithParents(true)),
+			llb.WithCustomName("[internal] setting bulder apt-source signature folder")).
+		File(llb.Mkfile(sign, 0644, []byte("")),
+			llb.WithCustomName("[internal] creating apt-source signature file")).
+		Run(llb.Shlex(fmt.Sprintf("sh -c \"%s\"", "curl "+url+" >> "+sign)),
+			llb.WithCustomName("[internal] downloading apt-source signature in base image")).Root()
+
+	apt_Sign := root.
+		File(llb.Mkdir("/etc/apt/keyrings", 0755, llb.WithParents(true)),
+			llb.WithCustomName("[internal] etting target apt-source signature folder")).
+		File(llb.Copy(builder, sign, sign),
+			llb.WithCustomName("copy signature from builder"))
+
+	return apt_Sign
+}
+
+func (g generalGraph) compileUbuntuAPT_DEV(root llb.State) llb.State {
+
+	var signature = "signed-by=https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
+	var aptConfig = ir.AptConfig{
+		Name:       "R-base",
+		Enabled:    "yes",
+		Types:      "deb",
+		URIs:       "https://cloud.r-project.org/bin/linux/ubuntu",
+		Suites:     "focal-cran40/",
+		Components: "",
+		Options:    []string{signature},
+	}
+
+	if aptConfig.Types == "" {
+		aptConfig.Types = "deb"
+	}
+
+	if aptConfig.Enabled == "" {
+		aptConfig.Enabled = "yes"
+	}
+
+	var file = fmt.Sprintf("/etc/apt/sources.list.d/%s.sources", aptConfig.Name)
+	var Enabled = fmt.Sprintf("Enabled: %s\n", aptConfig.Enabled)
+	var Types = fmt.Sprintf("Types: %s\n", aptConfig.Types)
+	var URIs = fmt.Sprintf("URIs: %s\n", aptConfig.URIs)
+	var Suites = fmt.Sprintf("Suites: %s\n", aptConfig.Suites)
+	var Components = fmt.Sprintf("Components: %s\n", aptConfig.Components)
+
+	var options string
+	var apt_Sign llb.State
+	if aptConfig.Options != nil {
+		for index, option := range aptConfig.Options {
+			var labels = strings.Split(option, "=")
+			if labels[0] == "signed-by" {
+				var sign = fmt.Sprintf("/etc/apt/keyrings/%s.asc", aptConfig.Name)
+				apt_Sign = g.copyAptSignature(root, sign, labels[1])
+
+				var appendStr = fmt.Sprintf("%s: %s\n", labels[0], sign)
+				options = fmt.Sprintf("%s%s", options, appendStr)
+			} else {
+				var appendStr = fmt.Sprintf("%s: %s\n", labels[0], labels[1])
+				options = fmt.Sprintf("%s%s", options, appendStr)
+			}
+			logrus.Debugf("index: %d, options: %s", index, labels[0]+labels[1])
+		}
+	}
+
+	var content = fmt.Sprintf("%s%s%s%s%s%s", Enabled, Types, URIs, Suites, Components, options)
+	var aptSource = apt_Sign.
+		File(llb.Mkdir("/etc/apt/sources.list.d/", 0755, llb.WithParents(true)),
+			llb.WithCustomName("[internal] setting apt-source folder sources.list.d")).
+		File(llb.Mkfile(file, 0644, []byte(content)),
+			llb.WithCustomName("[internal] setting apt-source file")).
+		Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", "echo 'APT::Sources::Use-Deb822 true;' > /etc/apt/apt.conf")),
+			llb.WithCustomName("[internal] Enabled Deb822 format apt-source file"))
+
+	return aptSource.Root()
+
 }
 
 func (g generalGraph) compileRun(root llb.State) llb.State {
