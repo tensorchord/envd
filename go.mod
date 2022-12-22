@@ -48,7 +48,7 @@ require (
 	github.com/containerd/ttrpc v1.1.0 // indirect
 	github.com/klauspost/compress v1.15.11 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
-	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mattn/go-isatty v0.0.16
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/moby/locker v1.0.1 // indirect
 	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
@@ -140,3 +140,5 @@ require (
 
 // Copied from buildkit to make github.com/tonistiigi/fsutil happy.
 replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220224222438-c78f6963a1c0+incompatible
+
+replace github.com/tensorchord/envd-server => /home/gaocegege/code/go/src/github.com/tensorchord/envd-server
