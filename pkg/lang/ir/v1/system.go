@@ -34,6 +34,13 @@ import (
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
+// signFolder stores the path to the apt-source signature in string format
+// The value of signFolder should always be /etc/apt/keyrings
+const signFolder = "/etc/apt/keyrings"
+
+// signURI stores the third-party URI for downloading the signature of the corresponding repo
+const signURI = "https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
+
 func (g generalGraph) compileUbuntuAPT(root llb.State) llb.State {
 	if g.UbuntuAPTSource != nil {
 		logrus.WithField("source", *g.UbuntuAPTSource).Debug("using custom APT source")
@@ -53,11 +60,10 @@ func (g generalGraph) compileUbuntuAPT(root llb.State) llb.State {
 func (g generalGraph) copyAPTSignature(root llb.State, name string, url string) (llb.State, string) {
 
 	var fileName = fmt.Sprintf("%s.asc", name)
-	const fileFolder = "/etc/apt/keyrings"
 
 	// path stores the location of the signature file
 	// The value of path should be /etc/apt/keyrings/*.asc
-	var path = filepath.Join(fileFolder, fileName)
+	var path = filepath.Join(signFolder, fileName)
 
 	base := llb.Image(builderImage)
 	builder := base.
@@ -65,7 +71,7 @@ func (g generalGraph) copyAPTSignature(root llb.State, name string, url string) 
 			llb.WithCustomName("[internal] downloading apt-source signature in base image")).Root()
 
 	aptSign := root.
-		File(llb.Mkdir(fileFolder, 0755, llb.WithParents(true)),
+		File(llb.Mkdir(signFolder, 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] setting target apt-source signature folder")).
 		File(llb.Copy(builder, fileName, path),
 			llb.WithCustomName("[internal] copy signature from builder"))
@@ -104,8 +110,6 @@ func (g generalGraph) configRSrc(root llb.State, aptConfig ir.APTConfig, sign st
 // A successful run of compileRLang should set up the official R apt repo into /etc/apt/sources.list.d/*.sources
 func (g generalGraph) compileRLang(root llb.State) llb.State {
 
-	// sign stores the third-party URI for downloading the signature of the corresponding repo
-	const sign = "https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
 	var aptConfig = ir.APTConfig{
 		Name:       "R-base",                                       // Name for the *.sources file in /etc/apt/sources.list.d
 		Enabled:    "yes",                                          // Represents the validation of the third-party repo
@@ -119,7 +123,7 @@ func (g generalGraph) compileRLang(root llb.State) llb.State {
 
 	var file = fmt.Sprintf("/etc/apt/sources.list.d/%s.sources", aptConfig.Name)
 
-	aptSource, content := g.configRSrc(root, aptConfig, sign)
+	aptSource, content := g.configRSrc(root, aptConfig, signURI)
 
 	aptRLang := aptSource.
 		File(llb.Mkdir("/etc/apt/sources.list.d/", 0755, llb.WithParents(true)),
