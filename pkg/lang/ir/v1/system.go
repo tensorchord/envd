@@ -47,10 +47,17 @@ func (g generalGraph) compileUbuntuAPT(root llb.State) llb.State {
 	return root
 }
 
+// copyAPTSignature returns the state and the path in string format
+// The returned string represents the location of the apt-source signature
+// A successful run of copyAPTSignature should return path of /etc/apt/keyrings/*.asc
 func (g generalGraph) copyAPTSignature(root llb.State, name string, url string) (llb.State, string) {
-	// Download the signature and put it under "/etc/apt/keyrings"
+
 	var fileName = fmt.Sprintf("%s.asc", name)
-	var filePath = "/etc/apt/keyrings"
+	var fileFolder = "/etc/apt/keyrings"
+
+	// path stores the location of the signature file
+	// The value of path should be /etc/apt/keyrings/*.asc
+	var path = filepath.Join(fileFolder, fileName)
 
 	base := llb.Image(builderImage)
 	builder := base.
@@ -58,38 +65,29 @@ func (g generalGraph) copyAPTSignature(root llb.State, name string, url string) 
 			llb.WithCustomName("[internal] downloading apt-source signature in base image")).Root()
 
 	aptSign := root.
-		File(llb.Mkdir(filePath, 0755, llb.WithParents(true)),
+		File(llb.Mkdir(fileFolder, 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] setting target apt-source signature folder")).
-		File(llb.Copy(builder, fileName, filePath+fileName),
+		File(llb.Copy(builder, fileName, path),
 			llb.WithCustomName("[internal] copy signature from builder"))
 
-	return aptSign, filePath + fileName
+	return aptSign, path
 }
 
+// configRSrc returns the state and the content in DEB822 format for third-party apt-souce
+// The returned string contains all configuration for adding thrid-party into apt source list
+// A successful run of configRSrc should return the content strictly follow the DEB822 format
 func (g generalGraph) configRSrc(root llb.State, aptConfig ir.APTConfig, sign string) (llb.State, string) {
 
-	// Created different fields in each line to form up the .sources file
-	// The fields follow the DEB822 format spec
-
-	// "Enabled" field
 	var enabled = fmt.Sprintf("Enabled: %s\n", aptConfig.Enabled)
-	// "Types" field
 	var types = fmt.Sprintf("Types: %s\n", aptConfig.Types)
-	// "URIs" field
 	var uris = fmt.Sprintf("URIs: %s\n", aptConfig.URIs)
-	// "Suites" field
 	var suites = fmt.Sprintf("Suites: %s\n", aptConfig.Suites)
-	// "Components" field
 	var components = fmt.Sprintf("Components: %s\n", aptConfig.Components)
-	// "Architectures" field
 	var architecture = fmt.Sprintf("Architectures: %s\n", aptConfig.Arch)
 
-	//Download the official source signature and copy it from curlImage
 	aptSign, signPath := g.copyAPTSignature(root, aptConfig.Name, sign)
-	// "Signed-By" field
 	var signature = fmt.Sprintf("Signed-By: %s\n", signPath)
 
-	// Concatenate all fields together to be written to the same .sources file
 	var content strings.Builder
 	content.WriteString(enabled)
 	content.WriteString(types)
@@ -102,37 +100,36 @@ func (g generalGraph) configRSrc(root llb.State, aptConfig ir.APTConfig, sign st
 	return aptSign, content.String()
 }
 
+// compileRLang returns the llb.State only after compoiling the environment for installing R language
+// A successful run of compileRLang should set up the official R apt repo into /etc/apt/sources.list.d/*.sources
 func (g generalGraph) compileRLang(root llb.State) llb.State {
 
+	// sign stores the third-party URI for downloading the signature of the corresponding repo
 	var sign = "https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
 	var aptConfig = ir.APTConfig{
-		Name:       "R-base",
-		Enabled:    "yes",
-		Types:      "deb",
-		URIs:       "https://cloud.r-project.org/bin/linux/ubuntu",
-		Suites:     "focal-cran40/",
-		Components: "",
-		Signed:     "R-base.asc",
-		Arch:       "",
+		Name:       "R-base",                                       // Name for the *.sources file in /etc/apt/sources.list.d
+		Enabled:    "yes",                                          // Represents the validation of the third-party repo
+		Types:      "deb",                                          // Type of the repo, binary or source code
+		URIs:       "https://cloud.r-project.org/bin/linux/ubuntu", // URI repo for the package
+		Suites:     "focal-cran40/",                                // Branch of the package
+		Components: "",                                             // Distribution of the package. E.g. main, non-free
+		Signed:     "R-base.asc",                                   // Name for the signature file
+		Arch:       "",                                             // Architecture that is supported
 	}
 
 	var file = fmt.Sprintf("/etc/apt/sources.list.d/%s.sources", aptConfig.Name)
 
-	var aptSource llb.State
-	var content string
-	aptSource, content = g.configRSrc(root, aptConfig, sign)
+	aptSource, content := g.configRSrc(root, aptConfig, sign)
 
 	aptRLang := aptSource.
 		File(llb.Mkdir("/etc/apt/sources.list.d/", 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] setting apt-source folder sources.list.d")).
 		File(llb.Mkfile(file, 0644, []byte(content)),
 			llb.WithCustomName("[internal] setting apt-source file")).
-		File(llb.Mkfile("/etc/apt/apt.conf.d/DEB822.conf", 0644, []byte("")),
-			llb.WithCustomName("[internal] setting apt-conf file to support DEB822 format")).
-		Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", "echo 'APT::Sources::Use-Deb822 true;\n' > /etc/apt/apt.conf.d/DEB822.conf")),
-			llb.WithCustomName("[internal] enabled Deb822 format apt-source file"))
+		File(llb.Mkfile("/etc/apt/apt.conf.d/DEB822.conf", 0644, []byte("APT::Sources::Use-Deb822 true;\n")),
+			llb.WithCustomName("[internal] setting apt-conf file to support DEB822 format"))
 
-	return aptRLang.Root()
+	return aptRLang
 
 }
 
