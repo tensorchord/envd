@@ -53,7 +53,7 @@ func (g generalGraph) compileUbuntuAPT(root llb.State) llb.State {
 func (g generalGraph) copyAPTSignature(root llb.State, name string, url string) (llb.State, string) {
 
 	var fileName = fmt.Sprintf("%s.asc", name)
-	var fileFolder = "/etc/apt/keyrings"
+	const fileFolder = "/etc/apt/keyrings"
 
 	// path stores the location of the signature file
 	// The value of path should be /etc/apt/keyrings/*.asc
@@ -61,7 +61,7 @@ func (g generalGraph) copyAPTSignature(root llb.State, name string, url string) 
 
 	base := llb.Image(builderImage)
 	builder := base.
-		Run(llb.Shlex(fmt.Sprintf("sh -c \"curl %s >> %s\"", url, fileName)),
+		Run(llb.Shlexf("sh -c \"curl %s >> %s\"", url, fileName),
 			llb.WithCustomName("[internal] downloading apt-source signature in base image")).Root()
 
 	aptSign := root.
@@ -105,7 +105,7 @@ func (g generalGraph) configRSrc(root llb.State, aptConfig ir.APTConfig, sign st
 func (g generalGraph) compileRLang(root llb.State) llb.State {
 
 	// sign stores the third-party URI for downloading the signature of the corresponding repo
-	var sign = "https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
+	const sign = "https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
 	var aptConfig = ir.APTConfig{
 		Name:       "R-base",                                       // Name for the *.sources file in /etc/apt/sources.list.d
 		Enabled:    "yes",                                          // Represents the validation of the third-party repo
