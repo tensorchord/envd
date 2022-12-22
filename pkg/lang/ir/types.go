@@ -82,7 +82,7 @@ type RunBuildCommand struct {
 	MountHost bool
 }
 
-type AptConfig struct {
+type APTConfig struct {
 	Name       string
 	Enabled    string
 	Types      string

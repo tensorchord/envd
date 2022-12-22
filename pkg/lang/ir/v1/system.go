@@ -47,7 +47,8 @@ func (g generalGraph) compileUbuntuAPT(root llb.State) llb.State {
 	return root
 }
 
-func (g generalGraph) copyAptSignature(root llb.State, name string, url string) (llb.State, string) {
+func (g generalGraph) copyAPTSignature(root llb.State, name string, url string) (llb.State, string) {
+	// Download the signature and put it under "/etc/apt/keyrings"
 	var fileName = fmt.Sprintf("%s.asc", name)
 	var filePath = "/etc/apt/keyrings"
 
@@ -65,18 +66,30 @@ func (g generalGraph) copyAptSignature(root llb.State, name string, url string) 
 	return aptSign, filePath + fileName
 }
 
-func (g generalGraph) configRSrc(root llb.State, aptConfig ir.AptConfig, sign string) (llb.State, string) {
+func (g generalGraph) configRSrc(root llb.State, aptConfig ir.APTConfig, sign string) (llb.State, string) {
 
+	// Created different fields in each line to form up the .sources file
+	// The fields follow the DEB822 format spec
+
+	// "Enabled" field
 	var enabled = fmt.Sprintf("Enabled: %s\n", aptConfig.Enabled)
+	// "Types" field
 	var types = fmt.Sprintf("Types: %s\n", aptConfig.Types)
+	// "URIs" field
 	var uris = fmt.Sprintf("URIs: %s\n", aptConfig.URIs)
+	// "Suites" field
 	var suites = fmt.Sprintf("Suites: %s\n", aptConfig.Suites)
+	// "Components" field
 	var components = fmt.Sprintf("Components: %s\n", aptConfig.Components)
+	// "Architectures" field
 	var architecture = fmt.Sprintf("Architectures: %s\n", aptConfig.Arch)
 
-	aptSign, signPath := g.copyAptSignature(root, aptConfig.Name, sign)
+	//Download the official source signature and copy it from curlImage
+	aptSign, signPath := g.copyAPTSignature(root, aptConfig.Name, sign)
+	// "Signed-By" field
 	var signature = fmt.Sprintf("Signed-By: %s\n", signPath)
 
+	// Concatenate all fields together to be written to the same .sources file
 	var content strings.Builder
 	content.WriteString(enabled)
 	content.WriteString(types)
@@ -92,7 +105,7 @@ func (g generalGraph) configRSrc(root llb.State, aptConfig ir.AptConfig, sign st
 func (g generalGraph) compileRLang(root llb.State) llb.State {
 
 	var sign = "https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc"
-	var aptConfig = ir.AptConfig{
+	var aptConfig = ir.APTConfig{
 		Name:       "R-base",
 		Enabled:    "yes",
 		Types:      "deb",
