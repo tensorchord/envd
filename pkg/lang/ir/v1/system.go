@@ -73,7 +73,7 @@ func (g generalGraph) copyAPTSignature(root llb.State, name string, url string) 
 	return aptSign, path
 }
 
-// configRSrc returns the state and the content in DEB822 format for third-party apt-souce
+// configRSrc returns the state and the content in DEB822 format for third-party apt-source
 // The returned string contains all configuration for adding third-party into apt source list
 // A successful run of configRSrc should return the content strictly follow the DEB822 format
 func (g generalGraph) configRSrc(root llb.State, aptConfig ir.APTConfig, sign string) (llb.State, string) {
