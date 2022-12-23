@@ -123,7 +123,7 @@ func (g *generalGraph) compileCondaPackages(root llb.State) llb.State {
 func (g generalGraph) compileCondaEnvironment(root llb.State) (llb.State, error) {
 	// Always init bash since we will use it to create jupyter notebook service.
 	run := root.Run(
-		llb.Shlex(fmt.Sprintf("bash -c \"%s\"", g.condaInitShell("bash"))),
+		llb.Shlexf(`bash -c "%s"`, g.condaInitShell("bash")),
 		llb.WithCustomName("[internal] initialize conda bash environment"),
 	)
 
@@ -147,14 +147,14 @@ func (g *generalGraph) installConda(root llb.State) (llb.State, error) {
 		run := root.AddEnv("MAMBA_BIN_DIR", condaBinDir).
 			AddEnv("MAMBA_ROOT_PREFIX", condaRootPrefix).
 			AddEnv("MAMBA_VERSION", mambaVersionDefault).
-			Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installMambaBash)),
+			Run(llb.Shlexf("bash -c '%s'", installMambaBash),
 				llb.WithCustomName("[internal] install micro mamba"))
 		return run.Root(), nil
 	}
 	run := root.AddEnv("CONDA_VERSION", condaVersionDefault).
 		File(llb.Mkdir(condaRootPrefix, 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] create conda directory")).
-		Run(llb.Shlex(fmt.Sprintf("bash -c '%s'", installCondaBash)),
+		Run(llb.Shlexf("bash -c '%s'", installCondaBash),
 			llb.WithCustomName("[internal] install conda"))
 	return run.Root(), nil
 }
