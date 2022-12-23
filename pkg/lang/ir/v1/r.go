@@ -26,7 +26,7 @@ func (g generalGraph) installRLang(root llb.State) llb.State {
 	installR := "apt-get update && apt-get install -y -t focal-cran40 r-base"
 
 	run := root.Run(llb.Shlexf("bash -c \"%s\"", installR),
-		llb.WithCustomNamef("[internal] installing r-base packages"))
+		llb.WithCustomNamef("[internal] apt install R environment from CRAN repository"))
 	return run.Root()
 }
 
