@@ -18,12 +18,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 )
 
-func (g generalGraph) installRLang(root llb.State) (llb.State, error) {
-	return llb.State{}, errors.New("not implemented")
+func (g generalGraph) installRLang(root llb.State) llb.State {
+
+	installR := "apt-get update && apt-get install -y -t focal-cran40 r-base"
+
+	run := root.Run(llb.Shlexf("bash -c \"%s\"", installR),
+		llb.WithCustomNamef("[internal] apt install R environment from CRAN repository"))
+	return run.Root()
 }
 
 func (g generalGraph) installRPackages(root llb.State) llb.State {

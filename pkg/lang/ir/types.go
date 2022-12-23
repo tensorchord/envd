@@ -81,3 +81,14 @@ type RunBuildCommand struct {
 	Commands  []string
 	MountHost bool
 }
+
+type APTConfig struct {
+	Name       string
+	Enabled    string
+	Types      string
+	URIs       string
+	Suites     string
+	Components string
+	Signed     string
+	Arch       string
+}
