@@ -15,8 +15,6 @@
 package v1
 
 import (
-	"fmt"
-
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 
@@ -97,12 +95,12 @@ func (g *generalGraph) compilePrompt(root llb.State) llb.State {
 		File(llb.Mkfile(starshipConfigPath, 0644, []byte(starshipConfig), llb.WithUIDGID(g.uid, g.gid)),
 			llb.WithCustomName("[internal] setting prompt starship config"))
 
-	run := config.Run(llb.Shlex(fmt.Sprintf(`bash -c 'echo "eval \"\$(starship init bash)\"" >> %s'`, fileutil.EnvdHomeDir(".bashrc"))),
+	run := config.Run(llb.Shlexf(`bash -c 'echo "eval \"\$(starship init bash)\"" >> %s'`, fileutil.EnvdHomeDir(".bashrc")),
 		llb.WithCustomName("[internal] setting prompt bash config")).Root()
 
 	if g.Shell == shellZSH {
 		run = run.Run(
-			llb.Shlex(fmt.Sprintf(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> %s'`, fileutil.EnvdHomeDir(".zshrc"))),
+			llb.Shlexf(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> %s'`, fileutil.EnvdHomeDir(".zshrc")),
 			llb.WithCustomName("[internal] setting prompt zsh config")).Root()
 	}
 	return run
@@ -123,7 +121,7 @@ func (g generalGraph) compileZSH(root llb.State) (llb.State, error) {
 		File(llb.Copy(llb.Local(flag.FlagCacheDir), "oh-my-zsh", ohMyZSHPath,
 			&llb.CopyInfo{CreateDestPath: true})).
 		File(llb.Mkfile(installPath, 0666, []byte(m.InstallScript())))
-	zshrc := zshStage.Run(llb.Shlex(fmt.Sprintf("bash %s", installPath)),
+	zshrc := zshStage.Run(llb.Shlexf("bash %s", installPath),
 		llb.WithCustomName("[internal] install oh-my-zsh")).
 		File(llb.Mkfile(zshrcPath, 0666, []byte(m.ZSHRC())))
 	return zshrc, nil
