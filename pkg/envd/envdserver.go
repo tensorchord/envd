@@ -74,7 +74,7 @@ func (e *envdServerEngine) ListImageDependency(ctx context.Context, image string
 }
 
 func (e *envdServerEngine) GetImage(ctx context.Context, image string) (types.EnvdImage, error) {
-	resp, err := e.ImageGet(ctx, image)
+	resp, err := e.ImageGetByName(ctx, image)
 	if err != nil {
 		return types.EnvdImage{}, errors.Wrapf(err, "failed to get the image: %s", image)
 	}

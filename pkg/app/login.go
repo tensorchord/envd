@@ -23,6 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 	"github.com/tensorchord/envd-server/client"
+	"github.com/tensorchord/envd-server/errdefs"
 	cli "github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/app/telemetry"
@@ -76,17 +77,6 @@ func login(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to read the public key path")
 	}
 
-	opts := []client.Opt{
-		client.FromEnv,
-	}
-	if hostAddr != nil {
-		opts = append(opts, client.WithHost(*hostAddr))
-	}
-	cli, err := client.NewClientWithOpts(opts...)
-	if err != nil {
-		return errors.Wrap(err, "failed to create the envd-server client")
-	}
-
 	stringK := string(key)
 	loginName := clicontext.String("username")
 	pwd := clicontext.String("password")
@@ -104,7 +94,6 @@ func login(clicontext *cli.Context) error {
 		}
 	}
 	req := servertypes.AuthNRequest{
-		PublicKey: stringK,
 		LoginName: loginName,
 		Password:  pwd,
 	}
@@ -113,6 +102,17 @@ func login(clicontext *cli.Context) error {
 		"login_name":   loginName,
 		"auth-enabled": auth,
 	})
+
+	opts := []client.Opt{
+		client.FromEnv,
+	}
+	if hostAddr != nil {
+		opts = append(opts, client.WithHost(*hostAddr))
+	}
+	cli, err := client.NewClientWithOpts(opts...)
+	if err != nil {
+		return errors.Wrap(err, "failed to create the envd-server client")
+	}
 
 	var resp servertypes.AuthNResponse
 
@@ -126,10 +126,40 @@ func login(clicontext *cli.Context) error {
 		logger.Debug("register request")
 		resp, err = cli.Register(clicontext.Context, req)
 		if err != nil {
+			if !errdefs.IsConflict(err) {
+				return errors.Wrap(err, "failed to get the response from envd-server client")
+			}
+		}
+
+		resp, err = cli.Login(clicontext.Context, req)
+		if err != nil {
 			return errors.Wrap(err, "failed to get the response from envd-server client")
 		}
 	}
 
+	// Recreate the cli with the login user.
+	opts = []client.Opt{
+		client.FromEnv,
+		client.WithJWTToken(resp.LoginName, resp.IdentityToken),
+	}
+	if hostAddr != nil {
+		opts = append(opts, client.WithHost(*hostAddr))
+	}
+	cli, err = client.NewClientWithOpts(opts...)
+	if err != nil {
+		return errors.Wrap(err, "failed to create the envd-server client")
+	}
+	keyResp, err := cli.KeyCreate(clicontext.Context, servertypes.KeyCreateRequest{
+		Name:      "default",
+		PublicKey: stringK,
+	})
+	if err != nil {
+		if !errdefs.IsConflict(err) {
+			return errors.Wrap(err, "failed to generate the key")
+		}
+	}
+
+	logrus.WithField("key", keyResp.Name).Debug("key is added successfully")
 	if err := home.GetManager().AuthCreate(types.AuthConfig{
 		Name:     resp.LoginName,
 		JWTToken: resp.IdentityToken,
