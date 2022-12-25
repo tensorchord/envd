@@ -63,10 +63,16 @@ func IsInstalled() bool {
 	return true
 }
 
-func Install() error {
-	logrus.Info("Installing syncthing")
+func CleanupSyncthing() error {
+	logrus.Debug("Cleaning up syncthing")
+	// TODO: clean up all files from syncthing
+	return nil
+}
+
+func InstallSyncthing() error {
+	logrus.Debug("Installing syncthing")
 	if IsInstalled() {
-		logrus.Info("Syncthing is already installed, skipping installation")
+		logrus.Debug("Syncthing is already installed, skipping installation")
 		return nil
 	}
 
@@ -82,7 +88,7 @@ func Install() error {
 		return err
 	}
 
-	logrus.Info("Downloading syncthing from ", downloadUrl)
+	logrus.Debug("Downloading syncthing from ", downloadUrl)
 	client := &getter.Client{
 		Src:  downloadUrl,
 		Dst:  getSyncthingInstallPath(),
