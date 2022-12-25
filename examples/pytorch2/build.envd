@@ -1,0 +1,14 @@
+envdlib = include("https://github.com/tensorchord/envdlib")
+
+
+def build():
+    base(language="python3", image="ghcr.io/pytorch/pytorch-nightly:latest")
+    shell("zsh")
+
+    install.python_packages(
+        [
+            "torch_tb_profiler",
+            "--extra-index-url https://download.pytorch.org/whl/nightly/cu117",
+        ]
+    )
+    envdlib.tensorboard(envd_port=8888, envd_dir="/home/envd/log", host_port=8888)

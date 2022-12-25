@@ -45,9 +45,9 @@ func (g *generalGraph) installPython(root llb.State) (llb.State, error) {
 				llb.WithCustomName("[internal] copy cert from mamba")).
 			File(llb.Copy(llb.Image(microMambaImage), "/bin/micromamba", microMambaPathPrefix),
 				llb.WithCustomName("[internal] copy micromamba binary")).
-			Run(llb.Shlex(fmt.Sprintf("bash -c \"%s/micromamba create -p /opt/conda/envs/envd -c conda-forge python=%s\"", microMambaPathPrefix, version)),
+			Run(llb.Shlexf(`bash -c "%s/micromamba create -p /opt/conda/envs/envd -c conda-forge python=%s"`, microMambaPathPrefix, version),
 				llb.WithCustomNamef("[internal] create envd python=%s", version)).
-			Run(llb.Shlex(fmt.Sprintf("rm %s/micromamba", microMambaPathPrefix)),
+			Run(llb.Shlexf("rm %s/micromamba", microMambaPathPrefix),
 				llb.WithCustomName("[internal] rm micromamba binary")).Root()
 		python := g.compileAlternative(install)
 		return python, nil
@@ -151,7 +151,7 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 		root = root.Dir(g.getWorkingDir())
 		cmdTemplate := "python -m pip install %s"
 		for _, wheel := range g.PythonWheels {
-			run := root.Run(llb.Shlex(fmt.Sprintf(cmdTemplate, wheel)), llb.WithCustomNamef("pip install %s", wheel))
+			run := root.Run(llb.Shlexf(cmdTemplate, wheel), llb.WithCustomNamef("pip install %s", wheel))
 			run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext), llb.Readonly)
 			run.AddMount(cacheDir, cache,
 				llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))

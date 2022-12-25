@@ -186,7 +186,7 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 		root = root.Dir(g.getWorkingDir())
 		cmdTemplate := "/opt/conda/envs/envd/bin/python -m pip install %s"
 		for _, wheel := range g.PythonWheels {
-			run := root.Run(llb.Shlex(fmt.Sprintf(cmdTemplate, wheel)), llb.WithCustomNamef("pip install %s", wheel))
+			run := root.Run(llb.Shlexf(cmdTemplate, wheel), llb.WithCustomNamef("pip install %s", wheel))
 			run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext), llb.Readonly)
 			run.AddMount(cacheDir, cache,
 				llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))

@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.3.1 (2022-12-23)
+
+ * [8cc3cc4](https://github.com/tensorchord/envd/commit/8cc3cc4064449025b0aeb764c80568796df79a32) feat: Support installing R environment in DEB822 format using internal standardized structure (#1329)
+ * [49b3236](https://github.com/tensorchord/envd/commit/49b323609c52d6550b150e5cb44dc941d480d0d0) feat(login): Refactor logic with the new key API (#1333)
+ * [1cd917d](https://github.com/tensorchord/envd/commit/1cd917dbe3b1fede67cfe9dd216e86622790b007) fix: upgrade horust to support arm (#1330)
+ * [d39adc8](https://github.com/tensorchord/envd/commit/d39adc851a8e967e56221f4ac09775fc09f686af) refactor: combine code with the same logic (#1326)
+ * [d1990ec](https://github.com/tensorchord/envd/commit/d1990ec5b8677d9c588919c887c5a304b01b3703) chore(deps): bump github.com/onsi/gomega from 1.24.1 to 1.24.2 (#1320)
+ * [c598834](https://github.com/tensorchord/envd/commit/c598834ee34abc8675e19d2fb31bacbcdaa1acdb) fix: conda meta permission for envd user (#1325)
+ * [0a48acd](https://github.com/tensorchord/envd/commit/0a48acd355bfe6c62380f7729991993063ca2991) feat: produce ABI-agnostic wheels for python (#1324)
+ * [8042997](https://github.com/tensorchord/envd/commit/80429972639cf57d8127a7d5bd8d71ad41834d89) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.6.0 to 2.6.1 (#1321)
+
+### Contributors
+
+ * Ce Gao
+ * Frost Ming
+ * Keming
+ * dependabot[bot]
+ * rrain7
+ * x0oo0x
+
 ## v0.3.0 (2022-12-16)
 
  * [30ff84d](https://github.com/tensorchord/envd/commit/30ff84d71155bd5bcf6d09df2d1d8effd95b130e) fix: v1 gpu base image name and envs (#1313)
