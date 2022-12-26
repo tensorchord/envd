@@ -115,7 +115,7 @@ func (g generalGraph) compileSystemPackages(root llb.State) llb.State {
 	cacheDir := "/var/cache/apt"
 	cacheLibDir := "/var/lib/apt"
 
-	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
+	run := root.Run(llb.Shlexf(`bash -c "%s"`, sb.String()),
 		llb.WithCustomNamef("apt-get install %s",
 			strings.Join(g.SystemPackages, " ")))
 	run.AddMount(cacheDir, llb.Scratch(),
@@ -161,7 +161,7 @@ func (g *generalGraph) preparePythonBase(root llb.State) llb.State {
 	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
 	sb.WriteString("&& locale-gen en_US.UTF-8")
 
-	run := root.Run(llb.Shlex(fmt.Sprintf("bash -c \"%s\"", sb.String())),
+	run := root.Run(llb.Shlexf(`bash -c "%s"`, sb.String()),
 		llb.WithCustomName("[internal] install built-in packages"))
 
 	return run.Root()

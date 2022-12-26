@@ -44,7 +44,7 @@ def command(commands: Dict[str, str]):
     })
     ```
 
-    You can run `envd run --command train` to train the model.
+    You can run `envd exec --command train` to train the model.
     """
 
 
