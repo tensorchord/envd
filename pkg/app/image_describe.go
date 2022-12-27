@@ -20,8 +20,12 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/formatter"
+	"github.com/tensorchord/envd/pkg/app/formatter/json"
+	"github.com/tensorchord/envd/pkg/app/formatter/table"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 var CommandDescribeImage = &cli.Command{
@@ -34,6 +38,7 @@ var CommandDescribeImage = &cli.Command{
 			Usage:   "Specify the image to use",
 			Aliases: []string{"i"},
 		},
+		&formatter.FormatFlag,
 	},
 	Action: getImageDependency,
 }
@@ -58,6 +63,12 @@ func getImageDependency(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to list dependencies")
 	}
-	renderDependencies(os.Stdout, dep)
+	format := clicontext.String("format")
+	switch format {
+	case "table":
+		table.RenderDependencies(os.Stdout, dep)
+	case "json":
+		return json.PrintEnvironmentDescriptions(dep, []types.PortBinding{})
+	}
 	return nil
 }
