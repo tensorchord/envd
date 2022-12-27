@@ -30,8 +30,8 @@ import (
 
 var FormatFlag = cli.StringFlag{
 	Name:     "format",
-	Usage:    "Format of output, could be \"json\" or \"table\", could be \"json\" or \"table\"",
-	Aliases:  []string{"p"},
+	Usage:    `Format of output, could be "json" or "table"`,
+	Aliases:  []string{"f"},
 	Value:    "table",
 	Required: false,
 	Action:   formatterValidator,
@@ -44,7 +44,7 @@ func formatterValidator(clicontext *cli.Context, v string) error {
 		"json":
 		return nil
 	}
-	return errors.Errorf("Argument format only allows \"json\" and \"table\", found \"%v\"", v)
+	return errors.Errorf(`Argument format only allows "json" and "table", found "%v"`, v)
 }
 
 func FormatEndpoint(env types.EnvdEnvironment) string {

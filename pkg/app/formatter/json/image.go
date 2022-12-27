@@ -23,7 +23,7 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-type imgJSONInfo struct {
+type imgInfo struct {
 	Name    string `json:"name"`
 	Context string `json:"endpoint,omitempty"`
 	GPU     bool   `json:"gpu"`
@@ -35,10 +35,10 @@ type imgJSONInfo struct {
 }
 
 func PrintImages(imgs []types.EnvdImage) error {
-	output := []imgJSONInfo{}
+	output := []imgInfo{}
 	for _, img := range imgs {
 		CreatedAt := time.Unix(img.Created, 0)
-		item := imgJSONInfo{
+		item := imgInfo{
 			Name:    img.Name,
 			Context: img.BuildContext,
 			GPU:     img.GPU,
