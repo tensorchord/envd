@@ -15,19 +15,17 @@
 package app
 
 import (
-	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
-	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/app/formatter/json"
+	"github.com/tensorchord/envd/pkg/app/formatter/table"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/types"
 )
 
 func getCurrentDirOrPanic() string {
@@ -80,67 +78,11 @@ func getEnvironmentDescriptions(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		renderDependencies(os.Stdout, dep)
-		renderPortBindings(os.Stdout, ports)
+		table.RenderDependencies(os.Stdout, dep)
+		table.RenderPortBindings(os.Stdout, ports)
 	case "json":
 		return json.PrintEnvironmentDescriptions(dep, ports)
 	}
 
 	return nil
-}
-
-func createTable(w io.Writer, headers []string) *tablewriter.Table {
-	table := tablewriter.NewWriter(w)
-	table.SetHeader(headers)
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(true)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
-
-	return table
-}
-
-func renderPortBindings(w io.Writer, ports []types.PortBinding) {
-	if ports == nil {
-		return
-	}
-	table := createTable(w, []string{"Name", "Container Port", "Protocol", "Host IP", "Host Port"})
-	for _, port := range ports {
-		row := make([]string, 5)
-		row[0] = port.Name
-		row[1] = port.Port
-		row[2] = port.Protocol
-		row[3] = port.HostIP
-		row[4] = port.HostPort
-		table.Append(row)
-	}
-	table.Render()
-}
-
-func renderDependencies(w io.Writer, dep *types.Dependency) {
-	if dep == nil {
-		return
-	}
-	table := createTable(w, []string{"Dependencies", "Type"})
-	for _, p := range dep.PyPIPackages {
-		envRow := make([]string, 2)
-		envRow[0] = p
-		envRow[1] = "Python"
-		table.Append(envRow)
-	}
-	for _, p := range dep.APTPackages {
-		envRow := make([]string, 2)
-		envRow[0] = p
-		envRow[1] = "APT"
-		table.Append(envRow)
-	}
-	table.Render()
 }

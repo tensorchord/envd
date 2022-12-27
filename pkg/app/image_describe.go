@@ -22,6 +22,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/app/formatter/json"
+	"github.com/tensorchord/envd/pkg/app/formatter/table"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
@@ -65,7 +66,7 @@ func getImageDependency(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		renderDependencies(os.Stdout, dep)
+		table.RenderDependencies(os.Stdout, dep)
 	case "json":
 		return json.PrintEnvironmentDescriptions(dep, []types.PortBinding{})
 	}

@@ -15,22 +15,16 @@
 package app
 
 import (
-	"io"
 	"os"
-	"strconv"
-	"time"
 
 	"github.com/cockroachdb/errors"
-	"github.com/docker/docker/pkg/stringid"
-	"github.com/docker/go-units"
-	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/app/formatter/json"
+	"github.com/tensorchord/envd/pkg/app/formatter/table"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/types"
 )
 
 var CommandImage = &cli.Command{
@@ -76,57 +70,9 @@ func getImage(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		renderImages(os.Stdout, imgs)
+		table.RenderImages(os.Stdout, imgs)
 	case "json":
 		return json.PrintImages(imgs)
 	}
 	return nil
-}
-
-func renderImages(w io.Writer, imgs []types.EnvdImage) {
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"Name", "Context", "GPU", "CUDA", "CUDNN", "Image ID", "Created", "Size"})
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
-
-	for _, img := range imgs {
-		envRow := make([]string, 8)
-		envRow[0] = img.Name
-		envRow[1] = stringOrNone(img.BuildContext)
-		envRow[2] = strconv.FormatBool(img.GPU)
-		envRow[3] = stringOrNone(img.CUDA)
-		envRow[4] = stringOrNone(img.CUDNN)
-		envRow[5] = stringid.TruncateID(img.Digest)
-		envRow[6] = createdSinceString(img.Created)
-		envRow[7] = units.HumanSizeWithPrecision(float64(img.Size), 3)
-		table.Append(envRow)
-	}
-	table.Render()
-}
-
-func stringOrNone(cuda string) string {
-	if cuda == "" {
-		return "<none>"
-	}
-	return cuda
-}
-
-func createdSinceString(created int64) string {
-	createdAt := time.Unix(created, 0)
-
-	if createdAt.IsZero() {
-		return ""
-	}
-
-	return units.HumanDuration(time.Now().UTC().Sub(createdAt)) + " ago"
 }

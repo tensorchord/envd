@@ -15,21 +15,17 @@
 package app
 
 import (
-	"fmt"
-	"io"
 	"os"
-	"strconv"
 
 	"github.com/cockroachdb/errors"
-	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/app/formatter/json"
+	"github.com/tensorchord/envd/pkg/app/formatter/table"
 	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/types"
 )
 
 var CommandListEnv = &cli.Command{
@@ -63,43 +59,9 @@ func getEnvironment(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		renderEnvironments(os.Stdout, envs)
+		table.RenderEnvironments(os.Stdout, envs)
 	case "json":
 		return json.PrintEnvironments(envs)
 	}
 	return nil
-}
-
-func renderEnvironments(w io.Writer, envs []types.EnvdEnvironment) {
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{
-		"Name", "Endpoint", "SSH Target", "Image",
-		"GPU", "CUDA", "CUDNN", "Status",
-	})
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
-
-	for _, env := range envs {
-		envRow := make([]string, 9)
-		envRow[0] = env.Name
-		envRow[1] = formatter.FormatEndpoint(env)
-		envRow[2] = fmt.Sprintf("%s.envd", env.Name)
-		envRow[3] = env.Spec.Image
-		envRow[4] = strconv.FormatBool(env.GPU)
-		envRow[5] = stringOrNone(env.CUDA)
-		envRow[6] = stringOrNone(env.CUDNN)
-		envRow[7] = env.Status.Phase
-		table.Append(envRow)
-	}
-	table.Render()
 }

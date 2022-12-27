@@ -15,13 +15,11 @@
 package app
 
 import (
-	"fmt"
-
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/app/formatter/json"
-	"github.com/tensorchord/envd/pkg/version"
+	"github.com/tensorchord/envd/pkg/app/formatter/table"
 )
 
 var CommandVersion = &cli.Command{
@@ -51,44 +49,9 @@ func outputVersion(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		return printVersion(clicontext)
+		return table.PrintVersion(clicontext)
 	case "json":
 		return json.PrintVersion(clicontext)
-	}
-	return nil
-}
-
-func printVersion(clicontext *cli.Context) error {
-	short := clicontext.Bool("short")
-	detail := clicontext.Bool("detail")
-	ver := version.GetVersion()
-	detailVer, err := formatter.GetDetailedVersion(clicontext)
-	fmt.Printf("envd: %s\n", ver)
-	if short {
-		return nil
-	}
-	fmt.Printf("  BuildDate: %s\n", ver.BuildDate)
-	fmt.Printf("  GitCommit: %s\n", ver.GitCommit)
-	fmt.Printf("  GitTreeState: %s\n", ver.GitTreeState)
-	if ver.GitTag != "" {
-		fmt.Printf("  GitTag: %s\n", ver.GitTag)
-	}
-	fmt.Printf("  GoVersion: %s\n", ver.GoVersion)
-	fmt.Printf("  Compiler: %s\n", ver.Compiler)
-	fmt.Printf("  Platform: %s\n", ver.Platform)
-	if detail {
-		if err != nil {
-			fmt.Printf("Error in getting details from Docker Server: %s\n", err)
-		} else {
-			fmt.Printf("  OSType: %s\n", detailVer.OSType)
-			if detailVer.OSVersion != "" {
-				fmt.Printf("  OSVersion: %s\n", detailVer.OSVersion)
-			}
-			fmt.Printf("  KernelVersion: %s\n", detailVer.KernelVersion)
-			fmt.Printf("  DockerHostVersion: %s\n", detailVer.DockerVersion)
-			fmt.Printf("  ContainerRuntimes: %s\n", detailVer.ContainerRuntimes)
-			fmt.Printf("  DefaultRuntime: %s\n", detailVer.DefaultRuntime)
-		}
 	}
 	return nil
 }

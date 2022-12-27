@@ -17,7 +17,9 @@ package formatter
 import (
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/docker/go-units"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 
@@ -106,4 +108,21 @@ func GetRuntimes(info *types.EnvdInfo) string {
 		keys = append(keys, k)
 	}
 	return "[" + strings.Join(keys, ",") + "]"
+}
+
+func StringOrNone(target string) string {
+	if target == "" {
+		return "<none>"
+	}
+	return target
+}
+
+func CreatedSinceString(created int64) string {
+	createdAt := time.Unix(created, 0)
+
+	if createdAt.IsZero() {
+		return ""
+	}
+
+	return units.HumanDuration(time.Now().UTC().Sub(createdAt)) + " ago"
 }
