@@ -20,7 +20,7 @@ func (s *Syncthing) Start() error {
 	}
 
 	logrus.Debug("Starting syncthing...")
-	cmd := exec.Command(getSyncthingBinPath(), "-no-browser", "-no-restart")
+	cmd := exec.Command(GetSyncthingBinPath(), "-no-browser", "-no-restart")
 	// TODO: Configure custom home path or default?
 	err := cmd.Start()
 	if err != nil {

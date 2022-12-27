@@ -19,7 +19,7 @@ func getSyncthingInstallPath() string {
 	return fmt.Sprintf("%s/bin", fileutil.DefaultCacheDir)
 }
 
-func getSyncthingBinPath() string {
+func GetSyncthingBinPath() string {
 	return fmt.Sprintf("%s/syncthing", getSyncthingInstallPath())
 }
 
@@ -57,7 +57,7 @@ func getSyncthingDownloadFolderName(os, arch, version string) string {
 }
 
 func IsInstalled() bool {
-	if _, err := os.Stat(getSyncthingBinPath()); err != nil {
+	if _, err := os.Stat(GetSyncthingBinPath()); err != nil {
 		return false
 	}
 	return true
@@ -101,7 +101,7 @@ func InstallSyncthing() error {
 
 	var downloadFolder = fmt.Sprintf("%s/%s", getSyncthingInstallPath(), getSyncthingDownloadFolderName(operatingSystem, arch, version))
 
-	err = os.Rename(fmt.Sprintf("%s/syncthing", downloadFolder), getSyncthingBinPath())
+	err = os.Rename(fmt.Sprintf("%s/syncthing", downloadFolder), GetSyncthingBinPath())
 	if err != nil {
 		return fmt.Errorf("failed to move syncthing binary: %s", err)
 	}
@@ -111,7 +111,7 @@ func InstallSyncthing() error {
 		return fmt.Errorf("failed to remove syncthing download folder: %s", err)
 	}
 
-	if err := os.Chmod(getSyncthingBinPath(), 0755); err != nil {
+	if err := os.Chmod(GetSyncthingBinPath(), 0755); err != nil {
 		return fmt.Errorf("failed to set syncthing binary permissions: %s", err)
 	}
 

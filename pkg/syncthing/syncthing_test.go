@@ -1,4 +1,4 @@
-package syncthing
+package syncthing_test
 
 import (
 	"os"
@@ -6,6 +6,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/tensorchord/envd/pkg/syncthing"
 )
 
 func TestSyncthing(t *testing.T) {
@@ -15,14 +16,15 @@ func TestSyncthing(t *testing.T) {
 
 var _ = Describe("Syncthing", func() {
 	BeforeEach(func() {
-		if _, err := os.Stat(getSyncthingBinPath()); err == nil {
-			err := os.Remove(getSyncthingBinPath())
+		if _, err := os.Stat(syncthing.GetSyncthingBinPath()); err == nil {
+			err := os.Remove(syncthing.GetSyncthingBinPath())
 			Expect(err).To(BeNil())
 		}
 	})
+
 	Describe("Syncthing", func() {
 		It("Starts and stops syncthing", func() {
-			s := Syncthing{}
+			s := syncthing.Syncthing{}
 			err := s.Start()
 			Expect(err).To(BeNil())
 
@@ -38,18 +40,18 @@ var _ = Describe("Syncthing", func() {
 
 var _ = Describe("Syncthing Install", func() {
 	BeforeEach(func() {
-		if _, err := os.Stat(getSyncthingBinPath()); err == nil {
-			err := os.Remove(getSyncthingBinPath())
+		if _, err := os.Stat(syncthing.GetSyncthingBinPath()); err == nil {
+			err := os.Remove(syncthing.GetSyncthingBinPath())
 			Expect(err).To(BeNil())
 		}
 	})
 	Describe("Install", func() {
 
 		It("Installs binary in cache directory", func() {
-			err := InstallSyncthing()
+			err := syncthing.InstallSyncthing()
 			Expect(err).To(BeNil())
 
-			Expect(IsInstalled()).To(BeTrue())
+			Expect(syncthing.IsInstalled()).To(BeTrue())
 		})
 	})
 
