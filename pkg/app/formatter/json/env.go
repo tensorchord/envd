@@ -21,7 +21,7 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-type envJsonLs struct {
+type envJSONLs struct {
 	Name      string `json:"name"`
 	Endpoint  string `json:"endpoint,omitempty"`
 	SSHTarget string `json:"ssh_target"`
@@ -33,9 +33,9 @@ type envJsonLs struct {
 }
 
 func PrintEnvironments(envs []types.EnvdEnvironment) error {
-	output := []envJsonLs{}
+	output := []envJSONLs{}
 	for _, env := range envs {
-		item := envJsonLs{
+		item := envJSONLs{
 			Name:      env.Name,
 			Endpoint:  formatter.FormatEndpoint(env),
 			SSHTarget: fmt.Sprintf("%s.envd", env.Name),
@@ -47,14 +47,14 @@ func PrintEnvironments(envs []types.EnvdEnvironment) error {
 		}
 		output = append(output, item)
 	}
-	return printJson(output)
+	return printJSON(output)
 }
 
-type envJsonDescribe struct {
-	Ports        []envJsonPort       `json:"ports,omitempty"`
-	Dependencies []envJsonDependency `json:"dependencies,omitempty"`
+type envJSONDescribe struct {
+	Ports        []envJSONPort       `json:"ports,omitempty"`
+	Dependencies []envJSONDependency `json:"dependencies,omitempty"`
 }
-type envJsonPort struct {
+type envJSONPort struct {
 	Name          string `json:"name"`
 	ContainerPort string `json:"container_port"`
 	Protocol      string `json:"protocol"`
@@ -62,16 +62,16 @@ type envJsonPort struct {
 	HostPort      string `json:"host_port"`
 }
 
-type envJsonDependency struct {
+type envJSONDependency struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
 }
 
 func PrintEnvironmentDescriptions(dep *types.Dependency, ports []types.PortBinding) error {
-	output := envJsonDescribe{}
+	output := envJSONDescribe{}
 
 	for _, port := range ports {
-		port := envJsonPort{
+		port := envJSONPort{
 			Name:          port.Name,
 			ContainerPort: port.Port,
 			Protocol:      port.Protocol,
@@ -81,18 +81,18 @@ func PrintEnvironmentDescriptions(dep *types.Dependency, ports []types.PortBindi
 		output.Ports = append(output.Ports, port)
 	}
 	for _, p := range dep.PyPIPackages {
-		dependency := envJsonDependency{
+		dependency := envJSONDependency{
 			Name: p,
 			Type: "Python",
 		}
 		output.Dependencies = append(output.Dependencies, dependency)
 	}
 	for _, p := range dep.APTPackages {
-		dependency := envJsonDependency{
+		dependency := envJSONDependency{
 			Name: p,
 			Type: "APT",
 		}
 		output.Dependencies = append(output.Dependencies, dependency)
 	}
-	return printJson(output)
+	return printJSON(output)
 }

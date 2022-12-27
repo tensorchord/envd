@@ -23,7 +23,7 @@ import (
 	"github.com/tensorchord/envd/pkg/version"
 )
 
-type versionJson struct {
+type versionJSON struct {
 	Envd              string `json:"envd"`
 	BuildDate         string `json:"build_date,omitempty"`
 	GitCommit         string `json:"git_commit,omitempty"`
@@ -45,11 +45,11 @@ func PrintVersion(clicontext *cli.Context) error {
 	detail := clicontext.Bool("detail")
 	ver := version.GetVersion()
 	detailVer, err := formatter.GetDetailedVersion(clicontext)
-	output := versionJson{
+	output := versionJSON{
 		Envd: version.GetVersion().String(),
 	}
 	if short {
-		return printJson(output)
+		return printJSON(output)
 	}
 	output.BuildDate = ver.BuildDate
 	output.GitCommit = ver.GitCommit
@@ -74,5 +74,5 @@ func PrintVersion(clicontext *cli.Context) error {
 			output.DefaultRuntime = detailVer.DefaultRuntime
 		}
 	}
-	return printJson(output)
+	return printJSON(output)
 }

@@ -22,7 +22,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func printJson(v any) error {
+func printJSON(v any) error {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
 	// avoid escaped from <none> into "\u003cnone\u003e"

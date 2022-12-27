@@ -20,7 +20,7 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-type contextJsonInfo struct {
+type contextJSONInfo struct {
 	Context     string `json:"context"`
 	Builder     string `json:"builder"`
 	BuilderAddr string `json:"builder_addr"`
@@ -30,9 +30,9 @@ type contextJsonInfo struct {
 }
 
 func PrintContext(contexts types.EnvdContext) error {
-	output := []contextJsonInfo{}
+	output := []contextJSONInfo{}
 	for _, p := range contexts.Contexts {
-		item := contextJsonInfo{
+		item := contextJSONInfo{
 			Context:     p.Name,
 			Builder:     string(p.Builder),
 			BuilderAddr: fmt.Sprintf("%s://%s", p.Builder, p.BuilderAddress),
@@ -44,5 +44,5 @@ func PrintContext(contexts types.EnvdContext) error {
 		}
 		output = append(output, item)
 	}
-	return printJson(output)
+	return printJSON(output)
 }
