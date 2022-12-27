@@ -6,10 +6,12 @@ import (
 	"syscall"
 
 	"github.com/sirupsen/logrus"
+	"github.com/syncthing/syncthing/lib/config"
 )
 
 type Syncthing struct {
-	cmd *exec.Cmd
+	cmd    *exec.Cmd
+	config *config.Configuration
 }
 
 func (s *Syncthing) Start() error {
