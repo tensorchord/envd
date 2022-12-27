@@ -20,6 +20,7 @@ import (
 	"strconv"
 
 	"github.com/olekukonko/tablewriter"
+
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/types"
 )
