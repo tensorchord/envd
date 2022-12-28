@@ -1,12 +1,14 @@
 package syncthing_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/tensorchord/envd/pkg/syncthing"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 func TestSyncthing(t *testing.T) {
@@ -33,9 +35,35 @@ var _ = Describe("Syncthing", func() {
 			err = s.Stop()
 			Expect(err).To(BeNil())
 		})
-
 	})
 
+	Describe("Syncthing config", func() {
+		BeforeEach(func() {
+			os.RemoveAll(syncthing.DefaultHomeDirectory())
+		})
+
+		AfterEach(func() {
+			os.RemoveAll(syncthing.DefaultHomeDirectory())
+		})
+
+		It("Initializes syncthing configuration", func() {
+			s, err := syncthing.InitializeLocalSyncthing()
+			Expect(err).To(BeNil())
+
+			Expect(s.Port).To(Equal(syncthing.DefaultLocalPort))
+			Expect(s.Config.GUI.Address()).To(Equal(fmt.Sprintf("0.0.0.0:%s", syncthing.DefaultLocalPort)))
+
+			dirExists, err := fileutil.DirExists(s.HomeDirectory)
+			Expect(err).To(BeNil())
+			Expect(dirExists).To(BeTrue())
+
+			configFilePath := syncthing.GetConfigFilePath(s.HomeDirectory)
+			fileExists, err := fileutil.FileExists(configFilePath)
+			Expect(err).To(BeNil())
+			Expect(fileExists).To(BeTrue())
+
+		})
+	})
 })
 
 var _ = Describe("Syncthing Install", func() {
