@@ -309,9 +309,10 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center"><a href="https://github.com/xiangtianyu"><img src="https://avatars.githubusercontent.com/u/10825900?v=4?s=70" width="70px;" alt="xiangtianyu"/><br /><sub><b>xiangtianyu</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=xiangtianyu" title="Documentation">📖</a></td>
       <td align="center"><a href="https://github.com/xieydd"><img src="https://avatars.githubusercontent.com/u/20329697?v=4?s=70" width="70px;" alt="xieydd"/><br /><sub><b>xieydd</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=xieydd" title="Code">💻</a></td>
       <td align="center"><a href="https://github.com/xing0821"><img src="https://avatars.githubusercontent.com/u/54933318?v=4?s=70" width="70px;" alt="xing0821"/><br /><sub><b>xing0821</b></sub></a><br /><a href="#ideas-xing0821" title="Ideas, Planning, & Feedback">🤔</a> <a href="#userTesting-xing0821" title="User Testing">📓</a> <a href="https://github.com/tensorchord/envd/commits?author=xing0821" title="Code">💻</a></td>
-      <td align="center"><a href="https://github.com/zhyon404"><img src="https://avatars.githubusercontent.com/u/32242529?v=4?s=70" width="70px;" alt="zhyon404"/><br /><sub><b>zhyon404</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=zhyon404" title="Code">💻</a></td>
+      <td align="center"><a href="https://xxchan.github.io"><img src="https://avatars.githubusercontent.com/u/37948597?v=4?s=70" width="70px;" alt="xxchan"/><br /><sub><b>xxchan</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=xxchan" title="Documentation">📖</a></td>
     </tr>
     <tr>
+      <td align="center"><a href="https://github.com/zhyon404"><img src="https://avatars.githubusercontent.com/u/32242529?v=4?s=70" width="70px;" alt="zhyon404"/><br /><sub><b>zhyon404</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=zhyon404" title="Code">💻</a></td>
       <td align="center"><a href="https://www.homeboyc.cn/"><img src="https://avatars.githubusercontent.com/u/22193008?v=4?s=70" width="70px;" alt="杨成锴"/><br /><sub><b>杨成锴</b></sub></a><br /><a href="https://github.com/tensorchord/envd/commits?author=asjdf" title="Code">💻</a></td>
     </tr>
   </tbody>
