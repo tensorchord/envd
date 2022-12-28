@@ -15,27 +15,27 @@
 package app
 
 import (
-	"fmt"
-	"io"
 	"os"
-	"strconv"
-	"strings"
 
 	"github.com/cockroachdb/errors"
-	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/formatter"
+	"github.com/tensorchord/envd/pkg/app/formatter/json"
+	"github.com/tensorchord/envd/pkg/app/formatter/table"
 	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/types"
 )
 
 var CommandListEnv = &cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls", "l"},
 	Usage:   "List envd environments",
-	Action:  getEnvironment,
+	Flags: []cli.Flag{
+		&formatter.FormatFlag,
+	},
+	Action: getEnvironment,
 }
 
 func getEnvironment(clicontext *cli.Context) error {
@@ -56,51 +56,12 @@ func getEnvironment(clicontext *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	renderEnvironments(envs, os.Stdout)
+	format := clicontext.String("format")
+	switch format {
+	case "table":
+		table.RenderEnvironments(os.Stdout, envs)
+	case "json":
+		return json.PrintEnvironments(envs)
+	}
 	return nil
-}
-
-func renderEnvironments(envs []types.EnvdEnvironment, w io.Writer) {
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{
-		"Name", "Endpoint", "SSH Target", "Image",
-		"GPU", "CUDA", "CUDNN", "Status",
-	})
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
-
-	for _, env := range envs {
-		envRow := make([]string, 9)
-		envRow[0] = env.Name
-		envRow[1] = endpointOrNone(env)
-		envRow[2] = fmt.Sprintf("%s.envd", env.Name)
-		envRow[3] = env.Spec.Image
-		envRow[4] = strconv.FormatBool(env.GPU)
-		envRow[5] = stringOrNone(env.CUDA)
-		envRow[6] = stringOrNone(env.CUDNN)
-		envRow[7] = env.Status.Phase
-		table.Append(envRow)
-	}
-	table.Render()
-}
-
-func endpointOrNone(env types.EnvdEnvironment) string {
-	var res strings.Builder
-	if env.Status.JupyterAddr != nil {
-		res.WriteString(fmt.Sprintf("jupyter: %s", *env.Status.JupyterAddr))
-	}
-	if env.Status.RStudioServerAddr != nil {
-		res.WriteString(fmt.Sprintf("rstudio: %s", *env.Status.RStudioServerAddr))
-	}
-	return res.String()
 }

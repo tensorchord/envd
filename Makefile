@@ -250,8 +250,11 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
-envd-lint:
+black-install:
+	@pip install -q black[jupyter]
+
+envd-lint: black-install
 	black --check --include '(\.envd|\.py|\.ipynb)$$' .
 
-envd-fmt:
+envd-fmt: black-install
 	black --include '(\.envd|\.py|\.ipynb)$$' .
