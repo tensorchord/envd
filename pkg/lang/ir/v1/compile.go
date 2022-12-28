@@ -283,9 +283,7 @@ func (g *generalGraph) GetEntrypoint(buildContextDir string) ([]string, error) {
 
 func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 	g.uid = uid
-
-	// TODO(gaocegege): Remove the hack for https://github.com/tensorchord/envd/issues/370
-	g.gid = 1001
+	g.gid = gid
 	logrus.WithFields(logrus.Fields{
 		"uid": g.uid,
 		"gid": g.gid,
