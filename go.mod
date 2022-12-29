@@ -12,6 +12,7 @@ require (
 	github.com/docker/docker v20.10.18+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.5.0
+	github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4
 	github.com/gizak/termui/v3 v3.1.0
 	github.com/gliderlabs/ssh v0.3.5
 	github.com/go-git/go-git/v5 v5.4.2
@@ -27,6 +28,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.1.0-rc2
 	github.com/pkg/sftp v1.13.5
+	github.com/r3labs/diff/v3 v3.0.0
 	github.com/segmentio/analytics-go/v3 v3.2.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.14.0
@@ -76,6 +78,7 @@ require (
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/thejerf/suture/v4 v4.0.2 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
+	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
