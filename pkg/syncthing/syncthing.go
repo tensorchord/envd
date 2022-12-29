@@ -93,11 +93,6 @@ func (s *Syncthing) StartLocalSyncthing() error {
 		return fmt.Errorf("failed to wait for syncthing startup: %w", err)
 	}
 
-	err = s.WaitForStartup(10 * time.Second)
-	if err != nil {
-		return fmt.Errorf("failed to wait for syncthing startup: %w", err)
-	}
-
 	err = s.PullLatestConfig()
 	if err != nil {
 		return fmt.Errorf("failed to pull latest config: %w", err)
