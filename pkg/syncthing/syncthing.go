@@ -2,20 +2,23 @@ package syncthing
 
 import (
 	"fmt"
-	"os"
+	"net/http"
 	"os/exec"
 	"syscall"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/syncthing/syncthing/lib/config"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 type Syncthing struct {
-	cmd           *exec.Cmd
+	Cmd           *exec.Cmd
 	Config        *config.Configuration
+	PrevConfig    config.Configuration // Unapplied config
 	HomeDirectory string
 	Port          string
+	Client        *http.Client
+	ApiKey        string
 }
 
 func Main() {
@@ -28,8 +31,21 @@ func Main() {
 	// Configure Device Connections
 }
 
+// Initializes the remote syncthing instance
 func InitializeRemoteSyncthing() (*Syncthing, error) {
-	return nil, nil
+	s := &Syncthing{
+		Port:          DefaultRemotePort,
+		HomeDirectory: "/config",
+		Client:        NewApiClient(),
+		ApiKey:        DefaultApiKey,
+	}
+
+	err := s.PullLatestConfig()
+	if err != nil {
+		return nil, fmt.Errorf("failed to pull latest config: %w", err)
+	}
+
+	return s, nil
 }
 
 // Writes the default configuration to the home directory
@@ -39,6 +55,8 @@ func InitializeLocalSyncthing() (*Syncthing, error) {
 	s := &Syncthing{
 		Config:        initConfig,
 		HomeDirectory: homeDirectory,
+		Client:        NewApiClient(),
+		ApiKey:        DefaultApiKey,
 	}
 
 	port, err := parsePortFromAddress(initConfig.GUI.Address())
@@ -47,29 +65,14 @@ func InitializeLocalSyncthing() (*Syncthing, error) {
 	}
 	s.Port = port
 
-	configBytes, err := GetConfigByte(s.Config)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get syncthing config bytes: %w", err)
-	}
-
-	err = fileutil.CreateDirIfNotExist(homeDirectory)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get syncthing config file path: %w", err)
-	}
-
-	configFilePath := GetConfigFilePath(homeDirectory)
-	if err = fileutil.CreateIfNotExist(configFilePath); err != nil {
-		return nil, fmt.Errorf("failed to get syncthing config file path: %w", err)
-	}
-
-	if err = os.WriteFile(configFilePath, configBytes, 0666); err != nil {
-		return nil, fmt.Errorf("failed to write syncthing config file: %w", err)
+	if err = s.WriteLocalConfig(); err != nil {
+		return nil, fmt.Errorf("failed to write local syncthing config: %w", err)
 	}
 
 	return s, nil
 }
 
-func (s *Syncthing) Start() error {
+func (s *Syncthing) StartLocalSyncthing() error {
 	if !IsInstalled() {
 		InstallSyncthing()
 	}
@@ -82,8 +85,66 @@ func (s *Syncthing) Start() error {
 	if err != nil {
 		return fmt.Errorf("failed to run syncthing executable: %w", err)
 	}
-	s.cmd = cmd
+	s.Cmd = cmd
 	logrus.Info("Syncthing started!")
+
+	err = s.WaitForStartup(10 * time.Second)
+	if err != nil {
+		return fmt.Errorf("failed to wait for syncthing startup: %w", err)
+	}
+
+	err = s.WaitForStartup(10 * time.Second)
+	if err != nil {
+		return fmt.Errorf("failed to wait for syncthing startup: %w", err)
+	}
+
+	err = s.PullLatestConfig()
+	if err != nil {
+		return fmt.Errorf("failed to pull latest config: %w", err)
+	}
+	return nil
+
+}
+
+func (s *Syncthing) Ping() (bool, error) {
+	_, err := s.ApiCall(GET, "/rest/system/ping", nil, nil)
+	if err != nil {
+		return false, fmt.Errorf("failed to ping syncthing: %w", err)
+	}
+	return true, nil
+}
+
+func (s *Syncthing) WaitForStartup(timeout time.Duration) error {
+	start := time.Now()
+	for {
+		if time.Since(start) > timeout {
+			return fmt.Errorf("timed out waiting for syncthing to start")
+		}
+		if ok, _ := s.Ping(); ok {
+			return nil
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+}
+
+func (s *Syncthing) StopLocalSyncthing() error {
+	if s.Cmd == nil {
+		return fmt.Errorf("syncthing is not running")
+	}
+
+	err := s.Cmd.Process.Signal(syscall.SIGINT)
+	if err != nil {
+		return fmt.Errorf("failed to kill syncthing process: %w", err)
+	}
+
+	_, err = s.Cmd.Process.Wait()
+	if err != nil {
+		return fmt.Errorf("failed to kill syncthing process: %w", err)
+	}
+
+	if err = s.CleanLocalConfig(); err != nil {
+		return fmt.Errorf("failed to clean local syncthing config: %w", err)
+	}
 
 	return nil
 }
@@ -94,22 +155,8 @@ func (s *Syncthing) Restart() error {
 }
 
 func (s *Syncthing) IsRunning() bool {
-	if s.cmd == nil {
+	if s.Cmd == nil {
 		return false
 	}
-	return s.cmd.Process.Signal(syscall.Signal(0)) == nil
-
-}
-
-func (s *Syncthing) Stop() error {
-	if s.cmd == nil {
-		return fmt.Errorf("syncthing is not running")
-	}
-
-	err := s.cmd.Process.Kill()
-	if err != nil {
-		return fmt.Errorf("failed to kill syncthing process: %w", err)
-	}
-
-	return nil
+	return s.Cmd.Process.Signal(syscall.Signal(0)) == nil
 }
