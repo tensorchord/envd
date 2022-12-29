@@ -4,3 +4,4 @@
 def build():
     base(dev=True)
     install.r_lang()
+    install.r_packages(name=["BDgraph"])
