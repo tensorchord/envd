@@ -21,7 +21,7 @@ const (
 	PUT  = "PUT"
 )
 
-// Makes API calls to the syncthing instance
+// Makes API calls to the syncthing instance's rest api
 func (s *Syncthing) ApiCall(method string, url string, params map[string]string, body []byte) ([]byte, error) {
 	// TODO: can implement retry logic
 

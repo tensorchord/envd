@@ -3,7 +3,9 @@ package syncthing_test
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/facebookgo/subset"
 	. "github.com/onsi/ginkgo/v2"
@@ -133,7 +135,18 @@ var _ = Describe("Syncthing REST API operations", func() {
 		event, err := s.GetMostRecentEvent()
 		Expect(err).To(BeNil())
 		Expect(event.Id > 0).To(BeTrue())
+	})
 
+	It("Connects two devices", func() {
+		s2, err := syncthing.InitializeRemoteSyncthing()
+		Expect(err).To(BeNil())
+
+		err = syncthing.ConnectDevices(s2, s)
+		Expect(err).To(BeNil())
+
+		for {
+			time.Sleep(1 * time.Second)
+		}
 	})
 })
 
@@ -176,18 +189,24 @@ var _ = Describe("Util tests", func() {
 			var sb = B{One: "one"}
 			var sc = C{One: "two"}
 
-			var a = A{One: "one", Two: "two", Three: "three", Five: sb}             // Original
-			var b = A{Two: "two", Three: "five", Four: "four", Six: sc}             // With changed fields
-			var d = A{One: "two", Two: "two", Three: "five", Four: "four", Six: sc} // With changed but irrelevant field
+			var a = A{One: "one", Two: "two", Three: "three", Five: sb}
+			var b = A{Two: "two", Three: "five", Four: "four", Six: sc}
+			var d = A{One: "two", Two: "two", Three: "five", Four: "four", Six: sc}
 			var c A
 
 			_, err := diff.Merge(a, b, &c)
 			Expect(err).To(BeNil())
 
-			Expect(subset.Check(c, a)).To(BeFalse())
-			Expect(subset.Check(c, b)).To(BeTrue())
-			Expect(subset.Check(c, d)).To(BeTrue())
+			Expect(c.One).ToNot(Equal("one"))                   // No changes to field
+			Expect(c.Two).ToNot(Equal("two"))                   // No changes to field
+			Expect(c.Three).To(Equal("five"))                   // Changed field
+			Expect(c.Four).To(Equal("four"))                    // New field
+			Expect(reflect.DeepEqual(c.Five, sb)).To(BeFalse()) // Removed field, no change
+			Expect(reflect.DeepEqual(c.Six, sc)).To(BeTrue())   // New field
 
+			Expect(subset.Check(c, a)).To(BeFalse()) // Original
+			Expect(subset.Check(c, b)).To(BeTrue())  // With changed fields
+			Expect(subset.Check(c, d)).To(BeTrue())  // With changed but irrelevant field
 		})
 	})
 })

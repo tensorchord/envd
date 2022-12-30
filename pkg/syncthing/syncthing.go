@@ -19,6 +19,7 @@ type Syncthing struct {
 	Port          string
 	Client        *http.Client
 	ApiKey        string
+	latestEventId int64
 }
 
 func Main() {

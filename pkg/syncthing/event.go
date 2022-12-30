@@ -32,8 +32,7 @@ type GeneralEvent struct {
 	Data     interface{} `json:"data"`
 }
 
-var latestEventId int64 = 0
-
+// Fetches the most recent event using the syncthing rest api
 func (s *Syncthing) GetMostRecentEvent() (*GeneralEvent, error) {
 	resBody, err := s.ApiCall(GET, "/rest/events", nil, []byte{})
 	if err != nil {
@@ -47,15 +46,17 @@ func (s *Syncthing) GetMostRecentEvent() (*GeneralEvent, error) {
 	}
 
 	latestEvent := events[len(events)-1]
-	latestEventId = latestEvent.Id
+	s.latestEventId = latestEvent.Id
 
 	// Assuming that the events are returned in order
 	return events[len(events)-1], nil
 }
 
+// Fetches the latest config saved events using the syncthing rest api starting from the latest event id
 func (s *Syncthing) GetConfigSavedEvents() ([]*ConfigSavedEvent, error) {
 	params := map[string]string{
-		"since": strconv.FormatInt(latestEventId, 10),
+		"since":   strconv.FormatInt(s.latestEventId, 10),
+		"timeout": "0",
 	}
 	resBody, err := s.ApiCall(GET, "/rest/events", params, []byte{})
 	if err != nil {
@@ -74,9 +75,10 @@ func (s *Syncthing) GetConfigSavedEvents() ([]*ConfigSavedEvent, error) {
 			events = append(events, event)
 		}
 	}
-
-	latestEvent := events[len(events)-1]
-	latestEventId = latestEvent.Id
+	if len(allEvents) > 0 {
+		latestEvent := events[len(events)-1]
+		s.latestEventId = latestEvent.Id
+	}
 
 	return events, nil
 }
