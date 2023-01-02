@@ -16,8 +16,6 @@ indent_style = tab
 indent_size = 4
 
 [*.{py,rst,txt,envd}]
-indent_style = space
-trim_trailing_whitespace = true
 indent_size = 4
 
 [*.md]
@@ -26,9 +24,5 @@ trim_trailing_whitespace = false
 
 eclint_indent_style = unset
 
-[Dockerfile]
+[*.Dockerfile]
 indent_size = 4
-
-[*.{yml,yaml}]
-indent_style = space
-indent_size = 2
