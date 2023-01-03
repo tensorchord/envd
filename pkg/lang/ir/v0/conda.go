@@ -142,7 +142,6 @@ func (g generalGraph) compileCondaEnvironment(root llb.State) (llb.State, error)
 
 func (g *generalGraph) installConda(root llb.State) llb.State {
 	root = g.updateEnvPath(root, types.DefaultCondaPath)
-	logrus.Infof(">>> PATH: %s\n", g.RuntimeEnvPaths)
 	// this directory is related to conda envd env meta (used by `conda env config vars set key=value`)
 	g.UserDirectories = append(g.UserDirectories, fmt.Sprintf("%s/envs/envd/conda-meta", condaRootPrefix))
 	if g.CondaConfig.UseMicroMamba {
