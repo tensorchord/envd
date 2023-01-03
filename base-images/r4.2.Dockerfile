@@ -1,6 +1,6 @@
 ARG ENVD_VERSION
 ARG ENVD_SSHD_IMAGE
-FROM r-base:4.2.2 as base
+FROM rocker/r-ver:4.2 as base
 
 FROM base as base-amd64
 
@@ -23,7 +23,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends --no-install-suggests --fix-missing \
     apt-utils bash-static libtinfo5 libncursesw5 \
     # rstudio dependencies
-    file libapparmor1 libclang-dev libcurl4-openssl-dev libedit2 libobjc4 libssl-dev \
+    file libapparmor1 libclang-dev libcurl4-openssl-dev libedit2 libobjc4 wget libssl-dev \
     libpq5 psmisc procps python3-setuptools pwgen lsb-release \
     # envd dependencies
     python3 curl openssh-client git tini sudo zsh vim \
@@ -34,7 +34,7 @@ RUN apt-get update && \
 RUN set -x && \
     UNAME_M="$(uname -m)" && \
     if [ "${UNAME_M}" = "x86_64" ]; then \
-      RSTUDIO_URL="https://download2.rstudio.org/server/bionic/amd64/rstudio-server-2022.02.3-492-amd64.deb"; \
+      RSTUDIO_URL="https://download2.rstudio.org/server/jammy/amd64/rstudio-server-2022.12.0-353-amd64.deb"; \
     elif [ "${UNAME_M}" = "aarch64" ]; then \
       RSTUDIO_URL="https://rstudio.org/download/latest/latest/server/focal/rstudio-server-latest-arm64.deb"; \
     fi && \
