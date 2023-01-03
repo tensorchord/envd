@@ -492,6 +492,12 @@ func (e dockerEngine) Destroy(ctx context.Context, name string) (string, error) 
 
 	ctr, err := e.ContainerInspect(ctx, name)
 	if err != nil {
+		errCause := errors.UnwrapAll(err).Error()
+		if strings.Contains(errCause, "No such container") {
+			// If the container is not found, it is already destroyed or the name is wrong.
+			logger.Infof("cannot find container %s, maybe it's already destroyed or the name is wrong", name)
+			return "", nil
+		}
 		return "", errors.Wrap(err, "failed to inspect the container")
 	}
 
