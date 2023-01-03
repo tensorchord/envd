@@ -25,7 +25,7 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func (g generalGraph) installJulia(root llb.State) (llb.State, error) {
+func (g *generalGraph) installJulia(root llb.State) (llb.State, error) {
 	root = g.updateEnvPath(root, types.DefaultJuliaPath)
 	return root, errors.New("not implemented")
 }
