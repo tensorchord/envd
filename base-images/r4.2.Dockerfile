@@ -1,6 +1,6 @@
 ARG ENVD_VERSION
 ARG ENVD_SSHD_IMAGE
-FROM r-base:4.2.0 as base
+FROM r-base:4.2.2 as base
 
 FROM base as base-amd64
 
