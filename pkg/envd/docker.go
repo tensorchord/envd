@@ -489,6 +489,12 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 
 func (e dockerEngine) Destroy(ctx context.Context, name string) (string, error) {
 	logger := logrus.WithField("container", name)
+
+	ctr, err := e.ContainerInspect(ctx, name)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to inspect the container")
+	}
+
 	// Refer to https://docs.docker.com/engine/reference/commandline/container_kill/
 	if err := e.ContainerKill(ctx, name, "KILL"); err != nil {
 		errCause := errors.UnwrapAll(err).Error()
@@ -509,38 +515,12 @@ func (e dockerEngine) Destroy(ctx context.Context, name string) (string, error) 
 		return "", errors.Wrap(err, "failed to remove the container")
 	}
 
-	// remove image
-	tags, err := e.getContainerTag(ctx, name)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to get the container tags")
-	} else {
-		for _, tag := range tags {
-			if _, err := e.ImageRemove(ctx, tag, dockertypes.ImageRemoveOptions{}); err != nil {
-				return "", errors.Errorf("remove image %s failed: %w", tag, err)
-			}
-			logrus.Infof("image(%s) is destroyed", tag)
-		}
+	if _, err := e.ImageRemove(ctx, ctr.Image, dockertypes.ImageRemoveOptions{}); err != nil {
+		return "", errors.Errorf("remove image %s failed: %w", ctr.Image, err)
 	}
+	logrus.Infof("image(%s) is destroyed", ctr.Image)
 
 	return name, nil
-}
-
-func (e dockerEngine) getContainerTag(ctx context.Context, name string) ([]string, error) {
-	tags := []string{}
-	// check the images instead of running containers because `envd build` also produce images
-	images, err := e.ListImage(ctx)
-	if err != nil {
-		return tags, err
-	}
-	for _, img := range images {
-		if strings.HasPrefix(img.Name, fmt.Sprintf("%s:", name)) {
-			tags = append(tags, img.Name)
-		}
-	}
-	if len(tags) == 0 {
-		logrus.Infof("cannot find the image of %s", name)
-	}
-	return tags, nil
 }
 
 func (e dockerEngine) WaitUntilRunning(ctx context.Context,
