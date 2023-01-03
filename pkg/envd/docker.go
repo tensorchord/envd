@@ -72,7 +72,7 @@ func (e dockerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) 
 	for _, img := range images {
 		envdImg, err := types.NewImageFromSummary(img)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to create envd image from the docker image")
+			return nil, errors.Wrapf(err, "failed to create envd image `%s` from the docker image", img.ID)
 		}
 		envdImgs = append(envdImgs, *envdImg)
 	}
