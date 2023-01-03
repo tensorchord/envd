@@ -21,7 +21,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
 	"github.com/moby/buildkit/util/system"
-	"github.com/sirupsen/logrus"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/util/netutil"
@@ -308,7 +307,6 @@ func NewDependencyFromLabels(label map[string]string) (*Dependency, error) {
 		dep.APTPackages = lst
 	}
 	if pypiCommands, ok := label[ImageLabelPyPI]; ok {
-		logrus.Debug(pypiCommands)
 		pkgs, err := parsePyPICommands(pypiCommands)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to parse pypi commands")
