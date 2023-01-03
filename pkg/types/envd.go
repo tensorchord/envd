@@ -188,7 +188,7 @@ func NewImageFromSummary(image types.ImageSummary) (*EnvdImage, error) {
 	}
 	m, err := newManifest(image.Labels)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to parse manifest")
 	}
 	img.EnvdManifest = m
 	return &img, nil
