@@ -1,5 +1,38 @@
 # Changelog
 
+## v0.3.3 (2023-01-03)
+
+
+### Contributors
+
+
+## v0.3.2 (2023-01-03)
+
+ * [095237d](https://github.com/tensorchord/envd/commit/095237dee602eb76dedf9041370173eee367d467) fix: fix nil pointer dereference when exiting shell (#1364)
+ * [aae5e27](https://github.com/tensorchord/envd/commit/aae5e27feaa06436fa81c3dc414b28b6b7e21a3b) chore(deps): bump github.com/mattn/go-isatty from 0.0.16 to 0.0.17 (#1361)
+ * [b0b5d71](https://github.com/tensorchord/envd/commit/b0b5d71ccb463a7e26e6f3f0cf2ce5d094731367) fix: remove duplicated config and fix Dockerfile pattern (#1362)
+ * [bb0fe7c](https://github.com/tensorchord/envd/commit/bb0fe7cac7d6194f2fe095a5aa61bf68a96a564d) Fix: Remove unnecessary user switching code when installing R package (#1351)
+ * [4f406ce](https://github.com/tensorchord/envd/commit/4f406ce057c36e1c45ee1e5d2b4c27a8120796ca) fix: fix broken link (#1349)
+ * [3093e1a](https://github.com/tensorchord/envd/commit/3093e1a4c64ff1cbff58f656124951d561445a73) fix: v1 change default user group to 1000:1000 (#1347)
+ * [571abfe](https://github.com/tensorchord/envd/commit/571abfede9e2166ba5fbefaaf046a4ff926309ad) feat: add --format for commands to output json (#1323)
+ * [296680c](https://github.com/tensorchord/envd/commit/296680ce6a02d5a0605936a49de250ba236baaa5) fix: install black[jupyter] for CI check (#1343)
+ * [cb33a65](https://github.com/tensorchord/envd/commit/cb33a656801a2f6b6cd04f4b4631ff17b3a2d3a8) chore(deps): bump github.com/tensorchord/envd-server from 0.0.21 to 0.0.23 (#1341)
+ * [722fca1](https://github.com/tensorchord/envd/commit/722fca1d11a5519a79f6be29ca48ef67a2414b55) chore(deps): bump pypa/cibuildwheel from 2.11.3 to 2.11.4 (#1340)
+ * [7426973](https://github.com/tensorchord/envd/commit/7426973cc33dd56a3967a4c2163575a92359a963) doc: add pytorch2 example (#1339)
+ * [e1cb495](https://github.com/tensorchord/envd/commit/e1cb4953d008eb3ed0816e667a59595da9204a3c) fix: doc url in envd github issue page (#1338)
+ * [122021d](https://github.com/tensorchord/envd/commit/122021da173e62ddbada683ddba4dfd8eb0432cc) refact: change Shlex(fmt.Sprintf to Shlexf, use ` instead of escape \" (#1337)
+
+### Contributors
+
+ * Bingtan Lu
+ * Keming
+ * Zhizhen He
+ * cutecutecat
+ * dependabot[bot]
+ * x0oo0x
+ * xing0821
+ * xxchan
+
 ## v0.3.1 (2022-12-23)
 
  * [8cc3cc4](https://github.com/tensorchord/envd/commit/8cc3cc4064449025b0aeb764c80568796df79a32) feat: Support installing R environment in DEB822 format using internal standardized structure (#1329)
