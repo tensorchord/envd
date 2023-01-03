@@ -1,6 +1,6 @@
 ARG ENVD_VERSION
 ARG ENVD_SSHD_IMAGE
-FROM r-base:4.2.0 as base
+FROM r-base:4.2.2 as base
 
 FROM base as base-amd64
 
@@ -23,7 +23,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends --no-install-suggests --fix-missing \
     apt-utils bash-static libtinfo5 libncursesw5 \
     # rstudio dependencies
-    file libapparmor1 libclang-dev libcurl4-openssl-dev libedit2 libobjc4 libssl1.1 libssl-dev \
+    file libapparmor1 libclang-dev libcurl4-openssl-dev libedit2 libobjc4 libssl-dev \
     libpq5 psmisc procps python3-setuptools pwgen lsb-release \
     # envd dependencies
     python3 curl openssh-client git tini sudo zsh vim \
