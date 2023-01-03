@@ -574,6 +574,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "LuBingtan",
+      "name": "Bingtan Lu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/30698342?v=4",
+      "profile": "https://github.com/LuBingtan",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
