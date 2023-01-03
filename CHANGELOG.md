@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.4 (2023-01-03)
+
+ * [38990c3](https://github.com/tensorchord/envd/commit/38990c31baece96fba182f4913686332de95e309) fix: Remove libssl1.1 (#1368)
+
+### Contributors
+
+ * Ce Gao
+
 ## v0.3.3 (2023-01-03)
 
 
