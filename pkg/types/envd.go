@@ -28,14 +28,10 @@ import (
 )
 
 const (
-	// DefaultPathEnvUnix is unix style list of directories to search for
-	// executables. Each directory is separated from the next by a colon
-	// ':' character .
-	DefaultPathEnvUnix = "/opt/conda/envs/envd/bin:/opt/conda/bin:/home/envd/.local/bin:/usr/local/julia/bin:" + system.DefaultPathEnvUnix
-	// DefaultPathEnvWindows is windows style list of directories to search for
-	// executables. Each directory is separated from the next by a colon
-	// ';' character .
-	DefaultPathEnvWindows = system.DefaultPathEnvWindows
+	// environment PATH
+	DefaultSystemPath = system.DefaultPathEnvUnix
+	DefaultCondaPath  = "/opt/conda/envs/envd/bin:/opt/conda/bin:/home/envd/.local/bin"
+	DefaultJuliaPath  = "/usr/local/julia/bin"
 	// image
 	PythonBaseImage = "ubuntu:20.04"
 	// supervisor
@@ -55,7 +51,7 @@ var BaseEnvironment = []struct {
 	Value string
 }{
 	{"DEBIAN_FRONTEND", "noninteractive"},
-	{"PATH", DefaultPathEnvUnix},
+	{"PATH", DefaultSystemPath},
 	{"LANG", "en_US.UTF-8"},
 	{"LC_ALL", "en_US.UTF-8"},
 }
@@ -168,10 +164,6 @@ type EnvdAuth struct {
 type AuthConfig struct {
 	Name     string `json:"name,omitempty"`
 	JWTToken string `json:"jwt_token,omitempty"`
-}
-
-func DefaultPathEnv() string {
-	return DefaultPathEnvUnix
 }
 
 func NewImageFromSummary(image types.ImageSummary) (*EnvdImage, error) {

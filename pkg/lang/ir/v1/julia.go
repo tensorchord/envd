@@ -21,9 +21,11 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 func (g generalGraph) installJulia(root llb.State) (llb.State, error) {
+	root = g.updateEnvPath(root, types.DefaultJuliaPath)
 	return llb.State{}, errors.New("not implemented")
 }
 

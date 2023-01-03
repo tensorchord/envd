@@ -41,6 +41,7 @@ func NewGraph() ir.Graph {
 	runtimeGraph := ir.RuntimeGraph{
 		RuntimeCommands: make(map[string]string),
 		RuntimeEnviron:  make(map[string]string),
+		RuntimeEnvPaths: []string{types.DefaultSystemPath},
 	}
 	langVersion := languageVersionDefault
 	conda := &ir.CondaConfig{}
@@ -60,7 +61,6 @@ func NewGraph() ir.Graph {
 		SystemPackages:  []string{},
 		Exec:            []ir.RunBuildCommand{},
 		UserDirectories: []string{},
-		RuntimeEnvPaths: []string{types.DefaultPathEnv()},
 		Shell:           shellBASH,
 		CondaConfig:     conda,
 		RuntimeGraph:    runtimeGraph,
@@ -240,6 +240,7 @@ func (g generalGraph) EnvString() []string {
 	for k, v := range g.RuntimeEnviron {
 		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
 	}
+	envs = append(envs, fmt.Sprintf("PATH=%s", strings.Join(g.RuntimeEnvPaths, ":")))
 	return envs
 }
 
@@ -247,10 +248,9 @@ func (g generalGraph) GetEnviron() []string {
 	if g.Image != nil {
 		return g.EnvString()
 	}
-	// Add PATH and LC_ALL.
 	return append(g.EnvString(),
-		"PATH="+strings.Join(g.RuntimeEnvPaths, ":"),
 		"LC_ALL=en_US.UTF-8",
+		"LANG=en_US.UTF-8",
 	)
 }
 
@@ -287,7 +287,7 @@ func (g *generalGraph) GetEntrypoint(buildContextDir string) ([]string, error) {
 	return []string{"horust"}, nil
 }
 
-func (g generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
+func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 	g.uid = uid
 
 	// TODO(gaocegege): Remove the hack for https://github.com/tensorchord/envd/issues/370

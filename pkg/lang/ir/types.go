@@ -24,6 +24,7 @@ type RuntimeGraph struct {
 	RuntimeDaemon     [][]string
 	RuntimeInitScript [][]string
 	RuntimeEnviron    map[string]string
+	RuntimeEnvPaths   []string
 	RuntimeExpose     []ExposeItem
 }
 

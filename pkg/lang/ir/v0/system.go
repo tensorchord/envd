@@ -54,7 +54,7 @@ func (g generalGraph) compileRun(root llb.State) llb.State {
 	}
 
 	workingDir := g.getWorkingDir()
-	stage := root.AddEnv("PATH", types.DefaultPathEnvUnix)
+	stage := root
 	for _, execGroup := range g.Exec {
 		var sb strings.Builder
 		sb.WriteString("set -euo pipefail\n")
@@ -215,10 +215,7 @@ func (g *generalGraph) compileBase() (llb.State, error) {
 	}
 
 	// Install conda first.
-	condaStage, err := g.installConda(base)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to install conda")
-	}
+	condaStage := g.installConda(base)
 	supervisor := g.installHorust(condaStage)
 	sshdStage := g.compileSSHD(supervisor)
 	source, err := g.compileExtraSource(sshdStage)
@@ -247,7 +244,8 @@ func (g *generalGraph) customBase() (llb.State, error) {
 
 	// Set the environment variables to RuntimeEnviron to keep it in the resulting image.
 	for _, e := range envs {
-		kv := strings.Split(e, "=")
+		// in case the env value also contains `=`
+		kv := strings.SplitN(e, "=", 2)
 		g.RuntimeEnviron[kv[0]] = kv[1]
 	}
 	return base, nil
@@ -286,4 +284,9 @@ func (g generalGraph) compileMountDir(root llb.State) llb.State {
 		)
 	}
 	return mount
+}
+
+func (g *generalGraph) updateEnvPath(root llb.State, path string) llb.State {
+	g.RuntimeEnvPaths = append(g.RuntimeEnvPaths, path)
+	return root.AddEnv("PATH", strings.Join(g.RuntimeEnvPaths, ":"))
 }
