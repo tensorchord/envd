@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.5 (2023-01-03)
+
+ * [a18c880](https://github.com/tensorchord/envd/commit/a18c8801961f7aa44a8f534ee1323b3588fd8be3) fix: Update rstudio server (#1370)
+
+### Contributors
+
+ * Ce Gao
+
 ## v0.3.4 (2023-01-03)
 
  * [38990c3](https://github.com/tensorchord/envd/commit/38990c31baece96fba182f4913686332de95e309) fix: Remove libssl1.1 (#1368)
