@@ -139,7 +139,7 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 	cacheDir := filepath.Join("/", "root", ".cache", "pip")
 	root = g.CompileCacheDir(root, cacheDir)
 
-	cache := root.File(llb.Mkdir("/cache/pip", 0755, llb.WithParents(true)),
+	cache := llb.Scratch().File(llb.Mkdir("/cache/pip", 0755, llb.WithParents(true)),
 		llb.WithCustomName("[internal] setting pip cache mount permissions"))
 
 	if len(g.PyPIPackages) != 0 {
