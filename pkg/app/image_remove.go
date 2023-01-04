@@ -21,7 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/driver/docker"
 )
 
 var CommandRemoveImage = &cli.Command{

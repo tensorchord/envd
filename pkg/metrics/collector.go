@@ -19,7 +19,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/driver"
 )
 
 type Collector interface {
@@ -32,7 +32,7 @@ func GetCollector(name string, handle interface{}) (Collector, error) {
 	ErrUnknownHandle := errors.Newf("unknown handler: %s", name)
 	switch name {
 	case "docker":
-		client, ok := handle.(docker.Client)
+		client, ok := handle.(driver.Client)
 		if ok {
 			return NewDockerCollector(client), nil
 		}

@@ -1,6 +1,6 @@
 // The following code is from https://github.com/fsouza/go-dockerclient/
 // Copyright (c) 2013-2021, go-dockerclient authors
-package docker
+package driver
 
 import "time"
 

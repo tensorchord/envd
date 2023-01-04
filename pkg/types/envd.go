@@ -121,6 +121,7 @@ type BuilderType string
 
 const (
 	BuilderTypeDocker           BuilderType = "docker-container"
+	BuilderTypeNerdctl          BuilderType = "nerdctl-container"
 	BuilderTypeKubernetes       BuilderType = "kube-pod"
 	BuilderTypeTCP              BuilderType = "tcp"
 	BuilderTypeUNIXDomainSocket BuilderType = "unix"

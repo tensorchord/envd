@@ -29,7 +29,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/tensorchord/envd/pkg/buildkitd"
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/driver/docker"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -79,7 +79,7 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get the current context")
 	}
-	cli, err := buildkitd.NewClient(ctx, c.Builder, c.BuilderAddress, "")
+	cli, err := buildkitd.NewClient(ctx, types.BuilderTypeNerdctl, c.BuilderAddress, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create buildkit client")
 	}

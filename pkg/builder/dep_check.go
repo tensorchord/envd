@@ -18,7 +18,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/driver/docker"
 )
 
 func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
