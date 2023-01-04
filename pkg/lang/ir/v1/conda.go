@@ -25,7 +25,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/flag"
-	"github.com/tensorchord/envd/pkg/types"
 )
 
 const (
@@ -153,7 +152,6 @@ func (g generalGraph) compileCondaEnvironment(root llb.State) (llb.State, error)
 }
 
 func (g *generalGraph) installConda(root llb.State) llb.State {
-	root = g.updateEnvPath(root, types.DefaultCondaPath)
 	if g.Dev {
 		// We only create envd user for dev env.
 		// This directory is related to conda envd env meta (used by `conda env config vars set key=value`)
