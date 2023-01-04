@@ -24,6 +24,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 const (
@@ -33,6 +34,7 @@ const (
 )
 
 func (g *generalGraph) installPython(root llb.State) (llb.State, error) {
+	root = g.updateEnvPath(root, types.DefaultCondaPath)
 	if g.CondaConfig == nil {
 		version, err := g.getAppropriatePythonVersion()
 		if err != nil {
