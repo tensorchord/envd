@@ -41,6 +41,7 @@ func NewGraph() ir.Graph {
 	runtimeGraph := ir.RuntimeGraph{
 		RuntimeCommands: make(map[string]string),
 		RuntimeEnviron:  make(map[string]string),
+		RuntimeEnvPaths: []string{types.DefaultSystemPath},
 	}
 	return &generalGraph{
 		uid:      -1,
@@ -57,7 +58,6 @@ func NewGraph() ir.Graph {
 		SystemPackages:  []string{},
 		Exec:            []ir.RunBuildCommand{},
 		UserDirectories: []string{},
-		RuntimeEnvPaths: []string{types.DefaultPathEnv()},
 		Shell:           shellBASH,
 		RuntimeGraph:    runtimeGraph,
 	}
@@ -131,9 +131,7 @@ func (g *generalGraph) Compile(ctx context.Context, envName string, pub string) 
 }
 
 func (g generalGraph) GetEnviron() []string {
-	// Add PATH and LC_ALL.
 	return append(g.EnvString(),
-		"PATH="+strings.Join(g.RuntimeEnvPaths, ":"),
 		"LC_ALL=en_US.UTF-8",
 		"LANG=C.UTF-8",
 	)
@@ -253,6 +251,7 @@ func (g generalGraph) EnvString() []string {
 	for k, v := range g.RuntimeEnviron {
 		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
 	}
+	envs = append(envs, fmt.Sprintf("PATH=%s", strings.Join(g.RuntimeEnvPaths, ":")))
 	return envs
 }
 

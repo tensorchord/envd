@@ -55,7 +55,6 @@ type generalGraph struct {
 
 	VSCodePlugins   []vscode.Plugin
 	UserDirectories []string
-	RuntimeEnvPaths []string
 
 	Exec       []ir.RunBuildCommand
 	Copy       []ir.CopyInfo
