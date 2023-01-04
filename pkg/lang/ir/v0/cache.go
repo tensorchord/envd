@@ -15,11 +15,18 @@
 package v0
 
 import (
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 )
 
 func (g generalGraph) CacheID(filename string) string {
-	cacheID := filename
+	var cacheID string
+	if g.CUDA != nil {
+		cacheID = fmt.Sprintf("%s-gpu", filename)
+	} else {
+		cacheID = fmt.Sprintf("%s-cpu", filename)
+	}
 	logrus.Debugf("%s calculated cacheID: %s", filename, cacheID)
 	return cacheID
 }
