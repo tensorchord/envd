@@ -66,7 +66,7 @@ func (g *generalGraph) compileUserGroup(root llb.State) llb.State {
 		res = root.
 			Run(llb.Shlexf(`groupadd -g %d envd`, g.gid),
 				llb.WithCustomName("[internal] create user group envd")).
-			Run(llb.Shlexf(`useradd -p \\ -u %d -g envd -s /bin/sh -m envd`, g.uid),
+			Run(llb.Shlexf(`useradd -p "" -u %d -g envd -s /bin/sh -m envd`, g.uid),
 				llb.WithCustomName("[internal] create user envd")).
 			Run(llb.Shlex("adduser envd sudo"),
 				llb.WithCustomName("[internal] add user envd to sudoers")).

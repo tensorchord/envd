@@ -32,5 +32,9 @@ var _ = Describe("runtime", Ordered, func() {
 		Expect(err).To(BeNil())
 		Expect(res).To(Equal("[2 3 4]"))
 	})
+	It("execute runtime command `root`", func() {
+		_, err := e.ExecRuntimeCommand("root")
+		Expect(err).To(BeNil())
+	})
 	AfterEach(e.DestroyContainer())
 })
