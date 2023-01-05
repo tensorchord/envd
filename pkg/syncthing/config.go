@@ -8,24 +8,26 @@ import (
 
 	"github.com/facebookgo/subset"
 	"github.com/r3labs/diff/v3"
+	"github.com/sirupsen/logrus"
 	"github.com/syncthing/syncthing/lib/config"
 )
 
 const (
-	DefaultLocalPort     = "8386"
-	DefaultRemotePort    = "8384"
-	DefaultApiKey        = "envd"
-	DefaultDeviceAddress = "tcp://127.0.0.1:22001"
+	DefaultLocalPort           = "8386"
+	DefaultRemotePort          = "8384"
+	DefaultApiKey              = "envd"
+	DefaultLocalDeviceAddress  = "tcp://127.0.0.1:22000"
+	DefaultRemoteDeviceAddress = "tcp://127.0.0.1:22001"
 )
 
 // @source: https://docs.syncthing.net/users/config.html
-func InitConfig() *config.Configuration {
+func InitLocalConfig() *config.Configuration {
 	return &config.Configuration{
 		Version: 37,
 		GUI: config.GUIConfiguration{
 			Enabled:    true,
 			RawAddress: fmt.Sprintf("0.0.0.0:%s", DefaultLocalPort),
-			APIKey:     "envd",
+			APIKey:     DefaultApiKey,
 			Theme:      "default",
 		},
 		Options: config.OptionsConfiguration{
@@ -72,6 +74,7 @@ func (s *Syncthing) PullLatestConfig() error {
 }
 
 func (s *Syncthing) WaitForConfigApply(timeout time.Duration) error {
+    logrus.Debug("Started waiting for config to apply")
 	start := time.Now()
 	for {
 		if time.Since(start) > timeout {
@@ -86,7 +89,6 @@ func (s *Syncthing) WaitForConfigApply(timeout time.Duration) error {
 		// Check if the applied config is the most recent config
 		for _, event := range events {
 			if s.ConfigChangesApplied(event) {
-				fmt.Println("Config changes applied")
 				err := s.PullLatestConfig()
 				if err != nil {
 					return fmt.Errorf("failed to pull latest config: %w", err)
@@ -102,7 +104,6 @@ func (s *Syncthing) WaitForConfigApply(timeout time.Duration) error {
 
 // Checks if configuration changes are applied by checking if the config changes are a subset of the provided config
 func (s *Syncthing) ConfigChangesApplied(event *ConfigSavedEvent) bool {
-	fmt.Println("Checking if config changes are applied")
 	newConfig := event.Data.Copy()
 	if subset.Check(&s.PrevConfig, s.Config.Copy()) || subset.Check(s.Config, &newConfig) {
 		return true
@@ -112,17 +113,17 @@ func (s *Syncthing) ConfigChangesApplied(event *ConfigSavedEvent) bool {
 	// If the config changed, then there are changes that are not applied
 	_, err := diff.Merge(&s.PrevConfig, s.Config, &newConfig)
 	if err != nil {
+        logrus.Debug(err)
 		return false
 	}
 
 	res := reflect.DeepEqual(&event.Data, &newConfig)
-	fmt.Print("Performed equal, result is: ", res)
+	logrus.Debug("Checking if config is applied, result is ", res)
 	return res
 }
 
 // Applies the config to the syncthing instance and waits for the config to be applied
 func (s *Syncthing) ApplyConfig() error {
-	fmt.Println("Applying config for syncthing...")
 	configByte, err := GetConfigBytes(s.Config, JSON)
 	if err != nil {
 		return fmt.Errorf("failed to marshal syncthing config: %w", err)
@@ -137,8 +138,6 @@ func (s *Syncthing) ApplyConfig() error {
 	if err != nil {
 		return fmt.Errorf("failed to wait for syncthing config apply: %w", err)
 	}
-
-	fmt.Println("After waiting for config apply")
 
 	return nil
 }

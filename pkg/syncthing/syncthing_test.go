@@ -5,17 +5,18 @@ import (
 	"os"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/facebookgo/subset"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/r3labs/diff/v3"
+	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/syncthing"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 func TestSyncthing(t *testing.T) {
+    logrus.SetLevel(logrus.DebugLevel)
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Syncthing Suite")
 }
@@ -29,9 +30,6 @@ var _ = Describe("Syncthing", func() {
 	Describe("Syncthing", func() {
 		It("Starts and stops syncthing", func() {
 			s, err := syncthing.InitializeLocalSyncthing()
-			Expect(err).To(BeNil())
-
-			err = s.StartLocalSyncthing()
 			Expect(err).To(BeNil())
 
 			Expect(s.IsRunning()).To(BeTrue())
@@ -89,19 +87,88 @@ var _ = Describe("Syncthing", func() {
 })
 
 var _ = Describe("Syncthing REST API operations", func() {
+	var s1 *syncthing.Syncthing
+	var s2 *syncthing.Syncthing
+
+	BeforeEach(func() {
+		var err error
+		initConfig := syncthing.InitLocalConfig()
+		homeDirectory := syncthing.DefaultHomeDirectory()
+
+		initConfig1 := initConfig.Copy()
+		initConfig1.GUI.RawAddress = fmt.Sprintf("0.0.0.0:%s", syncthing.DefaultLocalPort)
+		s1 = &syncthing.Syncthing{
+			Config:        &initConfig1,
+			HomeDirectory: fmt.Sprintf("%s-1", homeDirectory),
+			Client:        syncthing.NewApiClient(),
+			ApiKey:        syncthing.DefaultApiKey,
+			Port:          syncthing.DefaultLocalPort,
+		}
+
+		initConfig2 := initConfig.Copy()
+		initConfig2.GUI.RawAddress = fmt.Sprintf("0.0.0.0:%s", syncthing.DefaultRemotePort)
+		s2 = &syncthing.Syncthing{
+			Config:        &initConfig2,
+			HomeDirectory: fmt.Sprintf("%s-2", homeDirectory),
+			Client:        syncthing.NewApiClient(),
+			ApiKey:        syncthing.DefaultApiKey,
+			Port:          syncthing.DefaultRemotePort,
+		}
+
+		err = s1.WriteLocalConfig()
+		Expect(err).To(BeNil())
+
+		err = s2.WriteLocalConfig()
+		Expect(err).To(BeNil())
+
+		err = s1.StartLocalSyncthing()
+		Expect(err).To(BeNil())
+
+		err = s2.StartLocalSyncthing()
+		Expect(err).To(BeNil())
+	})
+
+	AfterEach(func() {
+		err := s1.StopLocalSyncthing()
+		Expect(err).To(BeNil())
+
+		err = s2.StopLocalSyncthing()
+		Expect(err).To(BeNil())
+	})
+
+	It("Connects two local devices", func() {
+
+        err := s1.SetDeviceAddress(syncthing.DefaultLocalDeviceAddress)
+		Expect(err).To(BeNil())
+
+        err = s2.SetDeviceAddress(syncthing.DefaultRemoteDeviceAddress)
+		Expect(err).To(BeNil())
+
+		err = syncthing.ConnectDevices(s1, s2)
+		Expect(err).To(BeNil())
+	})
+
+})
+
+var _ = Describe("Syncthing REST API operations", func() {
 	var s *syncthing.Syncthing
 
 	BeforeEach(func() {
 		var err error
 		s, err = syncthing.InitializeLocalSyncthing()
 		Expect(err).To(BeNil())
-
-		err = s.StartLocalSyncthing()
-		Expect(err).To(BeNil())
 	})
 
 	AfterEach(func() {
 		err := s.StopLocalSyncthing()
+		Expect(err).To(BeNil())
+	})
+
+	It("Connects local syncthing to running remote syncthing", func() {
+		s1, err := syncthing.InitializeRemoteSyncthing()
+		Expect(err).To(BeNil())
+
+		err = syncthing.ConnectDevices(s, s1)
 		Expect(err).To(BeNil())
 	})
 
@@ -137,17 +204,6 @@ var _ = Describe("Syncthing REST API operations", func() {
 		Expect(event.Id > 0).To(BeTrue())
 	})
 
-	It("Connects two devices", func() {
-		s2, err := syncthing.InitializeRemoteSyncthing()
-		Expect(err).To(BeNil())
-
-		err = syncthing.ConnectDevices(s2, s)
-		Expect(err).To(BeNil())
-
-		for {
-			time.Sleep(1 * time.Second)
-		}
-	})
 })
 
 var _ = Describe("Util tests", func() {

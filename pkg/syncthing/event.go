@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/sirupsen/logrus"
 	"github.com/syncthing/syncthing/lib/config"
 )
 
@@ -54,6 +55,7 @@ func (s *Syncthing) GetMostRecentEvent() (*GeneralEvent, error) {
 
 // Fetches the latest config saved events using the syncthing rest api starting from the latest event id
 func (s *Syncthing) GetConfigSavedEvents() ([]*ConfigSavedEvent, error) {
+	logrus.Debugf("Getting config saved events")
 	params := map[string]string{
 		"since":   strconv.FormatInt(s.latestEventId, 10),
 		"timeout": "0",

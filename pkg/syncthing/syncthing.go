@@ -46,12 +46,17 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 		return nil, fmt.Errorf("failed to pull latest config: %w", err)
 	}
 
+	s.SetDeviceAddress(DefaultRemoteDeviceAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	return s, nil
 }
 
 // Writes the default configuration to the home directory
 func InitializeLocalSyncthing() (*Syncthing, error) {
-	initConfig := InitConfig()
+	initConfig := InitLocalConfig()
 	homeDirectory := DefaultHomeDirectory()
 	s := &Syncthing{
 		Config:        initConfig,
@@ -62,12 +67,27 @@ func InitializeLocalSyncthing() (*Syncthing, error) {
 
 	port, err := parsePortFromAddress(initConfig.GUI.Address())
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse port from address: %w", err)
+		return nil, err
 	}
 	s.Port = port
 
 	if err = s.WriteLocalConfig(); err != nil {
-		return nil, fmt.Errorf("failed to write local syncthing config: %w", err)
+		return nil, err
+	}
+
+	err = s.StartLocalSyncthing()
+	if err != nil {
+		return nil, err
+	}
+
+	s.SetDeviceAddress(DefaultLocalDeviceAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.PullLatestConfig()
+	if err != nil {
+		return nil, fmt.Errorf("failed to pull latest config: %w", err)
 	}
 
 	return s, nil
@@ -94,12 +114,7 @@ func (s *Syncthing) StartLocalSyncthing() error {
 		return fmt.Errorf("failed to wait for syncthing startup: %w", err)
 	}
 
-	err = s.PullLatestConfig()
-	if err != nil {
-		return fmt.Errorf("failed to pull latest config: %w", err)
-	}
 	return nil
-
 }
 
 func (s *Syncthing) Ping() (bool, error) {
