@@ -114,6 +114,8 @@ func (c generalClient) Close() error {
 // and return a more aggressive value since ML images are usually much larger
 func getBuildkitGCKeep() int {
 	// by default, it's 10% disk space
+	// default buildkit root path is "/var/lib/buildkit", this can be changed
+	// see: https://github.com/moby/buildkit/blob/master/docs/buildkitd.toml.md
 	keep := config.DetectDefaultGCCap("/var/lib/buildkit")
 	return int(float64(keep) * 2.5)
 }
