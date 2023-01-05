@@ -21,6 +21,7 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/cockroachdb/errors"
@@ -40,7 +41,7 @@ var (
 type Client interface {
 	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
-	StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error)
+	StartBuildkitd(ctx context.Context, tag, name, mirror string, keep int) (string, error)
 
 	Exec(ctx context.Context, cname string, cmd []string) error
 
@@ -178,7 +179,7 @@ func (c generalClient) ResumeContainer(ctx context.Context, name string) (string
 	return name, nil
 }
 
-func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error) {
+func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror string, keep int) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
@@ -205,6 +206,7 @@ func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror str
 	}
 	config := &container.Config{
 		Image: tag,
+		Cmd:   []string{"--oci-worker-gc-keepstorage", strconv.Itoa(keep)},
 	}
 	if mirror != "" {
 		cfg := fmt.Sprintf(`
@@ -219,6 +221,7 @@ func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror str
 	}
 	hostConfig := &container.HostConfig{
 		Privileged: true,
+		AutoRemove: true,
 	}
 	created, _ := c.Exists(ctx, name)
 	if created {

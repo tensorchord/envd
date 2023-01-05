@@ -24,6 +24,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
+	"github.com/moby/buildkit/cmd/buildkitd/config"
 	gateway "github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -109,6 +110,16 @@ func (c generalClient) Close() error {
 	return c.Client.Close()
 }
 
+// getBuildkitGCKeep will get the default buildkit `oci-worker-gc-keepstorage` value
+// and return a more aggressive value since ML images are usually much larger
+func getBuildkitGCKeep() int {
+	// by default, it's 10% disk space
+	// default buildkit root path is "/var/lib/buildkit", this can be changed
+	// see: https://github.com/moby/buildkit/blob/master/docs/buildkitd.toml.md
+	keep := config.DetectDefaultGCCap("/var/lib/buildkit")
+	return int(float64(keep) * 2.5)
+}
+
 // maybeStart ensures that the buildkitd daemon is started. It returns the URL
 // that can be used to connect to it.
 func (c *generalClient) maybeStart(ctx context.Context,
@@ -133,10 +144,12 @@ func (c *generalClient) maybeStart(ctx context.Context,
 			return "", err
 		}
 
+		keep := getBuildkitGCKeep()
+
 		if !created {
 			c.logger.Debug("container not created, creating...")
 			if _, err := dockerClient.StartBuildkitd(
-				ctx, c.image, c.containerName, c.mirror); err != nil {
+				ctx, c.image, c.containerName, c.mirror, keep); err != nil {
 				return "", err
 			}
 			if err := engine.WaitUntilRunning(
@@ -147,7 +160,7 @@ func (c *generalClient) maybeStart(ctx context.Context,
 		running, _ := engine.IsRunning(ctx, c.containerName)
 		if created && !running {
 			c.logger.Warnf("start the created contrainer %s", c.containerName)
-			_, err := dockerClient.StartBuildkitd(ctx, c.image, c.containerName, c.mirror)
+			_, err := dockerClient.StartBuildkitd(ctx, c.image, c.containerName, c.mirror, keep)
 			if err != nil {
 				c.logger.Warnf("please remove or restart the container %s", c.containerName)
 				return "", errors.Errorf("container %s is stopped", c.containerName)
