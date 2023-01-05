@@ -92,7 +92,7 @@ func PyPIPackage(deps []string, requirementsFile string, wheels []string) error 
 func RPackage(deps []string) {
 	g := DefaultGraph.(*generalGraph)
 
-	g.RPackages = append(g.RPackages, deps...)
+	g.RPackages = append(g.RPackages, deps)
 }
 
 func JuliaPackage(deps []string) {

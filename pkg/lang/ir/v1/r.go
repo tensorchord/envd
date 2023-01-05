@@ -31,9 +31,26 @@ func (g generalGraph) installRLang(root llb.State) llb.State {
 }
 
 func (g generalGraph) installRPackages(root llb.State) llb.State {
+
 	if len(g.RPackages) == 0 {
 		return root
 	}
+	mirrorURL := "https://cran.rstudio.com"
+	if g.CRANMirrorURL != nil {
+		mirrorURL = *g.CRANMirrorURL
+	}
+	for _, packages := range g.RPackages {
+		command := fmt.Sprintf("R -e 'options(repos = \"%s\"); install.packages(c(\"%s\"))'", mirrorURL, strings.Join(packages, "\",\""))
+		run := root.
+			Run(llb.Shlex(command), llb.WithCustomNamef("[internal] installing R pacakges: %s", strings.Join(packages, " ")))
+		root = run.Root()
+
+	}
+
+	return root
+}
+
+func (g generalGraph) RForEach(root llb.State) llb.State {
 	// TODO(terrytangyuan): Support different CRAN mirrors
 	var sb strings.Builder
 	mirrorURL := "https://cran.rstudio.com"
