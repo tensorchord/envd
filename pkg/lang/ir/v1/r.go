@@ -39,8 +39,14 @@ func (g generalGraph) installRPackages(root llb.State) llb.State {
 	if g.CRANMirrorURL != nil {
 		mirrorURL = *g.CRANMirrorURL
 	}
+
+	lib := "/usr/local/lib/R/site-library/"
+
+	root = root.
+		Run(llb.Shlexf("chmod 711 %s", lib), llb.WithCustomNamef("[internal] setting execute permision for default R package library for envd users")).Root()
+
 	for _, packages := range g.RPackages {
-		command := fmt.Sprintf("R -e 'options(repos = \"%s\"); install.packages(c(\"%s\"))'", mirrorURL, strings.Join(packages, "\",\""))
+		command := fmt.Sprintf("R -e 'options(repos = \"%s\"); install.packages(c(\"%s\"), lib = \"%s\")'", mirrorURL, strings.Join(packages, "\",\""), lib)
 		run := root.
 			Run(llb.Shlex(command), llb.WithCustomNamef("[internal] installing R pacakges: %s", strings.Join(packages, " ")))
 		root = run.Root()
@@ -48,26 +54,4 @@ func (g generalGraph) installRPackages(root llb.State) llb.State {
 	}
 
 	return root
-}
-
-func (g generalGraph) RForEach(root llb.State) llb.State {
-	// TODO(terrytangyuan): Support different CRAN mirrors
-	var sb strings.Builder
-	mirrorURL := "https://cran.rstudio.com"
-	if g.CRANMirrorURL != nil {
-		mirrorURL = *g.CRANMirrorURL
-	}
-	sb.WriteString(fmt.Sprintf(`R -e 'options(repos = c(CRAN = "%s")); install.packages(c(`, mirrorURL))
-	for i, pkg := range g.RPackages {
-		sb.WriteString(fmt.Sprintf(`"%s"`, pkg))
-		if i != len(g.RPackages)-1 {
-			sb.WriteString(", ")
-		}
-	}
-	sb.WriteString(`))'`)
-
-	// TODO(terrytangyuan): Support cache.
-	cmd := sb.String()
-	run := root.Run(llb.Shlex(cmd), llb.WithCustomNamef("install R packages"))
-	return run.Root()
 }
