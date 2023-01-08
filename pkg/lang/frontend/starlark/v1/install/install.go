@@ -136,9 +136,9 @@ func ruleFuncRPackage(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	logger.Debugf("rule `%s` is invoked, name=%v", ruleRPackage, nameList)
-	ir.RPackage(nameList)
+	err = ir.RPackage(nameList)
 
-	return starlark.None, nil
+	return starlark.None, err
 }
 
 func ruleFuncJuliaPackage(thread *starlark.Thread, _ *starlark.Builtin,
