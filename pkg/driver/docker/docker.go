@@ -22,6 +22,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
@@ -37,6 +38,7 @@ import (
 
 var (
 	anchoredIdentifierRegexp = regexp.MustCompile(`^([a-f0-9]{64})$`)
+	waitingInterval          = 1 * time.Second
 )
 
 type dockerClient struct {
@@ -167,7 +169,8 @@ func (c dockerClient) ResumeContainer(ctx context.Context, name string) (string,
 	return name, nil
 }
 
-func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error) {
+func (c dockerClient) StartBuildkitd(ctx context.Context,
+	tag, name, mirror string, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
@@ -233,6 +236,11 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror stri
 	container, err := c.ContainerInspect(ctx, resp.ID)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to inspect container")
+	}
+
+	err = c.waitUntilRunning(ctx, container.Name, timeout)
+	if err != nil {
+		return "", err
 	}
 
 	return container.Name, nil
@@ -336,4 +344,40 @@ func (c dockerClient) Stats(ctx context.Context, cname string, statChan chan<- *
 		stats = new(driver.Stats)
 	}
 	return nil
+}
+
+func (c dockerClient) waitUntilRunning(ctx context.Context,
+	name string, timeout time.Duration) error {
+	logger := logrus.WithField("container", name)
+	logger.Debug("waiting to start")
+
+	// First, wait for the container to be marked as started.
+	ctxTimeout, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	for {
+		select {
+		case <-time.After(waitingInterval):
+			isRunning, err := c.IsRunning(ctxTimeout, name)
+			if err != nil {
+				// Has not yet started. Keep waiting.
+				return errors.Wrap(err, "failed to check if container is running")
+			}
+			if isRunning {
+				logger.Debug("the container is running")
+				return nil
+			}
+
+		case <-ctxTimeout.Done():
+			container, err := c.ContainerInspect(ctx, name)
+			if err != nil {
+				logger.Debugf("failed to inspect container %s", name)
+			}
+			state, err := json.Marshal(container.State)
+			if err != nil {
+				logger.Debug("failed to marshal container state")
+			}
+			logger.Debugf("container state: %s", state)
+			return errors.Errorf("timeout %s: container did not start", timeout)
+		}
+	}
 }

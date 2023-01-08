@@ -79,7 +79,7 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get the current context")
 	}
-	cli, err := buildkitd.NewClient(ctx, types.BuilderTypeNerdctl, c.BuilderAddress, "")
+	cli, err := buildkitd.NewClient(ctx, c.Builder, c.BuilderAddress, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create buildkit client")
 	}

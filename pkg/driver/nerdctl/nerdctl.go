@@ -15,12 +15,12 @@
 package nerdctl
 
 import (
-	"fmt"
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"io"
 	"os/exec"
-	"bytes"
-	"encoding/json"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -63,12 +63,13 @@ func (nc *nerdctlClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) 
 	return nil
 }
 
-func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error) {
+func (nc *nerdctlClient) StartBuildkitd(ctx context.Context,
+	tag, name, mirror string, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
 		"mirror":    mirror,
-		"driver":	"nerdctl",
+		"driver":    "nerdctl",
 	})
 	logger.Debug("starting buildkitd")
 
@@ -78,20 +79,17 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name, mirror s
 		}
 	}
 
-	//TODO(kweizh): check container existed
-
-	buildkitdCmd := "buildkitd"
-	if mirror != "" {
-		cfg := fmt.Sprintf(`
-[registry."docker.io"]
-	mirrors = ["%s"]`, mirror)
-		buildkitdCmd = fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg)
-		logger.Debugf("setting buildkit config: %s", cfg)
-	}
-
-
 	existed, _ := nc.containerExists(ctx, name)
 	if !existed {
+		buildkitdCmd := "buildkitd"
+		if mirror != "" {
+			cfg := fmt.Sprintf(`
+[registry."docker.io"]
+	mirrors = ["%s"]`, mirror)
+			buildkitdCmd = fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg)
+			logger.Debugf("setting buildkit config: %s", cfg)
+		}
+
 		out, err := nc.exec(ctx, nil, "run", "--rm", "-d",
 			"--name", name,
 			"--privileged",
@@ -103,13 +101,13 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name, mirror s
 		}
 	}
 
-	out, err := nc.exec(ctx,nil, "start", name)
+	out, err := nc.exec(ctx, nil, "start", name)
 	if err != nil {
 		logrus.Error("can not start buildkitd", out, err)
 		return "", errors.Wrap(err, "starting buildkitd")
 	}
 
-	err = nc.waitUntilRunning(ctx, name, 30*time.Second)
+	err = nc.waitUntilRunning(ctx, name, timeout)
 
 	return name, err
 }
@@ -118,16 +116,16 @@ func (nc *nerdctlClient) Exec(ctx context.Context, cname string, cmd []string) e
 	return nil
 }
 
-func (nc *nerdctlClient)	GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error) {
+func (nc *nerdctlClient) GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error) {
 	return types.ImageSummary{}, nil
 }
-func (nc *nerdctlClient)	RemoveImage(ctx context.Context, image string) error {
+func (nc *nerdctlClient) RemoveImage(ctx context.Context, image string) error {
 	return nil
 }
-func (nc *nerdctlClient)	PruneImage(ctx context.Context) (types.ImagesPruneReport, error) {
+func (nc *nerdctlClient) PruneImage(ctx context.Context) (types.ImagesPruneReport, error) {
 	return types.ImagesPruneReport{}, nil
 }
-func (nc *nerdctlClient)	Stats(ctx context.Context, cname string, statChan chan<- *driver.Stats, done <-chan bool) error {
+func (nc *nerdctlClient) Stats(ctx context.Context, cname string, statChan chan<- *driver.Stats, done <-chan bool) error {
 	return nil
 }
 
@@ -168,7 +166,6 @@ func (nc *nerdctlClient) waitUntilRunning(ctx context.Context,
 	}
 }
 
-
 func (nc *nerdctlClient) containerExists(ctx context.Context, tag string) (bool, error) {
 	_, err := nc.containerInspect(ctx, tag)
 	return err == nil, err
@@ -207,7 +204,6 @@ func (nc *nerdctlClient) exec(ctx context.Context, stdin io.Reader, args ...stri
 
 	return out.String(), nil
 }
-
 
 //TODO(kweizh): return inspect result
 func (nc *nerdctlClient) imageInspect(ctx context.Context, tag string) error {

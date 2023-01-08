@@ -29,9 +29,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tonistiigi/units"
 
+	"github.com/tensorchord/envd/pkg/driver"
 	"github.com/tensorchord/envd/pkg/driver/docker"
 	"github.com/tensorchord/envd/pkg/driver/nerdctl"
-	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/types"
 )
@@ -114,61 +114,29 @@ func (c generalClient) Close() error {
 // that can be used to connect to it.
 func (c *generalClient) maybeStart(ctx context.Context,
 	runningTimeout, connectingTimeout time.Duration) (string, error) {
+	var client driver.Client
+	var err error
 	switch c.driver {
 	case types.BuilderTypeDocker:
-		dockerClient, err := docker.NewClient(ctx)
+		client, err = docker.NewClient(ctx)
 		if err != nil {
 			return "", err
 		}
-		opt := envd.Options{
-			Context: &types.Context{
-				Runner: types.RunnerTypeDocker,
-			},
-		}
-		engine, err := envd.New(ctx, opt)
-		if err != nil {
-			return "", err
-		}
-
-		created, err := engine.Exists(ctx, c.containerName)
-		if err != nil {
-			return "", err
-		}
-
-		if !created {
-			c.logger.Debug("container not created, creating...")
-			if _, err := dockerClient.StartBuildkitd(
-				ctx, c.image, c.containerName, c.mirror); err != nil {
-				return "", err
-			}
-			created = true
-			if err := engine.WaitUntilRunning(
-				ctx, c.containerName, runningTimeout); err != nil {
-				return "", err
-			}
-		}
-		running, _ := engine.IsRunning(ctx, c.containerName)
-		if created && !running {
-			c.logger.Warnf("start the created contrainer %s", c.containerName)
-			_, err := dockerClient.StartBuildkitd(ctx, c.image, c.containerName, c.mirror)
-			if err != nil {
-				c.logger.Warnf("please remove or restart the container %s", c.containerName)
-				return "", errors.Errorf("container %s is stopped", c.containerName)
-			}
-		}
-
 	case types.BuilderTypeNerdctl:
-		nerdctlClient, err := nerdctl.NewClient(ctx)
+		client, err = nerdctl.NewClient(ctx)
 		if err != nil {
 			return "", err
 		}
-		_, err = nerdctlClient.StartBuildkitd(ctx, c.image, c.containerName, c.mirror)
-			if err != nil {
-				c.logger.Warnf("please remove or restart the container %s", c.containerName)
-				return "", errors.Errorf("container %s is stopped", c.containerName)
-			}
-
+	default:
 	}
+
+	if client != nil {
+		if _, err := client.StartBuildkitd(ctx,
+			c.image, c.containerName, c.mirror, runningTimeout); err != nil {
+			return "", err
+		}
+	}
+
 	c.logger.Debugf("container is running, check if it's ready at %s...", c.BuildkitdAddr())
 
 	if err := c.waitUntilConnected(ctx, connectingTimeout); err != nil {
@@ -263,10 +231,5 @@ func (c generalClient) Prune(ctx context.Context, keepDuration time.Duration,
 }
 
 func (c generalClient) BuildkitdAddr() string {
-	driver := c.driver
-	if driver == types.BuilderTypeNerdctl {
-		driver = types.BuilderTypeDocker
-	}
-
-	return fmt.Sprintf("%s://%s", driver, c.socket)
+	return fmt.Sprintf("%s://%s", c.driver, c.socket)
 }
