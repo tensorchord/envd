@@ -91,7 +91,7 @@ func PyPIPackage(deps []string, requirementsFile string, wheels []string) error 
 
 func RPackage(deps []string) error {
 
-	if deps == nil {
+	if len(deps) == 0 {
 		return errors.New("Can not install empty R package")
 	}
 
