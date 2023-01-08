@@ -90,6 +90,11 @@ func PyPIPackage(deps []string, requirementsFile string, wheels []string) error 
 }
 
 func RPackage(deps []string) {
+
+	if deps == nil {
+		logrus.Error(errors.New("R packages list are empty"))
+	}
+
 	g := DefaultGraph.(*generalGraph)
 
 	g.RPackages = append(g.RPackages, deps)
