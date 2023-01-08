@@ -24,7 +24,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/app"
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/driver/docker"
 	"github.com/tensorchord/envd/pkg/envd"
 	ir "github.com/tensorchord/envd/pkg/lang/ir/v1"
 	"github.com/tensorchord/envd/pkg/types"

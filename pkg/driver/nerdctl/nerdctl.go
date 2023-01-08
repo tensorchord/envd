@@ -129,7 +129,7 @@ func (nc *nerdctlClient) Stats(ctx context.Context, cname string, statChan chan<
 	return nil
 }
 
-//TODO(kweizh): use container engine to wrap docker and nerdctl
+// TODO(kweizh): use container engine to wrap docker and nerdctl
 func (nc *nerdctlClient) waitUntilRunning(ctx context.Context,
 	name string, timeout time.Duration) error {
 	logger := logrus.WithField("container", name)
@@ -205,7 +205,7 @@ func (nc *nerdctlClient) exec(ctx context.Context, stdin io.Reader, args ...stri
 	return out.String(), nil
 }
 
-//TODO(kweizh): return inspect result
+// TODO(kweizh): return inspect result
 func (nc *nerdctlClient) imageInspect(ctx context.Context, tag string) error {
 	cmd := exec.CommandContext(ctx, nc.bin, "image", "inspect", tag)
 	var out bytes.Buffer
@@ -219,7 +219,7 @@ func (nc *nerdctlClient) imageInspect(ctx context.Context, tag string) error {
 	return nil
 }
 
-//TODO(kweizh): return pull output
+// TODO(kweizh): return pull output
 func (nc *nerdctlClient) imagePull(ctx context.Context, tag string) error {
 	cmd := exec.CommandContext(ctx, nc.bin, "pull", tag)
 	var out bytes.Buffer
