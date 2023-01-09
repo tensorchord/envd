@@ -49,7 +49,7 @@ type generalGraph struct {
 	PyPIPackages     [][]string
 	RequirementsFile *string
 	PythonWheels     []string
-	RPackages        []string
+	RPackages        [][]string
 	JuliaPackages    []string
 	SystemPackages   []string
 

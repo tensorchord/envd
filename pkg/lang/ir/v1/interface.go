@@ -89,10 +89,17 @@ func PyPIPackage(deps []string, requirementsFile string, wheels []string) error 
 	return nil
 }
 
-func RPackage(deps []string) {
+func RPackage(deps []string) error {
+
+	if len(deps) == 0 {
+		return errors.New("Can not install empty R package")
+	}
+
 	g := DefaultGraph.(*generalGraph)
 
-	g.RPackages = append(g.RPackages, deps...)
+	g.RPackages = append(g.RPackages, deps)
+
+	return nil
 }
 
 func JuliaPackage(deps []string) {

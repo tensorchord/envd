@@ -53,7 +53,7 @@ func NewGraph() ir.Graph {
 		NumGPUs:  0,
 
 		PyPIPackages:    [][]string{},
-		RPackages:       []string{},
+		RPackages:       [][]string{},
 		JuliaPackages:   []string{},
 		SystemPackages:  []string{},
 		Exec:            []ir.RunBuildCommand{},
