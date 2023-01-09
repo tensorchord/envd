@@ -79,6 +79,25 @@ func (e dockerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) 
 	return envdImgs, nil
 }
 
+func (e dockerEngine) GetEnvironment(ctx context.Context, env string) (*types.EnvdEnvironment, error) {
+	ctrs, err := e.ContainerList(ctx, dockertypes.ContainerListOptions{
+		Filters: dockerFiltersWithName(env),
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get container: %s", env)
+	}
+
+	if len(ctrs) <= 0 {
+		return nil, errors.Newf("can not find the container: %s", env)
+	}
+
+	environment, err := types.NewEnvironmentFromContainer(ctrs[0])
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create env from the container")
+	}
+	return environment, nil
+}
+
 func (e dockerEngine) ListEnvironment(
 	ctx context.Context) ([]types.EnvdEnvironment, error) {
 	ctrs, err := e.ContainerList(ctx, dockertypes.ContainerListOptions{
@@ -166,6 +185,24 @@ func (e dockerEngine) ListImageDependency(ctx context.Context, image string) (*t
 		return nil, errors.Wrap(err, "failed to create dependency from image")
 	}
 	return dep, nil
+}
+
+func (e dockerEngine) ListEnvRuntimeGraph(ctx context.Context, env string) (*ir.RuntimeGraph, error) {
+	ctr, err := e.ContainerInspect(ctx, env)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to inspect container: %s", env)
+	}
+	code, ok := ctr.Config.Labels[types.RuntimeGraphCode]
+	if !ok {
+		return nil, errors.Newf("failed to get runtime graph label from container: %s", env)
+	}
+	logrus.WithField("env", env).Debugf("runtime graph: %s", code)
+	rg := ir.RuntimeGraph{}
+	err = rg.Load([]byte(code))
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to create runtime graph from the container: %s", env)
+	}
+	return &rg, err
 }
 
 // ListEnvDependency gets the dependencies of the given environment.

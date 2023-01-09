@@ -20,14 +20,13 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/app/telemetry"
-	"github.com/tensorchord/envd/pkg/builder"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/ssh"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 var CommandRun = &cli.Command{
@@ -82,43 +81,8 @@ func exec(clicontext *cli.Context) error {
 	}
 
 	resultCommand := rawCommand
-	if command != "" {
-		buildContext, err := filepath.Abs(path)
-		if err != nil {
-			return errors.Wrap(err, "failed to get absolute path of the build context")
-		}
-		fileName, funcName, err := builder.ParseFromStr(clicontext.String("from"))
-		if err != nil {
-			return err
-		}
-		manifest, err := fileutil.FindFileAbsPath(buildContext, fileName)
-		if err != nil {
-			return errors.Wrap(err, "failed to get absolute path of the build file")
-		}
-		if manifest == "" {
-			return errors.Newf("build file %s does not exist", fileName)
-		}
-		opt := builder.Options{
-			ManifestFilePath: manifest,
-			BuildContextDir:  buildContext,
-			BuildFuncName:    funcName,
-		}
-		builder, err := builder.New(clicontext.Context, opt)
-		if err != nil {
-			return errors.Wrap(err, "failed to create the builder")
-		}
-		if err := builder.Interpret(); err != nil {
-			return errors.Wrap(err, "failed to interpret the build file")
-		}
-		if cmd, ok := builder.GetGraph().GetRuntimeCommands()[command]; !ok {
-			return errors.Newf("command %s does not exist", command)
-		} else {
-			resultCommand = cmd
-		}
-		// Get the environment name if `name` is not specified.
-		if name == "" {
-			name = filepath.Base(path)
-		}
+	if name == "" {
+		name = filepath.Base(path)
 	}
 
 	// Check if the container is running.
@@ -139,6 +103,20 @@ func exec(clicontext *cli.Context) error {
 			err, "failed to check if the environment %s is running", name)
 	} else if !isRunning {
 		return errors.Newf("the environment %s is not running", name)
+	}
+
+	if command != "" {
+		rg, err := engine.ListEnvRuntimeGraph(clicontext.Context, name)
+		if err != nil {
+			return errors.Wrapf(err, "failed to get environment: %s", name)
+		}
+
+		logrus.Debugf("runtime commands: %s", rg.RuntimeCommands)
+		if cmd, ok := rg.RuntimeCommands[command]; !ok {
+			return errors.Newf("command %s does not exist", command)
+		} else {
+			resultCommand = cmd
+		}
 	}
 
 	opt, err := ssh.GetOptions(name)

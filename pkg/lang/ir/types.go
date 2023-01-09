@@ -20,12 +20,12 @@ import (
 
 // The results during runtime should be maintained here
 type RuntimeGraph struct {
-	RuntimeCommands   map[string]string
-	RuntimeDaemon     [][]string
-	RuntimeInitScript [][]string
-	RuntimeEnviron    map[string]string
-	RuntimeEnvPaths   []string
-	RuntimeExpose     []ExposeItem
+	RuntimeCommands   map[string]string `json:"commands,omitempty"`
+	RuntimeDaemon     [][]string        `json:"daemon,omitempty"`
+	RuntimeInitScript [][]string        `json:"init_script,omitempty"`
+	RuntimeEnviron    map[string]string `json:"environ,omitempty"`
+	RuntimeEnvPaths   []string          `json:"env_paths,omitempty"`
+	RuntimeExpose     []ExposeItem      `json:"expose,omitempty"`
 }
 
 type CopyInfo struct {
