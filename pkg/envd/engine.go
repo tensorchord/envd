@@ -36,7 +36,9 @@ type Engine interface {
 type EnvironmentClient interface {
 	PauseEnvironment(ctx context.Context, env string) (string, error)
 	ResumeEnvironment(ctx context.Context, env string) (string, error)
+	GetEnvironment(ctx context.Context, env string) (*types.EnvdEnvironment, error)
 	ListEnvironment(ctx context.Context) ([]types.EnvdEnvironment, error)
+	ListEnvRuntimeGraph(ctx context.Context, env string) (*ir.RuntimeGraph, error)
 	ListEnvDependency(ctx context.Context, env string) (*types.Dependency, error)
 	ListEnvPortBinding(ctx context.Context, env string) ([]types.PortBinding, error)
 
