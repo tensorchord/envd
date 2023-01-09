@@ -44,7 +44,7 @@ func (g generalGraph) installRPackages(root llb.State) llb.State {
 	lib := "/usr/local/lib/R/site-library/"
 
 	root = root.
-		Run(llb.Shlexf("chmod 776 %s", lib), llb.WithCustomNamef("[internal] setting execute permision for default R package library for envd users")).Root()
+		Run(llb.Shlexf("chmod 777 %s", lib), llb.WithCustomNamef("[internal] setting execute permision for default R package library for envd users")).Root()
 
 	for _, packages := range g.RPackages {
 		command := fmt.Sprintf(`R -e 'options(repos = "%s"); install.packages(c("%s"), lib = "%s")'`, mirrorURL, strings.Join(packages, `","`), lib)
