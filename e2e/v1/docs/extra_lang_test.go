@@ -1,4 +1,4 @@
-package language
+package docs
 
 import (
 	. "github.com/onsi/ginkgo/v2"
@@ -9,7 +9,7 @@ import (
 var _ = Describe("rlang", Ordered, func() {
 	It("Should build rlang environment successfully", func() {
 		exampleName := "rlang"
-		testcase := "e2e"
+		testcase := "e2e-extra"
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
