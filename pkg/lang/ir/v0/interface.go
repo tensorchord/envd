@@ -114,7 +114,7 @@ func UbuntuAPT(source string) error {
 	return nil
 }
 
-func PyPIIndex(url, extraURL string) error {
+func PyPIIndex(url, extraURL string, trust bool) error {
 	if url == "" {
 		return errors.New("url is required")
 	}
@@ -122,6 +122,7 @@ func PyPIIndex(url, extraURL string) error {
 
 	g.PyPIIndexURL = &url
 	g.PyPIExtraIndexURL = &extraURL
+	g.PyPITrust = trust
 	return nil
 }
 
