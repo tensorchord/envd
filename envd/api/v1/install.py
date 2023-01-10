@@ -67,7 +67,7 @@ def apt_packages(name: List[str] = []):
     """Install package by system-level package manager (apt on Ubuntu).
 
     Args:
-        name (str): apt package name list
+        name (List[str]): apt package name list
     """
 
 
