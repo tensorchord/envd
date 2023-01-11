@@ -15,18 +15,13 @@
 <a href='https://coveralls.io/github/tensorchord/envd?branch=main'><img src='https://coveralls.io/repos/github/tensorchord/envd/badge.svg?branch=main' alt='Coverage Status' /></a>
 </p>
 
-<p><img src="https://user-images.githubusercontent.com/52693877/193411608-01864ed9-84e2-4ea8-b978-8cfe09d394ca.png#gh-light-mode-only" alt="explain"/></p>
-<p><img src="https://user-images.githubusercontent.com/16186646/200111649-771d3214-dd23-49fa-a3d8-761a88f805bf.svg#gh-dark-mode-only" alt="explain"/></p>
-
 ## What is envd?
 
 envd (`ɪnˈvdɪ`) is a command-line tool that helps you create the container-based development environment for AI/ML.
 
-Development environments are full of Python and system dependencies, CUDA, BASH scripts, Dockerfiles, SSH configurations, Kubernetes YAMLs, and many other clunky things that are always breaking. envd is to solve the problem:
+Creating development environments is no easy task, especially with today's complex systems and dependencies. With everything from Python to CUDA, BASH scripts and Dockerfiles constantly breaking it can feel like a nightmare - until now!
 
-1. Declare the list of dependencies (CUDA, Python packages, your favorite IDE, and so on) in `build.envd`
-1. Simply run `envd up`.
-1. Develop in the isolated environment.
+Instantly get your environment running exactly as you need with a simple declaration of the packages you seek in build.envd and just one command: `envd up`!
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/5100735/207217321-34c30dde-4b55-4871-b6fe-f9fc6ec19986.svg" width="75%"/>
@@ -36,9 +31,62 @@ Development environments are full of Python and system dependencies, CUDA, BASH 
 
 Environments built with `envd` provide the following features out-of-the-box:
 
-❤️ **Knowledge reuse in your team**
+**Simple CLI, and language**
 
-`envd` build functions can be reused. Use `include` function to import any Git repositories. No more copy/paste Dockerfile instructions, let's reuse them.
+`envd` enables you to quickly and seamlessly integrate powerful CLI tools into your existing Python workflow - no extra learning required! Provision your programming environment with envd's simple language.
+
+```python
+def build():
+    install.python_packages(name = [
+        "numpy",
+    ])
+    shell("zsh")
+    config.jupyter()
+```
+
+**Isolation, compatible with OCI image**
+
+With `envd`, users can create a isolated space to train, fine-tune or serving. By utilizing sophisticated virtualization technology as well as other features like [buildkit](https://github.com/moby/buildkit), it's an ideal solution for environment setup.
+
+`envd` environment image is compatible with [OCI image specification](https://github.com/opencontainers/image-spec). By leveraging the power of an OCI image, you can make your environment available to anyone and everyone! Make it happen with a container registry like Harbor or Docker Hub.
+
+**Local, and cloud**
+
+`envd` can now be used on a hybrid platform, ranging from the local machines to clusters hosted by Kubernetes. Any of these options offer an efficient and versatile way for developers to create their projects!
+
+```sh
+$ envd context use local
+# Run envd environments locally
+$ envd up
+...
+$ envd context use cluster
+# Run envd environments in the cluster with the same experience
+$ envd up
+```
+
+Check out the [doc](https://envd.tensorchord.ai/teams/kubernetes.html) for more details.
+
+**Build anywhere, faster**
+
+`envd` offers a wealth of advantages, such as remote build and software caching capabilities like pip index caches or apt cache, with the help of [buildkit](https://github.com/moby/buildkit) - all designed to make your life easier without ever having to step foot in the code itself!
+
+Reusing previously downloaded packages from the PyPI/APT cache saves time and energy, making builds more efficient. No need to redownload what was already acquired before – a single download is enough for repeat usage! 
+
+With dockerfile v1, users are unable to take advantage of PyPI caching for faster installation speeds - but `envd` offers this support and more!
+
+<p align=center>
+  <img src="https://user-images.githubusercontent.com/5100735/189928628-543f4851-87b7-462b-b811-372cbf46ff25.svg#gh-light-mode-only" width="65%"/>
+</p>
+
+<p align=center>
+  <img src="https://user-images.githubusercontent.com/16186646/197944452-4a5dcd5f-68d0-4505-b419-e95c298978d7.svg#gh-dark-mode-only" width="65%"/>
+</p>
+
+Besides, `envd` also supports remote build, which means you can build your environment on a remote machine, such as a cloud server, and then push it to the registry. This is especially useful when you are working on a machine with limited resources, or when you expect a build machine with a higher performance.
+
+**Knowledge reuse in your team**
+
+Forget copy-pasting Dockerfile instructions - use envd to easily build functions and reuse them by importing any Git repositories with the `include` function! Craft powerful custom solutions quickly.
 
 ```python
 envdlib = include("https://github.com/tensorchord/envdlib")
@@ -87,21 +135,6 @@ def tensorboard(
     runtime.expose(envd_port=envd_port, host_port=host_port, service="tensorboard")
 ```
 </details>
-
-⏱️ **BuildKit-native, build up to 6x faster**
-
-[BuildKit](https://github.com/moby/buildkit) supports parallel builds and software cache (e.g. pip index cache and apt cache). You can enjoy the benefits without knowledge of it.
-
-For example, the PyPI cache is shared across builds and thus the package will be cached if it has been downloaded before.
-
-<p align=center>
-  <img src="https://user-images.githubusercontent.com/5100735/189928628-543f4851-87b7-462b-b811-372cbf46ff25.svg#gh-light-mode-only" width="65%"/>
-</p>
-
-<p align=center>
-  <img src="https://user-images.githubusercontent.com/16186646/197944452-4a5dcd5f-68d0-4505-b419-e95c298978d7.svg#gh-dark-mode-only" width="65%"/>
-</p>
-
 
 ## Getting Started 🚀
 
