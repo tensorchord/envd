@@ -31,7 +31,7 @@ Instantly get your environment running exactly as you need with a simple declara
 
 Environments built with `envd` provide the following features out-of-the-box:
 
-**Simple CLI, and language**
+**Simple CLI and language**
 
 `envd` enables you to quickly and seamlessly integrate powerful CLI tools into your existing Python workflow - no extra learning required! Provision your programming environment with envd's simple language.
 
