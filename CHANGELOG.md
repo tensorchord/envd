@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.3.6 (2023-01-11)
+
+ * [52d94bb](https://github.com/tensorchord/envd/commit/52d94bb686f88111b678c8b5e39119780f190986) Intial e2e test for julia environment (#1401)
+ * [7916dbb](https://github.com/tensorchord/envd/commit/7916dbb7f83fab6b4f4f2233ddbc7072234e92bb) Support Julia environment and Julia package installation (#1400)
+ * [e7cabe6](https://github.com/tensorchord/envd/commit/e7cabe6e01615ba49d18acba3884c4371d22e782) feat(lang/py): add trust for pip_index (#1395)
+ * [c269b89](https://github.com/tensorchord/envd/commit/c269b8966325734dde3edbb3f9f0b93c759609dc) fix: mv rlang test to doc_extra test (#1393)
+ * [b4c08c8](https://github.com/tensorchord/envd/commit/b4c08c835b427a426d20681c4e6093e4ce3c786d) Initial e2e test for R language environment (#1342)
+ * [3f7d699](https://github.com/tensorchord/envd/commit/3f7d699c9dfc36cb85433a8796d745774a91f1db) Refactor R package installation (#1381)
+ * [aab7f53](https://github.com/tensorchord/envd/commit/aab7f53d2cf57549598c73040d98165fb2ecf5cb) feat: `envd exec` get runtime graph from container labels (#1392)
+ * [ede2013](https://github.com/tensorchord/envd/commit/ede201335b95d5071224f9aeeb03d81830472582) chore(deps): bump golang.org/x/term from 0.3.0 to 0.4.0 (#1389)
+ * [7034c5d](https://github.com/tensorchord/envd/commit/7034c5dade81293572fdb604d0c323461a13772b) Revert "fix: increase the default buildkit cache limit" (#1386)
+ * [f56d95a](https://github.com/tensorchord/envd/commit/f56d95a2eb66bef6044d5653983f714cd0df6da3) fix: increase the default buildkit cache limit (#1382)
+ * [3c38b5e](https://github.com/tensorchord/envd/commit/3c38b5e62753d51ec470586b44ada1b14af6eb64) fix: v0 user passwd, add test for root permission (#1379)
+ * [51b586e](https://github.com/tensorchord/envd/commit/51b586e4a143fb90562e81c4271d6abdb922bce6) fix: add conda&python path for non-conda mode (#1376)
+ * [754b6c3](https://github.com/tensorchord/envd/commit/754b6c3e773437ee59b7eadfdcd850c8610ef9eb) fix: change to dynamic PATH (#1375)
+ * [a218dbc](https://github.com/tensorchord/envd/commit/a218dbc2ea98fc50599b5260daa73234be424334) fix(CLI): Remove image list in destroy (#1373)
+
+### Contributors
+
+ * Ce Gao
+ * Keming
+ * Weixiao Huang
+ * dependabot[bot]
+ * x0oo0x
+
 ## v0.3.5 (2023-01-03)
 
  * [a18c880](https://github.com/tensorchord/envd/commit/a18c8801961f7aa44a8f534ee1323b3588fd8be3) fix: Update rstudio server (#1370)
