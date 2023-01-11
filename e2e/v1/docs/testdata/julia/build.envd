@@ -1,0 +1,8 @@
+# syntax=v1
+
+
+def build():
+    base(dev=True)
+    install.julia()
+    install.julia_packages(name=["Example"])
+    install.julia_packages(name=["JSON", "Random"])
