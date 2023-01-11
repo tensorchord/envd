@@ -143,21 +143,21 @@ func ruleFuncRPackage(thread *starlark.Thread, _ *starlark.Builtin,
 
 func ruleFuncJuliaPackage(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var name *starlark.List
+	var names *starlark.List
 
 	if err := starlark.UnpackArgs(ruleJuliaPackages,
-		args, kwargs, "name", &name); err != nil {
+		args, kwargs, "names", &names); err != nil {
 		return nil, err
 	}
 
-	nameList, err := starlarkutil.ToStringSlice(name)
+	nameList, err := starlarkutil.ToStringSlice(names)
 	if err != nil {
 		return nil, err
 	}
-	logger.Debugf("rule `%s` is invoked, name=%v", ruleJuliaPackages, nameList)
-	ir.JuliaPackage(nameList)
+	logger.Debugf("rule `%s` is invoked, names=%v", ruleJuliaPackages, nameList)
+	err = ir.JuliaPackage(nameList)
 
-	return starlark.None, nil
+	return starlark.None, err
 }
 
 func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin,
