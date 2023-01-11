@@ -24,7 +24,7 @@ import (
 const (
 	julia       = "/opt/julia"                                                                           // Location of downloaded Julia binary and other files
 	juliaBin    = "/opt/julia/bin"                                                                       // Location of Julia executable binary file
-	juliaPkg    = "/opt/julia/user_packages"                                                             // Location of addtional packages installed via Julia
+	juliaPkg    = "/opt/julia/user_packages"                                                             // Location of additional packages installed via Julia
 	juliaBinary = "https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.3-linux-x86_64.tar.gz" // The official link for downloading Julia environment
 )
 
