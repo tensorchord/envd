@@ -16,45 +16,51 @@ package v1
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/moby/buildkit/client/llb"
 )
 
 const (
-	julia       = "/opt/julia"                                                                           // Location of downloaded Julia binary and other files
-	juliaBin    = "/opt/julia/bin"                                                                       // Location of Julia executable binary file
-	juliaPkg    = "/opt/julia/user_packages"                                                             // Location of additional packages installed via Julia
-	juliaBinary = "https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.3-linux-x86_64.tar.gz" // The official link for downloading Julia environment
+	juliaRootDir = "/opt/julia"                             // Location of downloaded Julia binary and other files
+	juliaBinDir  = "/opt/julia/bin"                         // Location of Julia executable binary file
+	juliaPkgDir  = "/opt/julia/user_packages"               // Location of additional packages installed via Julia
+	juliaBaseURL = "https://julialang-s3.julialang.org/bin" // The official link for downloading Julia environment
+	juliaOS      = "linux"                                  // Platform operating system
+	juliaArch    = "x64"                                    // Platform architecture
+	juliaVersion = "1.8"                                    // Julia version
+	juliaBinName = "julia-1.8.3-linux-x86_64.tar.gz"        // Julia archive name
 )
 
 // getJuliaBinary returns the llb.State only after setting up Julia environment
 // A successful run of getJuliaBinary should set up the Julia environment
 func (g generalGraph) getJuliaBinary(root llb.State) llb.State {
 
+	var juliaDownloadURL = filepath.Join(juliaBaseURL, juliaOS, juliaArch, juliaVersion, juliaBinName)
 	base := llb.Image(builderImage)
 	builder := base.
-		Run(llb.Shlexf("sh -c \"curl %s -o julia.tar.gz\"", juliaBinary),
+		Run(llb.Shlexf(`sh -c "curl %s -o julia.tar.gz"`, juliaDownloadURL),
 			llb.WithCustomName("[internal] downloading julia binary")).Root()
 
 	var path = "/tmp/julia.tar.gz"
 	setJulia := root.
 		File(llb.Copy(builder, "julia.tar.gz", path),
 			llb.WithCustomName("[internal] copying julia.tar.gz to /tmp")).
-		File(llb.Mkdir(julia, 0755, llb.WithParents(true)),
-			llb.WithCustomNamef("[internal] creating %s folder for julia binary", julia)).
-		Run(llb.Shlexf(`bash -c "tar zxvf /tmp/julia.tar.gz --strip 1 -C %s && rm /tmp/julia.tar.gz"`, julia),
-			llb.WithCustomNamef("[internal] unpack julia archive under %s", julia))
+		File(llb.Mkdir(juliaRootDir, 0755, llb.WithParents(true)),
+			llb.WithCustomNamef("[internal] creating %s folder for julia binary", juliaRootDir)).
+		Run(llb.Shlexf(`bash -c "tar zxvf /tmp/julia.tar.gz --strip 1 -C %s && rm /tmp/julia.tar.gz"`, juliaRootDir),
+			llb.WithCustomNamef("[internal] unpack julia archive under %s", juliaRootDir))
 
 	return setJulia.Root()
 }
 
 // installJulia returns the llb.State only after adding the Julia environment to $PATH
 // A successful run of installJulia should add Julia to global environment path
-func (g generalGraph) installJulia(root llb.State) llb.State {
+func (g *generalGraph) installJulia(root llb.State) llb.State {
 
 	confJulia := g.getJuliaBinary(root)
-	confJulia = g.updateEnvPath(confJulia, juliaBin)
+	confJulia = g.updateEnvPath(confJulia, juliaBinDir)
 
 	return confJulia
 }
@@ -67,20 +73,20 @@ func (g *generalGraph) installJuliaPackages(root llb.State) llb.State {
 		return root
 	}
 
-	root = root.File(llb.Mkdir(juliaPkg, 0755, llb.WithParents(true)),
+	root = root.File(llb.Mkdir(juliaPkgDir, 0755, llb.WithParents(true)),
 		llb.WithCustomName("[internal] creating folder for julia packages"))
 
 	// Allow root to utilize the installed Julia environment
-	root = g.updateEnvPath(root, juliaBin)
+	root = g.updateEnvPath(root, juliaBinDir)
 
 	// Export "/opt/julia/user_packages" as the additional library path for root
-	root = root.AddEnv("JULIA_DEPOT_PATH", juliaPkg)
+	root = root.AddEnv("JULIA_DEPOT_PATH", juliaPkgDir)
 
 	// Export "/opt/julia/user_packages" as the additional library path for users
-	g.RuntimeEnviron["JULIA_DEPOT_PATH"] = juliaPkg
+	g.RuntimeEnviron["JULIA_DEPOT_PATH"] = juliaPkgDir
 
 	// Change owner of the "/opt/julia/user_packages" to users
-	g.UserDirectories = append(g.UserDirectories, juliaPkg)
+	g.UserDirectories = append(g.UserDirectories, juliaPkgDir)
 
 	for _, packages := range g.JuliaPackages {
 		command := fmt.Sprintf(`julia -e 'using Pkg; Pkg.add(["%s"])'`, strings.Join(packages, `","`))
