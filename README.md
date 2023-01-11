@@ -46,7 +46,7 @@ def build():
 
 **Isolation, compatible with OCI image**
 
-With `envd`, users can create a isolated space to train, fine-tune or serving. By utilizing sophisticated virtualization technology as well as other features like [buildkit](https://github.com/moby/buildkit), it's an ideal solution for environment setup.
+With `envd`, users can create an isolated space to train, fine-tune, or serve. By utilizing sophisticated virtualization technology as well as other features like [buildkit](https://github.com/moby/buildkit), it's an ideal solution for environment setup.
 
 `envd` environment image is compatible with [OCI image specification](https://github.com/opencontainers/image-spec). By leveraging the power of an OCI image, you can make your environment available to anyone and everyone! Make it happen with a container registry like Harbor or Docker Hub.
 
