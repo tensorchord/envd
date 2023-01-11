@@ -359,10 +359,6 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=tensorchord/envd&type=Date)](https://star-history.com/#tensorchord/envd&Date)
-
 ## License 📋
 
 [Apache 2.0](./LICENSE)
