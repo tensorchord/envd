@@ -16,6 +16,7 @@ package v0
 
 import (
 	"fmt"
+	"net/url"
 	"path/filepath"
 	"strings"
 
@@ -199,12 +200,26 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 func (g generalGraph) compilePyPIIndex(root llb.State) llb.State {
 	if g.PyPIIndexURL != nil {
 		logrus.WithField("index", *g.PyPIIndexURL).Debug("using custom PyPI index")
-		var extraIndex string
+		var extra string
 		if g.PyPIExtraIndexURL != nil {
 			logrus.WithField("index", *g.PyPIIndexURL).Debug("using extra PyPI index")
-			extraIndex = "extra-index-url=" + *g.PyPIExtraIndexURL
+			extra = "extra-index-url=" + *g.PyPIExtraIndexURL
 		}
-		content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIIndexURL, extraIndex)
+		if g.PyPITrust {
+			var hosts []string
+			for _, p := range []*string{g.PyPIIndexURL, g.PyPIExtraIndexURL} {
+				if p != nil {
+					u, err := url.Parse(*p)
+					if err == nil && u != nil && u.Hostname() != "" {
+						hosts = append(hosts, u.Hostname())
+					}
+				}
+			}
+			if len(hosts) > 0 {
+				extra += "\ntrusted-host=" + strings.Join(hosts, " ")
+			}
+		}
+		content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIIndexURL, extra)
 		dir := filepath.Dir(pypiIndexFilePath)
 		pypiMirror := root.
 			File(llb.Mkdir(dir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
