@@ -72,7 +72,7 @@ Check out the [doc](https://envd.tensorchord.ai/teams/kubernetes.html) for more 
 
 Reusing previously downloaded packages from the PyPI/APT cache saves time and energy, making builds more efficient. No need to redownload what was already acquired before – a single download is enough for repeat usage! 
 
-With dockerfile v1, users are unable to take advantage of PyPI caching for faster installation speeds - but `envd` offers this support and more!
+With Dockerfile v1, users are unable to take advantage of PyPI caching for faster installation speeds - but `envd` offers this support and more!
 
 <p align=center>
   <img src="https://user-images.githubusercontent.com/5100735/189928628-543f4851-87b7-462b-b811-372cbf46ff25.svg#gh-light-mode-only" width="65%"/>
