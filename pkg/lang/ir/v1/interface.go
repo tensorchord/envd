@@ -102,10 +102,17 @@ func RPackage(deps []string) error {
 	return nil
 }
 
-func JuliaPackage(deps []string) {
+func JuliaPackage(deps []string) error {
+
+	if len(deps) == 0 {
+		return errors.New("Can not install empty Julia package")
+	}
+
 	g := DefaultGraph.(*generalGraph)
 
-	g.JuliaPackages = append(g.JuliaPackages, deps...)
+	g.JuliaPackages = append(g.JuliaPackages, deps)
+
+	return nil
 }
 
 func SystemPackage(deps []string) {

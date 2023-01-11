@@ -155,9 +155,9 @@ func ruleFuncJuliaPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		return nil, err
 	}
 	logger.Debugf("rule `%s` is invoked, name=%v", ruleJuliaPackages, nameList)
-	ir.JuliaPackage(nameList)
+	err = ir.JuliaPackage(nameList)
 
-	return starlark.None, nil
+	return starlark.None, err
 }
 
 func ruleFuncSystemPackage(thread *starlark.Thread, _ *starlark.Builtin,

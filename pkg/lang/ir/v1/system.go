@@ -238,7 +238,7 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 		rSrc := g.compileRLang(root)
 		lang = g.installRLang(rSrc)
 	case "julia":
-		lang, err = g.installJulia(root)
+		lang = g.installJulia(root)
 	}
 
 	return lang, err

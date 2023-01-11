@@ -54,7 +54,7 @@ func NewGraph() ir.Graph {
 
 		PyPIPackages:    [][]string{},
 		RPackages:       [][]string{},
-		JuliaPackages:   []string{},
+		JuliaPackages:   [][]string{},
 		SystemPackages:  []string{},
 		Exec:            []ir.RunBuildCommand{},
 		UserDirectories: []string{},

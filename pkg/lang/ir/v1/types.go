@@ -50,7 +50,7 @@ type generalGraph struct {
 	RequirementsFile *string
 	PythonWheels     []string
 	RPackages        [][]string
-	JuliaPackages    []string
+	JuliaPackages    [][]string
 	SystemPackages   []string
 
 	VSCodePlugins   []vscode.Plugin
