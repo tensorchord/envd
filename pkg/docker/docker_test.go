@@ -25,7 +25,7 @@ var _ = Describe("docker", func() {
 	When("given the a lowcase tag", func() {
 		It("should return the tag identically", func() {
 			tag := "test:test"
-			newTag, err := NormalizeNamed(tag)
+			newTag, err := NormalizeName(tag)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(newTag).To(Equal(tag))
 		})
@@ -33,7 +33,7 @@ var _ = Describe("docker", func() {
 	When("given the a uppercase tag", func() {
 		It("should return the tag lowcased", func() {
 			tag := "Test:test"
-			newTag, err := NormalizeNamed(tag)
+			newTag, err := NormalizeName(tag)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(newTag).NotTo(Equal(tag))
 			Expect(newTag).To(Equal(strings.ToLower(tag)))

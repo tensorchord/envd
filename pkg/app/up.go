@@ -187,8 +187,12 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create the docker client")
 	}
+	name, err := buildutil.CreateEnvNameFromDir(buildOpt.BuildContextDir)
+	if err != nil {
+		return errors.Wrapf(err, "failed to create the env name from %s", buildOpt.BuildContextDir)
+	}
 	startOptions := envd.StartOptions{
-		EnvironmentName: filepath.Base(buildOpt.BuildContextDir),
+		EnvironmentName: name,
 		BuildContext:    buildOpt.BuildContextDir,
 		Image:           buildOpt.Tag,
 		NumGPU:          numGPU,

@@ -74,7 +74,7 @@ please visit https://docs.docker.com/engine/install/linux-postinstall/ for more 
 }
 
 // Normalize the name accord the spec of docker, It may support normalize imagea and container in the future.
-func NormalizeNamed(s string) (string, error) {
+func NormalizeName(s string) (string, error) {
 	if ok := anchoredIdentifierRegexp.MatchString(s); ok {
 		return "", errors.Newf("invalid repository name (%s), cannot specify 64-byte hexadecimal strings, please rename it", s)
 	}
@@ -94,6 +94,8 @@ func NormalizeNamed(s string) (string, error) {
 		}
 		logrus.Warnf("The working direcotry's name is not lowercased: %s, the image built will be lowercased to %s", remoteName, s)
 	}
+	// remove the spaces
+	s = strings.ReplaceAll(s, " ", "")
 	return s, nil
 
 }

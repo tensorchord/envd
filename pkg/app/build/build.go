@@ -17,6 +17,8 @@ package build
 import (
 	"fmt"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
@@ -28,6 +30,9 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
+
+// refer to https://github.com/moby/moby/blob/b139a7636f3b6a3d9ad0e2d6dc8bcb687ba2f2cc/daemon/names/names.go#L6
+var containerNamePattern = regexp.MustCompile(`[a-zA-Z0-9][a-zA-Z0-9_.-]*`)
 
 func DetectEnvironment(clicontext *cli.Context, buildOpt builder.Options) error {
 	context, err := home.GetManager().ContextGetCurrent()
@@ -78,6 +83,23 @@ func BuildImage(clicontext *cli.Context, builder builder.Builder) error {
 	return nil
 }
 
+func CreateEnvNameFromDir(absDir string) (string, error) {
+	curDir := filepath.Base(absDir)
+	matches := containerNamePattern.FindAllString(curDir, -1)
+	if len(matches) == 0 {
+		return "", errors.Newf("cannot create a legal container name from %s", curDir)
+	}
+	name := strings.Join(matches, "")
+	// align with docker image name length
+	if len(name) > 30 {
+		name = name[:30]
+	}
+	if name != curDir {
+		logrus.Debugf("dir %s is not a legal container name, normalize it to %s\n", curDir, name)
+	}
+	return name, nil
+}
+
 func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
 	buildContext, err := filepath.Abs(clicontext.Path("path"))
 	if err != nil {
@@ -104,7 +126,7 @@ func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
 		tag = fmt.Sprintf("%s:%s", filepath.Base(buildContext), "dev")
 	}
 	// The current container engine is only Docker. It should be expanded to support other container engines.
-	tag, err = docker.NormalizeNamed(tag)
+	tag, err = docker.NormalizeName(tag)
 	if err != nil {
 		return builder.Options{}, err
 	}
