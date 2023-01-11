@@ -351,7 +351,7 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 		}, llb.WithCustomName("[internal] final dev environment"))
 	}
 
-	// it's necessary to exec `run`` with the desired user
+	// it's necessary to exec `run` with the desired user
 	run := g.compileRun(copy)
 	mount := g.compileMountDir(run)
 
