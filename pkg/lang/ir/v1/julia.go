@@ -23,21 +23,17 @@ import (
 )
 
 const (
-	juliaRootDir = "/opt/julia"                             // Location of downloaded Julia binary and other files
-	juliaBinDir  = "/opt/julia/bin"                         // Location of Julia executable binary file
-	juliaPkgDir  = "/opt/julia/user_packages"               // Location of additional packages installed via Julia
-	juliaBaseURL = "https://julialang-s3.julialang.org/bin" // The official link for downloading Julia environment
-	juliaOS      = "linux"                                  // Platform operating system
-	juliaArch    = "x64"                                    // Platform architecture
-	juliaVersion = "1.8"                                    // Julia version
-	juliaBinName = "julia-1.8.3-linux-x86_64.tar.gz"        // Julia archive name
+	juliaRootDir     = "/opt/julia"                                                                           // Location of downloaded Julia binary and other files
+	juliaBinDir      = "/opt/julia/bin"                                                                       // Location of Julia executable binary file
+	juliaPkgDir      = "/opt/julia/user_packages"                                                             // Location of additional packages installed via Julia
+	juliaDownloadURL = "https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.3-linux-x86_64.tar.gz" // The official link for downloading Julia environment
+	juliaBinName     = "julia.tar.gz"                                                                         // Julia archive name
 )
 
 // getJuliaBinary returns the llb.State only after setting up Julia environment
 // A successful run of getJuliaBinary should set up the Julia environment
 func (g generalGraph) getJuliaBinary(root llb.State) llb.State {
 
-	var juliaDownloadURL = filepath.Join(juliaBaseURL, juliaOS, juliaArch, juliaVersion, juliaBinName)
 	base := llb.Image(builderImage)
 	builder := base.
 		Run(llb.Shlexf(`sh -c "curl %s -o %s"`, juliaDownloadURL, juliaBinName),
