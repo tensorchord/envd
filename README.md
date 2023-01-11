@@ -52,7 +52,7 @@ With `envd`, users can create an isolated space to train, fine-tune, or serve. B
 
 **Local, and cloud**
 
-`envd` can now be used on a hybrid platform, ranging from the local machines to clusters hosted by Kubernetes. Any of these options offer an efficient and versatile way for developers to create their projects!
+`envd` can now be used on a hybrid platform, ranging from local machines to clusters hosted by Kubernetes. Any of these options offers an efficient and versatile way for developers to create their projects!
 
 ```sh
 $ envd context use local
