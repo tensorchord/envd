@@ -583,6 +583,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "weixiao-huang",
+      "name": "Weixiao Huang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8834733?v=4",
+      "profile": "http://weixiao-huang.github.io",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
