@@ -19,7 +19,7 @@
 
 envd (`ɪnˈvdɪ`) is a command-line tool that helps you create the container-based development environment for AI/ML.
 
-Creating development environments is no easy task, especially with today's complex systems and dependencies. With everything from Python to CUDA, BASH scripts and Dockerfiles constantly breaking it can feel like a nightmare - until now!
+Creating development environments is not easy, especially with today's complex systems and dependencies. With everything from Python to CUDA, BASH scripts, and Dockerfiles constantly breaking, it can feel like a nightmare - until now!
 
 Instantly get your environment running exactly as you need with a simple declaration of the packages you seek in build.envd and just one command: `envd up`!
 
