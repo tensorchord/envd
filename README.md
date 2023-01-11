@@ -82,7 +82,7 @@ With dockerfile v1, users are unable to take advantage of PyPI caching for faste
   <img src="https://user-images.githubusercontent.com/16186646/197944452-4a5dcd5f-68d0-4505-b419-e95c298978d7.svg#gh-dark-mode-only" width="65%"/>
 </p>
 
-Besides, `envd` also supports remote build, which means you can build your environment on a remote machine, such as a cloud server, and then push it to the registry. This is especially useful when you are working on a machine with limited resources, or when you expect a build machine with a higher performance.
+Besides, `envd` also supports remote build, which means you can build your environment on a remote machine, such as a cloud server, and then push it to the registry. This is especially useful when you are working on a machine with limited resources, or when you expect a build machine with higher performance.
 
 **Knowledge reuse in your team**
 
