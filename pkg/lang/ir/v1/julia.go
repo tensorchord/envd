@@ -40,16 +40,16 @@ func (g generalGraph) getJuliaBinary(root llb.State) llb.State {
 	var juliaDownloadURL = filepath.Join(juliaBaseURL, juliaOS, juliaArch, juliaVersion, juliaBinName)
 	base := llb.Image(builderImage)
 	builder := base.
-		Run(llb.Shlexf(`sh -c "curl %s -o julia.tar.gz"`, juliaDownloadURL),
+		Run(llb.Shlexf(`sh -c "curl %s -o %s"`, juliaDownloadURL, juliaBinName),
 			llb.WithCustomName("[internal] downloading julia binary")).Root()
 
-	var path = "/tmp/julia.tar.gz"
+	var path = filepath.Join("/tmp", juliaBinName)
 	setJulia := root.
-		File(llb.Copy(builder, "julia.tar.gz", path),
-			llb.WithCustomName("[internal] copying julia.tar.gz to /tmp")).
+		File(llb.Copy(builder, juliaBinName, path),
+			llb.WithCustomNamef("[internal] copying %s to /tmp", juliaBinName)).
 		File(llb.Mkdir(juliaRootDir, 0755, llb.WithParents(true)),
 			llb.WithCustomNamef("[internal] creating %s folder for julia binary", juliaRootDir)).
-		Run(llb.Shlexf(`bash -c "tar zxvf /tmp/julia.tar.gz --strip 1 -C %s && rm /tmp/julia.tar.gz"`, juliaRootDir),
+		Run(llb.Shlexf(`bash -c "tar zxvf %s --strip 1 -C %s && rm %s"`, path, juliaRootDir, path),
 			llb.WithCustomNamef("[internal] unpack julia archive under %s", juliaRootDir))
 
 	return setJulia.Root()
