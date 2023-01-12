@@ -50,13 +50,11 @@ def conda(use_mamba: bool = False):
 
 
 def r_lang():
-    """Install R Lang.
-    """
+    """Install R Lang."""
 
 
 def julia():
-    """Install Julia.
-    """
+    """Install Julia."""
 
 
 def apt_packages(name: List[str] = []):
