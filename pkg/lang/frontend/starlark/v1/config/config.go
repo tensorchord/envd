@@ -96,18 +96,19 @@ func ruleFuncJupyter(thread *starlark.Thread, _ *starlark.Builtin,
 func ruleFuncPyPIIndex(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	var url, extraURL starlark.String
+	var trust bool
 
 	if err := starlark.UnpackArgs(rulePyPIIndex, args, kwargs,
-		"url?", &url, "extra_url?", &extraURL); err != nil {
+		"url", &url, "extra_url?", &extraURL, "trust?", &trust); err != nil {
 		return nil, err
 	}
 
 	indexStr := url.GoString()
 	extraIndexStr := extraURL.GoString()
 
-	logger.Debugf("rule `%s` is invoked, index=%s, extraIndex=%s",
-		rulePyPIIndex, indexStr, extraIndexStr)
-	if err := ir.PyPIIndex(indexStr, extraIndexStr); err != nil {
+	logger.Debugf("rule `%s` is invoked, index=%s, extraIndex=%s, trust=%t",
+		rulePyPIIndex, indexStr, extraIndexStr, trust)
+	if err := ir.PyPIIndex(indexStr, extraIndexStr, trust); err != nil {
 		return nil, err
 	}
 

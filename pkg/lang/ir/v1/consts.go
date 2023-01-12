@@ -27,6 +27,7 @@ const (
 [global]
 index-url=%s
 %s
+%s
 
 [install]
 src = /tmp
