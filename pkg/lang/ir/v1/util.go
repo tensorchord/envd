@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"os/user"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -71,7 +72,7 @@ func (g generalGraph) getUIDGID() (int, int, error) {
 	// The current user is the last choice
 	owner := viper.GetString(flag.FlagBuildOwner)
 	if len(owner) > 0 {
-		logrus.WithField("flag", owner).Info("use owner")
+		logrus.WithField("flag", owner).Debug("use owner")
 		ids := strings.Split(owner, ":")
 		if len(ids) > 2 {
 			return 0, 0, errors.Newf("wrong format for owner (uid:gid): %s", owner)
@@ -81,8 +82,8 @@ func (g generalGraph) getUIDGID() (int, int, error) {
 			logrus.Info(err)
 			return 0, 0, errors.Wrap(err, "failed to get uid")
 		}
-		// if omit gid, will use the uid as gid
 		if len(ids) == 1 {
+			logrus.Debugf("gid is omitted, will use the same number as uid: %d\n", uid)
 			return uid, uid, nil
 		}
 		gid, err := strconv.Atoi(ids[1])
@@ -106,6 +107,12 @@ func (g generalGraph) getUIDGID() (int, int, error) {
 	gid, err := strconv.Atoi(user.Gid)
 	if err != nil {
 		return 0, 0, errors.Wrap(err, "failed to get gid")
+	}
+	// macOS will use staff gid=20, which is already taken in Ubuntu,
+	// thus we need to hard code a new one
+	// refer to https://github.com/tensorchord/envd/issues/398
+	if runtime.GOOS == "darwin" && gid == 20 {
+		gid = uid
 	}
 	return uid, gid, nil
 }
