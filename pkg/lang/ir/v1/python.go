@@ -176,7 +176,7 @@ func (g generalGraph) compilePyPIIndex(root llb.State) llb.State {
 	}
 	if g.PyPITrust {
 		var hosts []string
-		for _,p := range []*string{g.PyPIIndexURL, g.PyPIExtraIndexURL} {
+		for _, p := range []*string{g.PyPIIndexURL, g.PyPIExtraIndexURL} {
 			if p != nil {
 				u, err := url.Parse(*p)
 				if err == nil && u != nil && u.Hostname() != "" {

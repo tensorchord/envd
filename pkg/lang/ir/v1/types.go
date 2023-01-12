@@ -43,7 +43,7 @@ type generalGraph struct {
 	JuliaPackageServer *string
 	PyPIIndexURL       *string
 	PyPIExtraIndexURL  *string
-	PyPITrust bool
+	PyPITrust          bool
 
 	PublicKeyPath string
 
