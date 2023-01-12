@@ -90,7 +90,7 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context,
 			logger.Debugf("setting buildkit config: %s", cfg)
 		}
 
-		out, err := nc.exec(ctx, nil, "run", "--rm", "-d",
+		out, err := nc.exec(ctx, nil, "run", "-d",
 			"--name", name,
 			"--privileged",
 			"--entrypoint", "sh",
@@ -101,13 +101,7 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context,
 		}
 	}
 
-	out, err := nc.exec(ctx, nil, "start", name)
-	if err != nil {
-		logrus.Error("can not start buildkitd", out, err)
-		return "", errors.Wrap(err, "starting buildkitd")
-	}
-
-	err = nc.waitUntilRunning(ctx, name, timeout)
+	err := nc.waitUntilRunning(ctx, name, timeout)
 
 	return name, err
 }
@@ -141,6 +135,11 @@ func (nc *nerdctlClient) waitUntilRunning(ctx context.Context,
 	for {
 		select {
 		case <-time.After(time.Second):
+			_, err := nc.exec(ctx, nil, "start", name)
+			if err != nil {
+				continue
+			}
+
 			c, err := nc.containerInspect(ctx, name)
 			if err != nil {
 				// Has not yet started. Keep waiting.

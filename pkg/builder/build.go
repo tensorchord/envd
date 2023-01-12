@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
+	"github.com/docker/cli/cli/config/configfile"
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/session"
@@ -206,7 +207,7 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 
 	for _, entry := range b.entries {
 		// Set up docker config auth.
-		attachable := []session.Attachable{authprovider.NewDockerAuthProvider(os.Stderr)}
+		attachable := []session.Attachable{authprovider.NewDockerAuthProvider(&configfile.ConfigFile{})}
 		b.logger.WithFields(logrus.Fields{
 			"type": entry.Type,
 		}).Debug("build image with buildkit")
