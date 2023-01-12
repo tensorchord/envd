@@ -62,13 +62,14 @@ def jupyter(token: str, port: int):
     """
 
 
-def pip_index(url: str, extra_url: str):
+def pip_index(url: str, extra_url: str = "", trust: bool = False):
     """Configure pypi index mirror
 
     Args:
         url (str): PyPI index URL (i.e. https://mirror.sjtu.edu.cn/pypi/web/simple)
         extra_url (str): PyPI extra index URL. `url` and `extra_url` will be
             treated equally, see https://github.com/pypa/pip/issues/8606
+        trust (bool): trust the provided index
     """
 
 

@@ -160,14 +160,17 @@ func UbuntuAPT(source string) error {
 	return nil
 }
 
-func PyPIIndex(url, extraURL string) error {
+func PyPIIndex(url, extraURL string, trust bool) error {
 	if url == "" {
 		return errors.New("url is required")
 	}
 	g := DefaultGraph.(*generalGraph)
 
 	g.PyPIIndexURL = &url
-	g.PyPIExtraIndexURL = &extraURL
+	if len(extraURL) > 0 {
+		g.PyPIExtraIndexURL = &extraURL
+	}
+	g.PyPITrust = trust
 	return nil
 }
 
