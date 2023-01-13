@@ -16,6 +16,7 @@ package app
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -30,7 +31,9 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
+	"github.com/tensorchord/envd/pkg/syncthing"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
@@ -209,6 +212,35 @@ func run(clicontext *cli.Context) error {
 
 		if err := <-outputChannel; err != nil {
 			return err
+		}
+
+        cwd, err := fileutil.CWD()
+        if err != nil {
+            return errors.Wrap(err, "failed to get current working directory")
+        }
+        projectName := filepath.Base(cwd)
+
+		localSyncthing, err := syncthing.InitializeLocalSyncthing()
+		if err != nil {
+			outputChannel <- errors.Wrap(err, "failed to initialize local syncthing")
+		}
+		logrus.Info("Local syncthing initialized")
+
+		remoteSyncthing, err := syncthing.InitializeRemoteSyncthing()
+		if err != nil {
+			outputChannel <- errors.Wrap(err, "failed to initialize remote syncthing")
+		}
+		logrus.Info("Remote syncthing initialized")
+
+		err = syncthing.ConnectDevices(localSyncthing, remoteSyncthing)
+		if err != nil {
+			outputChannel <- errors.Wrap(err, "failed to connect devices")
+		}
+		logrus.Debug("Syncthing devices connected")
+        
+        err = syncthing.SyncFolder(localSyncthing, remoteSyncthing, cwd, fmt.Sprintf("%s/%s", fileutil.EnvdHomeDir(), projectName))
+		if err != nil {
+			outputChannel <- errors.Wrap(err, "failed to connect devices")
 		}
 	}
 	return nil

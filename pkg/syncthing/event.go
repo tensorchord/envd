@@ -77,8 +77,9 @@ func (s *Syncthing) GetConfigSavedEvents() ([]*ConfigSavedEvent, error) {
 			events = append(events, event)
 		}
 	}
+
 	if len(allEvents) > 0 {
-		latestEvent := events[len(events)-1]
+		latestEvent := allEvents[len(allEvents)-1]
 		s.latestEventId = latestEvent.Id
 	}
 

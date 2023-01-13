@@ -9,17 +9,21 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/syncthing/syncthing/lib/config"
+    "github.com/syncthing/syncthing/lib/protocol"
 )
 
 type Syncthing struct {
+	Name          string
 	Cmd           *exec.Cmd
 	Config        *config.Configuration
 	PrevConfig    config.Configuration // Unapplied config
 	HomeDirectory string
 	Port          string
 	Client        *http.Client
-	ApiKey        string
+	DeviceID      protocol.DeviceID
+    ApiKey        string
 	latestEventId int64
+	DeviceAddress string
 }
 
 func Main() {
@@ -27,38 +31,58 @@ func Main() {
 
 	// Configure remote syncthing
 
-	// Configure folders
-
 	// Configure Device Connections
+
+	// Configure folders
 }
 
 // Initializes the remote syncthing instance
 func InitializeRemoteSyncthing() (*Syncthing, error) {
 	s := &Syncthing{
+		Name:          "Remote Syncthing",
 		Port:          DefaultRemotePort,
 		HomeDirectory: "/config",
 		Client:        NewApiClient(),
 		ApiKey:        DefaultApiKey,
 	}
 
-	err := s.PullLatestConfig()
+    err := s.WaitForStartup(15 * time.Second)
+    if err != nil {
+        return nil, fmt.Errorf("failed to wait for syncthing startup: %w", err)
+    }
+
+	err = s.PullLatestConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to pull latest config: %w", err)
 	}
+
+	logrus.Debug("Remote syncthing connected")
 
 	s.SetDeviceAddress(DefaultRemoteDeviceAddress)
 	if err != nil {
 		return nil, err
 	}
+	s.Config.Options.RawListenAddresses = []string{DefaultRemoteDeviceAddress}
+	s.DeviceID = s.Config.Devices[0].DeviceID
+
+	err = s.ApplyConfig()
+	if err != nil {
+		return nil, err
+	}
+
+    
 
 	return s, nil
 }
 
-// Writes the default configuration to the home directory
+// Initializes the local syncthing instance
 func InitializeLocalSyncthing() (*Syncthing, error) {
+    // Get free port for local envd 
+
 	initConfig := InitLocalConfig()
 	homeDirectory := DefaultHomeDirectory()
 	s := &Syncthing{
+		Name:          "Local Syncthing",
 		Config:        initConfig,
 		HomeDirectory: homeDirectory,
 		Client:        NewApiClient(),
@@ -80,14 +104,22 @@ func InitializeLocalSyncthing() (*Syncthing, error) {
 		return nil, err
 	}
 
+	err = s.PullLatestConfig()
+	if err != nil {
+		return nil, fmt.Errorf("failed to pull latest config: %w", err)
+	}
+
 	s.SetDeviceAddress(DefaultLocalDeviceAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.PullLatestConfig()
+	s.Config.Options.RawListenAddresses = []string{DefaultLocalDeviceAddress}
+	s.DeviceID = s.Config.Devices[0].DeviceID
+
+	err = s.ApplyConfig()
 	if err != nil {
-		return nil, fmt.Errorf("failed to pull latest config: %w", err)
+		return nil, err
 	}
 
 	return s, nil
@@ -98,8 +130,9 @@ func (s *Syncthing) StartLocalSyncthing() error {
 		InstallSyncthing()
 	}
 
-	logrus.Debug("Starting syncthing...")
-	cmd := exec.Command(GetSyncthingBinPath(), "-no-browser", "-no-restart", "-home", s.HomeDirectory)
+	logrus.Debug("Starting local syncthing...")
+	// TODO: Add no browser option later
+	cmd := exec.Command(GetSyncthingBinPath(), "-no-restart", "-home", s.HomeDirectory)
 
 	// TODO: Configure custom home path or default?
 	err := cmd.Start()
@@ -107,7 +140,7 @@ func (s *Syncthing) StartLocalSyncthing() error {
 		return fmt.Errorf("failed to run syncthing executable: %w", err)
 	}
 	s.Cmd = cmd
-	logrus.Info("Syncthing started!")
+	logrus.Debug("Local syncthing started!")
 
 	err = s.WaitForStartup(10 * time.Second)
 	if err != nil {
@@ -129,6 +162,7 @@ func (s *Syncthing) WaitForStartup(timeout time.Duration) error {
 	start := time.Now()
 	for {
 		if time.Since(start) > timeout {
+            logrus.Debugf("Timeout reached for syncthing: %s", s.Name)
 			return fmt.Errorf("timed out waiting for syncthing to start")
 		}
 		if ok, _ := s.Ping(); ok {

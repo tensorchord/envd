@@ -26,7 +26,7 @@ func InitLocalConfig() *config.Configuration {
 		Version: 37,
 		GUI: config.GUIConfiguration{
 			Enabled:    true,
-			RawAddress: fmt.Sprintf("0.0.0.0:%s", DefaultLocalPort),
+			RawAddress: fmt.Sprintf("127.0.0.1:%s", DefaultLocalPort),
 			APIKey:     DefaultApiKey,
 			Theme:      "default",
 		},
@@ -40,7 +40,7 @@ func InitLocalConfig() *config.Configuration {
 			URPostInsecurely:     false,
 			URInitialDelayS:      1800,
 			AutoUpgradeIntervalH: 0, // Disable auto upgrade
-			StunKeepaliveStartS:  0, // Disable STUN keepalive
+			StunKeepaliveStartS:  0, // Disable STUN keepalive\
 		},
 	}
 }
@@ -63,6 +63,7 @@ func (s *Syncthing) GetConfig() (*config.Configuration, error) {
 
 // Fetches the latest configuration from the syncthing rest api and applies it to the syncthing struct
 func (s *Syncthing) PullLatestConfig() error {
+	logrus.Debugf("Pulling latest config for: %s", s.Name)
 	cfg, err := s.GetConfig()
 	if err != nil {
 		return fmt.Errorf("failed to fetch syncthing config: %w", err)
@@ -74,10 +75,10 @@ func (s *Syncthing) PullLatestConfig() error {
 }
 
 func (s *Syncthing) WaitForConfigApply(timeout time.Duration) error {
-    logrus.Debug("Started waiting for config to apply")
 	start := time.Now()
 	for {
 		if time.Since(start) > timeout {
+			logrus.Debug("Timeout reached, config not applied")
 			return fmt.Errorf("timed out waiting for configurations to apply")
 		}
 
@@ -86,17 +87,25 @@ func (s *Syncthing) WaitForConfigApply(timeout time.Duration) error {
 			return fmt.Errorf("failed to get syncthing config saved events: %w", err)
 		}
 
-		// Check if the applied config is the most recent config
-		for _, event := range events {
-			if s.ConfigChangesApplied(event) {
-				err := s.PullLatestConfig()
-				if err != nil {
-					return fmt.Errorf("failed to pull latest config: %w", err)
-				}
-
-				return nil
+		if len(events) > 0 {
+			err := s.PullLatestConfig()
+			if err != nil {
+				return fmt.Errorf("failed to pull latest config: %w", err)
 			}
+            return nil
 		}
+
+		// Check if the applied config is the most recent config
+		// for _, event := range events {
+		// 	if s.ConfigChangesApplied(event) {
+		// 		err := s.PullLatestConfig()
+		// 		if err != nil {
+		// 			return fmt.Errorf("failed to pull latest config: %w", err)
+		// 		}
+		//
+		// 		return nil
+		// 	}
+		// }
 
 		time.Sleep(500 * time.Millisecond)
 	}
@@ -113,12 +122,11 @@ func (s *Syncthing) ConfigChangesApplied(event *ConfigSavedEvent) bool {
 	// If the config changed, then there are changes that are not applied
 	_, err := diff.Merge(&s.PrevConfig, s.Config, &newConfig)
 	if err != nil {
-        logrus.Debug(err)
+		logrus.Debugf("error performing merge when checking for st config changes: ", err)
 		return false
 	}
 
 	res := reflect.DeepEqual(&event.Data, &newConfig)
-	logrus.Debug("Checking if config is applied, result is ", res)
 	return res
 }
 
