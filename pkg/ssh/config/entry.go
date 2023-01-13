@@ -40,22 +40,13 @@ func AddEntry(eo EntryOptions) error {
 	if err != nil {
 		return err
 	}
+
+	// It helps user to directly use remote ssh plugin of VSCode on the host system.
+	// VSCode will only check the host ssh files.
 	if osutil.IsWsl() {
-		logrus.Debug("Try adding entry to WSL's ssh-agent")
-		winSshConfig, err := osutil.GetWslHostSshConfig()
+		err := addEntryToWSLHost(eo)
 		if err != nil {
-			return err
-		}
-		winKeyPath, err := osutil.CopyToWinEnvdHome(eo.PrivateKeyPath, 0600)
-		if err != nil {
-			return err
-		}
-		// Add the entry to the WSL host SSH config
-		logrus.Debugf("Adding entry to WSL's ssh-agent: %s", winSshConfig)
-		eo.PrivateKeyPath = winKeyPath
-		err = add(winSshConfig, eo)
-		if err != nil {
-			return err
+			logrus.Warnf("Failed to add entry to WSL host %s\n", err.Error())
 		}
 	}
 	return nil
@@ -112,6 +103,26 @@ func RemoveEntry(name string) error {
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func addEntryToWSLHost(eo EntryOptions) error {
+	logrus.Debug("Try adding entry to WSL's ssh-agent")
+	winSshConfig, err := osutil.GetWslHostSshConfig()
+	if err != nil {
+		return err
+	}
+	winKeyPath, err := osutil.CopyToWinEnvdHome(eo.PrivateKeyPath, 0600)
+	if err != nil {
+		return err
+	}
+	// Add the entry to the WSL host SSH config
+	logrus.Debugf("Adding entry to WSL's ssh-agent: %s", winSshConfig)
+	eo.PrivateKeyPath = winKeyPath
+	err = add(winSshConfig, eo)
+	if err != nil {
+		return err
 	}
 	return nil
 }
