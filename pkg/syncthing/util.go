@@ -1,13 +1,13 @@
 package syncthing
 
 import (
-	"fmt"
 	"strings"
 )
 
-func parsePortFromAddress(addr string) (string, error) {
+func ParsePortFromAddress(addr string) string {
 	if strings.Contains(addr, ":") {
-		return strings.Split(addr, ":")[1], nil
+        lst := strings.Split(addr, ":")
+        return lst[len(lst) - 1]
 	}
-	return "", fmt.Errorf("failed to parse port from address: %s", addr)
+	return ""
 }

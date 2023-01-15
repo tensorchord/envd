@@ -2,7 +2,6 @@ package syncthing_test
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/syncthing"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
+	"golang.org/x/crypto/ssh"
 )
 
 func TestSyncthing(t *testing.T) {
@@ -24,30 +24,48 @@ func TestSyncthing(t *testing.T) {
 var _ = Describe("Syncthing", func() {
 
 	BeforeEach(func() {
-		os.RemoveAll(syncthing.DefaultHomeDirectory())
 	})
 
 	Describe("Syncthing", func() {
 		It("Starts and stops syncthing", func() {
-			s, err := syncthing.InitializeLocalSyncthing()
+			s, err := syncthing.InitializeLocalSyncthing("s1")
 			Expect(err).To(BeNil())
 
-			Expect(s.IsRunning()).To(BeTrue())
+            Expect(s.IsRunning()).To(BeTrue())
 
 			err = s.StopLocalSyncthing()
 			Expect(err).To(BeNil())
 
 			Expect(s.IsRunning()).To(BeFalse())
 		})
+
+        It("Random", func() {
+            client, err := ssh.Dial("tcp", "heronslow.envd:22", &ssh.ClientConfig{
+                User: "alex",
+            })
+
+			defer client.Close()
+
+			// Open a new shell session
+			session, err := client.NewSession()
+			if err != nil {
+				panic(err)
+			}
+			defer session.Close()
+
+			// Start the shell
+			session.Shell()
+			fmt.Println("Shell started.")
+
+        })
 	})
 
 	Describe("Syncthing config", func() {
 		AfterEach(func() {
-			os.RemoveAll(syncthing.DefaultHomeDirectory())
 		})
 
 		It("Initializes local syncthing configuration", func() {
-			s, err := syncthing.InitializeLocalSyncthing()
+			s, err := syncthing.InitializeLocalSyncthing("s1")
 			Expect(err).To(BeNil())
 
 			Expect(s.Port).To(Equal(syncthing.DefaultLocalPort))
@@ -93,13 +111,15 @@ var _ = Describe("Syncthing REST API operations", func() {
 	BeforeEach(func() {
 		var err error
 		initConfig := syncthing.InitLocalConfig()
-		homeDirectory := syncthing.DefaultHomeDirectory()
+		homeDirectory1 := syncthing.GetHomeDirectory("s1")
+		homeDirectory2 := syncthing.GetHomeDirectory("s2")
+
 
 		initConfig1 := initConfig.Copy()
 		initConfig1.GUI.RawAddress = fmt.Sprintf("0.0.0.0:%s", syncthing.DefaultLocalPort)
 		s1 = &syncthing.Syncthing{
 			Config:        &initConfig1,
-			HomeDirectory: fmt.Sprintf("%s-1", homeDirectory),
+			HomeDirectory: fmt.Sprintf("%s-1", homeDirectory1),
 			Client:        syncthing.NewApiClient(),
 			ApiKey:        syncthing.DefaultApiKey,
 			Port:          syncthing.DefaultLocalPort,
@@ -109,7 +129,7 @@ var _ = Describe("Syncthing REST API operations", func() {
 		initConfig2.GUI.RawAddress = fmt.Sprintf("0.0.0.0:%s", syncthing.DefaultRemotePort)
 		s2 = &syncthing.Syncthing{
 			Config:        &initConfig2,
-			HomeDirectory: fmt.Sprintf("%s-2", homeDirectory),
+			HomeDirectory: fmt.Sprintf("%s-2", homeDirectory2),
 			Client:        syncthing.NewApiClient(),
 			ApiKey:        syncthing.DefaultApiKey,
 			Port:          syncthing.DefaultRemotePort,
@@ -155,7 +175,7 @@ var _ = Describe("Syncthing REST API operations", func() {
 
 	BeforeEach(func() {
 		var err error
-		s, err = syncthing.InitializeLocalSyncthing()
+		s, err = syncthing.InitializeLocalSyncthing("s1")
 		Expect(err).To(BeNil())
 	})
 

@@ -151,6 +151,7 @@ func run(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the username")
 	}
+
 	eo := sshconfig.EntryOptions{
 		Name:               res.Name,
 		IFace:              hostname,
@@ -203,45 +204,70 @@ func run(clicontext *cli.Context) error {
 		}
 
 		go func() {
-			// TODO(gaocegege): Avoid the hard code.
-			if err := sshClient.Attach(); err != nil {
-				outputChannel <- errors.Wrap(err, "failed to attach to the container")
+			syncthingApiAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.DefaultRemotePort)
+			if err := sshClient.LocalForward(syncthingApiAddr, syncthingApiAddr); err != nil {
+				outputChannel <- errors.Wrap(err, "failed to forward to local port")
 			}
-			outputChannel <- nil
+		}()
+
+		go func() {
+			syncthingRemoteAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultRemoteDeviceAddress))
+			if err := sshClient.LocalForward(syncthingRemoteAddr, syncthingRemoteAddr); err != nil {
+				outputChannel <- errors.Wrap(err, "failed to forward to local port")
+			}
+		}()
+
+		go func() {
+			syncthingLocalAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultLocalDeviceAddress))
+			if err := sshClient.RemoteForward(syncthingLocalAddr, syncthingLocalAddr); err != nil {
+				outputChannel <- errors.Wrap(err, "failed to forward to local port")
+			}
+		}()
+
+		go func() {
+			cwd, err := fileutil.CWD()
+			if err != nil {
+				outputChannel <- errors.Wrap(err, "failed to get current working directory")
+			}
+			projectName := filepath.Base(cwd)
+
+			localSyncthing, err := syncthing.InitializeLocalSyncthing(res.Name)
+			if err != nil {
+				outputChannel <- errors.Wrap(err, "failed to initialize local syncthing")
+			}
+			logrus.Debug("Local syncthing initialized")
+
+			remoteSyncthing, err := syncthing.InitializeRemoteSyncthing()
+			if err != nil {
+				outputChannel <- errors.Wrap(err, "failed to initialize remote syncthing")
+			}
+			logrus.Debug("Remote syncthing initialized")
+
+			err = syncthing.ConnectDevices(localSyncthing, remoteSyncthing)
+			if err != nil {
+				outputChannel <- errors.Wrap(err, "failed to connect devices")
+			}
+			logrus.Debug("Syncthing devices connected")
+
+			err = syncthing.SyncFolder(localSyncthing, remoteSyncthing, cwd, fmt.Sprintf("%s/%s", fileutil.EnvdHomeDir(), projectName))
+			if err != nil {
+				outputChannel <- errors.Wrap(err, "failed to sync folders")
+			}
+
+			go func() {
+				// TODO(gaocegege): Avoid the hard code.
+				if err := sshClient.Attach(); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to attach to the container")
+				}
+				outputChannel <- nil
+			}()
+
 		}()
 
 		if err := <-outputChannel; err != nil {
 			return err
 		}
 
-        cwd, err := fileutil.CWD()
-        if err != nil {
-            return errors.Wrap(err, "failed to get current working directory")
-        }
-        projectName := filepath.Base(cwd)
-
-		localSyncthing, err := syncthing.InitializeLocalSyncthing()
-		if err != nil {
-			outputChannel <- errors.Wrap(err, "failed to initialize local syncthing")
-		}
-		logrus.Info("Local syncthing initialized")
-
-		remoteSyncthing, err := syncthing.InitializeRemoteSyncthing()
-		if err != nil {
-			outputChannel <- errors.Wrap(err, "failed to initialize remote syncthing")
-		}
-		logrus.Info("Remote syncthing initialized")
-
-		err = syncthing.ConnectDevices(localSyncthing, remoteSyncthing)
-		if err != nil {
-			outputChannel <- errors.Wrap(err, "failed to connect devices")
-		}
-		logrus.Debug("Syncthing devices connected")
-        
-        err = syncthing.SyncFolder(localSyncthing, remoteSyncthing, cwd, fmt.Sprintf("%s/%s", fileutil.EnvdHomeDir(), projectName))
-		if err != nil {
-			outputChannel <- errors.Wrap(err, "failed to connect devices")
-		}
 	}
 	return nil
 }

@@ -122,7 +122,7 @@ func (s *Syncthing) ConfigChangesApplied(event *ConfigSavedEvent) bool {
 	// If the config changed, then there are changes that are not applied
 	_, err := diff.Merge(&s.PrevConfig, s.Config, &newConfig)
 	if err != nil {
-		logrus.Debugf("error performing merge when checking for st config changes: ", err)
+		logrus.Debug("error performing merge when checking for st config changes: ", err)
 		return false
 	}
 

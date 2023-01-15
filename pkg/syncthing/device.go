@@ -8,20 +8,20 @@ import (
 )
 
 func ConnectDevices(s1 *Syncthing, s2 *Syncthing) error {
-	logrus.Debugf("Connecting syncthing %s to %s", s1.Name, s2.Name)
+	logrus.Debug(fmt.Sprintf("Connecting syncthings %s and %s", s1.Name, s2.Name))
 	var err error
 	connectedDevices := append(s1.Config.Devices, s2.Config.Devices...)
 
 	s1.Config.Devices = connectedDevices
 	s2.Config.Devices = connectedDevices
 
-    logrus.Debugf("Adding device config for: ", s1.Name)
+    logrus.Debug("Adding device config for: ", s1.Name)
 	err = s1.ApplyConfig()
 	if err != nil {
 		return err
 	}
 
-    logrus.Debugf("Adding device config for: ", s2.Name)
+    logrus.Debug("Adding device config for: ", s2.Name)
 	err = s2.ApplyConfig()
 	if err != nil {
 		return err

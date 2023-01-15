@@ -10,8 +10,8 @@ import (
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
-func DefaultHomeDirectory() string {
-	return fmt.Sprintf("%s/syncthing", fileutil.DefaultConfigDir)
+func GetHomeDirectory(name string) string {
+	return fmt.Sprintf("%s/syncthing-%s", fileutil.DefaultConfigDir, name)
 }
 
 func GetConfigFilePath(homeDirectory string) string {

@@ -26,16 +26,6 @@ type Syncthing struct {
 	DeviceAddress string
 }
 
-func Main() {
-	// Configure local syncthing
-
-	// Configure remote syncthing
-
-	// Configure Device Connections
-
-	// Configure folders
-}
-
 // Initializes the remote syncthing instance
 func InitializeRemoteSyncthing() (*Syncthing, error) {
 	s := &Syncthing{
@@ -76,11 +66,11 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 }
 
 // Initializes the local syncthing instance
-func InitializeLocalSyncthing() (*Syncthing, error) {
+func InitializeLocalSyncthing(name string) (*Syncthing, error) {
     // Get free port for local envd 
 
 	initConfig := InitLocalConfig()
-	homeDirectory := DefaultHomeDirectory()
+    homeDirectory := GetHomeDirectory(name)
 	s := &Syncthing{
 		Name:          "Local Syncthing",
 		Config:        initConfig,
@@ -89,13 +79,11 @@ func InitializeLocalSyncthing() (*Syncthing, error) {
 		ApiKey:        DefaultApiKey,
 	}
 
-	port, err := parsePortFromAddress(initConfig.GUI.Address())
-	if err != nil {
-		return nil, err
-	}
+	port := ParsePortFromAddress(initConfig.GUI.Address())
 	s.Port = port
 
-	if err = s.WriteLocalConfig(); err != nil {
+    var err error
+    if err = s.WriteLocalConfig(); err != nil {
 		return nil, err
 	}
 

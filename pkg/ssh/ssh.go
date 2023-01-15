@@ -40,6 +40,7 @@ type Client interface {
 	Attach() error
 	ExecWithOutput(cmd string) ([]byte, error)
 	LocalForward(localAddress, targetAddress string) error
+	RemoteForward(localAddress, targetAddress string) error
 	Close() error
 }
 
@@ -270,7 +271,7 @@ func (c generalClient) LocalForward(localAddress, targetAddress string) error {
 		return errors.Wrap(err, "net.Listen failed")
 	}
 
-	logrus.Debug("begin to forward " + localAddress + " to " + targetAddress)
+	logrus.Debug("begin to local forward " + localAddress + " to " + targetAddress)
 	for {
 		localCon, err := localListener.Accept()
 		if err != nil {
@@ -299,6 +300,43 @@ func (c generalClient) LocalForward(localAddress, targetAddress string) error {
 		}()
 	}
 }
+
+func (c generalClient) RemoteForward(remoteAddress, targetAddress string) error {
+    sshListener, err := c.cli.Listen("tcp", remoteAddress)
+    if err != nil {
+        return errors.Wrap(err, "cli.Listen failed")
+    }
+
+    logrus.Debug("begin to remote forward " + remoteAddress + " to " + targetAddress)
+    for {
+        sshCon, err := sshListener.Accept()
+        if err != nil {
+            return errors.Wrap(err, "listen.Accept failed")
+        }
+
+        targetCon, err := net.Dial("tcp", targetAddress)
+        if err != nil {
+            return errors.Wrap(err, "net.Dial failed")
+        }
+
+        // Copy sshCon.Reader to targetCon.Writer
+        go func() {
+            _, err = io.Copy(targetCon, sshCon)
+            if err != nil {
+                logrus.Debugf("io.Copy failed: %v", err)
+            }
+        }()
+
+        // Copy targetCon.Reader to sshCon.Writer
+        go func() {
+            _, err = io.Copy(sshCon, targetCon)
+            if err != nil {
+                logrus.Debugf("io.Copy failed: %v", err)
+            }
+        }()
+    }
+}
+
 
 func isTerminal(r io.Reader) (int, bool) {
 	switch v := r.(type) {
