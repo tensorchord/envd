@@ -41,6 +41,7 @@ func NewGraph() ir.Graph {
 	runtimeGraph := ir.RuntimeGraph{
 		RuntimeCommands: make(map[string]string),
 		RuntimeEnviron:  make(map[string]string),
+		RuntimeEnvPaths: []string{types.DefaultSystemPath},
 	}
 	return &generalGraph{
 		uid:      -1,
@@ -52,12 +53,11 @@ func NewGraph() ir.Graph {
 		NumGPUs:  0,
 
 		PyPIPackages:    [][]string{},
-		RPackages:       []string{},
-		JuliaPackages:   []string{},
+		RPackages:       [][]string{},
+		JuliaPackages:   [][]string{},
 		SystemPackages:  []string{},
 		Exec:            []ir.RunBuildCommand{},
 		UserDirectories: []string{},
-		RuntimeEnvPaths: []string{types.DefaultPathEnv()},
 		Shell:           shellBASH,
 		RuntimeGraph:    runtimeGraph,
 	}
@@ -131,9 +131,7 @@ func (g *generalGraph) Compile(ctx context.Context, envName string, pub string) 
 }
 
 func (g generalGraph) GetEnviron() []string {
-	// Add PATH and LC_ALL.
 	return append(g.EnvString(),
-		"PATH="+strings.Join(g.RuntimeEnvPaths, ":"),
 		"LC_ALL=en_US.UTF-8",
 		"LANG=C.UTF-8",
 	)
@@ -253,6 +251,7 @@ func (g generalGraph) EnvString() []string {
 	for k, v := range g.RuntimeEnviron {
 		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
 	}
+	envs = append(envs, fmt.Sprintf("PATH=%s", strings.Join(g.RuntimeEnvPaths, ":")))
 	return envs
 }
 
@@ -283,9 +282,7 @@ func (g *generalGraph) GetEntrypoint(buildContextDir string) ([]string, error) {
 
 func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 	g.uid = uid
-
-	// TODO(gaocegege): Remove the hack for https://github.com/tensorchord/envd/issues/370
-	g.gid = 1001
+	g.gid = gid
 	logrus.WithFields(logrus.Fields{
 		"uid": g.uid,
 		"gid": g.gid,
@@ -354,7 +351,7 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 		}, llb.WithCustomName("[internal] final dev environment"))
 	}
 
-	// it's necessary to exec `run`` with the desired user
+	// it's necessary to exec `run` with the desired user
 	run := g.compileRun(copy)
 	mount := g.compileMountDir(run)
 

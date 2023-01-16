@@ -21,9 +21,12 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
+
+	"github.com/tensorchord/envd/pkg/types"
 )
 
-func (g generalGraph) compileJulia(baseStage llb.State) (llb.State, error) {
+func (g *generalGraph) compileJulia(baseStage llb.State) (llb.State, error) {
+	baseStage = g.updateEnvPath(baseStage, types.DefaultJuliaPath)
 	if err := g.compileJupyter(); err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile jupyter")
 	}

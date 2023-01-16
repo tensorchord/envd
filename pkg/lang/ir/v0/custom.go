@@ -38,7 +38,7 @@ func (g generalGraph) compileCustomPyPIPackages(root llb.State) llb.State {
 
 	cacheDir := "/home/root/.cache"
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
-	cache := root.File(llb.Mkdir("/cache", 0755, llb.WithParents(true)),
+	cache := llb.Scratch().File(llb.Mkdir("/cache", 0755, llb.WithParents(true)),
 		llb.WithCustomName("[internal] settings pip cache mount permissions"))
 
 	for _, packages := range g.PyPIPackages {

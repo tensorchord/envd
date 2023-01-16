@@ -143,7 +143,6 @@ func (g generalGraph) compileRun(root llb.State) llb.State {
 	}
 
 	workingDir := g.getWorkingDir()
-	stage := root.AddEnv("PATH", types.DefaultPathEnvUnix)
 	for _, execGroup := range g.Exec {
 		var sb strings.Builder
 		sb.WriteString("set -euo pipefail\n")
@@ -157,13 +156,13 @@ func (g generalGraph) compileRun(root llb.State) llb.State {
 		// TODO(gaocegege): Maybe we should make it readonly,
 		// but these cases then cannot be supported:
 		// run(commands=["git clone xx.git"])
-		run := stage.Dir(workingDir).Run(llb.Shlex(cmdStr))
+		run := root.Dir(workingDir).Run(llb.Shlex(cmdStr))
 		if execGroup.MountHost {
 			run.AddMount(workingDir, llb.Local(flag.FlagBuildContext))
 		}
-		stage = run.Root()
+		root = run.Root()
 	}
-	return stage
+	return root
 }
 
 func (g generalGraph) compileCopy(root llb.State) llb.State {
@@ -239,7 +238,7 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 		rSrc := g.compileRLang(root)
 		lang = g.installRLang(rSrc)
 	case "julia":
-		lang, err = g.installJulia(root)
+		lang = g.installJulia(root)
 	}
 
 	return lang, err
@@ -324,6 +323,7 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 
 	// Set the environment variables to RuntimeEnviron to keep it in the resulting image.
 	for _, e := range envs {
+		// in case the env value also contains `=`
 		kv := strings.SplitN(e, "=", 2)
 		g.RuntimeEnviron[kv[0]] = kv[1]
 	}
@@ -365,4 +365,9 @@ func (g generalGraph) compileMountDir(root llb.State) llb.State {
 		)
 	}
 	return mount
+}
+
+func (g *generalGraph) updateEnvPath(root llb.State, path string) llb.State {
+	g.RuntimeEnvPaths = append(g.RuntimeEnvPaths, path)
+	return root.AddEnv("PATH", strings.Join(g.RuntimeEnvPaths, ":"))
 }

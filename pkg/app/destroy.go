@@ -21,6 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	buildutil "github.com/tensorchord/envd/pkg/app/build"
 	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
@@ -66,7 +67,10 @@ func destroy(clicontext *cli.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to get absolute path of the build context")
 		}
-		ctrName = filepath.Base(buildContext)
+		ctrName, err = buildutil.CreateEnvNameFromDir(buildContext)
+		if err != nil {
+			return errors.Wrap(err, "failed to create an env name")
+		}
 	}
 	context, err := home.GetManager().ContextGetCurrent()
 	if err != nil {

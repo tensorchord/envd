@@ -14,26 +14,25 @@
 
 package ir
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/cockroachdb/errors"
+)
 
 func (rg *RuntimeGraph) Dump() (string, error) {
 	b, err := json.Marshal(rg)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	runtimeGraphCode := string(b)
 	return runtimeGraphCode, nil
 }
 
 func (rg *RuntimeGraph) Load(code []byte) error {
-	var newrg *RuntimeGraph
-	err := json.Unmarshal(code, newrg)
+	err := json.Unmarshal(code, rg)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to unmarshal")
 	}
-	rg.RuntimeCommands = newrg.RuntimeCommands
-	rg.RuntimeDaemon = newrg.RuntimeDaemon
-	rg.RuntimeEnviron = newrg.RuntimeEnviron
-	rg.RuntimeExpose = newrg.RuntimeExpose
 	return nil
 }

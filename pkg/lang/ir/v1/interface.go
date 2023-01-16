@@ -89,16 +89,30 @@ func PyPIPackage(deps []string, requirementsFile string, wheels []string) error 
 	return nil
 }
 
-func RPackage(deps []string) {
+func RPackage(deps []string) error {
+
+	if len(deps) == 0 {
+		return errors.New("Can not install empty R package")
+	}
+
 	g := DefaultGraph.(*generalGraph)
 
-	g.RPackages = append(g.RPackages, deps...)
+	g.RPackages = append(g.RPackages, deps)
+
+	return nil
 }
 
-func JuliaPackage(deps []string) {
+func JuliaPackage(deps []string) error {
+
+	if len(deps) == 0 {
+		return errors.New("Can not install empty Julia package")
+	}
+
 	g := DefaultGraph.(*generalGraph)
 
-	g.JuliaPackages = append(g.JuliaPackages, deps...)
+	g.JuliaPackages = append(g.JuliaPackages, deps)
+
+	return nil
 }
 
 func SystemPackage(deps []string) {
@@ -146,14 +160,17 @@ func UbuntuAPT(source string) error {
 	return nil
 }
 
-func PyPIIndex(url, extraURL string) error {
+func PyPIIndex(url, extraURL string, trust bool) error {
 	if url == "" {
 		return errors.New("url is required")
 	}
 	g := DefaultGraph.(*generalGraph)
 
 	g.PyPIIndexURL = &url
-	g.PyPIExtraIndexURL = &extraURL
+	if len(extraURL) > 0 {
+		g.PyPIExtraIndexURL = &extraURL
+	}
+	g.PyPITrust = trust
 	return nil
 }
 

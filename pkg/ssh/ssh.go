@@ -245,7 +245,7 @@ func (c generalClient) Attach() error {
 	logrus.Debug("waiting for shell to exit")
 	if err = session.Wait(); err != nil {
 		var ee *ssh.ExitError
-		if ok := errors.As(err, *ee); ok {
+		if ok := errors.As(err, &ee); ok {
 			switch ee.ExitStatus() {
 			case 130:
 				return nil

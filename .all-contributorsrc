@@ -565,6 +565,42 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "xxchan",
+      "name": "xxchan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/37948597?v=4",
+      "profile": "https://xxchan.github.io",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "LuBingtan",
+      "name": "Bingtan Lu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/30698342?v=4",
+      "profile": "https://github.com/LuBingtan",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "weixiao-huang",
+      "name": "Weixiao Huang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8834733?v=4",
+      "profile": "http://weixiao-huang.github.io",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "hwdef",
+      "name": "li mengyang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13084946?v=4",
+      "profile": "http://www.hwdef.org",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

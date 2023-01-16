@@ -16,6 +16,7 @@ package v1
 
 import (
 	"fmt"
+	"net/url"
 	"path/filepath"
 	"strings"
 
@@ -24,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 const (
@@ -33,6 +35,7 @@ const (
 )
 
 func (g *generalGraph) installPython(root llb.State) (llb.State, error) {
+	root = g.updateEnvPath(root, types.DefaultCondaPath)
 	if g.CondaConfig == nil {
 		version, err := g.getAppropriatePythonVersion()
 		if err != nil {
@@ -104,7 +107,7 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 	root = g.CompileCacheDir(root, cacheDir)
 
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
-	cache := root.File(llb.Mkdir("/cache/pip", 0755, llb.WithParents(true)),
+	cache := llb.Scratch().File(llb.Mkdir("/cache/pip", 0755, llb.WithParents(true)),
 		llb.WithCustomName("[internal] setting pip cache mount permissions"))
 
 	if len(g.PyPIPackages) != 0 {
@@ -166,12 +169,26 @@ func (g generalGraph) compilePyPIIndex(root llb.State) llb.State {
 		return root
 	}
 	logrus.WithField("index", *g.PyPIIndexURL).Debug("using custom PyPI index")
-	var extraIndex string
+	var extra, trusted string
 	if g.PyPIExtraIndexURL != nil {
 		logrus.WithField("index", *g.PyPIIndexURL).Debug("using extra PyPI index")
-		extraIndex = "extra-index-url=" + *g.PyPIExtraIndexURL
+		extra = "extra-index-url=" + *g.PyPIExtraIndexURL
 	}
-	content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIIndexURL, extraIndex)
+	if g.PyPITrust {
+		var hosts []string
+		for _, p := range []*string{g.PyPIIndexURL, g.PyPIExtraIndexURL} {
+			if p != nil {
+				u, err := url.Parse(*p)
+				if err == nil && u != nil && u.Hostname() != "" {
+					hosts = append(hosts, u.Hostname())
+				}
+			}
+		}
+		if len(hosts) > 0 {
+			trusted = fmt.Sprintf("trusted-host=%s", strings.Join(hosts, " "))
+		}
+	}
+	content := fmt.Sprintf(pypiConfigTemplate, *g.PyPIIndexURL, extra, trusted)
 	dir := filepath.Dir(pypiIndexFilePath)
 	pypiMirror := root.
 		File(llb.Mkdir(dir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),

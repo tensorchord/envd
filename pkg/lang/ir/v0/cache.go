@@ -23,10 +23,10 @@ import (
 func (g generalGraph) CacheID(filename string) string {
 	var cacheID string
 	if g.CUDA != nil {
-		cacheID = fmt.Sprintf("%s/%s-gpu", filename, g.EnvironmentName)
+		cacheID = fmt.Sprintf("%s-gpu", filename)
 	} else {
-		cacheID = fmt.Sprintf("%s/%s-cpu", filename, g.EnvironmentName)
+		cacheID = fmt.Sprintf("%s-cpu", filename)
 	}
-	logrus.Debugf("apt/pypi calculated cacheID: %s", cacheID)
+	logrus.Debugf("%s calculated cacheID: %s", filename, cacheID)
 	return cacheID
 }

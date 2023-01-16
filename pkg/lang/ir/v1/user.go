@@ -15,6 +15,8 @@
 package v1
 
 import (
+	"strings"
+
 	"github.com/moby/buildkit/client/llb"
 
 	"github.com/tensorchord/envd/pkg/types"
@@ -37,22 +39,12 @@ func (g *generalGraph) compileUserOwn(root llb.State) llb.State {
 	for _, env := range types.BaseEnvironment {
 		user = user.AddEnv(env.Name, env.Value)
 	}
+	user = user.AddEnv("PATH", strings.Join(g.RuntimeEnvPaths, ":"))
 	return user
 }
 
 // compileUserGroup creates user `envd`
 func (g *generalGraph) compileUserGroup(root llb.State) llb.State {
-	if g.Language.Name == "r" {
-		// r-base image already has GID 1000.
-		// It is a trick, we actually use GID 1000
-		if g.gid == 1000 {
-			g.gid = 1001
-		}
-		if g.uid == 1000 {
-			g.uid = 1001
-		}
-	}
-
 	var res llb.ExecState
 	if g.uid == 0 {
 		res = root.

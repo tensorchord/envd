@@ -21,7 +21,7 @@ Please update the python file there instead of directly editing file inside envd
 :::
 """
 
-from typing import Optional
+from typing import List, Optional
 
 
 def base(os: str, language: str, image: Optional[str]):
@@ -42,11 +42,11 @@ def shell(name: str):
     """
 
 
-def run(commands: str, mount_host: bool = False):
+def run(commands: List[str], mount_host: bool = False):
     """Execute command
 
     Args:
-        commands (str): command to run during the building process
+        commands (List[str]): command to run during the building process
         mount_host (bool): mount the host directory. Default is False.
             Enabling this will disable the build cache for this operation.
 

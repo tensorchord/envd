@@ -15,6 +15,8 @@
 package v0
 
 import (
+	"strings"
+
 	"github.com/moby/buildkit/client/llb"
 
 	"github.com/tensorchord/envd/pkg/types"
@@ -36,6 +38,7 @@ func (g *generalGraph) compileUserOwn(root llb.State) llb.State {
 	for _, env := range types.BaseEnvironment {
 		user = user.AddEnv(env.Name, env.Value)
 	}
+	user.AddEnv("PATH", strings.Join(g.RuntimeEnvPaths, ":"))
 	return user
 }
 
@@ -63,7 +66,7 @@ func (g *generalGraph) compileUserGroup(root llb.State) llb.State {
 		res = root.
 			Run(llb.Shlexf(`groupadd -g %d envd`, g.gid),
 				llb.WithCustomName("[internal] create user group envd")).
-			Run(llb.Shlexf(`useradd -p \\ -u %d -g envd -s /bin/sh -m envd`, g.uid),
+			Run(llb.Shlexf(`useradd -p "" -u %d -g envd -s /bin/sh -m envd`, g.uid),
 				llb.WithCustomName("[internal] create user envd")).
 			Run(llb.Shlex("adduser envd sudo"),
 				llb.WithCustomName("[internal] add user envd to sudoers")).

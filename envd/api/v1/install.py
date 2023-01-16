@@ -50,24 +50,18 @@ def conda(use_mamba: bool = False):
 
 
 def r_lang():
-    """Install R Lang.
-
-    Not implemented yet. Please use v0 if you need R.
-    """
+    """Install R Lang."""
 
 
 def julia():
-    """Install Julia.
-
-    Not implemented yet. Please use v0 if you need Julia.
-    """
+    """Install Julia."""
 
 
 def apt_packages(name: List[str] = []):
     """Install package by system-level package manager (apt on Ubuntu).
 
     Args:
-        name (str): apt package name list
+        name (List[str]): apt package name list
     """
 
 

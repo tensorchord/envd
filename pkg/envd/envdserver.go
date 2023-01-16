@@ -105,6 +105,18 @@ func (e *envdServerEngine) ResumeEnvironment(ctx context.Context, env string) (s
 	return "", errors.New("pausing/resuming environments is not supported for the runner envd-server")
 }
 
+func (e *envdServerEngine) GetEnvironment(ctx context.Context, env string) (*types.EnvdEnvironment, error) {
+	resp, err := e.EnvironmentGet(ctx, env)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get environment: %s", env)
+	}
+	environment, err := types.NewEnvironmentFromServer(resp.Environment)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to create env from the server: %s", env)
+	}
+	return environment, nil
+}
+
 func (e *envdServerEngine) ListEnvironment(ctx context.Context) ([]types.EnvdEnvironment, error) {
 	env, err := e.EnvironmentList(ctx)
 	if err != nil {
@@ -114,7 +126,7 @@ func (e *envdServerEngine) ListEnvironment(ctx context.Context) ([]types.EnvdEnv
 	for _, e := range env.Items {
 		env, err := types.NewEnvironmentFromServer(e)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to create env from the container")
+			return nil, errors.Wrap(err, "failed to create env from the server")
 		}
 		res = append(res, *env)
 	}
@@ -193,6 +205,23 @@ func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult
 	}
 
 	return nil
+}
+
+func (e *envdServerEngine) ListEnvRuntimeGraph(ctx context.Context, env string) (*ir.RuntimeGraph, error) {
+	resp, err := e.EnvironmentGet(ctx, env)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get the environment: %s", env)
+	}
+	code, ok := resp.Labels[types.RuntimeGraphCode]
+	if !ok {
+		return nil, errors.Newf("cannot find the runtime graph label for env: %s", env)
+	}
+	rg := ir.RuntimeGraph{}
+	err = rg.Load([]byte(code))
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get runtime graph from server for env: %s", env)
+	}
+	return &rg, nil
 }
 
 func (e *envdServerEngine) ListEnvDependency(

@@ -25,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 const (
@@ -87,7 +88,7 @@ func (g *generalGraph) compileCondaPackages(root llb.State) llb.State {
 
 	cacheDir := filepath.Join(condaRootPrefix, "pkgs")
 	// Refer to https://github.com/moby/buildkit/blob/31054718bf775bf32d1376fe1f3611985f837584/frontend/dockerfile/dockerfile2llb/convert_runmount.go#L46
-	cacheMount := root.File(llb.Mkdir("/cache-conda", 0755, llb.WithParents(true)),
+	cacheMount := llb.Scratch().File(llb.Mkdir("/cache-conda", 0755, llb.WithParents(true)),
 		llb.WithCustomName("[internal] setting conda cache mount permissions"))
 
 	// Compose the package install command.
@@ -139,8 +140,8 @@ func (g generalGraph) compileCondaEnvironment(root llb.State) (llb.State, error)
 	return run.Root(), nil
 }
 
-// nolint:unparam
-func (g *generalGraph) installConda(root llb.State) (llb.State, error) {
+func (g *generalGraph) installConda(root llb.State) llb.State {
+	root = g.updateEnvPath(root, types.DefaultCondaPath)
 	// this directory is related to conda envd env meta (used by `conda env config vars set key=value`)
 	g.UserDirectories = append(g.UserDirectories, fmt.Sprintf("%s/envs/envd/conda-meta", condaRootPrefix))
 	if g.CondaConfig.UseMicroMamba {
@@ -149,12 +150,12 @@ func (g *generalGraph) installConda(root llb.State) (llb.State, error) {
 			AddEnv("MAMBA_VERSION", mambaVersionDefault).
 			Run(llb.Shlexf("bash -c '%s'", installMambaBash),
 				llb.WithCustomName("[internal] install micro mamba"))
-		return run.Root(), nil
+		return run.Root()
 	}
 	run := root.AddEnv("CONDA_VERSION", condaVersionDefault).
 		File(llb.Mkdir(condaRootPrefix, 0755, llb.WithParents(true)),
 			llb.WithCustomName("[internal] create conda directory")).
 		Run(llb.Shlexf("bash -c '%s'", installCondaBash),
 			llb.WithCustomName("[internal] install conda"))
-	return run.Root(), nil
+	return run.Root()
 }

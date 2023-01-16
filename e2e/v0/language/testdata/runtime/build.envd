@@ -6,4 +6,9 @@ def build():
         ]
     )
     shell("zsh")
-    runtime.command(commands={"numpy": "python demo.py"})
+    runtime.command(
+        commands={
+            "numpy": "python demo.py",
+            "root": "sudo ls /root",
+        }
+    )

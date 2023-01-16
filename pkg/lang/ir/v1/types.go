@@ -43,19 +43,19 @@ type generalGraph struct {
 	JuliaPackageServer *string
 	PyPIIndexURL       *string
 	PyPIExtraIndexURL  *string
+	PyPITrust          bool
 
 	PublicKeyPath string
 
 	PyPIPackages     [][]string
 	RequirementsFile *string
 	PythonWheels     []string
-	RPackages        []string
-	JuliaPackages    []string
+	RPackages        [][]string
+	JuliaPackages    [][]string
 	SystemPackages   []string
 
 	VSCodePlugins   []vscode.Plugin
 	UserDirectories []string
-	RuntimeEnvPaths []string
 
 	Exec       []ir.RunBuildCommand
 	Copy       []ir.CopyInfo
