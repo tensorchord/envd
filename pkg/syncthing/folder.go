@@ -5,9 +5,9 @@ import "github.com/syncthing/syncthing/lib/config"
 func SyncFolder(s1 *Syncthing, s2 *Syncthing, dir1 string, dir2 string) error {
 	baseFolder := config.FolderConfiguration{
 		ID:               "default",
-        RescanIntervalS:  5, // TODO: Find appropriate interval 
-		// FSWatcherEnabled: true,
-		// FSWatcherDelayS:  10,
+        RescanIntervalS:  5,
+		FSWatcherEnabled: true,
+		FSWatcherDelayS:  10,
 		Devices: []config.FolderDeviceConfiguration{
 			{
 				DeviceID: s1.DeviceID,

@@ -67,7 +67,6 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 
 // Initializes the local syncthing instance
 func InitializeLocalSyncthing(name string) (*Syncthing, error) {
-    // Get free port for local envd 
 
 	initConfig := InitLocalConfig()
     homeDirectory := GetHomeDirectory(name)
@@ -119,10 +118,8 @@ func (s *Syncthing) StartLocalSyncthing() error {
 	}
 
 	logrus.Debug("Starting local syncthing...")
-	// TODO: Add no browser option later
-	cmd := exec.Command(GetSyncthingBinPath(), "-no-restart", "-home", s.HomeDirectory)
+	cmd := exec.Command(GetSyncthingBinPath(), "-no-restart", "-no-browser", "-home", s.HomeDirectory)
 
-	// TODO: Configure custom home path or default?
 	err := cmd.Start()
 	if err != nil {
 		return fmt.Errorf("failed to run syncthing executable: %w", err)
@@ -179,11 +176,6 @@ func (s *Syncthing) StopLocalSyncthing() error {
 		return fmt.Errorf("failed to clean local syncthing config: %w", err)
 	}
 
-	return nil
-}
-
-func (s *Syncthing) Restart() error {
-	// TODO: use api endpoint to restart
 	return nil
 }
 

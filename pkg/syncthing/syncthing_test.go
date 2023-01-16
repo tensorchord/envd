@@ -2,13 +2,10 @@ package syncthing_test
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
-	"github.com/facebookgo/subset"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/r3labs/diff/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd/pkg/syncthing"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
@@ -226,63 +223,3 @@ var _ = Describe("Syncthing REST API operations", func() {
 
 })
 
-var _ = Describe("Util tests", func() {
-	Describe("Subset", func() {
-		It("Subset works", func() {
-			type A struct {
-				Hi  string
-				Bye string
-			}
-			type B struct {
-				One   string
-				Two   string
-				Three A
-			}
-
-			a := A{Hi: "hi", Bye: "bye"}
-			bSuperset := B{One: "one", Two: "two", Three: a}
-
-			bSubset := B{One: "one", Two: "two"}
-			Expect(subset.Check(bSubset, bSuperset)).To(BeTrue())
-		})
-
-		It("Diff works", func() {
-			type B struct {
-				One string
-			}
-			type C struct {
-				One string
-			}
-			type A struct {
-				One   string
-				Two   string
-				Three string
-				Four  string
-				Five  B
-				Six   C
-			}
-
-			var sb = B{One: "one"}
-			var sc = C{One: "two"}
-
-			var a = A{One: "one", Two: "two", Three: "three", Five: sb}
-			var b = A{Two: "two", Three: "five", Four: "four", Six: sc}
-			var d = A{One: "two", Two: "two", Three: "five", Four: "four", Six: sc}
-			var c A
-
-			_, err := diff.Merge(a, b, &c)
-			Expect(err).To(BeNil())
-
-			Expect(c.One).ToNot(Equal("one"))                   // No changes to field
-			Expect(c.Two).ToNot(Equal("two"))                   // No changes to field
-			Expect(c.Three).To(Equal("five"))                   // Changed field
-			Expect(c.Four).To(Equal("four"))                    // New field
-			Expect(reflect.DeepEqual(c.Five, sb)).To(BeFalse()) // Removed field, no change
-			Expect(reflect.DeepEqual(c.Six, sc)).To(BeTrue())   // New field
-
-			Expect(subset.Check(c, a)).To(BeFalse()) // Original
-			Expect(subset.Check(c, b)).To(BeTrue())  // With changed fields
-			Expect(subset.Check(c, d)).To(BeTrue())  // With changed but irrelevant field
-		})
-	})
-})

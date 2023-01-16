@@ -10,8 +10,8 @@ import (
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
-// TODO: syncthing installation versioning
 func getSyncthingVersion() string {
+    // TODO: Better versioning 
 	return "1.22.2"
 }
 
@@ -63,9 +63,14 @@ func IsInstalled() bool {
 	return true
 }
 
-func CleanupSyncthing() error {
+func (s *Syncthing) CleanupSyncthing() error {
 	logrus.Debug("Cleaning up syncthing")
-	// TODO: clean up all files from syncthing
+
+    err := os.RemoveAll(s.HomeDirectory)
+    if err != nil {
+        return fmt.Errorf("failed to remove syncthing config file: %w", err)
+    }
+
 	return nil
 }
 

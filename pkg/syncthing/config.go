@@ -3,11 +3,8 @@ package syncthing
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"time"
 
-	"github.com/facebookgo/subset"
-	"github.com/r3labs/diff/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/syncthing/syncthing/lib/config"
 )
@@ -34,7 +31,7 @@ func InitLocalConfig() *config.Configuration {
 			GlobalAnnEnabled:     false,
 			LocalAnnEnabled:      false,
 			ReconnectIntervalS:   1,
-			StartBrowser:         true, // TODO: disable later
+			StartBrowser:         false, 
 			NATEnabled:           false,
 			URAccepted:           -1,
 			URPostInsecurely:     false,
@@ -95,39 +92,8 @@ func (s *Syncthing) WaitForConfigApply(timeout time.Duration) error {
             return nil
 		}
 
-		// Check if the applied config is the most recent config
-		// for _, event := range events {
-		// 	if s.ConfigChangesApplied(event) {
-		// 		err := s.PullLatestConfig()
-		// 		if err != nil {
-		// 			return fmt.Errorf("failed to pull latest config: %w", err)
-		// 		}
-		//
-		// 		return nil
-		// 	}
-		// }
-
 		time.Sleep(500 * time.Millisecond)
 	}
-}
-
-// Checks if configuration changes are applied by checking if the config changes are a subset of the provided config
-func (s *Syncthing) ConfigChangesApplied(event *ConfigSavedEvent) bool {
-	newConfig := event.Data.Copy()
-	if subset.Check(&s.PrevConfig, s.Config.Copy()) || subset.Check(s.Config, &newConfig) {
-		return true
-	}
-
-	// Patches the changes to the latest config, if not changed, then changes applied
-	// If the config changed, then there are changes that are not applied
-	_, err := diff.Merge(&s.PrevConfig, s.Config, &newConfig)
-	if err != nil {
-		logrus.Debug("error performing merge when checking for st config changes: ", err)
-		return false
-	}
-
-	res := reflect.DeepEqual(&event.Data, &newConfig)
-	return res
 }
 
 // Applies the config to the syncthing instance and waits for the config to be applied
