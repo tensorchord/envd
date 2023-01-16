@@ -15,46 +15,36 @@
 package v1
 
 import (
-	"context"
+	_ "embed"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/moby/buildkit/client/llb"
-	"github.com/sirupsen/logrus"
 )
 
 const (
-	juliaRootDir       = "/opt/julia"                                                                           // Location of downloaded Julia binary and other files
-	juliaBinDir        = "/opt/julia/bin"                                                                       // Location of Julia executable binary file
-	juliaPkgDir        = "/opt/julia/user_packages"                                                             // Location of additional packages installed via Julia
-	juliaDownloadURL   = "https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.3-linux-x86_64.tar.gz" // The official link for downloading Julia environment
-	juliaArchiveSHA256 = "33c3b09356ffaa25d3331c3646b1f2d4b09944e8f93fcb994957801b8bbf58a9"
-	juliaBinName       = "julia.tar.gz" // Julia archive name
+	juliaRootDir = "/opt/julia"               // Location of downloaded Julia binary and other files
+	juliaBinDir  = "/opt/julia/bin"           // Location of Julia executable binary file
+	juliaPkgDir  = "/opt/julia/user_packages" // Location of additional packages installed via Julia
+	juliaBinName = "julia.tar.gz"             // Julia archive name
 )
+
+//go:embed julia.sh
+var downloadJuliaBashScript string
 
 // getJuliaBinary returns the llb.State only after setting up Julia environment
 // A successful run of getJuliaBinary should set up the Julia environment
 func (g generalGraph) getJuliaBinary(root llb.State) llb.State {
 
 	base := llb.Image(builderImage)
-
-	downloadCmd := base.
-		Run(llb.Shlexf(`sh -c "curl %s -o %s"`, juliaDownloadURL, juliaBinName),
+	builder := base.
+		Run(llb.Shlexf("sh -c '%s'", downloadJuliaBashScript),
 			llb.WithCustomName("[internal] downloading julia binary")).Root()
-	sha256Checker := downloadCmd.
-		Run(llb.Shlexf(`sha256sum %s"`, juliaBinName),
-			llb.WithCustomName("[internal] calculating checksum of julia binary")).Root()
-	checksum, _ := sha256Checker.Marshal(context.TODO(), llb.Darwin)
-
-	llb.WriteTo(checksum, os.Stdout)
-	logrus.Debugf("checksummmm: %s\n", checksum)
-	logrus.Debugf("\n")
 
 	var path = filepath.Join("/tmp", juliaBinName)
 	setJulia := root.
-		File(llb.Copy(sha256Checker, juliaBinName, path),
+		File(llb.Copy(builder, path, path),
 			llb.WithCustomNamef("[internal] copying %s to /tmp", juliaBinName)).
 		File(llb.Mkdir(juliaRootDir, 0755, llb.WithParents(true)),
 			llb.WithCustomNamef("[internal] creating %s folder for julia binary", juliaRootDir)).

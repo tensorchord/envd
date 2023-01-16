@@ -1,18 +1,14 @@
-#!/bin/bash
+JULIA_URL="https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.5-linux-x86_64.tar.gz"; \
+SHA256SUM="e71a24816e8fe9d5f4807664cbbb42738f5aa9fe05397d35c81d4c5d649b9d05"; \
 
-# URL of the file to download
-url="https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.3-linux-x86_64.tar.gz"
+wget "${JULIA_URL}" -O /tmp/julia.tar.gz && \
+hash=$(sha256sum /tmp/julia.tar.gz) && \
 
-# Download the file
-curl -o julia.tar.gz $url
+if [ "$hash" != "$SHA256SUM  /tmp/julia.tar.gz" ]
+then
+     rm /tmp/julia.tar.gz &&\
+     wget "${JULIA_URL}" -O /tmp/julia.tar.gz
+fi
 
-# Get the SHA256 hash of the downloaded file
-hash=$(sha256sum julia.tar.gz | awk '{print $1}')
-
-# Check the hash against the expected value
-expected_hash="33c3b09356ffaa25d3331c3646b1f2d4b09944e8f93fcb994957801b8bbf58a9"
-while [ "$hash" != "$expected_hash" ]; do
-    rm julia.tar.gz
-    curl -o julia.tar.gz $url
-    hash=$(sha256sum julia.tar.gz | awk '{print $1}')
-done
+echo "${SHA256SUM}  /tmp/julia.tar.gz" > /tmp/shasum && \
+sha256sum -c -s /tmp/shasum
