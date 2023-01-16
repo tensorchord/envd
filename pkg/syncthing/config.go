@@ -31,7 +31,7 @@ func InitLocalConfig() *config.Configuration {
 			GlobalAnnEnabled:     false,
 			LocalAnnEnabled:      false,
 			ReconnectIntervalS:   1,
-			StartBrowser:         false, 
+			StartBrowser:         false,
 			NATEnabled:           false,
 			URAccepted:           -1,
 			URPostInsecurely:     false,
@@ -89,7 +89,7 @@ func (s *Syncthing) WaitForConfigApply(timeout time.Duration) error {
 			if err != nil {
 				return fmt.Errorf("failed to pull latest config: %w", err)
 			}
-            return nil
+			return nil
 		}
 
 		time.Sleep(500 * time.Millisecond)

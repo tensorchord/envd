@@ -62,8 +62,6 @@ const (
 	userKnownHostsFileKeyword     = "UserKnownHostsFile"
 	identityFile                  = "IdentityFile"
 	userKeyword                   = "User"
-    localForwardKeyword                  = "LocalForward"
-    remoteForwardKeyword                 = "RemoteForward"
 )
 
 func newHost(hostnames, comments []string) *host {

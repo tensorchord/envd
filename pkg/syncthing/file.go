@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/syncthing/syncthing/lib/config"
+
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 

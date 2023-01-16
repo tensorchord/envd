@@ -9,7 +9,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/syncthing/syncthing/lib/config"
-    "github.com/syncthing/syncthing/lib/protocol"
+	"github.com/syncthing/syncthing/lib/protocol"
 )
 
 type Syncthing struct {
@@ -21,7 +21,7 @@ type Syncthing struct {
 	Port          string
 	Client        *http.Client
 	DeviceID      protocol.DeviceID
-    ApiKey        string
+	ApiKey        string
 	latestEventId int64
 	DeviceAddress string
 }
@@ -36,10 +36,10 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 		ApiKey:        DefaultApiKey,
 	}
 
-    err := s.WaitForStartup(15 * time.Second)
-    if err != nil {
-        return nil, fmt.Errorf("failed to wait for syncthing startup: %w", err)
-    }
+	err := s.WaitForStartup(15 * time.Second)
+	if err != nil {
+		return nil, fmt.Errorf("failed to wait for syncthing startup: %w", err)
+	}
 
 	err = s.PullLatestConfig()
 	if err != nil {
@@ -48,7 +48,7 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 
 	logrus.Debug("Remote syncthing connected")
 
-	s.SetDeviceAddress(DefaultRemoteDeviceAddress)
+	err = s.SetDeviceAddress(DefaultRemoteDeviceAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +60,6 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 		return nil, err
 	}
 
-    
-
 	return s, nil
 }
 
@@ -69,7 +67,7 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 func InitializeLocalSyncthing(name string) (*Syncthing, error) {
 
 	initConfig := InitLocalConfig()
-    homeDirectory := GetHomeDirectory(name)
+	homeDirectory := GetHomeDirectory(name)
 	s := &Syncthing{
 		Name:          "Local Syncthing",
 		Config:        initConfig,
@@ -81,8 +79,8 @@ func InitializeLocalSyncthing(name string) (*Syncthing, error) {
 	port := ParsePortFromAddress(initConfig.GUI.Address())
 	s.Port = port
 
-    var err error
-    if err = s.WriteLocalConfig(); err != nil {
+	var err error
+	if err = s.WriteLocalConfig(); err != nil {
 		return nil, err
 	}
 
@@ -96,7 +94,7 @@ func InitializeLocalSyncthing(name string) (*Syncthing, error) {
 		return nil, fmt.Errorf("failed to pull latest config: %w", err)
 	}
 
-	s.SetDeviceAddress(DefaultLocalDeviceAddress)
+	err = s.SetDeviceAddress(DefaultLocalDeviceAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +112,10 @@ func InitializeLocalSyncthing(name string) (*Syncthing, error) {
 
 func (s *Syncthing) StartLocalSyncthing() error {
 	if !IsInstalled() {
-		InstallSyncthing()
+		err := InstallSyncthing()
+		if err != nil {
+			return fmt.Errorf("failed to install syncthing: %w", err)
+		}
 	}
 
 	logrus.Debug("Starting local syncthing...")
@@ -147,7 +148,7 @@ func (s *Syncthing) WaitForStartup(timeout time.Duration) error {
 	start := time.Now()
 	for {
 		if time.Since(start) > timeout {
-            logrus.Debugf("Timeout reached for syncthing: %s", s.Name)
+			logrus.Debugf("Timeout reached for syncthing: %s", s.Name)
 			return fmt.Errorf("timed out waiting for syncthing to start")
 		}
 		if ok, _ := s.Ping(); ok {

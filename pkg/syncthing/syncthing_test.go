@@ -7,13 +7,13 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
+
 	"github.com/tensorchord/envd/pkg/syncthing"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
-	"golang.org/x/crypto/ssh"
 )
 
 func TestSyncthing(t *testing.T) {
-    logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.DebugLevel)
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Syncthing Suite")
 }
@@ -28,33 +28,13 @@ var _ = Describe("Syncthing", func() {
 			s, err := syncthing.InitializeLocalSyncthing("s1")
 			Expect(err).To(BeNil())
 
-            Expect(s.IsRunning()).To(BeTrue())
+			Expect(s.IsRunning()).To(BeTrue())
 
 			err = s.StopLocalSyncthing()
 			Expect(err).To(BeNil())
 
 			Expect(s.IsRunning()).To(BeFalse())
 		})
-
-        It("Random", func() {
-            client, err := ssh.Dial("tcp", "heronslow.envd:22", &ssh.ClientConfig{
-                User: "alex",
-            })
-
-			defer client.Close()
-
-			// Open a new shell session
-			session, err := client.NewSession()
-			if err != nil {
-				panic(err)
-			}
-			defer session.Close()
-
-			// Start the shell
-			session.Shell()
-			fmt.Println("Shell started.")
-
-        })
 	})
 
 	Describe("Syncthing config", func() {
@@ -111,7 +91,6 @@ var _ = Describe("Syncthing REST API operations", func() {
 		homeDirectory1 := syncthing.GetHomeDirectory("s1")
 		homeDirectory2 := syncthing.GetHomeDirectory("s2")
 
-
 		initConfig1 := initConfig.Copy()
 		initConfig1.GUI.RawAddress = fmt.Sprintf("0.0.0.0:%s", syncthing.DefaultLocalPort)
 		s1 = &syncthing.Syncthing{
@@ -155,10 +134,10 @@ var _ = Describe("Syncthing REST API operations", func() {
 
 	It("Connects two local devices", func() {
 
-        err := s1.SetDeviceAddress(syncthing.DefaultLocalDeviceAddress)
+		err := s1.SetDeviceAddress(syncthing.DefaultLocalDeviceAddress)
 		Expect(err).To(BeNil())
 
-        err = s2.SetDeviceAddress(syncthing.DefaultRemoteDeviceAddress)
+		err = s2.SetDeviceAddress(syncthing.DefaultRemoteDeviceAddress)
 		Expect(err).To(BeNil())
 
 		err = syncthing.ConnectDevices(s1, s2)
@@ -222,4 +201,3 @@ var _ = Describe("Syncthing REST API operations", func() {
 	})
 
 })
-

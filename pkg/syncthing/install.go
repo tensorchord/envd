@@ -5,13 +5,15 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/cockroachdb/errors"
 	"github.com/hashicorp/go-getter"
 	"github.com/sirupsen/logrus"
+
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 func getSyncthingVersion() string {
-    // TODO: Better versioning 
+	// TODO: Better versioning
 	return "1.22.2"
 }
 
@@ -49,7 +51,7 @@ func getSyncthingDownloadURL(os, arch, version string) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("%s-%s is not a supported platform for syncthing", os, arch)
+	return "", errors.New(fmt.Sprintf("%s-%s is not a supported platform for syncthing", os, arch))
 }
 
 func getSyncthingDownloadFolderName(os, arch, version string) string {
@@ -66,10 +68,10 @@ func IsInstalled() bool {
 func (s *Syncthing) CleanupSyncthing() error {
 	logrus.Debug("Cleaning up syncthing")
 
-    err := os.RemoveAll(s.HomeDirectory)
-    if err != nil {
-        return fmt.Errorf("failed to remove syncthing config file: %w", err)
-    }
+	err := os.RemoveAll(s.HomeDirectory)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove syncthing config file: ")
+	}
 
 	return nil
 }
@@ -101,23 +103,23 @@ func InstallSyncthing() error {
 	}
 
 	if err := client.Get(); err != nil {
-		return fmt.Errorf("failed to download syncthing from url %s: %s", client.Src, err)
+		return err
 	}
 
 	var downloadFolder = fmt.Sprintf("%s/%s", getSyncthingInstallPath(), getSyncthingDownloadFolderName(operatingSystem, arch, version))
 
 	err = os.Rename(fmt.Sprintf("%s/syncthing", downloadFolder), GetSyncthingBinPath())
 	if err != nil {
-		return fmt.Errorf("failed to move syncthing binary: %s", err)
+		return err
 	}
 
 	err = os.RemoveAll(downloadFolder)
 	if err != nil {
-		return fmt.Errorf("failed to remove syncthing download folder: %s", err)
+		return err
 	}
 
 	if err := os.Chmod(GetSyncthingBinPath(), 0755); err != nil {
-		return fmt.Errorf("failed to set syncthing binary permissions: %s", err)
+		return err
 	}
 
 	logrus.Info("Syncthing installed successfully!")

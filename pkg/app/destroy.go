@@ -99,12 +99,11 @@ func destroy(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}
 
-    homeDirectory := syncthing.GetHomeDirectory(name)
-    err = os.RemoveAll(homeDirectory)
-    if err != nil {
-        logrus.Error(err)
-    }
-
+	homeDirectory := syncthing.GetHomeDirectory(name)
+	err = os.RemoveAll(homeDirectory)
+	if err != nil {
+		logrus.Error(err)
+	}
 
 	return nil
 }
