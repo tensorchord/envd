@@ -3,7 +3,9 @@ package syncthing
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
+    "os/signal"
 	"syscall"
 	"time"
 
@@ -132,6 +134,20 @@ func (s *Syncthing) StartLocalSyncthing() error {
 	if err != nil {
 		return fmt.Errorf("failed to wait for syncthing startup: %w", err)
 	}
+
+	// Handle the SIGINT signal
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT)
+
+	go func() {
+		<-signalChan
+
+		cmd.Process.Signal(os.Interrupt)
+
+		cmd.Wait()
+
+		os.Exit(0)
+	}()
 
 	return nil
 }
