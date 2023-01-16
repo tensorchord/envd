@@ -33,7 +33,8 @@ const (
 	DefaultCondaPath  = "/opt/conda/envs/envd/bin:/opt/conda/bin:/home/envd/.local/bin"
 	DefaultJuliaPath  = "/usr/local/julia/bin"
 	// image
-	PythonBaseImage = "ubuntu:20.04"
+	PythonBaseImage   = "ubuntu:20.04"
+	EnvdStarshipImage = "tensorchord/starship:v0.0.1"
 	// supervisor
 	HorustImage      = "tensorchord/horust:v0.2.1"
 	HorustServiceDir = "/etc/horust/services"
