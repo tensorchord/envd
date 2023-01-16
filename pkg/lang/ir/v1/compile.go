@@ -298,7 +298,8 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 		dev := g.compileDevPackages(base)
 		sshd := g.compileSSHD(dev)
 		horust := g.installHorust(sshd)
-		userGroup := g.compileUserGroup(horust)
+		starship := g.compileStarship(horust)
+		userGroup := g.compileUserGroup(starship)
 		base = userGroup
 	}
 

@@ -34,6 +34,7 @@ const (
 	DefaultJuliaPath  = "/usr/local/julia/bin"
 	// image
 	PythonBaseImage = "ubuntu:20.04"
+	EnvdStarshipImage = "tensorchord/starship:v0.0.1"
 	// supervisor
 	HorustImage      = "tensorchord/horust:v0.2.1"
 	HorustServiceDir = "/etc/horust/services"
@@ -43,8 +44,8 @@ const (
 )
 
 var EnvdSshdImage = fmt.Sprintf(
-	"tensorchord/envd-sshd-from-scratch:%s",
-	version.GetVersionForImageTag())
+		"tensorchord/envd-sshd-from-scratch:%s",
+		version.GetVersionForImageTag())
 
 var BaseEnvironment = []struct {
 	Name  string
