@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-    "os/signal"
+	"os/signal"
 	"syscall"
 	"time"
 
@@ -142,9 +142,15 @@ func (s *Syncthing) StartLocalSyncthing() error {
 	go func() {
 		<-signalChan
 
-		cmd.Process.Signal(os.Interrupt)
+		err := cmd.Process.Signal(os.Interrupt)
+		if err != nil {
+			logrus.Errorf("Failed to send SIGINT to syncthing: %s", err)
+		}
 
-		cmd.Wait()
+		err = cmd.Wait()
+		if err != nil {
+			logrus.Errorf("Failed to wait for syncthing to exit: %s", err)
+		}
 
 		os.Exit(0)
 	}()
@@ -174,26 +180,25 @@ func (s *Syncthing) WaitForStartup(timeout time.Duration) error {
 	}
 }
 
-func (s *Syncthing) StopLocalSyncthing() error {
+func (s *Syncthing) StopLocalSyncthing() {
 	if s.Cmd == nil {
-		return fmt.Errorf("syncthing is not running")
+		logrus.Error("syncthing is not running")
 	}
 
 	err := s.Cmd.Process.Signal(syscall.SIGINT)
 	if err != nil {
-		return fmt.Errorf("failed to kill syncthing process: %w", err)
+		logrus.Errorf("failed to kill syncthing process: %s", err)
 	}
 
 	_, err = s.Cmd.Process.Wait()
 	if err != nil {
-		return fmt.Errorf("failed to kill syncthing process: %w", err)
+		logrus.Errorf("failed to kill syncthing process: %s", err)
 	}
 
 	if err = s.CleanLocalConfig(); err != nil {
-		return fmt.Errorf("failed to clean local syncthing config: %w", err)
+		logrus.Errorf("failed to clean local syncthing config: %s", err)
 	}
 
-	return nil
 }
 
 func (s *Syncthing) IsRunning() bool {

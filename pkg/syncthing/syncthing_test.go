@@ -30,7 +30,7 @@ var _ = Describe("Syncthing", func() {
 
 			Expect(s.IsRunning()).To(BeTrue())
 
-			err = s.StopLocalSyncthing()
+			s.StopLocalSyncthing()
 			Expect(err).To(BeNil())
 
 			Expect(s.IsRunning()).To(BeFalse())
@@ -125,11 +125,9 @@ var _ = Describe("Syncthing REST API operations", func() {
 	})
 
 	AfterEach(func() {
-		err := s1.StopLocalSyncthing()
-		Expect(err).To(BeNil())
+		s1.StopLocalSyncthing()
 
-		err = s2.StopLocalSyncthing()
-		Expect(err).To(BeNil())
+		s2.StopLocalSyncthing()
 	})
 
 	It("Connects two local devices", func() {
@@ -156,8 +154,7 @@ var _ = Describe("Syncthing REST API operations", func() {
 	})
 
 	AfterEach(func() {
-		err := s.StopLocalSyncthing()
-		Expect(err).To(BeNil())
+		s.StopLocalSyncthing()
 	})
 
 	It("Connects local syncthing to running remote syncthing", func() {
