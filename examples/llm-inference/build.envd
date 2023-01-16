@@ -1,6 +1,6 @@
 # syntax=v1
 def build():
-    # base(os="ubuntu20.04", language="python3")    
+    # base(os="ubuntu20.04", language="python3")
     base(dev=True)
     install.conda()
     install.python()
@@ -14,5 +14,5 @@ def build():
             "--extra-index-url https://download.pytorch.org/whl/cu113",
         ]
     )
-    
+
     install.python_packages(["git+https://github.com/huggingface/transformers.git"])
