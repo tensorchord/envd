@@ -92,20 +92,16 @@ def conda_packages(name: List[str] = [], channel: List[str] = [], env_file: str 
 def r_packages(name: List[str]):
     """Install R packages by R package manager.
 
-    Not implemented yet. Please use v0 if you need R.
-
     Args:
         name (List[str]): package name list
     """
 
 
-def julia_packages(name: List[str]):
+def julia_packages(names: List[str]):
     """Install Julia packages.
 
-    Not implemented yet. Please use v0 if you need Julia.
-
     Args:
-        name (List(str)): List of Julia packages
+        name (List[str]): List of Julia packages
     """
 
 
