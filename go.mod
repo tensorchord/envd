@@ -22,7 +22,7 @@ require (
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6
 	github.com/morikuni/aec v1.0.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/onsi/ginkgo/v2 v2.6.1
+	github.com/onsi/ginkgo/v2 v2.7.0
 	github.com/onsi/gomega v1.24.2
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.1.0-rc2
@@ -32,7 +32,7 @@ require (
 	github.com/spf13/viper v1.14.0
 	github.com/stretchr/testify v1.8.1
 	github.com/syncthing/syncthing v1.22.2
-	github.com/tensorchord/envd-server v0.0.23
+	github.com/tensorchord/envd-server v0.0.24
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
 	github.com/urfave/cli/v2 v2.23.7
@@ -150,7 +150,7 @@ require (
 	github.com/moby/sys/signal v0.6.0 // indirect
 	github.com/nsf/termbox-go v0.0.0-20190121233118-02980233997d // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect

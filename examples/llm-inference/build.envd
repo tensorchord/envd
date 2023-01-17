@@ -1,0 +1,17 @@
+# syntax=v1
+def build():
+    # base(os="ubuntu20.04", language="python3")
+    base(dev=True)
+    install.conda()
+    install.python()
+    install.cuda(version="11.2.2", cudnn="8")
+    install.python_packages(
+        [
+            "torch",
+            "torchvision",
+            "bitsandbytes",
+            "accelerate",
+            "transformers",
+            "--extra-index-url https://download.pytorch.org/whl/cu113",
+        ]
+    )
