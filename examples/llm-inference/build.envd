@@ -11,8 +11,7 @@ def build():
             "torchvision",
             "bitsandbytes",
             "accelerate",
+            "transformers",
             "--extra-index-url https://download.pytorch.org/whl/cu113",
         ]
     )
-
-    install.python_packages(["git+https://github.com/huggingface/transformers.git"])
