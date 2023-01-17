@@ -97,7 +97,7 @@ def r_packages(name: List[str]):
     """
 
 
-def julia_packages(names: List[str]):
+def julia_packages(name: List[str]):
     """Install Julia packages.
 
     Args:
