@@ -48,7 +48,7 @@ func (g *generalGraph) installPython(root llb.State) (llb.State, error) {
 				llb.WithCustomName("[internal] copy cert from mamba")).
 			File(llb.Copy(llb.Image(microMambaImage), "/bin/micromamba", microMambaPathPrefix),
 				llb.WithCustomName("[internal] copy micromamba binary")).
-			Run(llb.Shlexf(`bash -c "%s/micromamba create -p /opt/conda/envs/envd -c conda-forge python=%s"`, microMambaPathPrefix, version),
+			Run(llb.Shlexf(`bash -c "%s/micromamba create -p /opt/conda/envs/envd -c defaults python=%s"`, microMambaPathPrefix, version),
 				llb.WithCustomNamef("[internal] create envd python=%s", version)).
 			Run(llb.Shlexf("rm %s/micromamba", microMambaPathPrefix),
 				llb.WithCustomName("[internal] rm micromamba binary")).Root()
