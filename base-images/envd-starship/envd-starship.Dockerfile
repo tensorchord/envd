@@ -1,4 +1,6 @@
-FROM ubuntu:20.04
-RUN apt-get update && apt-get install -y apt-utils
-RUN apt-get install -y --no-install-recommends --no-install-suggests --fix-missing curl ca-certificates
+FROM curlimages/curl:7.87.0 as builder
+USER root
 RUN curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y
+
+FROM ubuntu:20.04 as prod
+COPY --from=builder /usr/local/bin/starship /usr/local/bin/starship
