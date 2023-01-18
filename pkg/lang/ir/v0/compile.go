@@ -166,6 +166,11 @@ func (g generalGraph) Labels() (map[string]string, error) {
 		return labels, err
 	}
 	labels[types.RuntimeGraphCode] = code
+	code, err = g.Dump()
+	if err != nil {
+		return labels, err
+	}
+	labels[types.GeneralGraphCode] = code
 
 	ports := []servertypes.EnvironmentPort{}
 	ports = append(ports, servertypes.EnvironmentPort{

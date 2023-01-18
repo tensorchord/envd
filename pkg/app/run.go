@@ -89,6 +89,11 @@ var CommandCreate = &cli.Command{
 			Usage: "Request GPU resources (number of gpus), such as 1, 2",
 			Value: "",
 		},
+		&cli.StringSliceFlag{
+			Name:    "volume",
+			Usage:   "Mount host directory into container",
+			Aliases: []string{"v"},
+		},
 	},
 	Action: run,
 }
@@ -98,9 +103,9 @@ func run(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get current context")
 	}
-	if c.Runner == types.RunnerTypeDocker {
-		return errors.Newf("docker runner is not supported for this command, please use `envd up`")
-	}
+	// if c.Runner == types.RunnerTypeDocker {
+	// 	return errors.Newf("docker runner is not supported for this command, please use `envd up`")
+	// }
 	telemetry.GetReporter().Telemetry(
 		"run", telemetry.AddField("runner", c.Runner))
 
@@ -126,7 +131,15 @@ func run(clicontext *cli.Context) error {
 	}
 	if c.Runner == types.RunnerTypeEnvdServer {
 		opt.EnvdServerSource = &envd.EnvdServerSource{}
+		if len(clicontext.StringSlice("volume")) > 0 {
+			return errors.New("volume is not supported for envd-server runner")
+		}
+	} else if c.Runner == types.RunnerTypeDocker {
+		opt.DockerSource = &envd.DockerSource{
+			MountOptions: clicontext.StringSlice("volume"),
+		}
 	}
+
 	res, err := engine.StartEnvd(clicontext.Context, opt)
 	if err != nil {
 		return err

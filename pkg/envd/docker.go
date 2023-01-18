@@ -34,6 +34,7 @@ import (
 
 	envdconfig "github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	v0 "github.com/tensorchord/envd/pkg/lang/ir/v0"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
@@ -185,6 +186,23 @@ func (e dockerEngine) ListImageDependency(ctx context.Context, image string) (*t
 		return nil, errors.Wrap(err, "failed to create dependency from image")
 	}
 	return dep, nil
+}
+
+func (e dockerEngine) listEnvGeneralGraph(ctx context.Context, env string, g ir.Graph) (ir.Graph, error) {
+	ctr, err := e.GetImage(ctx, env)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to inspect container: %s", env)
+	}
+	code, ok := ctr.Labels[types.GeneralGraphCode]
+	if !ok {
+		return nil, errors.Newf("failed to get runtime graph label from container: %s", env)
+	}
+	logrus.WithField("env", env).Debugf("runtime graph: %s", code)
+	newg, err := g.GeneralGraphFromLabel([]byte(code))
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to create runtime graph from the container: %s", env)
+	}
+	return newg, err
 }
 
 func (e dockerEngine) ListEnvRuntimeGraph(ctx context.Context, env string) (*ir.RuntimeGraph, error) {
@@ -346,11 +364,22 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	base := fileutil.EnvdHomeDir(filepath.Base(so.BuildContext))
 	config.WorkingDir = base
 
+	var g ir.Graph
+	if so.Image == "" {
+		g = so.DockerSource.Graph
+	} else {
+		var err error
+		g = v0.NewGraph()
+		g, err = e.listEnvGeneralGraph(context.Background(), so.Image, g)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get the graph from the image")
+		}
+		so.DockerSource.Graph = g
+	}
+
 	if so.DockerSource == nil || so.DockerSource.Graph == nil {
 		return nil, errors.New("failed to get the docker-specific options")
 	}
-
-	g := so.DockerSource.Graph
 
 	mountOption := make([]mount.Mount, 0,
 		len(so.DockerSource.MountOptions)+len(g.GetMount())+1)
