@@ -157,7 +157,6 @@ func (g *generalGraph) preparePythonBase(root llb.State) llb.State {
 	sb.WriteString(strings.Join(types.BaseAptPackage, " "))
 	sb.WriteString("&& rm -rf /var/lib/apt/lists/* ")
 	// shell prompt
-	sb.WriteString("&& curl --proto '=https' --tlsv1.2 -sSf https://starship.rs/install.sh | sh -s -- -y")
 	sb.WriteString("&& locale-gen en_US.UTF-8")
 
 	run := root.Run(llb.Shlexf(`bash -c "%s"`, sb.String()),
@@ -172,6 +171,14 @@ func (g generalGraph) compileSSHD(root llb.State) llb.State {
 		&llb.CopyInfo{CreateDestPath: true}),
 		llb.WithCustomName(fmt.Sprintf("[internal] add envd-sshd from %s", types.EnvdSshdImage)))
 	return sshd
+}
+
+func (g generalGraph) compileStarship(root llb.State) llb.State {
+	starship := root.File(llb.Copy(
+		llb.Image(types.EnvdStarshipImage), "/usr/local/bin/starship", "/usr/local/bin/starship",
+		&llb.CopyInfo{CreateDestPath: true}),
+		llb.WithCustomName(fmt.Sprintf("[internal] add envd-starship from %s", types.EnvdStarshipImage)))
+	return starship
 }
 
 func (g *generalGraph) compileBase() (llb.State, error) {
@@ -217,7 +224,8 @@ func (g *generalGraph) compileBase() (llb.State, error) {
 	condaStage := g.installConda(base)
 	supervisor := g.installHorust(condaStage)
 	sshdStage := g.compileSSHD(supervisor)
-	source, err := g.compileExtraSource(sshdStage)
+	starshipStage := g.compileStarship(sshdStage)
+	source, err := g.compileExtraSource(starshipStage)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get extra sources")
 	}
