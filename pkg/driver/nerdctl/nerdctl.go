@@ -40,7 +40,7 @@ func NewClient(ctx context.Context) (driver.Client, error) {
 		// for mac lima users, check nerdctl.lima
 		bin, err = exec.LookPath("nerdctl.lima")
 		if err != nil {
-			return nil, err
+			return nil, errors.New("can not found nerdctl(or nerdctl.lima for mac) in PATH")
 		}
 	}
 
