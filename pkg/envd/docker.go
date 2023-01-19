@@ -434,7 +434,6 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		Source: so.BuildContext,
 		Target: base,
 	})
-	logrus.Infof("mount option: %+v", mountOption)
 
 	logger.WithFields(logrus.Fields{
 		"mount-path":  so.BuildContext,
@@ -534,7 +533,6 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	})
 	logger.Debugf("starting %s container", so.EnvironmentName)
 
-	logrus.Infof("bind: %s", config.Volumes)
 	resp, err := e.ContainerCreate(ctx, config, hostConfig, nil, nil, so.EnvironmentName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create the container")
