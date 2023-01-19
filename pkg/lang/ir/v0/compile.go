@@ -136,6 +136,9 @@ func (g generalGraph) GPUEnabled() bool {
 
 func (g generalGraph) Labels() (map[string]string, error) {
 	labels := make(map[string]string)
+
+	labels[types.ImageLabelSyntaxVer] = *g.Version
+
 	str, err := json.Marshal(g.SystemPackages)
 	if err != nil {
 		return nil, err

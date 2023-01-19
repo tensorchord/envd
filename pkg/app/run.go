@@ -16,6 +16,7 @@ package app
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -68,6 +69,12 @@ var CommandCreate = &cli.Command{
 			Aliases: []string{"k"},
 			Value:   sshconfig.GetPrivateKeyOrPanic(),
 			Hidden:  true,
+		},
+		&cli.PathFlag{
+			Name:    "path",
+			Usage:   "Working directory path to be used as project root",
+			Aliases: []string{"p"},
+			Value:   ".",
 		},
 		&cli.StringFlag{
 			Name:  "host",
@@ -138,6 +145,12 @@ func run(clicontext *cli.Context) error {
 		opt.DockerSource = &envd.DockerSource{
 			MountOptions: clicontext.StringSlice("volume"),
 		}
+
+		buildContext, err := filepath.Abs(clicontext.Path("path"))
+		if err != nil {
+			return errors.Wrap(err, "failed to get absolute path of the build context")
+		}
+		opt.BuildContext = buildContext
 	}
 
 	res, err := engine.StartEnvd(clicontext.Context, opt)

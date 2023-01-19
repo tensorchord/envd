@@ -34,7 +34,7 @@ import (
 
 	envdconfig "github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/lang/ir"
-	v0 "github.com/tensorchord/envd/pkg/lang/ir/v0"
+	"github.com/tensorchord/envd/pkg/lang/version"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
@@ -186,6 +186,18 @@ func (e dockerEngine) ListImageDependency(ctx context.Context, image string) (*t
 		return nil, errors.Wrap(err, "failed to create dependency from image")
 	}
 	return dep, nil
+}
+
+func (e dockerEngine) getVerFromImageLabel(ctx context.Context, env string) (version.Getter, error) {
+	ctr, err := e.GetImage(ctx, env)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to inspect container: %s", env)
+	}
+	ver, ok := ctr.Labels[types.ImageLabelSyntaxVer]
+	if !ok {
+		return version.NewByVersion("v0"), nil
+	}
+	return version.NewByVersion(ver), nil
 }
 
 func (e dockerEngine) listEnvGeneralGraph(ctx context.Context, env string, g ir.Graph) (ir.Graph, error) {
@@ -368,9 +380,11 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	if so.Image == "" {
 		g = so.DockerSource.Graph
 	} else {
-		var err error
-		g = v0.NewGraph()
-		g, err = e.listEnvGeneralGraph(context.Background(), so.Image, g)
+		getter, err := e.getVerFromImageLabel(ctx, so.Image)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get the version from the image label")
+		}
+		g := getter.GetDefaultGraph()
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get the graph from the image")
 		}
@@ -416,6 +430,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		Source: so.BuildContext,
 		Target: base,
 	})
+	logrus.Infof("mount option: %+v", mountOption)
 
 	logger.WithFields(logrus.Fields{
 		"mount-path":  so.BuildContext,
@@ -515,6 +530,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	})
 	logger.Debugf("starting %s container", so.EnvironmentName)
 
+	logrus.Infof("bind: %s", config.Volumes)
 	resp, err := e.ContainerCreate(ctx, config, hostConfig, nil, nil, so.EnvironmentName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create the container")

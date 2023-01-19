@@ -32,6 +32,7 @@ const (
 	ImageLabelCUDNN         = "ai.tensorchord.envd.gpu.cudnn"
 	ImageLabelContext       = "ai.tensorchord.envd.build.context"
 	ImageLabelCacheHash     = "ai.tensorchord.envd.build.digest"
+	ImageLabelSyntaxVer     = "ai.tensorchord.envd.syntax.version"
 	RuntimeGraphCode        = "ai.tensorchord.envd.runtimeGraph"
 	GeneralGraphCode        = "ai.tensorchord.envd.generalGraph"
 
