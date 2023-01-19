@@ -110,9 +110,6 @@ func run(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get current context")
 	}
-	// if c.Runner == types.RunnerTypeDocker {
-	// 	return errors.Newf("docker runner is not supported for this command, please use `envd up`")
-	// }
 	telemetry.GetReporter().Telemetry(
 		"run", telemetry.AddField("runner", c.Runner))
 
@@ -151,6 +148,7 @@ func run(clicontext *cli.Context) error {
 			return errors.Wrap(err, "failed to get absolute path of the build context")
 		}
 		opt.BuildContext = buildContext
+		logrus.Infof("debug docker source: %+v", opt.DockerSource.MountOptions)
 	}
 
 	res, err := engine.StartEnvd(clicontext.Context, opt)

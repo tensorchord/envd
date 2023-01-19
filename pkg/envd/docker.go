@@ -209,7 +209,7 @@ func (e dockerEngine) listEnvGeneralGraph(ctx context.Context, env string, g ir.
 	if !ok {
 		return nil, errors.Newf("failed to get runtime graph label from container: %s", env)
 	}
-	logrus.WithField("env", env).Debugf("runtime graph: %s", code)
+	logrus.WithField("env", env).Debugf("general graph: %s", code)
 	newg, err := g.GeneralGraphFromLabel([]byte(code))
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to create runtime graph from the container: %s", env)
@@ -384,7 +384,11 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get the version from the image label")
 		}
-		g := getter.GetDefaultGraph()
+		defaultGraph := getter.GetDefaultGraph()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get the graph from the image")
+		}
+		g, err = e.listEnvGeneralGraph(ctx, so.Image, defaultGraph)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get the graph from the image")
 		}
