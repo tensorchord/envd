@@ -44,13 +44,13 @@ func NewGraph() ir.Graph {
 		RuntimeEnvPaths: []string{types.DefaultSystemPath},
 	}
 	return &generalGraph{
-		uid:      -1,
-		gid:      -1,
-		Image:    defaultImage,
-		Language: ir.Language{},
-		CUDA:     nil,
-		CUDNN:    CUDNNVersionDefault,
-		NumGPUs:  0,
+		uid:               -1,
+		gid:               -1,
+		Image:             defaultImage,
+		CUDA:              nil,
+		CUDNN:             CUDNNVersionDefault,
+		NumGPUs:           0,
+		EnvdSyntaxVersion: "v1",
 
 		PyPIPackages:    [][]string{},
 		RPackages:       [][]string{},
@@ -148,7 +148,7 @@ func (g generalGraph) GPUEnabled() bool {
 func (g generalGraph) Labels() (map[string]string, error) {
 	labels := make(map[string]string)
 
-	labels[types.ImageLabelSyntaxVer] = *g.Version
+	labels[types.ImageLabelSyntaxVer] = g.EnvdSyntaxVersion
 
 	str, err := json.Marshal(g.SystemPackages)
 	if err != nil {

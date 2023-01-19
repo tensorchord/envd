@@ -29,8 +29,9 @@ type generalGraph struct {
 	gid int `default:"-1"`
 
 	ir.Language
-	Image string
-	User  string
+	EnvdSyntaxVersion string
+	Image             string
+	User              string
 
 	Shell   string
 	Dev     bool

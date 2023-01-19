@@ -30,7 +30,8 @@ type generalGraph struct {
 
 	OS string
 	ir.Language
-	Image *string
+	EnvdSyntaxVersion string
+	Image             *string
 
 	Shell   string
 	CUDA    *string
