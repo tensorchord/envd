@@ -32,6 +32,6 @@ jobs:
           push: true
           file: base-images/envd-starship/envd-starship.Dockerfile
           platforms: linux/amd64,linux/arm64
-          tags: kyctony/envd-starship:v0.0.2
+          tags: tensorchord/starship:v0.0.1
           cache-from: type=gha
           cache-to: type=gha,mode=max
