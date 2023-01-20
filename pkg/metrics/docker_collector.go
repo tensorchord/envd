@@ -19,12 +19,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/driver"
 )
 
 type dockerCollector struct {
 	Metrics
-	client        docker.Client
+	client        driver.Client
 	running       bool
 	metricsStream chan Metrics
 	done          chan bool
@@ -32,7 +32,7 @@ type dockerCollector struct {
 	lastSysCpu    float64
 }
 
-func NewDockerCollector(client docker.Client) Collector {
+func NewDockerCollector(client driver.Client) Collector {
 	return &dockerCollector{
 		client: client,
 	}
@@ -50,7 +50,7 @@ func (c *dockerCollector) Watch(ctx context.Context, cid string) chan Metrics {
 	c.metricsStream = make(chan Metrics)
 	c.running = true
 	c.done = make(chan bool)
-	stats := make(chan *docker.Stats)
+	stats := make(chan *driver.Stats)
 	go func() {
 		defer close(stats)
 		err := c.client.Stats(ctx, cid, stats, c.done)
@@ -73,7 +73,7 @@ func (c *dockerCollector) Watch(ctx context.Context, cid string) chan Metrics {
 	return c.metricsStream
 }
 
-func (c *dockerCollector) ReadCPU(stats *docker.Stats) {
+func (c *dockerCollector) ReadCPU(stats *driver.Stats) {
 	ncpus := uint8(stats.CPUStats.OnlineCPUs)
 	if ncpus == 0 {
 		ncpus = uint8(len(stats.CPUStats.CPUUsage.PercpuUsage))
@@ -91,13 +91,13 @@ func (c *dockerCollector) ReadCPU(stats *docker.Stats) {
 	c.Pids = int(stats.PidsStats.Current)
 }
 
-func (c *dockerCollector) ReadMem(stats *docker.Stats) {
+func (c *dockerCollector) ReadMem(stats *driver.Stats) {
 	c.MemUsage = int64(stats.MemoryStats.Usage - stats.MemoryStats.Stats.Cache)
 	c.MemLimit = int64(stats.MemoryStats.Limit)
 	c.MemPercent = percent(float64(c.MemUsage), float64(c.MemLimit))
 }
 
-func (c *dockerCollector) ReadNet(stats *docker.Stats) {
+func (c *dockerCollector) ReadNet(stats *driver.Stats) {
 	var rx, tx int64
 	for _, network := range stats.Networks {
 		rx += int64(network.RxBytes)
@@ -106,7 +106,7 @@ func (c *dockerCollector) ReadNet(stats *docker.Stats) {
 	c.NetRx, c.NetTx = rx, tx
 }
 
-func (c *dockerCollector) ReadIO(stats *docker.Stats) {
+func (c *dockerCollector) ReadIO(stats *driver.Stats) {
 	var read, write int64
 	for _, blk := range stats.BlkioStats.IOServiceBytesRecursive {
 		if blk.Op == "Read" {

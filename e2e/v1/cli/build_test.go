@@ -22,7 +22,7 @@ import (
 
 	e2e "github.com/tensorchord/envd/e2e/v1"
 	"github.com/tensorchord/envd/pkg/app"
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/driver/docker"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/types"
