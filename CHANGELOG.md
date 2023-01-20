@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.9 (2023-01-18)
+
+
+### Contributors
+
+
 ## v0.3.8 (2023-01-20)
 
  * [2d03de9](https://github.com/tensorchord/envd/commit/2d03de9872610b1177f63b613c0f38d36a9eed19) feat: :sparkles: init nerdctl support (#1378)
