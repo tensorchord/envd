@@ -76,6 +76,7 @@ var BaseAptPackage = []string{
 	"git",
 	"sudo",
 	"vim",
+	"make",
 	"zsh",
 	"locales",
 }
