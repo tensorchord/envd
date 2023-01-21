@@ -157,25 +157,12 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 	}
 
 	if g.RequirementsFile != nil {
-		// Compose the package install command.
-		var sb strings.Builder
-		sb.WriteString("bash -c '")
-		sb.WriteString("set -euo pipefail\n")
-		sb.WriteString(fmt.Sprintf("chown -R envd:envd %s\n", g.getWorkingDir())) // Change mount dir permission
-		envdCmd := strings.Builder{}
-		envdCmd.WriteString(fmt.Sprintf("cd %s\n", g.getWorkingDir()))
-		envdCmd.WriteString(fmt.Sprintf("/opt/conda/envs/envd/bin/python -m pip install -r  %s\n", *g.RequirementsFile))
-
-		// Execute the command to write yaml file and conda env using envd user
-		sb.WriteString(fmt.Sprintf("sudo -i -u envd bash << EOF\n%s\nEOF\n", envdCmd.String()))
-		sb.WriteString("'")
-		cmd := sb.String()
-
-		logrus.WithField("command", cmd).
+		logrus.WithField("file", *g.RequirementsFile).
 			Debug("Configure pip install requirements statements")
-		root = root.User("root").Dir(g.getWorkingDir())
+		root = root.Dir(g.getWorkingDir())
 		run := root.
-			Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s", *g.RequirementsFile))
+			Run(llb.Shlexf("/opt/conda/envs/envd/bin/python -m pip install -r  %s", *g.RequirementsFile),
+				llb.WithCustomNamef("pip install -r %s", *g.RequirementsFile))
 		run.AddMount(cacheDir, cache,
 			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
 		run.AddMount(g.getWorkingDir(),
