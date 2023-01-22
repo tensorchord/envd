@@ -66,6 +66,9 @@ def daemon(commands: List[List[str]]):
 
     It's better to redirect the logs to local files for debug purposes.
 
+    You can find the generated horust config files under `/etc/horust/services`
+    and log files under `/var/log/horust` in the container.
+
     Args:
         commands (List[List[str]]): run multiple commands in the background
 
@@ -104,6 +107,9 @@ def mount(host_path: str, envd_path: str):
 
 def init(commands: List[str]):
     """Commands to be executed when start the container
+
+    You can find the generated horust config files under `/etc/horust/services`
+    and log files under `/var/log/horust` in the container.
 
     Args:
         commands (List[str]): list of commands
