@@ -37,7 +37,7 @@ const (
 
 	mambaRc = `
 channels:
-    - conda-forge
+    - defaults
 `
 	mambaActivate = `
 #!/bin/sh

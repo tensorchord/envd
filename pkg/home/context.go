@@ -95,8 +95,11 @@ func (m *generalManager) ContextCreate(ctx types.Context, use bool) error {
 		}
 	}
 	switch ctx.Builder {
-	case types.BuilderTypeDocker, types.BuilderTypeKubernetes,
-		types.BuilderTypeUNIXDomainSocket, types.BuilderTypeTCP:
+	case types.BuilderTypeDocker,
+		types.BuilderTypeNerdctl,
+		types.BuilderTypeKubernetes,
+		types.BuilderTypeUNIXDomainSocket,
+		types.BuilderTypeTCP:
 		break
 	default:
 		return errors.New("unknown builder type")

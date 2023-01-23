@@ -76,6 +76,7 @@ var BaseAptPackage = []string{
 	"git",
 	"sudo",
 	"vim",
+	"make",
 	"zsh",
 	"locales",
 }
@@ -121,6 +122,7 @@ type BuilderType string
 
 const (
 	BuilderTypeDocker           BuilderType = "docker-container"
+	BuilderTypeNerdctl          BuilderType = "nerdctl-container"
 	BuilderTypeKubernetes       BuilderType = "kube-pod"
 	BuilderTypeTCP              BuilderType = "tcp"
 	BuilderTypeUNIXDomainSocket BuilderType = "unix"

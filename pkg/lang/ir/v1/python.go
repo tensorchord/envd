@@ -48,7 +48,7 @@ func (g *generalGraph) installPython(root llb.State) (llb.State, error) {
 				llb.WithCustomName("[internal] copy cert from mamba")).
 			File(llb.Copy(llb.Image(microMambaImage), "/bin/micromamba", microMambaPathPrefix),
 				llb.WithCustomName("[internal] copy micromamba binary")).
-			Run(llb.Shlexf(`bash -c "%s/micromamba create -p /opt/conda/envs/envd -c conda-forge python=%s"`, microMambaPathPrefix, version),
+			Run(llb.Shlexf(`bash -c "%s/micromamba create -p /opt/conda/envs/envd -c defaults python=%s"`, microMambaPathPrefix, version),
 				llb.WithCustomNamef("[internal] create envd python=%s", version)).
 			Run(llb.Shlexf("rm %s/micromamba", microMambaPathPrefix),
 				llb.WithCustomName("[internal] rm micromamba binary")).Root()
@@ -124,25 +124,12 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 	}
 
 	if g.RequirementsFile != nil {
-		// Compose the package install command.
-		var sb strings.Builder
-		sb.WriteString("bash -c '")
-		sb.WriteString("set -euo pipefail\n")
-		sb.WriteString(fmt.Sprintf("chown -R envd:envd %s\n", g.getWorkingDir())) // Change mount dir permission
-		envdCmd := strings.Builder{}
-		envdCmd.WriteString(fmt.Sprintf("cd %s\n", g.getWorkingDir()))
-		envdCmd.WriteString(fmt.Sprintf("python -m pip install -r  %s\n", *g.RequirementsFile))
-
-		// Execute the command to write yaml file and conda env using envd user
-		sb.WriteString(fmt.Sprintf("sudo -i -u envd bash << EOF\n%s\nEOF\n", envdCmd.String()))
-		sb.WriteString("'")
-		cmd := sb.String()
-
-		logrus.WithField("command", cmd).
+		logrus.WithField("file", *g.RequirementsFile).
 			Debug("Configure pip install requirements statements")
-		root = root.User("root").Dir(g.getWorkingDir())
+		root = root.Dir(g.getWorkingDir())
 		run := root.
-			Run(llb.Shlex(cmd), llb.WithCustomNamef("pip install %s", *g.RequirementsFile))
+			Run(llb.Shlexf("python -m pip install -r %s", *g.RequirementsFile),
+				llb.WithCustomNamef("pip install -r %s", *g.RequirementsFile))
 		run.AddMount(cacheDir, cache,
 			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
 		run.AddMount(g.getWorkingDir(),
