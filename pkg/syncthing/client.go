@@ -54,10 +54,6 @@ func (c *Client) get(url string, params map[string]string) ([]byte, error) {
 	return c.sendRequest(GET, url, params, nil)
 }
 
-func (c *Client) post(url string, params map[string]string, body []byte) ([]byte, error) {
-	return c.sendRequest(POST, url, params, body)
-}
-
 func (c *Client) put(url string, params map[string]string, body []byte) ([]byte, error) {
 	return c.sendRequest(PUT, url, params, body)
 }

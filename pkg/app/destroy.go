@@ -100,7 +100,6 @@ func destroy(clicontext *cli.Context) error {
 
 	err = syncthing.CleanLocalConfig(name)
 	if err != nil {
-		logrus.Debug("failed to remove syncthing config file: %s", err)
 		return errors.Wrap(err, "failed to remove syncthing config file")
 	}
 
