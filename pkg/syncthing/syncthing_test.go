@@ -45,22 +45,18 @@ var _ = Describe("Syncthing", func() {
 			Expect(s.IsRunning()).To(BeTrue())
 
 			s.StopLocalSyncthing()
-			Expect(err).To(BeNil())
 
 			Expect(s.IsRunning()).To(BeFalse())
 		})
 	})
 
 	Describe("Syncthing config", func() {
-		AfterEach(func() {
-		})
-
 		It("Initializes local syncthing configuration", func() {
 			s, err := syncthing.InitializeLocalSyncthing("s1")
 			Expect(err).To(BeNil())
 
 			Expect(s.Port).To(Equal(syncthing.DefaultLocalPort))
-			Expect(s.Config.GUI.Address()).To(Equal(fmt.Sprintf("0.0.0.0:%s", syncthing.DefaultLocalPort)))
+			Expect(s.Config.GUI.Address()).To(Equal(fmt.Sprintf("127.0.0.1:%s", syncthing.DefaultLocalPort)))
 
 			dirExists, err := fileutil.DirExists(s.HomeDirectory)
 			Expect(err).To(BeNil())
@@ -70,17 +66,8 @@ var _ = Describe("Syncthing", func() {
 			fileExists, err := fileutil.FileExists(configFilePath)
 			Expect(err).To(BeNil())
 			Expect(fileExists).To(BeTrue())
-		})
 
-		It("Initializes remote syncthing configuration", func() {
-			s, err := syncthing.InitializeRemoteSyncthing()
-			Expect(err).To(BeNil())
-			Expect(s.Port).To(Equal(syncthing.DefaultRemotePort))
-			Expect(s.Config).ToNot(BeNil())
-
-			configStr := s.Config.String()
-			Expect(configStr).To(ContainSubstring(fmt.Sprintf(":%s", syncthing.DefaultRemotePort)))
-			Expect(configStr).To(ContainSubstring(fmt.Sprintf("api_key:\"%s\"", s.ApiKey)))
+			s.StopLocalSyncthing()
 		})
 
 	})
@@ -102,28 +89,34 @@ var _ = Describe("Syncthing REST API operations", func() {
 	BeforeEach(func() {
 		var err error
 		initConfig := syncthing.InitLocalConfig()
-		homeDirectory1 := syncthing.GetHomeDirectory("s1")
-		homeDirectory2 := syncthing.GetHomeDirectory("s2")
+		homeDirectory1, err := syncthing.GetHomeDirectory("s1")
+		Expect(err).To(BeNil())
+
+		homeDirectory2, err := syncthing.GetHomeDirectory("s2")
+		Expect(err).To(BeNil())
 
 		initConfig1 := initConfig.Copy()
-		initConfig1.GUI.RawAddress = fmt.Sprintf("0.0.0.0:%s", syncthing.DefaultLocalPort)
+		initConfig1.GUI.RawAddress = fmt.Sprintf("127.0.0.1:%s", syncthing.DefaultLocalPort)
 		s1 = &syncthing.Syncthing{
 			Config:        &initConfig1,
 			HomeDirectory: fmt.Sprintf("%s-1", homeDirectory1),
-			Client:        syncthing.NewApiClient(),
 			ApiKey:        syncthing.DefaultApiKey,
+			Name:          "s1-REST",
 			Port:          syncthing.DefaultLocalPort,
 		}
 
 		initConfig2 := initConfig.Copy()
-		initConfig2.GUI.RawAddress = fmt.Sprintf("0.0.0.0:%s", syncthing.DefaultRemotePort)
+		initConfig2.GUI.RawAddress = fmt.Sprintf("127.0.0.1:%s", syncthing.DefaultRemotePort)
 		s2 = &syncthing.Syncthing{
 			Config:        &initConfig2,
 			HomeDirectory: fmt.Sprintf("%s-2", homeDirectory2),
-			Client:        syncthing.NewApiClient(),
 			ApiKey:        syncthing.DefaultApiKey,
+			Name:          "s2-REST",
 			Port:          syncthing.DefaultRemotePort,
 		}
+
+		s1.Client = s1.NewClient()
+		s2.Client = s2.NewClient()
 
 		err = s1.WriteLocalConfig()
 		Expect(err).To(BeNil())
@@ -145,14 +138,7 @@ var _ = Describe("Syncthing REST API operations", func() {
 	})
 
 	It("Connects two local devices", func() {
-
-		err := s1.SetDeviceAddress(syncthing.DefaultLocalDeviceAddress)
-		Expect(err).To(BeNil())
-
-		err = s2.SetDeviceAddress(syncthing.DefaultRemoteDeviceAddress)
-		Expect(err).To(BeNil())
-
-		err = syncthing.ConnectDevices(s1, s2)
+		err := syncthing.ConnectDevices(s1, s2)
 		Expect(err).To(BeNil())
 	})
 
@@ -169,14 +155,6 @@ var _ = Describe("Syncthing REST API operations", func() {
 
 	AfterEach(func() {
 		s.StopLocalSyncthing()
-	})
-
-	It("Connects local syncthing to running remote syncthing", func() {
-		s1, err := syncthing.InitializeRemoteSyncthing()
-		Expect(err).To(BeNil())
-
-		err = syncthing.ConnectDevices(s, s1)
-		Expect(err).To(BeNil())
 	})
 
 	It("Applies syncthing configuration twice", func() {
@@ -211,4 +189,14 @@ var _ = Describe("Syncthing REST API operations", func() {
 		Expect(event.Id > 0).To(BeTrue())
 	})
 
+})
+
+var _ = Describe("Syncthing util tests", func() {
+	It("Parses port correctly", func() {
+		addr := "127.0.0.1:8386"
+
+		port := syncthing.ParsePortFromAddress(addr)
+
+		Expect(port).To(Equal("8386"))
+	})
 })
