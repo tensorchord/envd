@@ -38,7 +38,7 @@ require (
 	golang.org/x/crypto v0.5.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/term v0.4.0
-	golang.org/x/time v0.1.0
+	golang.org/x/time v0.3.0
 )
 
 require github.com/moby/patternmatcher v0.5.0 // indirect
