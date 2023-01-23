@@ -111,21 +111,6 @@ func CreateIfNotExist(f string) error {
 	return nil
 }
 
-func CreateDirIfNotExist(d string) error {
-	_, err := os.Stat(d)
-	if err != nil {
-		if os.IsNotExist(err) {
-			logrus.WithField("dir", d).Debug("Creating dir")
-			if err := os.MkdirAll(d, os.ModeDir|0700); err != nil {
-				return errors.Wrap(err, "failed to create dir")
-			}
-		} else {
-			return errors.Wrap(err, "failed to stat dir")
-		}
-	}
-	return nil
-}
-
 func CWD() (string, error) {
 	return os.Getwd()
 }

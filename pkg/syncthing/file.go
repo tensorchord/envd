@@ -19,18 +19,19 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/syncthing/syncthing/lib/config"
 
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
-func GetHomeDirectory(name string) string {
-	return fmt.Sprintf("%s/syncthing-%s", fileutil.DefaultConfigDir, name)
+func GetHomeDirectory(name string) (string, error) {
+	return fileutil.ConfigFile(fmt.Sprintf("syncthing-%s", name))
 }
 
 func GetConfigFilePath(homeDirectory string) string {
-	return fmt.Sprintf("%s/config.xml", homeDirectory)
+	return filepath.Join(homeDirectory, "config.xml")
 }
 
 func (s *Syncthing) WriteLocalConfig() error {
@@ -39,9 +40,9 @@ func (s *Syncthing) WriteLocalConfig() error {
 		return fmt.Errorf("failed to get syncthing config bytes: %w", err)
 	}
 
-	err = fileutil.CreateDirIfNotExist(s.HomeDirectory)
+	err = os.MkdirAll(s.HomeDirectory, 0777)
 	if err != nil {
-		return fmt.Errorf("failed to get syncthing config file path: %w", err)
+		return fmt.Errorf("failed to : %w", err)
 	}
 
 	configFilePath := GetConfigFilePath(s.HomeDirectory)
@@ -55,8 +56,13 @@ func (s *Syncthing) WriteLocalConfig() error {
 	return nil
 }
 
-func (s *Syncthing) CleanLocalConfig() error {
-	if err := os.RemoveAll(s.HomeDirectory); err != nil {
+func CleanLocalConfig(name string) error {
+	configPath, err := GetHomeDirectory(name)
+	if err != nil {
+		return fmt.Errorf("failed to get syncthing config file path: %w", err)
+	}
+
+	if err := os.RemoveAll(configPath); err != nil {
 		return fmt.Errorf("failed to remove syncthing config file: %w", err)
 	}
 	return nil

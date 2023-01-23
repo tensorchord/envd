@@ -19,11 +19,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"path"
 	"time"
 )
 
-func NewApiClient() *http.Client {
+func NewAPIClient() *http.Client {
 	return &http.Client{
 		Timeout: 60 * time.Second,
 	}
@@ -35,18 +34,44 @@ const (
 	PUT  = "PUT"
 )
 
+type Client struct {
+	ApiKey   string
+	Client   *http.Client
+	BasePath string
+}
+
+func (s *Syncthing) NewClient() *Client {
+	return &Client{
+		ApiKey:   s.ApiKey,
+		Client:   NewAPIClient(),
+		BasePath: fmt.Sprintf("http://localhost:%s", s.Port),
+	}
+}
+
+func (c *Client) get(url string, params map[string]string) ([]byte, error) {
+	return c.sendRequest(GET, url, params, nil)
+}
+
+func (c *Client) post(url string, params map[string]string, body []byte) ([]byte, error) {
+	return c.sendRequest(POST, url, params, body)
+}
+
+func (c *Client) put(url string, params map[string]string, body []byte) ([]byte, error) {
+	return c.sendRequest(PUT, url, params, body)
+}
+
 // Makes API calls to the syncthing instance's rest api
-func (s *Syncthing) ApiCall(method string, url string, params map[string]string, body []byte) ([]byte, error) {
+func (c *Client) sendRequest(method string, url string, params map[string]string, body []byte) ([]byte, error) {
 	// TODO: can implement retry logic
 
-	var urlPath = path.Join(fmt.Sprintf("localhost:%s", s.Port), url)
+	var urlPath = c.BasePath + url
 
-	req, err := http.NewRequest(method, fmt.Sprintf("http://%s", urlPath), bytes.NewBuffer(body))
+	req, err := http.NewRequest(method, urlPath, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize syncthing API request: %w", err)
 	}
 
-	req.Header.Set("X-API-Key", s.ApiKey)
+	req.Header.Set("X-API-Key", c.ApiKey)
 
 	q := req.URL.Query()
 
@@ -56,7 +81,7 @@ func (s *Syncthing) ApiCall(method string, url string, params map[string]string,
 
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := s.Client.Do(req)
+	resp, err := c.Client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call syncthing [%s]: %w", url, err)
 	}
@@ -73,5 +98,4 @@ func (s *Syncthing) ApiCall(method string, url string, params map[string]string,
 	}
 
 	return body, nil
-
 }

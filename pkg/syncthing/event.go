@@ -49,7 +49,7 @@ type GeneralEvent struct {
 
 // Fetches the most recent event using the syncthing rest api
 func (s *Syncthing) GetMostRecentEvent() (*GeneralEvent, error) {
-	resBody, err := s.ApiCall(GET, "/rest/events", nil, []byte{})
+	resBody, err := s.Client.get("/rest/events", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get most recent event: %w", err)
 	}
@@ -74,7 +74,7 @@ func (s *Syncthing) GetConfigSavedEvents() ([]*ConfigSavedEvent, error) {
 		"since":   strconv.FormatInt(s.latestEventId, 10),
 		"timeout": "0",
 	}
-	resBody, err := s.ApiCall(GET, "/rest/events", params, []byte{})
+	resBody, err := s.Client.get("/rest/events", params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get config saved event: %w", err)
 	}

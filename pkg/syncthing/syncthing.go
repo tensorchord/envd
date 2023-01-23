@@ -16,7 +16,6 @@ package syncthing
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -35,8 +34,8 @@ type Syncthing struct {
 	PrevConfig    config.Configuration // Unapplied config
 	HomeDirectory string
 	Port          string
-	Client        *http.Client
 	DeviceID      protocol.DeviceID
+	Client        *Client
 	ApiKey        string
 	latestEventId int64
 	DeviceAddress string
@@ -48,7 +47,6 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 		Name:          "Remote Syncthing",
 		Port:          DefaultRemotePort,
 		HomeDirectory: "/config",
-		Client:        NewApiClient(),
 		ApiKey:        DefaultApiKey,
 	}
 
@@ -83,19 +81,27 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 func InitializeLocalSyncthing(name string) (*Syncthing, error) {
 
 	initConfig := InitLocalConfig()
-	homeDirectory := GetHomeDirectory(name)
+	homeDirectory, err := GetHomeDirectory(name)
+	if err != nil {
+		return nil, err
+	}
+
 	s := &Syncthing{
 		Name:          "Local Syncthing",
 		Config:        initConfig,
 		HomeDirectory: homeDirectory,
-		Client:        NewApiClient(),
 		ApiKey:        DefaultApiKey,
+		Port:          ParsePortFromAddress(initConfig.GUI.Address()),
 	}
 
-	port := ParsePortFromAddress(initConfig.GUI.Address())
-	s.Port = port
+	s.Client = s.NewClient()
 
-	var err error
+	logrus.Debug("Port for local syncthing is: ", initConfig.GUI.Address())
+
+	if err != nil {
+		return nil, err
+	}
+
 	if err = s.WriteLocalConfig(); err != nil {
 		return nil, err
 	}
@@ -173,10 +179,12 @@ func (s *Syncthing) StartLocalSyncthing() error {
 }
 
 func (s *Syncthing) Ping() (bool, error) {
-	_, err := s.ApiCall(GET, "/rest/system/ping", nil, nil)
+	_, err := s.Client.get("/rest/system/ping", nil)
 	if err != nil {
+		logrus.Debug("Failed to ping syncthing: ", err)
 		return false, fmt.Errorf("failed to ping syncthing: %w", err)
 	}
+
 	return true, nil
 }
 
@@ -209,7 +217,7 @@ func (s *Syncthing) StopLocalSyncthing() {
 		logrus.Errorf("failed to kill syncthing process: %s", err)
 	}
 
-	if err = s.CleanLocalConfig(); err != nil {
+	if err = CleanLocalConfig(s.Name); err != nil {
 		logrus.Errorf("failed to clean local syncthing config: %s", err)
 	}
 

@@ -58,7 +58,7 @@ func InitLocalConfig() *config.Configuration {
 
 // Fetches the latest configuration from the syncthing rest api
 func (s *Syncthing) GetConfig() (*config.Configuration, error) {
-	resBody, err := s.ApiCall(GET, "/rest/config", nil, []byte{})
+	resBody, err := s.Client.get("/rest/config", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch syncthing config: %w", err)
 	}
@@ -117,7 +117,7 @@ func (s *Syncthing) ApplyConfig() error {
 		return fmt.Errorf("failed to marshal syncthing config: %w", err)
 	}
 
-	_, err = s.ApiCall(PUT, "/rest/config", nil, configByte)
+	_, err = s.Client.put("/rest/config", nil, configByte)
 	if err != nil {
 		return fmt.Errorf("failed to apply syncthing config: %w", err)
 	}

@@ -15,7 +15,6 @@
 package app
 
 import (
-	"os"
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
@@ -99,10 +98,10 @@ func destroy(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}
 
-	homeDirectory := syncthing.GetHomeDirectory(name)
-	err = os.RemoveAll(homeDirectory)
+	err = syncthing.CleanLocalConfig(name)
 	if err != nil {
-		logrus.Error(err)
+		logrus.Debug("failed to remove syncthing config file: %s", err)
+		return errors.Wrap(err, "failed to remove syncthing config file")
 	}
 
 	return nil

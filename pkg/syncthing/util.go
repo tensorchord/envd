@@ -14,11 +14,11 @@
 
 package syncthing
 
-import (
-	"strings"
-)
+import "strings"
 
 func ParsePortFromAddress(addr string) string {
+	// Address format: "127.0.0.1:8386"
+
 	if strings.Contains(addr, ":") {
 		lst := strings.Split(addr, ":")
 		return lst[len(lst)-1]

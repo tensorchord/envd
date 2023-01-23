@@ -211,47 +211,22 @@ func run(clicontext *cli.Context) error {
 		}()
 
 		go func() {
-			syncthingRemoteAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultRemoteDeviceAddress))
+			syncthingRemoteAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.DefaultRemotePort)
 			if err := sshClient.LocalForward(syncthingRemoteAddr, syncthingRemoteAddr); err != nil {
 				outputChannel <- errors.Wrap(err, "failed to forward to local port")
 			}
 		}()
 
 		go func() {
-			syncthingLocalAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultLocalDeviceAddress))
+			syncthingLocalAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.DefaultLocalPort)
 			if err := sshClient.RemoteForward(syncthingLocalAddr, syncthingLocalAddr); err != nil {
 				outputChannel <- errors.Wrap(err, "failed to forward to local port")
 			}
 		}()
 
-		cwd, err := fileutil.CWD()
+		err = startSyncthing(res.Name)
 		if err != nil {
-			outputChannel <- errors.Wrap(err, "failed to get current working directory")
-		}
-		projectName := filepath.Base(cwd)
-
-		localSyncthing, err := syncthing.InitializeLocalSyncthing(res.Name)
-		if err != nil {
-			outputChannel <- errors.Wrap(err, "failed to initialize local syncthing")
-		}
-		logrus.Debug("Local syncthing initialized")
-		defer localSyncthing.StopLocalSyncthing()
-
-		remoteSyncthing, err := syncthing.InitializeRemoteSyncthing()
-		if err != nil {
-			outputChannel <- errors.Wrap(err, "failed to initialize remote syncthing")
-		}
-		logrus.Debug("Remote syncthing initialized")
-
-		err = syncthing.ConnectDevices(localSyncthing, remoteSyncthing)
-		if err != nil {
-			outputChannel <- errors.Wrap(err, "failed to connect devices")
-		}
-		logrus.Debug("Syncthing devices connected")
-
-		err = syncthing.SyncFolder(localSyncthing, remoteSyncthing, cwd, fmt.Sprintf("%s/%s", fileutil.EnvdHomeDir(), projectName))
-		if err != nil {
-			outputChannel <- errors.Wrap(err, "failed to sync folders")
+			return errors.Wrap(err, "failed to start syncthing")
 		}
 
 		go func() {
@@ -267,5 +242,39 @@ func run(clicontext *cli.Context) error {
 		}
 
 	}
+	return nil
+}
+
+func startSyncthing(name string) error {
+	cwd, err := fileutil.CWD()
+	if err != nil {
+		return errors.Wrap(err, "failed to get current working directory")
+	}
+	projectName := filepath.Base(cwd)
+
+	localSyncthing, err := syncthing.InitializeLocalSyncthing(name)
+	if err != nil {
+		return errors.Wrap(err, "failed to initialize local syncthing")
+	}
+	logrus.Debug("Local syncthing initialized")
+	defer localSyncthing.StopLocalSyncthing()
+
+	remoteSyncthing, err := syncthing.InitializeRemoteSyncthing()
+	if err != nil {
+		return errors.Wrap(err, "failed to initialize remote syncthing")
+	}
+	logrus.Debug("Remote syncthing initialized")
+
+	err = syncthing.ConnectDevices(localSyncthing, remoteSyncthing)
+	if err != nil {
+		return errors.Wrap(err, "failed to connect devices")
+	}
+	logrus.Debug("Syncthing devices connected")
+
+	err = syncthing.SyncFolder(localSyncthing, remoteSyncthing, cwd, fmt.Sprintf("%s/%s", fileutil.EnvdHomeDir(), projectName))
+	if err != nil {
+		return errors.Wrap(err, "failed to sync folders")
+	}
+
 	return nil
 }
