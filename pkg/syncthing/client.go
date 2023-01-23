@@ -20,6 +20,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 func NewAPIClient() *http.Client {
@@ -62,6 +64,7 @@ func (c *Client) put(url string, params map[string]string, body []byte) ([]byte,
 
 // Makes API calls to the syncthing instance's rest api
 func (c *Client) sendRequest(method string, url string, params map[string]string, body []byte) ([]byte, error) {
+	logrus.Debug("calling syncthing API: ", url)
 	// TODO: can implement retry logic
 
 	var urlPath = c.BasePath + url

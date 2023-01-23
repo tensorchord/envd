@@ -50,6 +50,8 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 		ApiKey:        DefaultApiKey,
 	}
 
+	s.Client = s.NewClient()
+
 	err := s.WaitForStartup(15 * time.Second)
 	if err != nil {
 		return nil, fmt.Errorf("failed to wait for syncthing startup: %w", err)

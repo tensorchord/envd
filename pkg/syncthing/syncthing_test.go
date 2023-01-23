@@ -196,7 +196,10 @@ var _ = Describe("Syncthing util tests", func() {
 		addr := "127.0.0.1:8386"
 
 		port := syncthing.ParsePortFromAddress(addr)
-
 		Expect(port).To(Equal("8386"))
+
+		addr2 := "tcp://127.0.0.1:8386"
+		port2 := syncthing.ParsePortFromAddress(addr2)
+		Expect(port2).To(Equal("8386"))
 	})
 })

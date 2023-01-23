@@ -14,14 +14,24 @@
 
 package syncthing
 
-import "strings"
+import (
+	"net/url"
+	"strings"
+)
 
 func ParsePortFromAddress(addr string) string {
-	// Address format: "127.0.0.1:8386"
-
-	if strings.Contains(addr, ":") {
-		lst := strings.Split(addr, ":")
-		return lst[len(lst)-1]
+	if strings.Contains(addr, "://") {
+		rawUrl, err := url.Parse(addr)
+		if err != nil {
+			return ""
+		}
+		return rawUrl.Port()
 	}
+
+	splitLst := strings.Split(addr, ":")
+	if len(splitLst) == 2 {
+		return splitLst[1]
+	}
+
 	return ""
 }
