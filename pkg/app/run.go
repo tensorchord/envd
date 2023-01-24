@@ -92,6 +92,11 @@ var CommandCreate = &cli.Command{
 			Usage: "Request GPU resources (number of gpus), such as 1, 2",
 			Value: "",
 		},
+		&cli.BoolFlag{
+			Name:  "sync",
+			Usage: "Sync the local directory with the remote container",
+			Value: false,
+		},
 	},
 	Action: run,
 }
@@ -203,32 +208,35 @@ func run(clicontext *cli.Context) error {
 			}()
 		}
 
-		go func() {
-			syncthingApiAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.DefaultRemotePort)
-			if err := sshClient.LocalForward(syncthingApiAddr, syncthingApiAddr); err != nil {
-				outputChannel <- errors.Wrap(err, "failed to forward to remote api port")
-			}
-		}()
+		if clicontext.Bool("sync") {
+			go func() {
+				syncthingApiAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.DefaultRemotePort)
+				if err := sshClient.LocalForward(syncthingApiAddr, syncthingApiAddr); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to remote api port")
+				}
+			}()
 
-		go func() {
-			syncthingRemoteAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultRemoteDeviceAddress))
-			if err := sshClient.LocalForward(syncthingRemoteAddr, syncthingRemoteAddr); err != nil {
-				outputChannel <- errors.Wrap(err, "failed to forward to remote port")
-			}
-		}()
+			go func() {
+				syncthingRemoteAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultRemoteDeviceAddress))
+				if err := sshClient.LocalForward(syncthingRemoteAddr, syncthingRemoteAddr); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to remote port")
+				}
+			}()
 
-		go func() {
-			syncthingLocalAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultLocalDeviceAddress))
-			if err := sshClient.RemoteForward(syncthingLocalAddr, syncthingLocalAddr); err != nil {
-				outputChannel <- errors.Wrap(err, "failed to forward to local port")
-			}
-		}()
+			go func() {
+				syncthingLocalAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultLocalDeviceAddress))
+				if err := sshClient.RemoteForward(syncthingLocalAddr, syncthingLocalAddr); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to local port")
+				}
+			}()
 
-		localSyncthing, _, err := startSyncthing(res.Name)
-		if err != nil {
-			return errors.Wrap(err, "failed to start syncthing")
+			localSyncthing, _, err := startSyncthing(res.Name)
+			if err != nil {
+				return errors.Wrap(err, "failed to start syncthing")
+			}
+			defer localSyncthing.StopLocalSyncthing()
+
 		}
-		defer localSyncthing.StopLocalSyncthing()
 
 		go func() {
 			// TODO(gaocegege): Avoid the hard code.
@@ -241,7 +249,6 @@ func run(clicontext *cli.Context) error {
 		if err := <-outputChannel; err != nil {
 			return err
 		}
-
 	}
 	return nil
 }
