@@ -77,7 +77,7 @@ var CommandCreate = &cli.Command{
 		&cli.IntFlag{
 			Name:  "shm-size",
 			Usage: "Configure the shared memory size (megabyte)",
-			Value: 0,
+			Value: 2048,
 		},
 		&cli.StringFlag{
 			Name:  "cpu",
