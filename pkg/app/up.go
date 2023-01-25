@@ -86,7 +86,7 @@ var CommandUp = &cli.Command{
 			Value: time.Second * 30,
 		},
 		&cli.IntFlag{
-			Name: "shm-size",
+			Name:  "shm-size",
 			Usage: "shared memory size (Megabyte)",
 			Value: 0,
 		},
@@ -204,7 +204,7 @@ func up(clicontext *cli.Context) error {
 		Forced:          clicontext.Bool("force"),
 		Timeout:         clicontext.Duration("timeout"),
 		SshdHost:        clicontext.String("host"),
-		ShmSize: clicontext.Int("shm-size"),
+		ShmSize:         clicontext.Int("shm-size"),
 	}
 	if c.Runner != types.RunnerTypeEnvdServer {
 		startOptions.EngineSource = envd.EngineSource{

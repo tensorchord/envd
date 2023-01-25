@@ -38,7 +38,7 @@ type StartOptions struct {
 	NumCPU          string
 	NumMem          string
 	Timeout         time.Duration
-	ShmSize int
+	ShmSize         int
 	Forced          bool
 	SshdHost        string
 
