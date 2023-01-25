@@ -87,7 +87,7 @@ var CommandUp = &cli.Command{
 		},
 		&cli.IntFlag{
 			Name:  "shm-size",
-			Usage: "shared memory size (Megabyte)",
+			Usage: "Configure the shared memory size (megabyte)",
 			Value: 0,
 		},
 		&cli.BoolFlag{
