@@ -74,6 +74,11 @@ var CommandCreate = &cli.Command{
 			Usage: "Assign the host address for environment ssh acesss server listening",
 			Value: envd.Localhost,
 		},
+		&cli.IntFlag{
+			Name:  "shm-size",
+			Usage: "Configure the shared memory size (megabyte)",
+			Value: 2048,
+		},
 		&cli.StringFlag{
 			Name:  "cpu",
 			Usage: "Request CPU resources (number of cores), such as 0.5, 1, 2",
@@ -122,6 +127,7 @@ func run(clicontext *cli.Context) error {
 		NumMem:          clicontext.String("memory"),
 		NumCPU:          clicontext.String("cpu"),
 		NumGPU:          clicontext.Int("gpu"),
+		ShmSize:         clicontext.Int("shm-size"),
 		EnvironmentName: name,
 	}
 	if c.Runner == types.RunnerTypeEnvdServer {

@@ -290,9 +290,11 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 				CPU:    so.NumCPU,
 				GPU:    strconv.Itoa(so.NumGPU),
 				Memory: so.NumMem,
+				Shm:    fmt.Sprintf("%dMi", so.ShmSize),
 			},
 		},
 	}
+	logrus.WithField("req", req).Debug("send request to create new env")
 
 	resp, err := e.EnvironmentCreate(ctx, req)
 	if err != nil {

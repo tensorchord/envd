@@ -402,6 +402,11 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		RestartPolicy: rp,
 	}
 
+	// shared memory size
+	if so.ShmSize > 0 {
+		hostConfig.ShmSize = int64(so.ShmSize) * 1024 * 1024
+	}
+
 	// Configure ssh port.
 	natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.SSHPortInContainer))
 	hostConfig.PortBindings[natPort] = []nat.PortBinding{
