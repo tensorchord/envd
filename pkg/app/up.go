@@ -85,6 +85,11 @@ var CommandUp = &cli.Command{
 			Usage: "Timeout of container creation",
 			Value: time.Second * 30,
 		},
+		&cli.IntFlag{
+			Name: "shm-size",
+			Usage: "shared memory size (Megabyte)",
+			Value: 0,
+		},
 		&cli.BoolFlag{
 			Name:  "detach",
 			Usage: "Detach from the container",
@@ -199,6 +204,7 @@ func up(clicontext *cli.Context) error {
 		Forced:          clicontext.Bool("force"),
 		Timeout:         clicontext.Duration("timeout"),
 		SshdHost:        clicontext.String("host"),
+		ShmSize: clicontext.Int("shm-size"),
 	}
 	if c.Runner != types.RunnerTypeEnvdServer {
 		startOptions.EngineSource = envd.EngineSource{
