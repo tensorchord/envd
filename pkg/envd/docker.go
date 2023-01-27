@@ -191,7 +191,7 @@ func (e dockerEngine) ListImageDependency(ctx context.Context, image string) (*t
 func (e dockerEngine) getVerFromImageLabel(ctx context.Context, env string) (version.Getter, error) {
 	ctr, err := e.GetImage(ctx, env)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to inspect container: %s", env)
+		return nil, errors.Wrapf(err, "failed to inspect image: %s", env)
 	}
 	ver, ok := ctr.Labels[types.ImageLabelSyntaxVer]
 	if !ok {
