@@ -203,16 +203,16 @@ func (e dockerEngine) getVerFromImageLabel(ctx context.Context, env string) (ver
 func (e dockerEngine) listEnvGeneralGraph(ctx context.Context, env string, g ir.Graph) (ir.Graph, error) {
 	ctr, err := e.GetImage(ctx, env)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to inspect container: %s", env)
+		return nil, errors.Wrapf(err, "failed to inspect image: %s", env)
 	}
 	code, ok := ctr.Labels[types.GeneralGraphCode]
 	if !ok {
-		return nil, errors.Newf("failed to get runtime graph label from container: %s", env)
+		return nil, errors.Newf("failed to get runtime graph label from image: %s", env)
 	}
 	logrus.WithField("env", env).Debugf("general graph: %s", code)
 	newg, err := g.GeneralGraphFromLabel([]byte(code))
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to create runtime graph from the container: %s", env)
+		return nil, errors.Wrapf(err, "failed to create runtime graph from the image: %s", env)
 	}
 	return newg, err
 }
