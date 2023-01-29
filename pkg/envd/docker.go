@@ -380,6 +380,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	if so.Image == "" {
 		g = so.DockerSource.Graph
 	} else {
+		// Use specified image as the running image
 		getter, err := e.getVerFromImageLabel(ctx, so.Image)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get the version from the image label")
