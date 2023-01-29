@@ -33,8 +33,8 @@ const (
 	ImageLabelContext       = "ai.tensorchord.envd.build.context"
 	ImageLabelCacheHash     = "ai.tensorchord.envd.build.digest"
 	ImageLabelSyntaxVer     = "ai.tensorchord.envd.syntax.version"
-	RuntimeGraphCode        = "ai.tensorchord.envd.runtimeGraph"
-	GeneralGraphCode        = "ai.tensorchord.envd.generalGraph"
+	RuntimeGraphCode        = "ai.tensorchord.envd.graph.runtime"
+	GeneralGraphCode        = "ai.tensorchord.envd.graph.general"
 
 	ImageVendorEnvd = "envd"
 )
