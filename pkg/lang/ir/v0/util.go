@@ -19,6 +19,7 @@ import (
 	"crypto/md5"
 	"encoding/gob"
 	"encoding/hex"
+	"encoding/json"
 	"os/user"
 	"regexp"
 	"strconv"
@@ -29,6 +30,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -115,4 +117,30 @@ func GetDefaultGraphHash() string {
 	data := b.Bytes()
 	hashD := md5.Sum(data)
 	return hex.EncodeToString(hashD[:])
+}
+
+func (g *generalGraph) Dump() (string, error) {
+	b, err := json.Marshal(g)
+	if err != nil {
+		return "", err
+	}
+	runtimeGraphCode := string(b)
+	return runtimeGraphCode, nil
+}
+
+func (g *generalGraph) Load(code []byte) error {
+	err := json.Unmarshal(code, g)
+	if err != nil {
+		return errors.Wrap(err, "failed to unmarshal")
+	}
+	return nil
+}
+
+func (g generalGraph) GeneralGraphFromLabel(label []byte) (ir.Graph, error) {
+	newg := generalGraph{}
+	err := newg.Load(label)
+	if err != nil {
+		return nil, err
+	}
+	return &newg, nil
 }

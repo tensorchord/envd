@@ -19,6 +19,7 @@ import (
 	"crypto/md5"
 	"encoding/gob"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"os/user"
 	"regexp"
@@ -31,6 +32,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/tensorchord/envd/pkg/flag"
+	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -142,4 +144,30 @@ func GetCUDAImage(image string, cuda *string, cudnn string, dev bool) string {
 	imageTag := strings.Replace(image, ":", "", 1)
 
 	return fmt.Sprintf("docker.io/nvidia/cuda:%s-cudnn%s-%s-%s", *cuda, cudnn, target, imageTag)
+}
+
+func (g *generalGraph) Dump() (string, error) {
+	b, err := json.Marshal(g)
+	if err != nil {
+		return "", err
+	}
+	runtimeGraphCode := string(b)
+	return runtimeGraphCode, nil
+}
+
+func (g *generalGraph) Load(code []byte) error {
+	err := json.Unmarshal(code, g)
+	if err != nil {
+		return errors.Wrap(err, "failed to unmarshal")
+	}
+	return nil
+}
+
+func (g generalGraph) GeneralGraphFromLabel(label []byte) (ir.Graph, error) {
+	newg := generalGraph{}
+	err := newg.Load(label)
+	if err != nil {
+		return nil, err
+	}
+	return &newg, nil
 }

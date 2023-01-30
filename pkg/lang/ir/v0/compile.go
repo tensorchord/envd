@@ -46,7 +46,8 @@ func NewGraph() ir.Graph {
 	langVersion := languageVersionDefault
 	conda := &ir.CondaConfig{}
 	return &generalGraph{
-		OS: osDefault,
+		OS:                osDefault,
+		EnvdSyntaxVersion: "v0",
 		Language: ir.Language{
 			Name:    languageDefault,
 			Version: &langVersion,
@@ -136,6 +137,9 @@ func (g generalGraph) GPUEnabled() bool {
 
 func (g generalGraph) Labels() (map[string]string, error) {
 	labels := make(map[string]string)
+
+	labels[types.ImageLabelSyntaxVer] = g.EnvdSyntaxVersion
+
 	str, err := json.Marshal(g.SystemPackages)
 	if err != nil {
 		return nil, err
@@ -166,6 +170,11 @@ func (g generalGraph) Labels() (map[string]string, error) {
 		return labels, err
 	}
 	labels[types.RuntimeGraphCode] = code
+	code, err = g.Dump()
+	if err != nil {
+		return labels, err
+	}
+	labels[types.GeneralGraphCode] = code
 
 	ports := []servertypes.EnvironmentPort{}
 	ports = append(ports, servertypes.EnvironmentPort{

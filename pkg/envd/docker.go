@@ -34,6 +34,7 @@ import (
 
 	envdconfig "github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/lang/ir"
+	"github.com/tensorchord/envd/pkg/lang/version"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
@@ -185,6 +186,35 @@ func (e dockerEngine) ListImageDependency(ctx context.Context, image string) (*t
 		return nil, errors.Wrap(err, "failed to create dependency from image")
 	}
 	return dep, nil
+}
+
+func (e dockerEngine) getVerFromImageLabel(ctx context.Context, env string) (version.Getter, error) {
+	ctr, err := e.GetImage(ctx, env)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to inspect image: %s", env)
+	}
+	ver, ok := ctr.Labels[types.ImageLabelSyntaxVer]
+	if !ok {
+		return version.NewByVersion("v0"), nil
+	}
+	return version.NewByVersion(ver), nil
+}
+
+func (e dockerEngine) listEnvGeneralGraph(ctx context.Context, env string, g ir.Graph) (ir.Graph, error) {
+	ctr, err := e.GetImage(ctx, env)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to inspect image: %s", env)
+	}
+	code, ok := ctr.Labels[types.GeneralGraphCode]
+	if !ok {
+		return nil, errors.Newf("failed to get runtime graph label from image: %s", env)
+	}
+	logrus.WithField("env", env).Debugf("general graph: %s", code)
+	newg, err := g.GeneralGraphFromLabel([]byte(code))
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to create runtime graph from the image: %s", env)
+	}
+	return newg, err
 }
 
 func (e dockerEngine) ListEnvRuntimeGraph(ctx context.Context, env string) (*ir.RuntimeGraph, error) {
@@ -346,11 +376,29 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	base := fileutil.EnvdHomeDir(filepath.Base(so.BuildContext))
 	config.WorkingDir = base
 
+	var g ir.Graph
+	if so.Image == "" {
+		g = so.DockerSource.Graph
+	} else {
+		// Use specified image as the running image
+		getter, err := e.getVerFromImageLabel(ctx, so.Image)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get the version from the image label")
+		}
+		defaultGraph := getter.GetDefaultGraph()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get the graph from the image")
+		}
+		g, err = e.listEnvGeneralGraph(ctx, so.Image, defaultGraph)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get the graph from the image")
+		}
+		so.DockerSource.Graph = g
+	}
+
 	if so.DockerSource == nil || so.DockerSource.Graph == nil {
 		return nil, errors.New("failed to get the docker-specific options")
 	}
-
-	g := so.DockerSource.Graph
 
 	mountOption := make([]mount.Mount, 0,
 		len(so.DockerSource.MountOptions)+len(g.GetMount())+1)
