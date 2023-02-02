@@ -26,7 +26,7 @@ import (
 const (
 	DefaultLocalPort           = "8386"
 	DefaultRemotePort          = "8384"
-	DefaultRemoteAPIAddress    = "127.0.0.1:8386"
+	DefaultRemoteAPIAddress    = "127.0.0.1:8384"
 	DefaultApiKey              = "envd"
 	DefaultLocalDeviceAddress  = "tcp://127.0.0.1:22000"
 	DefaultRemoteDeviceAddress = "tcp://127.0.0.1:22001"

@@ -26,8 +26,8 @@ import (
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
-func GetHomeDirectory(name string) (string, error) {
-	return fileutil.ConfigFile(fmt.Sprintf("syncthing-%s", name))
+func GetHomeDirectory() (string, error) {
+	return fileutil.ConfigFile("syncthing")
 }
 
 func GetConfigFilePath(homeDirectory string) string {
@@ -57,7 +57,7 @@ func (s *Syncthing) WriteLocalConfig() error {
 }
 
 func CleanLocalConfig(name string) error {
-	configPath, err := GetHomeDirectory(name)
+	configPath, err := GetHomeDirectory()
 	if err != nil {
 		return fmt.Errorf("failed to get syncthing config file path: %w", err)
 	}

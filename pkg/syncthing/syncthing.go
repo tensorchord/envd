@@ -83,7 +83,7 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 func InitializeLocalSyncthing(name string) (*Syncthing, error) {
 
 	initConfig := InitLocalConfig()
-	homeDirectory, err := GetHomeDirectory(name)
+	homeDirectory, err := GetHomeDirectory()
 	if err != nil {
 		return nil, err
 	}

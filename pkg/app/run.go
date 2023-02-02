@@ -147,7 +147,9 @@ func run(clicontext *cli.Context) error {
 		EnvironmentName: name,
 	}
 	if c.Runner == types.RunnerTypeEnvdServer {
-		opt.EnvdServerSource = &envd.EnvdServerSource{}
+		opt.EnvdServerSource = &envd.EnvdServerSource{
+			Sync: clicontext.Bool("sync"),
+		}
 		if len(clicontext.StringSlice("volume")) > 0 {
 			return errors.New("volume is not supported for envd-server runner")
 		}

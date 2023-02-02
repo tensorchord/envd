@@ -89,10 +89,10 @@ var _ = Describe("Syncthing REST API operations", func() {
 	BeforeEach(func() {
 		var err error
 		initConfig := syncthing.InitLocalConfig()
-		homeDirectory1, err := syncthing.GetHomeDirectory("s1")
+		homeDirectory1, err := syncthing.GetHomeDirectory()
 		Expect(err).To(BeNil())
 
-		homeDirectory2, err := syncthing.GetHomeDirectory("s2")
+		homeDirectory2, err := syncthing.GetHomeDirectory()
 		Expect(err).To(BeNil())
 
 		initConfig1 := initConfig.Copy()
