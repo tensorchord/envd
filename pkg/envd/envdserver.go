@@ -297,6 +297,7 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 	logrus.WithField("req", req).Debug("send request to create new env")
 
 	bar := InitProgressBar(3)
+	defer bar.finish()
 	bar.updateTitle("create environment")
 	resp, err := e.EnvironmentCreate(ctx, req)
 	if err != nil {
@@ -310,7 +311,6 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 	}
 
 	bar.updateTitle("attach to the remote environment")
-	defer bar.finish()
 	result := &StartResult{
 		SSHPort: 2222,
 		Address: "",

@@ -71,10 +71,10 @@ type StartResult struct {
 }
 
 type ProgressBar struct {
-	bar *progressbar.ProgressBar
-	currStage int
+	bar        *progressbar.ProgressBar
+	currStage  int
 	totalStage int
-	notify chan struct{}
+	notify     chan struct{}
 }
 
 func InitProgressBar(stage int) *ProgressBar {
@@ -93,18 +93,18 @@ func InitProgressBar(stage int) *ProgressBar {
 			timer := time.NewTicker(time.Millisecond * 100)
 			for {
 				select {
-				case <- done:
-				return
-				case <- timer.C:
-				bar.RenderBlank()
+				case <-done:
+					return
+				case <-timer.C:
+					bar.RenderBlank()
 				}
 			}
 		}()
 	}
 
-	b := ProgressBar {
-		notify: done,
-		bar: bar,
+	b := ProgressBar{
+		notify:     done,
+		bar:        bar,
 		totalStage: stage,
 	}
 	return &b
