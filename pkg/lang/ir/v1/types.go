@@ -29,8 +29,9 @@ type generalGraph struct {
 	gid int `default:"-1"`
 
 	ir.Language
-	Image string
-	User  string
+	EnvdSyntaxVersion string
+	Image             string
+	User              string
 
 	Shell   string
 	Dev     bool
@@ -70,7 +71,7 @@ type generalGraph struct {
 	*ir.CondaConfig
 	*ir.RStudioServerConfig
 
-	Writer compileui.Writer
+	Writer compileui.Writer `json:"-"`
 	// EnvironmentName is the base name of the environment.
 	// It is the BaseDir(BuildContextDir)
 	// e.g. mnist, streamlit-mnist

@@ -25,16 +25,13 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/config"
-	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
-	"github.com/tensorchord/envd/pkg/version"
 )
 
 func NewGraph() ir.Graph {
@@ -44,13 +41,13 @@ func NewGraph() ir.Graph {
 		RuntimeEnvPaths: []string{types.DefaultSystemPath},
 	}
 	return &generalGraph{
-		uid:      -1,
-		gid:      -1,
-		Image:    defaultImage,
-		Language: ir.Language{},
-		CUDA:     nil,
-		CUDNN:    CUDNNVersionDefault,
-		NumGPUs:  0,
+		uid:               -1,
+		gid:               -1,
+		Image:             defaultImage,
+		CUDA:              nil,
+		CUDNN:             CUDNNVersionDefault,
+		NumGPUs:           0,
+		EnvdSyntaxVersion: "v1",
 
 		PyPIPackages:    [][]string{},
 		RPackages:       [][]string{},
@@ -147,6 +144,9 @@ func (g generalGraph) GPUEnabled() bool {
 
 func (g generalGraph) Labels() (map[string]string, error) {
 	labels := make(map[string]string)
+
+	labels[types.ImageLabelSyntaxVer] = g.EnvdSyntaxVersion
+
 	str, err := json.Marshal(g.SystemPackages)
 	if err != nil {
 		return nil, err
@@ -177,6 +177,12 @@ func (g generalGraph) Labels() (map[string]string, error) {
 		return labels, err
 	}
 	labels[types.RuntimeGraphCode] = code
+
+	code, err = g.Dump()
+	if err != nil {
+		return labels, err
+	}
+	labels[types.GeneralGraphCode] = code
 
 	ports := []servertypes.EnvironmentPort{}
 	ports = append(ports, servertypes.EnvironmentPort{
@@ -256,20 +262,8 @@ func (g generalGraph) EnvString() []string {
 }
 
 func (g generalGraph) DefaultCacheImporter() (*string, error) {
-	// The base remote cache should work for all languages.
-	var res string
-	if g.CUDA != nil {
-		res = fmt.Sprintf(
-			"type=registry,ref=docker.io/%s/python-cache:envd-%s-cuda-%s-cudnn-%s",
-			viper.GetString(flag.FlagDockerOrganization),
-			version.GetVersionForImageTag(), *g.CUDA, g.CUDNN)
-	} else {
-		res = fmt.Sprintf(
-			"type=registry,ref=docker.io/%s/python-cache:envd-%s",
-			viper.GetString(flag.FlagDockerOrganization),
-			version.GetVersionForImageTag())
-	}
-	return &res, nil
+	// We don't have remote cache for v1
+	return nil, nil
 }
 
 func (g *generalGraph) GetEntrypoint(buildContextDir string) ([]string, error) {
@@ -298,7 +292,8 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 		dev := g.compileDevPackages(base)
 		sshd := g.compileSSHD(dev)
 		horust := g.installHorust(sshd)
-		userGroup := g.compileUserGroup(horust)
+		starship := g.compileStarship(horust)
+		userGroup := g.compileUserGroup(starship)
 		base = userGroup
 	}
 

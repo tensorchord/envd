@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.3.10 (2023-01-25)
+
+ * [efdd05f](https://github.com/tensorchord/envd/commit/efdd05f5219c92a5cbae14a57fb55199535b9cd4) fix: rm remote cache for v1 (#1447)
+ * [f940354](https://github.com/tensorchord/envd/commit/f9403540e1efe08b8512a728f9cd0eb3232dfb76) feat: add shm size to start options (#1445)
+ * [b0320cb](https://github.com/tensorchord/envd/commit/b0320cb2b5f82bc164210c2995caa4ca8dbf50a2) chore(deps): bump github.com/onsi/gomega from 1.24.2 to 1.25.0 (#1442)
+ * [0a2d9af](https://github.com/tensorchord/envd/commit/0a2d9af669c2b6d8128fc1b83087f05e88b4d70e) chore(deps): bump golang.org/x/crypto from 0.2.0 to 0.5.0 (#1443)
+ * [34c3150](https://github.com/tensorchord/envd/commit/34c3150db5e23dcc25b3270c396c0b1e62a0ab74) chore(deps): bump pypa/cibuildwheel from 2.11.4 to 2.12.0 (#1438)
+ * [83c63c7](https://github.com/tensorchord/envd/commit/83c63c7dbce98cd2db53fc317a5366d78ecb5bfd) fix: pip install requirements.txt (#1434)
+ * [f47f7a3](https://github.com/tensorchord/envd/commit/f47f7a353cd84dc03f577116bac33090ab8f0eac) doc: add init and daemon debug guide (#1435)
+ * [b6d49c6](https://github.com/tensorchord/envd/commit/b6d49c64290e32b4c92be009f40371b296899573) feat: add `make` as a default system package (#1433)
+ * [686d029](https://github.com/tensorchord/envd/commit/686d0295b36b4b8227c65b8e8aee60bd062006f6) fix: Add docker auth (#1432)
+ * [2d03de9](https://github.com/tensorchord/envd/commit/2d03de9872610b1177f63b613c0f38d36a9eed19) feat: :sparkles: init nerdctl support (#1378)
+
+### Contributors
+
+ * Ce Gao
+ * Keming
+ * Wei Zhang
+ * dependabot[bot]
+
 ## v0.3.9 (2023-01-18)
 
 
