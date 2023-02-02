@@ -46,20 +46,12 @@ func (s *Syncthing) NewClient() *Client {
 	return &Client{
 		ApiKey:   s.ApiKey,
 		Client:   NewAPIClient(),
-		BasePath: fmt.Sprintf("http://localhost:%s", s.Port),
+		BasePath: fmt.Sprintf("http://127.0.0.1:%s", s.Port),
 	}
 }
 
-func (c *Client) get(url string, params map[string]string) ([]byte, error) {
-	return c.sendRequest(GET, url, params, nil)
-}
-
-func (c *Client) put(url string, params map[string]string, body []byte) ([]byte, error) {
-	return c.sendRequest(PUT, url, params, body)
-}
-
 // Makes API calls to the syncthing instance's rest api
-func (c *Client) sendRequest(method string, url string, params map[string]string, body []byte) ([]byte, error) {
+func (c *Client) SendRequest(method string, url string, params map[string]string, body []byte) ([]byte, error) {
 	logrus.Debug("calling syncthing API: ", url)
 	// TODO: can implement retry logic
 

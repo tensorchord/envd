@@ -26,6 +26,7 @@ import (
 const (
 	DefaultLocalPort           = "8386"
 	DefaultRemotePort          = "8384"
+	DefaultRemoteAPIAddress    = "127.0.0.1:8386"
 	DefaultApiKey              = "envd"
 	DefaultLocalDeviceAddress  = "tcp://127.0.0.1:22000"
 	DefaultRemoteDeviceAddress = "tcp://127.0.0.1:22001"
@@ -58,7 +59,7 @@ func InitLocalConfig() *config.Configuration {
 
 // Fetches the latest configuration from the syncthing rest api
 func (s *Syncthing) GetConfig() (*config.Configuration, error) {
-	resBody, err := s.Client.get("/rest/config", nil)
+	resBody, err := s.Client.SendRequest(GET, "/rest/config", nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch syncthing config: %w", err)
 	}
@@ -117,7 +118,7 @@ func (s *Syncthing) ApplyConfig() error {
 		return fmt.Errorf("failed to marshal syncthing config: %w", err)
 	}
 
-	_, err = s.Client.put("/rest/config", nil, configByte)
+	_, err = s.Client.SendRequest(PUT, "/rest/config", nil, configByte)
 	if err != nil {
 		return fmt.Errorf("failed to apply syncthing config: %w", err)
 	}

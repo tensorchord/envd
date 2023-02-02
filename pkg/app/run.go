@@ -238,8 +238,7 @@ func run(clicontext *cli.Context) error {
 
 		if clicontext.Bool("sync") {
 			go func() {
-				syncthingApiAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.DefaultRemotePort)
-				if err := sshClient.LocalForward(syncthingApiAddr, syncthingApiAddr); err != nil {
+				if err := sshClient.LocalForward(syncthing.DefaultRemoteAPIAddress, syncthing.DefaultRemoteAPIAddress); err != nil {
 					outputChannel <- errors.Wrap(err, "failed to forward to remote api port")
 				}
 			}()

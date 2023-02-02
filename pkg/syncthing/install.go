@@ -17,6 +17,7 @@ package syncthing
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/cockroachdb/errors"
@@ -32,11 +33,11 @@ func getSyncthingVersion() string {
 }
 
 func getSyncthingInstallPath() string {
-	return fmt.Sprintf("%s/bin", fileutil.DefaultCacheDir)
+	return filepath.Join(fileutil.DefaultCacheDir, "bin")
 }
 
 func GetSyncthingBinPath() string {
-	return fmt.Sprintf("%s/syncthing", getSyncthingInstallPath())
+	return filepath.Join(getSyncthingInstallPath(), "syncthing")
 }
 
 func getSyncthingDownloadURL(os, arch, version string) (string, error) {
