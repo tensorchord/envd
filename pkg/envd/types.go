@@ -96,7 +96,7 @@ func InitProgressBar(stage int) *ProgressBar {
 				case <-done:
 					return
 				case <-timer.C:
-					bar.RenderBlank()
+					_ = bar.RenderBlank()
 				}
 			}
 		}()
@@ -121,5 +121,5 @@ func (b *ProgressBar) updateTitle(title string) {
 
 func (b *ProgressBar) finish() {
 	b.notify <- struct{}{}
-	b.bar.Finish()
+	_ = b.bar.Finish()
 }
