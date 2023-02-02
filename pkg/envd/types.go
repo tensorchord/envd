@@ -15,8 +15,12 @@
 package envd
 
 import (
+	"fmt"
+	"os"
 	"time"
 
+	"github.com/mattn/go-isatty"
+	"github.com/schollz/progressbar/v3"
 	"github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -64,4 +68,58 @@ type StartResult struct {
 	Name    string
 
 	Ports []types.EnvironmentPort
+}
+
+type ProgressBar struct {
+	bar *progressbar.ProgressBar
+	currStage int
+	totalStage int
+	notify chan struct{}
+}
+
+func InitProgressBar(stage int) *ProgressBar {
+	done := make(chan struct{})
+	bar := progressbar.NewOptions(-1,
+		progressbar.OptionSpinnerType(11),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Println()
+		}),
+	)
+
+	// only update the progress bar when it's a TTY
+	if isatty.IsTerminal(os.Stdout.Fd()) {
+		go func() {
+			timer := time.NewTicker(time.Millisecond * 100)
+			for {
+				select {
+				case <- done:
+				return
+				case <- timer.C:
+				bar.RenderBlank()
+				}
+			}
+		}()
+	}
+
+	b := ProgressBar {
+		notify: done,
+		bar: bar,
+		totalStage: stage,
+	}
+	return &b
+}
+
+func (b *ProgressBar) updateTitle(title string) {
+	b.currStage += 1
+	b.bar.Describe(fmt.Sprintf("[cyan][%d/%d][reset] %s",
+		b.currStage,
+		b.totalStage,
+		title,
+	))
+}
+
+func (b *ProgressBar) finish() {
+	b.notify <- struct{}{}
+	b.bar.Finish()
 }
