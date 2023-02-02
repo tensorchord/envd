@@ -62,6 +62,11 @@ Back to our goals, we want to help users to update the `build.envd`. This means 
 - We should be able to get the command history and extract the relevant lines for users to review.
   - it's hard to generate the `envd` function calls, so users may need to take more effort to find out which one they need
 
+## Others
+
+- For the docker runner, since it will mount the working directory, these changes will be written to the disk directly.
+- For the envd-server runner, users may need to sync changes by using git.
+
 ## TBD
 
 * Should we use a lock file or not? If so, should we use a JSON file?
