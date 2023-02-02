@@ -16,11 +16,10 @@ package envd
 
 import (
 	"fmt"
-	"os"
 	"time"
 
-	"github.com/mattn/go-isatty"
 	"github.com/schollz/progressbar/v3"
+	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -87,20 +86,17 @@ func InitProgressBar(stage int) *ProgressBar {
 		}),
 	)
 
-	// only update the progress bar when it's a TTY
-	if isatty.IsTerminal(os.Stdout.Fd()) {
-		go func() {
-			timer := time.NewTicker(time.Millisecond * 100)
-			for {
-				select {
-				case <-done:
-					return
-				case <-timer.C:
-					_ = bar.RenderBlank()
-				}
+	go func() {
+		timer := time.NewTicker(time.Millisecond * 100)
+		for {
+			select {
+			case <-done:
+				return
+			case <-timer.C:
+				_ = bar.RenderBlank()
 			}
-		}()
-	}
+		}
+	}()
 
 	b := ProgressBar{
 		notify:     done,
@@ -121,5 +117,7 @@ func (b *ProgressBar) updateTitle(title string) {
 
 func (b *ProgressBar) finish() {
 	b.notify <- struct{}{}
-	_ = b.bar.Finish()
+	if err := b.bar.Finish(); err != nil {
+		logrus.Infof("stop progress bar err: %v\n", err)
+	}
 }
