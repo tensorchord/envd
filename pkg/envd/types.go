@@ -93,7 +93,7 @@ func InitProgressBar(stage int) *ProgressBar {
 			case <-done:
 				return
 			case <-timer.C:
-				_ = bar.RenderBlank()
+				_ = bar.Add(1)
 			}
 		}
 	}()
