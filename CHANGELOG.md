@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.3.11 (2023-02-01)
+
+ * [89383b5](https://github.com/tensorchord/envd/commit/89383b5bba5229e9cb133515b69a1eccdd0331da) fix: rm redundant ForwardAgent config in ssh config (#1458)
+ * [b9f20a4](https://github.com/tensorchord/envd/commit/b9f20a4bfa28bf4bf0cb4ae90c3ba95e5ef23bb1) feat: separate starship installation by using fixed image (#1424)
+ * [2ae200b](https://github.com/tensorchord/envd/commit/2ae200bf51339b1ddb0b4474ee5b6d1c9deb459a) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.7.0 to 2.7.1 (#1454)
+ * [29ffd89](https://github.com/tensorchord/envd/commit/29ffd895601fad818d5625a03d3e9034d2103ec7) feat: support envd run in local docker context (#1428)
+ * [890b712](https://github.com/tensorchord/envd/commit/890b71228b788949cf4266ddeee90027461fadc8) chore(deps): bump github.com/docker/cli from 23.0.0-rc.1+incompatible to 23.0.0-rc.3+incompatible (#1455)
+ * [a20aa01](https://github.com/tensorchord/envd/commit/a20aa01d35d5cf93cdc3513adfa321143175687e) chore(deps): bump github.com/onsi/gomega from 1.25.0 to 1.26.0 (#1453)
+ * [c781d85](https://github.com/tensorchord/envd/commit/c781d854e659497fbeb4be65fc92baa8fa8195f1) chore(deps): bump github.com/containerd/containerd from 1.6.14 to 1.6.16 (#1451)
+ * [08f6975](https://github.com/tensorchord/envd/commit/08f6975f2a62cbfa085b4dda0ad663bbc50eb5db) chore(deps): bump dependabot/fetch-metadata from 1.3.5 to 1.3.6 (#1450)
+ * [ba63c8f](https://github.com/tensorchord/envd/commit/ba63c8f29b688ecb6deccf0e5c9fa55875a296ce) chore(deps): bump github.com/spf13/viper from 1.14.0 to 1.15.0 (#1439)
+
+### Contributors
+
+ * Jinjing Zhou
+ * Kaiyang Chen
+ * Keming
+ * dependabot[bot]
+
 ## v0.3.10 (2023-01-25)
 
  * [efdd05f](https://github.com/tensorchord/envd/commit/efdd05f5219c92a5cbae14a57fb55199535b9cd4) fix: rm remote cache for v1 (#1447)
