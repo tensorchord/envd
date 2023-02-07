@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/charmbracelet/lipgloss v0.6.0
-	github.com/cockroachdb/errors v1.9.0
+	github.com/cockroachdb/errors v1.9.1
 	github.com/containerd/console v1.0.3
 	github.com/containerd/containerd v1.6.16
 	github.com/creack/pty v1.1.18
@@ -21,7 +21,7 @@ require (
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6
 	github.com/morikuni/aec v1.0.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/onsi/ginkgo/v2 v2.7.1
+	github.com/onsi/ginkgo/v2 v2.8.0
 	github.com/onsi/gomega v1.26.0
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.1.0-rc2
@@ -33,7 +33,7 @@ require (
 	github.com/tensorchord/envd-server v0.0.25
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
 	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
-	github.com/urfave/cli/v2 v2.24.1
+	github.com/urfave/cli/v2 v2.24.3
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.5.0
 	golang.org/x/sync v0.1.0
