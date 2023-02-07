@@ -101,7 +101,7 @@ func (m generalManager) DownloadOrCache() (bool, error) {
 		Name: "origin",
 		URLs: []string{url},
 		Fetch: []config.RefSpec{
-			config.RefSpec("+refs/heads/master:refs/remotes/origin/master"),
+			"+refs/heads/master:refs/remotes/origin/master",
 		},
 	}
 	cfg.Branches["master"] = &config.Branch{

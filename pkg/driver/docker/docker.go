@@ -81,12 +81,11 @@ func NormalizeName(s string) (string, error) {
 		} else {
 			s = remoteName
 		}
-		logrus.Warnf("The working direcotry's name is not lowercased: %s, the image built will be lowercased to %s", remoteName, s)
+		logrus.Warnf("The working directory's name is not lowercased: %s, the image built will be lowercased to %s", remoteName, s)
 	}
 	// remove the spaces
 	s = strings.ReplaceAll(s, " ", "")
 	return s, nil
-
 }
 
 func (c dockerClient) ListImage(ctx context.Context) ([]types.ImageSummary, error) {
