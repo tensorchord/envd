@@ -95,7 +95,7 @@ func (m *generalManager) ContextCreate(ctx types.Context, use bool) error {
 		}
 	}
 	switch ctx.Builder {
-	case types.BuilderTypeDocker, types.BuilderTypeKubernetes,
+	case types.BuilderTypeDocker, types.BuilderTypeMoby, types.BuilderTypeKubernetes,
 		types.BuilderTypeUNIXDomainSocket, types.BuilderTypeTCP:
 		break
 	default:

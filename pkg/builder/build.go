@@ -79,9 +79,19 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get the current context")
 	}
-	cli, err := buildkitd.NewClient(ctx, c.Builder, c.BuilderAddress, "")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create buildkit client")
+	var cli buildkitd.Client
+	if c.Builder == types.BuilderTypeDocker {
+		cli, err = buildkitd.NewClient(ctx,
+			c.Builder, c.BuilderAddress, "")
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create moby buildkit client")
+		}
+	} else {
+		cli, err = buildkitd.NewClient(ctx,
+			c.Builder, c.BuilderAddress, "")
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create buildkit client")
+		}
 	}
 	b.Client = cli
 

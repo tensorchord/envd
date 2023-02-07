@@ -22,6 +22,7 @@ import (
 
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/version"
 )
 
 type Manager interface {
@@ -54,6 +55,11 @@ var (
 
 func Initialize() error {
 	once.Do(func() {
+		builder := types.BuilderTypeDocker
+		dockerVersion, err := version.GetDockerVersion()
+		if err == nil && dockerVersion > 22 {
+			builder = types.BuilderTypeMoby
+		}
 		defaultManager = &generalManager{
 			cacheMap: make(map[string]bool),
 			context: types.EnvdContext{
@@ -61,7 +67,7 @@ func Initialize() error {
 				Contexts: []types.Context{
 					{
 						Name:           "default",
-						Builder:        types.BuilderTypeDocker,
+						Builder:        builder,
 						BuilderAddress: "envd_buildkitd",
 						Runner:         types.RunnerTypeDocker,
 						RunnerAddress:  nil,
