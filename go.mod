@@ -41,7 +41,11 @@ require (
 	golang.org/x/time v0.1.0
 )
 
-require github.com/moby/patternmatcher v0.5.0 // indirect
+require (
+	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
+	github.com/moby/patternmatcher v0.5.0 // indirect
+	github.com/schollz/progressbar/v3 v3.13.0 // indirect
+)
 
 require (
 	github.com/aymanbagabas/go-osc52 v1.0.3 // indirect
@@ -59,7 +63,7 @@ require (
 	github.com/muesli/termenv v0.13.0 // indirect
 	github.com/op/go-logging v0.0.0-20160211212156-b2cb9fa56473 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/segmentio/backo-go v1.0.0 // indirect
 )
 
