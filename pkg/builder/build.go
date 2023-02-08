@@ -80,7 +80,7 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 		return nil, errors.Wrap(err, "failed to get the current context")
 	}
 	var cli buildkitd.Client
-	if c.Builder == types.BuilderTypeDocker {
+	if c.Builder == types.BuilderTypeMoby {
 		cli, err = buildkitd.NewMobyClient(ctx,
 			c.Builder, c.BuilderAddress, "")
 		if err != nil {

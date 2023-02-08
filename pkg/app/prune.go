@@ -79,7 +79,7 @@ func prune(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get the current context")
 	}
 	var bkClient buildkitd.Client
-	if c.Builder == types.BuilderTypeDocker {
+	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
 			c.Builder, c.BuilderAddress, "")
 		if err != nil {
