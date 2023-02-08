@@ -296,9 +296,6 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 						Attrs: map[string]string{
 							"name": b.Tag,
 						},
-						Output: func(map[string]string) (io.WriteCloser, error) {
-							return pipeW, nil
-						},
 					}
 				}
 				solveOpt := client.SolveOpt{
