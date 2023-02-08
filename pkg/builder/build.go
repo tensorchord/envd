@@ -39,6 +39,10 @@ import (
 )
 
 func New(ctx context.Context, opt Options) (Builder, error) {
+	c, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get the current context")
+	}
 	entries, err := parseOutput(opt.OutputOpts)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse output")
@@ -47,9 +51,14 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 	logrus.WithField("entry", entries).Debug("getting exporter entry")
 	// Build docker image by default
 	if len(entries) == 0 {
+		logrus.Debug("not output entry")
+		exportType := client.ExporterDocker
+		if c.Builder == types.BuilderTypeMoby {
+			exportType = "moby"
+		}
 		entries = []client.ExportEntry{
 			{
-				Type: client.ExporterDocker,
+				Type: exportType,
 			},
 		}
 	} else if len(entries) > 1 {
@@ -75,10 +84,7 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 		GetDepsFilesHandler: vc.GetDefaultGraph().GetDepsFiles,
 	}
 
-	c, err := home.GetManager().ContextGetCurrent()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get the current context")
-	}
+	
 	var cli buildkitd.Client
 	if c.Builder == types.BuilderTypeMoby {
 		cli, err = buildkitd.NewMobyClient(ctx,
