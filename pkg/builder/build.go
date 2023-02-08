@@ -84,7 +84,6 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 		GetDepsFilesHandler: vc.GetDefaultGraph().GetDepsFiles,
 	}
 
-	
 	var cli buildkitd.Client
 	if c.Builder == types.BuilderTypeMoby {
 		cli, err = buildkitd.NewMobyClient(ctx,
@@ -285,6 +284,21 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 			})
 		default:
 			eg.Go(func() error {
+				c, err := home.GetManager().ContextGetCurrent()
+				if err != nil {
+					return errors.Wrap(err, "failed to get the current context")
+				}
+				if entry.Attrs == nil && c.Builder == types.BuilderTypeMoby {
+					entry = client.ExportEntry{
+						Type: "moby",
+						Attrs: map[string]string{
+							"name": b.Tag,
+						},
+						Output: func(map[string]string) (io.WriteCloser, error) {
+							return pipeW, nil
+						},
+					}
+				}
 				solveOpt := client.SolveOpt{
 					CacheExports: ce,
 					Exports:      []client.ExportEntry{entry},
@@ -301,7 +315,7 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 						"build-arg:NO_PROXY":    os.Getenv("NO_PROXY"),
 					}
 				}
-				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
+				_, err = b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
 					err = errors.Wrap(err, "failed to solve LLB")
 					return err
