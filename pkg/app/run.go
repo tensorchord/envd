@@ -16,6 +16,7 @@ package app
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -69,10 +70,21 @@ var CommandCreate = &cli.Command{
 			Value:   sshconfig.GetPrivateKeyOrPanic(),
 			Hidden:  true,
 		},
+		&cli.PathFlag{
+			Name:    "path",
+			Usage:   "Working directory path to be used as project root",
+			Aliases: []string{"p"},
+			Value:   ".",
+		},
 		&cli.StringFlag{
 			Name:  "host",
 			Usage: "Assign the host address for environment ssh acesss server listening",
 			Value: envd.Localhost,
+		},
+		&cli.IntFlag{
+			Name:  "shm-size",
+			Usage: "Configure the shared memory size (megabyte)",
+			Value: 2048,
 		},
 		&cli.StringFlag{
 			Name:  "cpu",
@@ -89,6 +101,11 @@ var CommandCreate = &cli.Command{
 			Usage: "Request GPU resources (number of gpus), such as 1, 2",
 			Value: "",
 		},
+		&cli.StringSliceFlag{
+			Name:    "volume",
+			Usage:   "Mount host directory into container",
+			Aliases: []string{"v"},
+		},
 	},
 	Action: run,
 }
@@ -97,9 +114,6 @@ func run(clicontext *cli.Context) error {
 	c, err := home.GetManager().ContextGetCurrent()
 	if err != nil {
 		return errors.Wrap(err, "failed to get current context")
-	}
-	if c.Runner == types.RunnerTypeDocker {
-		return errors.Newf("docker runner is not supported for this command, please use `envd up`")
 	}
 	telemetry.GetReporter().Telemetry(
 		"run", telemetry.AddField("runner", c.Runner))
@@ -122,11 +136,26 @@ func run(clicontext *cli.Context) error {
 		NumMem:          clicontext.String("memory"),
 		NumCPU:          clicontext.String("cpu"),
 		NumGPU:          clicontext.Int("gpu"),
+		ShmSize:         clicontext.Int("shm-size"),
 		EnvironmentName: name,
 	}
 	if c.Runner == types.RunnerTypeEnvdServer {
 		opt.EnvdServerSource = &envd.EnvdServerSource{}
+		if len(clicontext.StringSlice("volume")) > 0 {
+			return errors.New("volume is not supported for envd-server runner")
+		}
+	} else if c.Runner == types.RunnerTypeDocker {
+		opt.DockerSource = &envd.DockerSource{
+			MountOptions: clicontext.StringSlice("volume"),
+		}
+
+		buildContext, err := filepath.Abs(clicontext.Path("path"))
+		if err != nil {
+			return errors.Wrap(err, "failed to get absolute path of the build context")
+		}
+		opt.BuildContext = buildContext
 	}
+
 	res, err := engine.StartEnvd(clicontext.Context, opt)
 	if err != nil {
 		return err

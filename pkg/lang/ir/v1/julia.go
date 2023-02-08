@@ -15,6 +15,7 @@
 package v1
 
 import (
+	_ "embed"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -23,12 +24,14 @@ import (
 )
 
 const (
-	juliaRootDir     = "/opt/julia"                                                                           // Location of downloaded Julia binary and other files
-	juliaBinDir      = "/opt/julia/bin"                                                                       // Location of Julia executable binary file
-	juliaPkgDir      = "/opt/julia/user_packages"                                                             // Location of additional packages installed via Julia
-	juliaDownloadURL = "https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.3-linux-x86_64.tar.gz" // The official link for downloading Julia environment
-	juliaBinName     = "julia.tar.gz"                                                                         // Julia archive name
+	juliaRootDir = "/opt/julia"               // Location of downloaded Julia binary and other files
+	juliaBinDir  = "/opt/julia/bin"           // Location of Julia executable binary file
+	juliaPkgDir  = "/opt/julia/user_packages" // Location of additional packages installed via Julia
+	juliaBinName = "julia.tar.gz"             // Julia archive name
 )
+
+//go:embed julia.sh
+var downloadJuliaBashScript string
 
 // getJuliaBinary returns the llb.State only after setting up Julia environment
 // A successful run of getJuliaBinary should set up the Julia environment
@@ -36,12 +39,12 @@ func (g generalGraph) getJuliaBinary(root llb.State) llb.State {
 
 	base := llb.Image(builderImage)
 	builder := base.
-		Run(llb.Shlexf(`sh -c "curl %s -o %s"`, juliaDownloadURL, juliaBinName),
+		Run(llb.Shlexf("sh -c '%s'", downloadJuliaBashScript),
 			llb.WithCustomName("[internal] downloading julia binary")).Root()
 
 	var path = filepath.Join("/tmp", juliaBinName)
 	setJulia := root.
-		File(llb.Copy(builder, juliaBinName, path),
+		File(llb.Copy(builder, path, path),
 			llb.WithCustomNamef("[internal] copying %s to /tmp", juliaBinName)).
 		File(llb.Mkdir(juliaRootDir, 0755, llb.WithParents(true)),
 			llb.WithCustomNamef("[internal] creating %s folder for julia binary", juliaRootDir)).
@@ -87,7 +90,7 @@ func (g *generalGraph) installJuliaPackages(root llb.State) llb.State {
 	for _, packages := range g.JuliaPackages {
 		command := fmt.Sprintf(`julia -e 'using Pkg; Pkg.add(["%s"])'`, strings.Join(packages, `","`))
 		run := root.
-			Run(llb.Shlex(command), llb.WithCustomNamef("[internal] installing Julia pacakges: %s", strings.Join(packages, " ")))
+			Run(llb.Shlex(command), llb.WithCustomNamef("[internal] installing Julia packages: %s", strings.Join(packages, " ")))
 		root = run.Root()
 	}
 

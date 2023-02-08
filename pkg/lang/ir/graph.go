@@ -27,6 +27,11 @@ type Graph interface {
 
 	graphDebugger
 	graphVisitor
+	graphSerializer
+}
+
+type graphSerializer interface {
+	GeneralGraphFromLabel(label []byte) (Graph, error)
 }
 
 type graphDebugger interface {

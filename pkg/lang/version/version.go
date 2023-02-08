@@ -55,6 +55,20 @@ type generalGetter struct {
 	v Version
 }
 
+func NewByVersion(ver string) Getter {
+	g := &generalGetter{}
+	switch ver {
+	case string(V1):
+		g.v = V1
+	case string(V0):
+		g.v = V0
+	default:
+		logrus.Debug("unknown version, using v0 by default")
+		g.v = V0
+	}
+	return g
+}
+
 // New returns a new version getter.
 func New(file string) (Getter, error) {
 	f, err := os.Open(file)

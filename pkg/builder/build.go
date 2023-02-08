@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
+	"github.com/docker/cli/cli/config"
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/session"
@@ -29,7 +30,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/tensorchord/envd/pkg/buildkitd"
-	"github.com/tensorchord/envd/pkg/docker"
+	"github.com/tensorchord/envd/pkg/driver/docker"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -221,7 +222,8 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 
 	for _, entry := range b.entries {
 		// Set up docker config auth.
-		attachable := []session.Attachable{authprovider.NewDockerAuthProvider(os.Stderr)}
+		dockerConfig := config.LoadDefaultConfigFile(os.Stderr)
+		attachable := []session.Attachable{authprovider.NewDockerAuthProvider(dockerConfig)}
 		b.logger.WithFields(logrus.Fields{
 			"type": entry.Type,
 		}).Debug("build image with buildkit")

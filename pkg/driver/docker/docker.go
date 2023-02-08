@@ -22,6 +22,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
@@ -31,32 +32,20 @@ import (
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/moby/term"
 	"github.com/sirupsen/logrus"
+
+	"github.com/tensorchord/envd/pkg/driver"
 )
 
 var (
 	anchoredIdentifierRegexp = regexp.MustCompile(`^([a-f0-9]{64})$`)
+	waitingInterval          = 1 * time.Second
 )
 
-type Client interface {
-	// Load loads the image from the reader to the docker host.
-	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
-	StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error)
-
-	Exec(ctx context.Context, cname string, cmd []string) error
-
-	GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error)
-	RemoveImage(ctx context.Context, image string) error
-
-	PruneImage(ctx context.Context) (types.ImagesPruneReport, error)
-
-	Stats(ctx context.Context, cname string, statChan chan<- *Stats, done <-chan bool) error
-}
-
-type generalClient struct {
+type dockerClient struct {
 	*client.Client
 }
 
-func NewClient(ctx context.Context) (Client, error) {
+func NewClient(ctx context.Context) (driver.Client, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
@@ -70,7 +59,7 @@ please visit https://docs.docker.com/engine/install/linux-postinstall/ for more 
 		}
 		return nil, err
 	}
-	return generalClient{cli}, nil
+	return dockerClient{cli}, nil
 }
 
 // Normalize the name accord the spec of docker, It may support normalize imagea and container in the future.
@@ -92,22 +81,21 @@ func NormalizeName(s string) (string, error) {
 		} else {
 			s = remoteName
 		}
-		logrus.Warnf("The working direcotry's name is not lowercased: %s, the image built will be lowercased to %s", remoteName, s)
+		logrus.Warnf("The working directory's name is not lowercased: %s, the image built will be lowercased to %s", remoteName, s)
 	}
 	// remove the spaces
 	s = strings.ReplaceAll(s, " ", "")
 	return s, nil
-
 }
 
-func (c generalClient) ListImage(ctx context.Context) ([]types.ImageSummary, error) {
+func (c dockerClient) ListImage(ctx context.Context) ([]types.ImageSummary, error) {
 	images, err := c.ImageList(ctx, types.ImageListOptions{
 		Filters: dockerFilters(false),
 	})
 	return images, err
 }
 
-func (c generalClient) RemoveImage(ctx context.Context, image string) error {
+func (c dockerClient) RemoveImage(ctx context.Context, image string) error {
 	_, err := c.ImageRemove(ctx, image, types.ImageRemoveOptions{})
 	if err != nil {
 		logrus.WithError(err).Errorf("failed to remove image %s", image)
@@ -116,7 +104,7 @@ func (c generalClient) RemoveImage(ctx context.Context, image string) error {
 	return nil
 }
 
-func (c generalClient) GetImage(ctx context.Context, image string) (types.ImageSummary, error) {
+func (c dockerClient) GetImage(ctx context.Context, image string) (types.ImageSummary, error) {
 	images, err := c.ImageList(ctx, types.ImageListOptions{
 		Filters: dockerFiltersWithName(image),
 	})
@@ -129,7 +117,7 @@ func (c generalClient) GetImage(ctx context.Context, image string) (types.ImageS
 	return images[0], nil
 }
 
-func (c generalClient) GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error) {
+func (c dockerClient) GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error) {
 	images, err := c.ImageList(ctx, types.ImageListOptions{
 		Filters: dockerFiltersWithCacheLabel(image, hash),
 	})
@@ -142,7 +130,7 @@ func (c generalClient) GetImageWithCacheHashLabel(ctx context.Context, image str
 	return images[0], nil
 }
 
-func (c generalClient) PauseContainer(ctx context.Context, name string) (string, error) {
+func (c dockerClient) PauseContainer(ctx context.Context, name string) (string, error) {
 	logger := logrus.WithField("container", name)
 	err := c.ContainerPause(ctx, name)
 	if err != nil {
@@ -161,7 +149,7 @@ func (c generalClient) PauseContainer(ctx context.Context, name string) (string,
 	return name, nil
 }
 
-func (c generalClient) ResumeContainer(ctx context.Context, name string) (string, error) {
+func (c dockerClient) ResumeContainer(ctx context.Context, name string) (string, error) {
 	logger := logrus.WithField("container", name)
 	err := c.ContainerUnpause(ctx, name)
 	if err != nil {
@@ -180,7 +168,8 @@ func (c generalClient) ResumeContainer(ctx context.Context, name string) (string
 	return name, nil
 }
 
-func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror string) (string, error) {
+func (c dockerClient) StartBuildkitd(ctx context.Context,
+	tag, name, mirror string, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
@@ -248,10 +237,15 @@ func (c generalClient) StartBuildkitd(ctx context.Context, tag, name, mirror str
 		return "", errors.Wrap(err, "failed to inspect container")
 	}
 
+	err = c.waitUntilRunning(ctx, container.Name, timeout)
+	if err != nil {
+		return "", err
+	}
+
 	return container.Name, nil
 }
 
-func (c generalClient) Exists(ctx context.Context, cname string) (bool, error) {
+func (c dockerClient) Exists(ctx context.Context, cname string) (bool, error) {
 	_, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
@@ -262,7 +256,7 @@ func (c generalClient) Exists(ctx context.Context, cname string) (bool, error) {
 	return true, nil
 }
 
-func (c generalClient) IsRunning(ctx context.Context, cname string) (bool, error) {
+func (c dockerClient) IsRunning(ctx context.Context, cname string) (bool, error) {
 	container, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
@@ -275,7 +269,7 @@ func (c generalClient) IsRunning(ctx context.Context, cname string) (bool, error
 
 // Load loads the docker image from the reader into the docker host.
 // It's up to the caller to close the io.ReadCloser.
-func (c generalClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) error {
+func (c dockerClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) error {
 	resp, err := c.ImageLoad(ctx, r, quiet)
 	if err != nil {
 		return err
@@ -285,7 +279,7 @@ func (c generalClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) er
 	return nil
 }
 
-func (c generalClient) Exec(ctx context.Context, cname string, cmd []string) error {
+func (c dockerClient) Exec(ctx context.Context, cname string, cmd []string) error {
 	execConfig := types.ExecConfig{
 		Cmd:    cmd,
 		Detach: true,
@@ -300,7 +294,7 @@ func (c generalClient) Exec(ctx context.Context, cname string, cmd []string) err
 	})
 }
 
-func (c generalClient) PruneImage(ctx context.Context) (types.ImagesPruneReport, error) {
+func (c dockerClient) PruneImage(ctx context.Context) (types.ImagesPruneReport, error) {
 	pruneReport, err := c.ImagesPrune(ctx, filters.Args{})
 	if err != nil {
 		return types.ImagesPruneReport{}, errors.Wrap(err, "failed to prune images")
@@ -308,7 +302,7 @@ func (c generalClient) PruneImage(ctx context.Context) (types.ImagesPruneReport,
 	return pruneReport, nil
 }
 
-func (c generalClient) Stats(ctx context.Context, cname string, statChan chan<- *Stats, done <-chan bool) (retErr error) {
+func (c dockerClient) Stats(ctx context.Context, cname string, statChan chan<- *driver.Stats, done <-chan bool) (retErr error) {
 	errC := make(chan error, 1)
 	containerStats, err := c.ContainerStats(ctx, cname, true)
 	readCloser := containerStats.Body
@@ -340,13 +334,49 @@ func (c generalClient) Stats(ctx context.Context, cname string, statChan chan<- 
 		return err
 	}
 	decoder := json.NewDecoder(readCloser)
-	stats := new(Stats)
+	stats := new(driver.Stats)
 	for err := decoder.Decode(stats); !errors.Is(err, io.EOF); err = decoder.Decode(stats) {
 		if err != nil {
 			return err
 		}
 		statChan <- stats
-		stats = new(Stats)
+		stats = new(driver.Stats)
 	}
 	return nil
+}
+
+func (c dockerClient) waitUntilRunning(ctx context.Context,
+	name string, timeout time.Duration) error {
+	logger := logrus.WithField("container", name)
+	logger.Debug("waiting to start")
+
+	// First, wait for the container to be marked as started.
+	ctxTimeout, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	for {
+		select {
+		case <-time.After(waitingInterval):
+			isRunning, err := c.IsRunning(ctxTimeout, name)
+			if err != nil {
+				// Has not yet started. Keep waiting.
+				return errors.Wrap(err, "failed to check if container is running")
+			}
+			if isRunning {
+				logger.Debug("the container is running")
+				return nil
+			}
+
+		case <-ctxTimeout.Done():
+			container, err := c.ContainerInspect(ctx, name)
+			if err != nil {
+				logger.Debugf("failed to inspect container %s", name)
+			}
+			state, err := json.Marshal(container.State)
+			if err != nil {
+				logger.Debug("failed to marshal container state")
+			}
+			logger.Debugf("container state: %s", state)
+			return errors.Errorf("timeout %s: container did not start", timeout)
+		}
+	}
 }

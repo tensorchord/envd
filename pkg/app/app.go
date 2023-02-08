@@ -18,6 +18,7 @@ import (
 	"github.com/cockroachdb/errors"
 	_ "github.com/moby/buildkit/client/connhelper/dockercontainer"
 	_ "github.com/moby/buildkit/client/connhelper/kubepod"
+	_ "github.com/moby/buildkit/client/connhelper/nerdctlcontainer"
 	_ "github.com/moby/buildkit/client/connhelper/podmancontainer"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
