@@ -72,6 +72,7 @@ type generalClient struct {
 
 func NewMobyClient(ctx context.Context, driver types.BuilderType,
 	socket, mirror string) (Client, error) {
+	logrus.Debug("getting moby buildkit client")
 	c := &generalClient{
 		containerName: socket,
 		image:         viper.GetString(flag.FlagBuildkitdImage),

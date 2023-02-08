@@ -81,7 +81,7 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 	}
 	var cli buildkitd.Client
 	if c.Builder == types.BuilderTypeDocker {
-		cli, err = buildkitd.NewClient(ctx,
+		cli, err = buildkitd.NewMobyClient(ctx,
 			c.Builder, c.BuilderAddress, "")
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create moby buildkit client")

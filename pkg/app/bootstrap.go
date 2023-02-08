@@ -208,7 +208,7 @@ func buildkit(clicontext *cli.Context) error {
 	logrus.Debug("bootstrap the buildkitd container")
 	var bkClient buildkitd.Client
 	if c.Builder == types.BuilderTypeDocker {
-		bkClient, err = buildkitd.NewClient(clicontext.Context,
+		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
 			c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"))
 		if err != nil {
 			return errors.Wrap(err, "failed to create moby buildkit client")
