@@ -228,22 +228,7 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 					}
 				}
 				defer pipeW.Close()
-				solveOpt := client.SolveOpt{
-					CacheExports: ce,
-					Exports:      []client.ExportEntry{entry},
-					LocalDirs: map[string]string{
-						flag.FlagCacheDir:     home.GetManager().CacheDir(),
-						flag.FlagBuildContext: b.BuildContextDir,
-					},
-					Session: attachable,
-				}
-				if b.UseHTTPProxy {
-					solveOpt.FrontendAttrs = map[string]string{
-						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
-						"build-arg:HTTP_PROXY":  os.Getenv("HTTP_PROXY"),
-						"build-arg:NO_PROXY":    os.Getenv("NO_PROXY"),
-					}
-				}
+				solveOpt := constructSolveOpt(ce, entry, b, attachable)
 				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
 					err = errors.Wrap(&BuildkitdErr{err: err}, "Buildkit error")
@@ -270,31 +255,18 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 				return nil
 			})
 		default:
-			eg.Go(func() error {
-				solveOpt := client.SolveOpt{
-					CacheExports: ce,
-					Exports:      []client.ExportEntry{entry},
-					LocalDirs: map[string]string{
-						flag.FlagCacheDir:     home.GetManager().CacheDir(),
-						flag.FlagBuildContext: b.BuildContextDir,
-					},
-					Session: attachable,
-				}
-				if b.UseHTTPProxy {
-					solveOpt.FrontendAttrs = map[string]string{
-						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
-						"build-arg:HTTP_PROXY":  os.Getenv("HTTP_PROXY"),
-						"build-arg:NO_PROXY":    os.Getenv("NO_PROXY"),
+			func(entry client.ExportEntry) {
+				eg.Go(func() error {
+					solveOpt := constructSolveOpt(ce, entry, b, attachable)
+					_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
+					if err != nil {
+						err = errors.Wrap(err, "failed to solve LLB")
+						return err
 					}
-				}
-				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
-				if err != nil {
-					err = errors.Wrap(err, "failed to solve LLB")
-					return err
-				}
-				b.logger.Debug("llb def is solved successfully")
-				return nil
-			})
+					b.logger.Debug("llb def is solved successfully")
+					return nil
+				})
+			}(entry)
 		}
 	}
 
@@ -318,4 +290,25 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 	}
 	b.logger.Debug("build successfully")
 	return nil
+}
+
+func constructSolveOpt(ce []client.CacheOptionsEntry, entry client.ExportEntry,
+	b generalBuilder, attachable []session.Attachable) client.SolveOpt {
+	opt := client.SolveOpt{
+		CacheExports: ce,
+		Exports:      []client.ExportEntry{entry},
+		LocalDirs: map[string]string{
+			flag.FlagCacheDir:     home.GetManager().CacheDir(),
+			flag.FlagBuildContext: b.BuildContextDir,
+		},
+		Session: attachable,
+	}
+	if b.UseHTTPProxy {
+		opt.FrontendAttrs = map[string]string{
+			"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
+			"build-arg:HTTP_PROXY":  os.Getenv("HTTP_PROXY"),
+			"build-arg:NO_PROXY":    os.Getenv("NO_PROXY"),
+		}
+	}
+	return opt
 }
