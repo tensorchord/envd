@@ -41,6 +41,10 @@ import (
 
 func New(ctx context.Context, opt Options) (Builder, error) {
 	entries, err := parseOutput(opt.OutputOpts)
+	c, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get the current context")
+	}
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse output")
 	}
@@ -48,9 +52,13 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 	logrus.WithField("entry", entries).Debug("getting exporter entry")
 	// Build docker image by default
 	if len(entries) == 0 {
+		exportType := client.ExporterDocker
+		if c.Builder == types.BuilderTypeMoby {
+			exportType = "moby"
+		}
 		entries = []client.ExportEntry{
 			{
-				Type: client.ExporterDocker,
+				Type: exportType,
 			},
 		}
 	} else if len(entries) > 1 {
@@ -76,13 +84,19 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 		GetDepsFilesHandler: vc.GetDefaultGraph().GetDepsFiles,
 	}
 
-	c, err := home.GetManager().ContextGetCurrent()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get the current context")
-	}
-	cli, err := buildkitd.NewClient(ctx, c.Builder, c.BuilderAddress, "")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create buildkit client")
+	var cli buildkitd.Client
+	if c.Builder == types.BuilderTypeMoby {
+		cli, err = buildkitd.NewMobyClient(ctx,
+			c.Builder, c.BuilderAddress, "")
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create moby buildkit client")
+		}
+	} else {
+		cli, err = buildkitd.NewClient(ctx,
+			c.Builder, c.BuilderAddress, "")
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create buildkit client")
+		}
 	}
 	b.Client = cli
 
@@ -294,6 +308,15 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 
 func constructSolveOpt(ce []client.CacheOptionsEntry, entry client.ExportEntry,
 	b generalBuilder, attachable []session.Attachable) client.SolveOpt {
+	c, _ := home.GetManager().ContextGetCurrent()
+	if entry.Attrs == nil && c.Builder == types.BuilderTypeMoby {
+		entry = client.ExportEntry{
+			Type: "moby",
+			Attrs: map[string]string{
+				"name": b.Tag,
+			},
+		}
+	}
 	opt := client.SolveOpt{
 		CacheExports: ce,
 		Exports:      []client.ExportEntry{entry},

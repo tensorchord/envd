@@ -23,6 +23,7 @@ import (
 	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/buildkitd"
 	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 var CommandPrune = &cli.Command{
@@ -77,10 +78,19 @@ func prune(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the current context")
 	}
-	bkClient, err := buildkitd.NewClient(clicontext.Context,
-		c.Builder, c.BuilderAddress, "")
-	if err != nil {
-		return errors.Wrap(err, "failed to create buildkit client")
+	var bkClient buildkitd.Client
+	if c.Builder == types.BuilderTypeMoby {
+		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
+			c.Builder, c.BuilderAddress, "")
+		if err != nil {
+			return errors.Wrap(err, "failed to create moby buildkit client")
+		}
+	} else {
+		bkClient, err = buildkitd.NewClient(clicontext.Context,
+			c.Builder, c.BuilderAddress, "")
+		if err != nil {
+			return errors.Wrap(err, "failed to create buildkit client")
+		}
 	}
 	if err := bkClient.Prune(clicontext.Context,
 		keepDuration, keepStorage, filter, verbose, cleanAll); err != nil {
