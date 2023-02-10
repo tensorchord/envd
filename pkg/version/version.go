@@ -147,10 +147,10 @@ func GetDockerVersion() (int, error) {
 
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	defer cli.Close()
 	if err != nil {
 		return -1, err
 	}
+	defer cli.Close()
 
 	info, err := cli.Info(ctx)
 	if err != nil {
