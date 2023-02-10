@@ -41,12 +41,13 @@ import (
 
 func New(ctx context.Context, opt Options) (Builder, error) {
 	entries, err := parseOutput(opt.OutputOpts)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse output")
+	}
+
 	c, err := home.GetManager().ContextGetCurrent()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get the current context")
-	}
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse output")
 	}
 
 	logrus.WithField("entry", entries).Debug("getting exporter entry")
