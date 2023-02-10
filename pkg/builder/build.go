@@ -285,43 +285,18 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 				return nil
 			})
 		default:
-			eg.Go(func() error {
-				c, err := home.GetManager().ContextGetCurrent()
-				if err != nil {
-					return errors.Wrap(err, "failed to get the current context")
-				}
-				if entry.Attrs == nil && c.Builder == types.BuilderTypeMoby {
-					entry = client.ExportEntry{
-						Type: "moby",
-						Attrs: map[string]string{
-							"name": b.Tag,
-						},
+			func(entry client.ExportEntry) {
+				eg.Go(func() error {
+					solveOpt := constructSolveOpt(ce, entry, b, attachable)
+					_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
+					if err != nil {
+						err = errors.Wrap(err, "failed to solve LLB")
+						return err
 					}
-				}
-				solveOpt := client.SolveOpt{
-					CacheExports: ce,
-					Exports:      []client.ExportEntry{entry},
-					LocalDirs: map[string]string{
-						flag.FlagCacheDir:     home.GetManager().CacheDir(),
-						flag.FlagBuildContext: b.BuildContextDir,
-					},
-					Session: attachable,
-				}
-				if b.UseHTTPProxy {
-					solveOpt.FrontendAttrs = map[string]string{
-						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
-						"build-arg:HTTP_PROXY":  os.Getenv("HTTP_PROXY"),
-						"build-arg:NO_PROXY":    os.Getenv("NO_PROXY"),
-					}
-				}
-				_, err = b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
-				if err != nil {
-					err = errors.Wrap(err, "failed to solve LLB")
-					return err
-				}
-				b.logger.Debug("llb def is solved successfully")
-				return nil
-			})
+					b.logger.Debug("llb def is solved successfully")
+					return nil
+				})
+			}(entry)
 		}
 	}
 
@@ -345,4 +320,34 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 	}
 	b.logger.Debug("build successfully")
 	return nil
+}
+
+func constructSolveOpt(ce []client.CacheOptionsEntry, entry client.ExportEntry,
+	b generalBuilder, attachable []session.Attachable) client.SolveOpt {
+	c, _ := home.GetManager().ContextGetCurrent()
+	if entry.Attrs == nil && c.Builder == types.BuilderTypeMoby {
+		entry = client.ExportEntry{
+			Type: "moby",
+			Attrs: map[string]string{
+				"name": b.Tag,
+			},
+		}
+	}
+	opt := client.SolveOpt{
+		CacheExports: ce,
+		Exports:      []client.ExportEntry{entry},
+		LocalDirs: map[string]string{
+			flag.FlagCacheDir:     home.GetManager().CacheDir(),
+			flag.FlagBuildContext: b.BuildContextDir,
+		},
+		Session: attachable,
+	}
+	if b.UseHTTPProxy {
+		opt.FrontendAttrs = map[string]string{
+			"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
+			"build-arg:HTTP_PROXY":  os.Getenv("HTTP_PROXY"),
+			"build-arg:NO_PROXY":    os.Getenv("NO_PROXY"),
+		}
+	}
+	return opt
 }

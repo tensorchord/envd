@@ -61,7 +61,7 @@ func (g generalGraph) installHorust(root llb.State) llb.State {
 			llb.WithCustomNamef("[internal] mkdir for horust log: %s", types.HorustLogDir)).
 		Run(llb.Shlexf(`sudo chmod 777 %s`, types.HorustLogDir),
 			llb.WithCustomName("[internal] change dirctory permission for logging"))
-		
+
 	return horust.Root()
 }
 
