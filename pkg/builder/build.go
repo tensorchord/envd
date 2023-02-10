@@ -243,22 +243,7 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 					}
 				}
 				defer pipeW.Close()
-				solveOpt := client.SolveOpt{
-					CacheExports: ce,
-					Exports:      []client.ExportEntry{entry},
-					LocalDirs: map[string]string{
-						flag.FlagCacheDir:     home.GetManager().CacheDir(),
-						flag.FlagBuildContext: b.BuildContextDir,
-					},
-					Session: attachable,
-				}
-				if b.UseHTTPProxy {
-					solveOpt.FrontendAttrs = map[string]string{
-						"build-arg:HTTPS_PROXY": os.Getenv("HTTPS_PROXY"),
-						"build-arg:HTTP_PROXY":  os.Getenv("HTTP_PROXY"),
-						"build-arg:NO_PROXY":    os.Getenv("NO_PROXY"),
-					}
-				}
+				solveOpt := constructSolveOpt(ce, entry, b, attachable)
 				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
 					err = errors.Wrap(&BuildkitdErr{err: err}, "Buildkit error")
