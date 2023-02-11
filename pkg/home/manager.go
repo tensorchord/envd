@@ -20,9 +20,9 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/tensorchord/envd/pkg/driver/docker"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
-	"github.com/tensorchord/envd/pkg/version"
 )
 
 type Manager interface {
@@ -55,7 +55,7 @@ var (
 
 func Initialize() error {
 	builder := types.BuilderTypeDocker
-	dockerVersion, err := version.GetDockerVersion()
+	dockerVersion, err := docker.GetDockerVersion()
 	if err == nil && dockerVersion > 22 {
 		builder = types.BuilderTypeMoby
 	}

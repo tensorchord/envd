@@ -19,15 +19,11 @@
 package version
 
 import (
-	"context"
 	"fmt"
 	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/docker/docker/client"
 )
 
 var (
@@ -141,24 +137,4 @@ func UserAgent() string {
 	}
 
 	return "envd/" + version
-}
-
-func GetDockerVersion() (int, error) {
-
-	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		return -1, err
-	}
-	defer cli.Close()
-
-	info, err := cli.Info(ctx)
-	if err != nil {
-		return -1, err
-	}
-	version, err := strconv.Atoi(strings.Split(info.ServerVersion, ".")[0])
-	if err != nil {
-		return -1, err
-	}
-	return version, nil
 }
