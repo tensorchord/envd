@@ -11,7 +11,7 @@ require (
 	github.com/containerd/console v1.0.3
 	github.com/containerd/containerd v1.6.16
 	github.com/creack/pty v1.1.18
-	github.com/docker/cli v23.0.0-rc.3+incompatible
+	github.com/docker/cli v23.0.1+incompatible
 	github.com/docker/docker v23.0.0-rc.1+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.5.0
