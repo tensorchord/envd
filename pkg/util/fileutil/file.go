@@ -98,15 +98,18 @@ func DirExists(filename string) (bool, error) {
 
 func CreateIfNotExist(f string) error {
 	_, err := os.Stat(f)
+	if err == nil {
+		return nil
+	}
+
+	if !os.IsNotExist(err) {
+		return errors.Wrap(err, "failed to stat file")
+	}
+
+	logrus.WithField("filename", f).Debug("Creating file")
+	_, err = os.Create(f)
 	if err != nil {
-		if os.IsNotExist(err) {
-			logrus.WithField("filename", f).Debug("Creating file")
-			if _, err := os.Create(f); err != nil {
-				return errors.Wrap(err, "failed to create file")
-			}
-		} else {
-			return errors.Wrap(err, "failed to stat file")
-		}
+		return errors.Wrap(err, "failed to create file")
 	}
 	return nil
 }
