@@ -9,7 +9,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/cockroachdb/errors v1.9.1
 	github.com/containerd/console v1.0.3
-	github.com/containerd/containerd v1.6.16
+	github.com/containerd/containerd v1.6.17
 	github.com/creack/pty v1.1.18
 	github.com/docker/cli v23.0.0-rc.3+incompatible
 	github.com/docker/docker v23.0.0-rc.1+incompatible
