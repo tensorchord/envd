@@ -43,21 +43,20 @@ func (m *generalManager) initAuth() error {
 
 	_, err = os.Stat(m.authFile)
 	if err != nil {
-		if os.IsNotExist(err) {
-			logrus.WithField("filename", m.authFile).Debug("Creating file")
-			file, err := os.Create(m.authFile)
-			if err != nil {
-				return errors.Wrap(err, "failed to create file")
-			}
-			err = file.Close()
-			if err != nil {
-				return errors.Wrap(err, "failed to close file")
-			}
-			if err := m.dumpAuth(); err != nil {
-				return errors.Wrap(err, "failed to dump auth")
-			}
-		} else {
+		if !os.IsNotExist(err) {
 			return errors.Wrap(err, "failed to stat file")
+		}
+		logrus.WithField("filename", m.authFile).Debug("Creating file")
+		file, err := os.Create(m.authFile)
+		if err != nil {
+			return errors.Wrap(err, "failed to create file")
+		}
+		err = file.Close()
+		if err != nil {
+			return errors.Wrap(err, "failed to close file")
+		}
+		if err := m.dumpAuth(); err != nil {
+			return errors.Wrap(err, "failed to dump auth")
 		}
 	}
 

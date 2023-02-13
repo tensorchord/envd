@@ -45,21 +45,20 @@ func (m *generalManager) initContext() error {
 
 	_, err = os.Stat(m.contextFile)
 	if err != nil {
-		if os.IsNotExist(err) {
-			logrus.WithField("filename", m.contextFile).Debug("Creating file")
-			file, err := os.Create(m.contextFile)
-			if err != nil {
-				return errors.Wrap(err, "failed to create file")
-			}
-			err = file.Close()
-			if err != nil {
-				return errors.Wrap(err, "failed to close file")
-			}
-			if err := m.dumpContext(); err != nil {
-				return errors.Wrap(err, "failed to dump context")
-			}
-		} else {
+		if !os.IsNotExist(err) {
 			return errors.Wrap(err, "failed to stat file")
+		}
+		logrus.WithField("filename", m.contextFile).Debug("Creating file")
+		file, err := os.Create(m.contextFile)
+		if err != nil {
+			return errors.Wrap(err, "failed to create file")
+		}
+		err = file.Close()
+		if err != nil {
+			return errors.Wrap(err, "failed to close file")
+		}
+		if err := m.dumpContext(); err != nil {
+			return errors.Wrap(err, "failed to dump context")
 		}
 	}
 
@@ -75,11 +74,11 @@ func (m *generalManager) initContext() error {
 	return nil
 }
 
-func (m generalManager) ContextFile() string {
+func (m *generalManager) ContextFile() string {
 	return m.contextFile
 }
 
-func (m generalManager) ContextGetCurrent() (*types.Context, error) {
+func (m *generalManager) ContextGetCurrent() (*types.Context, error) {
 	for _, c := range m.context.Contexts {
 		if m.context.Current == c.Name {
 			return &c, nil
@@ -131,7 +130,7 @@ func (m *generalManager) ContextRemove(name string) error {
 	return errors.Newf("cannot find context \"%s\"", name)
 }
 
-func (m generalManager) ContextList() (types.EnvdContext, error) {
+func (m *generalManager) ContextList() (types.EnvdContext, error) {
 	return m.context, nil
 }
 

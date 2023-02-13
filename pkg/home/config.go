@@ -38,6 +38,6 @@ func (m *generalManager) initConfig() error {
 	return nil
 }
 
-func (m generalManager) ConfigFile() string {
+func (m *generalManager) ConfigFile() string {
 	return m.configFile
 }
