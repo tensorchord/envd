@@ -29,6 +29,7 @@ import (
 	"github.com/tensorchord/envd/pkg/buildkitd"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
+	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -205,10 +206,19 @@ func buildkit(clicontext *cli.Context) error {
 	}
 
 	logrus.Debug("bootstrap the buildkitd container")
-	bkClient, err := buildkitd.NewClient(clicontext.Context,
-		c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"))
-	if err != nil {
-		return errors.Wrap(err, "failed to create buildkit client")
+	var bkClient buildkitd.Client
+	if c.Builder == types.BuilderTypeMoby {
+		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
+			c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"))
+		if err != nil {
+			return errors.Wrap(err, "failed to create moby buildkit client")
+		}
+	} else {
+		bkClient, err = buildkitd.NewClient(clicontext.Context,
+			c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"))
+		if err != nil {
+			return errors.Wrap(err, "failed to create buildkit client")
+		}
 	}
 	defer bkClient.Close()
 	logrus.Infof("The buildkit is running at %s", bkClient.BuildkitdAddr())

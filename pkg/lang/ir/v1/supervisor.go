@@ -58,8 +58,11 @@ func (g generalGraph) installHorust(root llb.State) llb.State {
 		File(llb.Mkdir(types.HorustServiceDir, 0755, llb.WithParents(true)),
 			llb.WithCustomNamef("[internal] mkdir for horust service: %s", types.HorustServiceDir)).
 		File(llb.Mkdir(types.HorustLogDir, 0777, llb.WithParents(true)),
-			llb.WithCustomNamef("[internal] mkdir for horust log: %s", types.HorustLogDir))
-	return horust
+			llb.WithCustomNamef("[internal] mkdir for horust log: %s", types.HorustLogDir)).
+		Run(llb.Shlexf(`sudo chmod 777 %s`, types.HorustLogDir),
+			llb.WithCustomName("[internal] change dirctory permission for logging"))
+
+	return horust.Root()
 }
 
 func (g generalGraph) addNewProcess(root llb.State, name, command string, depends []string) llb.State {

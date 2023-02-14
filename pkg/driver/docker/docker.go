@@ -21,6 +21,7 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -379,4 +380,24 @@ func (c dockerClient) waitUntilRunning(ctx context.Context,
 			return errors.Errorf("timeout %s: container did not start", timeout)
 		}
 	}
+}
+
+func GetDockerVersion() (int, error) {
+
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return -1, err
+	}
+	defer cli.Close()
+
+	info, err := cli.Info(ctx)
+	if err != nil {
+		return -1, err
+	}
+	version, err := strconv.Atoi(strings.Split(info.ServerVersion, ".")[0])
+	if err != nil {
+		return -1, err
+	}
+	return version, nil
 }

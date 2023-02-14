@@ -122,6 +122,7 @@ type Context struct {
 type BuilderType string
 
 const (
+	BuilderTypeMoby             BuilderType = "moby-worker"
 	BuilderTypeDocker           BuilderType = "docker-container"
 	BuilderTypeNerdctl          BuilderType = "nerdctl-container"
 	BuilderTypeKubernetes       BuilderType = "kube-pod"
