@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.3.12 (2023-02-14)
+
+ * [0929661](https://github.com/tensorchord/envd/commit/09296619283ce568866df414bf26db3bda24d9c7) feat: support buildx moby worker in docker 23.0.0 onward to accelerating building process by skipping docker load (#1472)
+ * [34ca5b6](https://github.com/tensorchord/envd/commit/34ca5b64ac4ab8c60c40e60dfb8d6269e8cf2a59) chore(deps): bump github.com/charmbracelet/bubbletea from 0.23.1 to 0.23.2 (#1475)
+ * [4885a2f](https://github.com/tensorchord/envd/commit/4885a2ff05536f820122e397babc0604212e7681) chore(deps): bump golang.org/x/crypto from 0.5.0 to 0.6.0 (#1476)
+ * [5bf3816](https://github.com/tensorchord/envd/commit/5bf381601a3bd276a68ee07b28fecb12dd336fe6) chore(deps): bump github.com/containerd/containerd from 1.6.16 to 1.6.17 (#1474)
+ * [986c52a](https://github.com/tensorchord/envd/commit/986c52a2b9ccec53a688de9bd03bd5cc880129bf) fix: unify receiver type for generalManager (#1473)
+ * [ae3a1e5](https://github.com/tensorchord/envd/commit/ae3a1e5680bffa214e22f0ef3d8a5b10b6be824a) fix: pass loop variable as a function parameter (#1470)
+ * [23e4fa9](https://github.com/tensorchord/envd/commit/23e4fa9a552aecab43566504f6c66ede5f57d6b2) feat: add progress bar for `envd up` and `envd run` (#1460)
+ * [d9f8dfc](https://github.com/tensorchord/envd/commit/d9f8dfc8a36d7316dd6908e722418efed7fef17a) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.7.1 to 2.8.0 (#1465)
+ * [8706aef](https://github.com/tensorchord/envd/commit/8706aef34c0aa1f3afd17522199548825459495a) chore(deps): bump github.com/urfave/cli/v2 from 2.24.1 to 2.24.3 (#1464)
+ * [8413af8](https://github.com/tensorchord/envd/commit/8413af8775cc9d59393abd5a2c1365f23deaa216) chore(deps): bump docker/build-push-action from 3 to 4 (#1463)
+ * [4b3e768](https://github.com/tensorchord/envd/commit/4b3e7689fb87b0d0465b89565e7a870669895e6e) chore(deps): bump github.com/cockroachdb/errors from 1.9.0 to 1.9.1 (#1467)
+
+### Contributors
+
+ * Kaiyang Chen
+ * Keming
+ * Zhizhen He
+ * dependabot[bot]
+
 ## v0.3.11 (2023-02-01)
 
  * [89383b5](https://github.com/tensorchord/envd/commit/89383b5bba5229e9cb133515b69a1eccdd0331da) fix: rm redundant ForwardAgent config in ssh config (#1458)
