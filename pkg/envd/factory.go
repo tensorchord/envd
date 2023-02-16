@@ -68,14 +68,13 @@ func New(ctx context.Context, opt Options) (Engine, error) {
 			Client:    cli,
 			Loginname: ac.Name,
 		}, nil
-	} else {
-		cli, err := client.NewClientWithOpts(
-			client.FromEnv, client.WithAPIVersionNegotiation())
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to create the docker client")
-		}
-		return &dockerEngine{
-			Client: cli,
-		}, nil
 	}
+	cli, err := client.NewClientWithOpts(
+		client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create the docker client")
+	}
+	return &dockerEngine{
+		Client: cli,
+	}, nil
 }

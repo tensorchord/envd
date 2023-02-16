@@ -32,13 +32,13 @@ func GetFreePort() (int, error) {
 
 // GetHost get the IP address from the address.
 func GetHost(addr string) (string, error) {
-	if u, err := url.Parse(addr); err != nil {
+	u, err := url.Parse(addr)
+	if err != nil {
 		return "", err
-	} else {
-		h := u.Hostname()
-		if h == "" {
-			return "", fmt.Errorf("failed to get the hostname from %s", addr)
-		}
-		return h, nil
 	}
+	h := u.Hostname()
+	if h == "" {
+		return "", fmt.Errorf("failed to get the hostname from %s", addr)
+	}
+	return h, nil
 }

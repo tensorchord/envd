@@ -112,11 +112,11 @@ func (g generalGraph) compileZSH(root llb.State) (llb.State, error) {
 	ohMyZSHPath := fileutil.EnvdHomeDir(".oh-my-zsh")
 	m := shell.NewManager()
 	g.Writer.LogZSH(compileui.ActionStart, false)
-	if cached, err := m.DownloadOrCache(); err != nil {
+	cached, err := m.DownloadOrCache()
+	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to download oh-my-zsh")
-	} else {
-		g.Writer.LogZSH(compileui.ActionEnd, cached)
 	}
+	g.Writer.LogZSH(compileui.ActionEnd, cached)
 	zshStage := root.
 		File(llb.Copy(llb.Local(flag.FlagCacheDir), "oh-my-zsh", ohMyZSHPath,
 			&llb.CopyInfo{CreateDestPath: true})).
