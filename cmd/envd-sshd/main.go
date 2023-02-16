@@ -110,7 +110,8 @@ func sshServer(c *cli.Context) error {
 	port := c.Int(flagPort)
 	if port == 0 {
 		return errors.New("port must be set")
-	} else if port <= 1024 {
+	}
+	if port <= 1024 {
 		return errors.New("failed to parse port: port is reserved")
 	}
 
@@ -141,12 +142,12 @@ func sshServer(c *cli.Context) error {
 			return errors.Wrapf(
 				err, "reading private key %s failed", c.String(flagHostKey))
 		}
-		if privateKey, err := rawssh.ParsePrivateKey(pemBytes); err != nil {
+		privateKey, err := rawssh.ParsePrivateKey(pemBytes)
+		if err != nil {
 			return err
-		} else {
-			logrus.Debugf("load host key from %s", c.String(flagHostKey))
-			hostKey = privateKey
 		}
+		logrus.Debugf("load host key from %s", c.String(flagHostKey))
+		hostKey = privateKey
 	}
 
 	srv := sshd.Server{

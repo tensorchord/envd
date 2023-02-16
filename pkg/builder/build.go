@@ -299,9 +299,8 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 			// Close the pipe on cancels, otherwise the whole thing hangs.
 			pipeR.Close()
 			return errors.Wrap(err, "build cancelled")
-		} else {
-			return errors.Wrap(err, "failed to wait error group")
 		}
+		return errors.Wrap(err, "failed to wait error group")
 	}
 	b.logger.Debug("build successfully")
 	return nil

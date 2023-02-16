@@ -1,15 +1,16 @@
 linters:
   enable:
-    - gofmt
     - bodyclose
     - errcheck
-    - goimports
     - errorlint
     - exportloopref
+    - gofmt
+    - goimports
     - gosimple
     - govet
     - ineffassign
     - misspell
+    - revive
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
@@ -20,3 +21,7 @@ linters:
 linters-settings:
   goimports:
     local-prefixes: github.com/tensorchord/envd/
+  revive:
+    rules:
+      # available rules: https://github.com/mgechev/revive#available-rules
+      - name: indent-error-flow

@@ -357,23 +357,20 @@ func parsePemBlock(block *pem.Block) (interface{}, error) {
 		key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 		if err != nil {
 			return nil, errors.Newf("Parsing PKCS private key failed %w", err)
-		} else {
-			return key, nil
 		}
+		return key, nil
 	case "EC PRIVATE KEY":
 		key, err := x509.ParseECPrivateKey(block.Bytes)
 		if err != nil {
 			return nil, errors.Newf("Parsing EC private key failed %w", err)
-		} else {
-			return key, nil
 		}
+		return key, nil
 	case "DSA PRIVATE KEY":
 		key, err := ssh.ParseDSAPrivateKey(block.Bytes)
 		if err != nil {
 			return nil, errors.Newf("Parsing DSA private key failed %w", err)
-		} else {
-			return key, nil
 		}
+		return key, nil
 	default:
 		return nil, errors.Newf("Parsing private key failed, unsupported key type %q", block.Type)
 	}

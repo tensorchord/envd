@@ -112,11 +112,11 @@ func exec(clicontext *cli.Context) error {
 		}
 
 		logrus.Debugf("runtime commands: %s", rg.RuntimeCommands)
-		if cmd, ok := rg.RuntimeCommands[command]; !ok {
+		cmd, ok := rg.RuntimeCommands[command]
+		if !ok {
 			return errors.Newf("command %s does not exist", command)
-		} else {
-			resultCommand = cmd
 		}
+		resultCommand = cmd
 	}
 
 	opt, err := ssh.GetOptions(name)
@@ -128,12 +128,12 @@ func exec(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the ssh client")
 	}
-	if bytes, err := sshClient.ExecWithOutput(resultCommand); err != nil {
+	bytes, err := sshClient.ExecWithOutput(resultCommand)
+	if err != nil {
 		fmt.Fprintln(clicontext.App.Writer, string(bytes))
 		return errors.Wrapf(err,
 			"failed to execute the command `%s`", resultCommand)
-	} else {
-		fmt.Fprint(clicontext.App.Writer, string(bytes))
 	}
+	fmt.Fprint(clicontext.App.Writer, string(bytes))
 	return nil
 }

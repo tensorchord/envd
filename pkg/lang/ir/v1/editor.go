@@ -40,11 +40,11 @@ func (g generalGraph) compileVSCode() (llb.State, error) {
 			return llb.State{}, errors.Wrap(err, "failed to create vscode client")
 		}
 		g.Writer.LogVSCodePlugin(p, compileui.ActionStart, false)
-		if cached, err := vscodeClient.DownloadOrCache(p); err != nil {
+		cached, err := vscodeClient.DownloadOrCache(p)
+		if err != nil {
 			return llb.State{}, err
-		} else {
-			g.Writer.LogVSCodePlugin(p, compileui.ActionEnd, cached)
 		}
+		g.Writer.LogVSCodePlugin(p, compileui.ActionEnd, cached)
 		ext := llb.Scratch().File(llb.Copy(llb.Local(flag.FlagCacheDir),
 			vscodeClient.PluginPath(p),
 			fileutil.EnvdHomeDir(".vscode-server", "extensions", p.String()),
