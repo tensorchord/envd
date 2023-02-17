@@ -14,7 +14,7 @@ var _ = Describe("julia_mnist", Ordered, func() {
 	e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 	BeforeAll(e.BuildImage(true))
 	BeforeEach(e.RunContainer())
-	It("test 1", func() {
+	It("execute runtime command `julia-mnist`", func() {
 		res, err := e.ExecRuntimeCommand("julia-mnist")
 		Expect(err).To(BeNil())
 		IsNumber := func(s string) bool {
