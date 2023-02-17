@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -351,6 +352,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		"gpu":           so.NumGPU,
 		"shm":           so.ShmSize,
 		"cpu":           so.NumCPU,
+		"cpu-set":       so.CPUSet,
 		"memory":        so.NumMem,
 		"build-context": so.BuildContext,
 	})
@@ -468,9 +470,16 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		cpu, err := strconv.ParseFloat(so.NumCPU, 64)
 		if err != nil {
 			logger.Infof("parse `cpu` error: %v, ignore this argument", err)
-		} else {
+		} else if runtime.GOOS == "windows" {
 			hostConfig.NanoCPUs = int64(cpu * 10e9)
+		} else {
+			// refer to https://docs.docker.com/config/containers/resource_constraints/#configure-the-default-cfs-scheduler
+			// CPU quota and CPU period only work for UNIX platform
+			hostConfig.CPUQuota = int64(cpu * 10e5)
 		}
+	}
+	if len(so.CPUSet) > 0 {
+		hostConfig.CpusetCpus = so.CPUSet
 	}
 	if len(so.NumMem) > 0 {
 		mem, err := dockerutils.RAMInBytes(so.NumMem)

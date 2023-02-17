@@ -96,6 +96,11 @@ var CommandUp = &cli.Command{
 			Value: "",
 		},
 		&cli.StringFlag{
+			Name:  "cpu-set",
+			Usage: "Limit the specific CPUs or cores the environment can use, such as `0-3`, `1,3`",
+			Value: "",
+		},
+		&cli.StringFlag{
 			Name:  "memory",
 			Usage: "Request Memory, such as 512Mb, 2Gb",
 			Value: "",
@@ -217,6 +222,7 @@ func up(clicontext *cli.Context) error {
 		ShmSize:         clicontext.Int("shm-size"),
 		NumCPU:          clicontext.String("cpu"),
 		NumMem:          clicontext.String("memory"),
+		CPUSet:          clicontext.String("cpu-set"),
 	}
 	if c.Runner != types.RunnerTypeEnvdServer {
 		startOptions.EngineSource = envd.EngineSource{
