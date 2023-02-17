@@ -97,7 +97,7 @@ var CommandUp = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "memory",
-			Usage: "Request Memory, such as 512M, 2G",
+			Usage: "Request Memory, such as 512Mb, 2Gb",
 			Value: "",
 		},
 		&cli.BoolFlag{
@@ -216,7 +216,7 @@ func up(clicontext *cli.Context) error {
 		SshdHost:        clicontext.String("host"),
 		ShmSize:         clicontext.Int("shm-size"),
 		NumCPU:          clicontext.String("cpu"),
-		NumMem:          clicontext.String("memroy"),
+		NumMem:          clicontext.String("memory"),
 	}
 	if c.Runner != types.RunnerTypeEnvdServer {
 		startOptions.EngineSource = envd.EngineSource{
