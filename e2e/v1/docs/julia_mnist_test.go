@@ -22,9 +22,8 @@ var _ = Describe("julia_mnist", Ordered, func() {
 			_, err = strconv.ParseFloat(s, 64)
 			if err == nil {
 				return true
-			} else {
-				return false
 			}
+			return false
 		}
 		Expect(res).To(Satisfy(IsNumber))
 	})
