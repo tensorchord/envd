@@ -29,6 +29,7 @@ import (
 	gateway "github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
 	"github.com/tonistiigi/units"
 
 	"github.com/tensorchord/envd/pkg/driver"
@@ -36,12 +37,13 @@ import (
 	"github.com/tensorchord/envd/pkg/driver/nerdctl"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/envutil"
 )
 
 var (
 	interval          = time.Second * 1
-	timeoutConnection = time.Second * 5
-	timeoutRun        = time.Second * 3
+	connectingTimeout = envutil.GetDurationWithDefault("BUILDKIT_CONNECTING_TIMEOUT", time.Second*5)
+	runningTimeout    = envutil.GetDurationWithDefault("BUILDKIT_RUNNING_TIMEOUT", time.Second*3)
 )
 
 // Client is a client for the buildkitd daemon.
@@ -128,7 +130,7 @@ func NewClient(ctx context.Context, driver types.BuilderType,
 	}
 	c.Client = cli
 
-	if _, err := c.Bootstrap(ctx, timeoutRun, timeoutConnection); err != nil {
+	if _, err := c.Bootstrap(ctx, runningTimeout, connectingTimeout); err != nil {
 		return nil, errors.Wrap(err, "failed to bootstrap the buildkitd")
 	}
 	return c, nil
