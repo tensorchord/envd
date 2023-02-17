@@ -90,6 +90,16 @@ var CommandUp = &cli.Command{
 			Usage: "Configure the shared memory size (megabyte)",
 			Value: 2048,
 		},
+		&cli.StringFlag{
+			Name:  "cpu",
+			Usage: "Request CPU resources (number of cores), such as 0.5, 1, 2",
+			Value: "",
+		},
+		&cli.StringFlag{
+			Name:  "memory",
+			Usage: "Request Memory, such as 512M, 2G",
+			Value: "",
+		},
 		&cli.BoolFlag{
 			Name:  "detach",
 			Usage: "Detach from the container",
@@ -205,6 +215,8 @@ func up(clicontext *cli.Context) error {
 		Timeout:         clicontext.Duration("timeout"),
 		SshdHost:        clicontext.String("host"),
 		ShmSize:         clicontext.Int("shm-size"),
+		NumCPU:          clicontext.String("cpu"),
+		NumMem:          clicontext.String("memroy"),
 	}
 	if c.Runner != types.RunnerTypeEnvdServer {
 		startOptions.EngineSource = envd.EngineSource{
