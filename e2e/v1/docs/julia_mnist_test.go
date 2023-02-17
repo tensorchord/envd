@@ -1,11 +1,12 @@
 package docs
 
 import (
+	"strconv"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	e2e "github.com/tensorchord/envd/e2e/v1"
 
-	"strconv"
+	e2e "github.com/tensorchord/envd/e2e/v1"
 )
 
 var _ = Describe("julia_mnist", Ordered, func() {
