@@ -20,10 +20,7 @@ var _ = Describe("julia_mnist", Ordered, func() {
 		Expect(err).To(BeNil())
 		IsNumber := func(s string) bool {
 			_, err = strconv.ParseFloat(s, 64)
-			if err == nil {
-				return true
-			}
-			return false
+			return err == nil
 		}
 		Expect(res).To(Satisfy(IsNumber))
 	})
