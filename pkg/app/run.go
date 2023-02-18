@@ -87,7 +87,7 @@ var CommandCreate = &cli.Command{
 			Value: 2048,
 		},
 		&cli.StringFlag{
-			Name:  "cpu",
+			Name:  "cpus",
 			Usage: "Request CPU resources (number of cores), such as 0.5, 1, 2",
 			Value: "",
 		},
@@ -134,7 +134,7 @@ func run(clicontext *cli.Context) error {
 		Image:           clicontext.String("image"),
 		Timeout:         clicontext.Duration("timeout"),
 		NumMem:          clicontext.String("memory"),
-		NumCPU:          clicontext.String("cpu"),
+		NumCPU:          clicontext.String("cpus"),
 		NumGPU:          clicontext.Int("gpu"),
 		ShmSize:         clicontext.Int("shm-size"),
 		EnvironmentName: name,

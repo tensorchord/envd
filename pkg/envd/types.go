@@ -40,6 +40,7 @@ type StartOptions struct {
 	BuildContext    string
 	NumGPU          int
 	NumCPU          string
+	CPUSet          string
 	NumMem          string
 	Timeout         time.Duration
 	ShmSize         int

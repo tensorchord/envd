@@ -90,6 +90,21 @@ var CommandUp = &cli.Command{
 			Usage: "Configure the shared memory size (megabyte)",
 			Value: 2048,
 		},
+		&cli.StringFlag{
+			Name:  "cpus",
+			Usage: "Request CPU resources (number of cores), such as 0.5, 1, 2",
+			Value: "",
+		},
+		&cli.StringFlag{
+			Name:  "cpu-set",
+			Usage: "Limit the specific CPUs or cores the environment can use, such as `0-3`, `1,3`",
+			Value: "",
+		},
+		&cli.StringFlag{
+			Name:  "memory",
+			Usage: "Request Memory, such as 512Mb, 2Gb",
+			Value: "",
+		},
 		&cli.BoolFlag{
 			Name:  "detach",
 			Usage: "Detach from the container",
@@ -205,7 +220,14 @@ func up(clicontext *cli.Context) error {
 		Timeout:         clicontext.Duration("timeout"),
 		SshdHost:        clicontext.String("host"),
 		ShmSize:         clicontext.Int("shm-size"),
+		NumCPU:          clicontext.String("cpus"),
+		NumMem:          clicontext.String("memory"),
+		CPUSet:          clicontext.String("cpu-set"),
 	}
+	if len(startOptions.NumCPU) > 0 && len(startOptions.CPUSet) > 0 {
+		return errors.New("`--cpus` and `--cpu-set` are mutually exclusive")
+	}
+
 	if c.Runner != types.RunnerTypeEnvdServer {
 		startOptions.EngineSource = envd.EngineSource{
 			DockerSource: &envd.DockerSource{
