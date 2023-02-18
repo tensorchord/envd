@@ -91,7 +91,7 @@ var CommandUp = &cli.Command{
 			Value: 2048,
 		},
 		&cli.StringFlag{
-			Name:  "cpu",
+			Name:  "cpus",
 			Usage: "Request CPU resources (number of cores), such as 0.5, 1, 2",
 			Value: "",
 		},
@@ -220,10 +220,14 @@ func up(clicontext *cli.Context) error {
 		Timeout:         clicontext.Duration("timeout"),
 		SshdHost:        clicontext.String("host"),
 		ShmSize:         clicontext.Int("shm-size"),
-		NumCPU:          clicontext.String("cpu"),
+		NumCPU:          clicontext.String("cpus"),
 		NumMem:          clicontext.String("memory"),
 		CPUSet:          clicontext.String("cpu-set"),
 	}
+	if len(startOptions.NumCPU) > 0 && len(startOptions.CPUSet) > 0 {
+		return errors.New("`--cpus` and `--cpu-set` are mutually exclusive")
+	}
+
 	if c.Runner != types.RunnerTypeEnvdServer {
 		startOptions.EngineSource = envd.EngineSource{
 			DockerSource: &envd.DockerSource{
