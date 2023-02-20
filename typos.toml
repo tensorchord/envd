@@ -1,3 +1,4 @@
+# See https://github.com/crate-ci/typos/blob/master/docs/reference.md to configure typos
 [files]
 extend-exclude = ["CHANGELOG.md"]
 [default.extend-words]
