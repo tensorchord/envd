@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.13 (2023-02-20)
+
+ * [0f21639](https://github.com/tensorchord/envd/commit/0f21639612f0c438bcd57f07de273858f5a70d81) chore(deps): bump github.com/containerd/containerd from 1.6.17 to 1.6.18 (#1481)
+ * [53ba50e](https://github.com/tensorchord/envd/commit/53ba50e06fd1af5026a59c88d3886b5c8ca059de) feat: support CPU and memory limit for docker runner (#1486)
+ * [b0143c3](https://github.com/tensorchord/envd/commit/b0143c34b2d868c5f2e2c7b231b5ededca0f29ea) feat: Allow buildkit timeout to be configurable (#1482)
+ * [8adb6a9](https://github.com/tensorchord/envd/commit/8adb6a9a0ad7ebea21fd92bdd80883bb71291938) Julia MNIST classification e2e test example (#1484)
+ * [7d8fc46](https://github.com/tensorchord/envd/commit/7d8fc46a6d311b51ede996ca2d8709d1335780bc) fix: add revive and address indent-error-flow issues (#1480)
+
+### Contributors
+
+ * Keming
+ * Yuan Tang
+ * Zhizhen He
+ * dependabot[bot]
+ * x0oo0x
+
 ## v0.3.12 (2023-02-14)
 
  * [0929661](https://github.com/tensorchord/envd/commit/09296619283ce568866df414bf26db3bda24d9c7) feat: support buildx moby worker in docker 23.0.0 onward to accelerating building process by skipping docker load (#1472)
