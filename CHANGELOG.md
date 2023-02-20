@@ -1,5 +1,61 @@
 # Changelog
 
+## v0.3.13 (2023-02-20)
+
+ * [0f21639](https://github.com/tensorchord/envd/commit/0f21639612f0c438bcd57f07de273858f5a70d81) chore(deps): bump github.com/containerd/containerd from 1.6.17 to 1.6.18 (#1481)
+ * [53ba50e](https://github.com/tensorchord/envd/commit/53ba50e06fd1af5026a59c88d3886b5c8ca059de) feat: support CPU and memory limit for docker runner (#1486)
+ * [b0143c3](https://github.com/tensorchord/envd/commit/b0143c34b2d868c5f2e2c7b231b5ededca0f29ea) feat: Allow buildkit timeout to be configurable (#1482)
+ * [8adb6a9](https://github.com/tensorchord/envd/commit/8adb6a9a0ad7ebea21fd92bdd80883bb71291938) Julia MNIST classification e2e test example (#1484)
+ * [7d8fc46](https://github.com/tensorchord/envd/commit/7d8fc46a6d311b51ede996ca2d8709d1335780bc) fix: add revive and address indent-error-flow issues (#1480)
+
+### Contributors
+
+ * Keming
+ * Yuan Tang
+ * Zhizhen He
+ * dependabot[bot]
+ * x0oo0x
+
+## v0.3.12 (2023-02-14)
+
+ * [0929661](https://github.com/tensorchord/envd/commit/09296619283ce568866df414bf26db3bda24d9c7) feat: support buildx moby worker in docker 23.0.0 onward to accelerating building process by skipping docker load (#1472)
+ * [34ca5b6](https://github.com/tensorchord/envd/commit/34ca5b64ac4ab8c60c40e60dfb8d6269e8cf2a59) chore(deps): bump github.com/charmbracelet/bubbletea from 0.23.1 to 0.23.2 (#1475)
+ * [4885a2f](https://github.com/tensorchord/envd/commit/4885a2ff05536f820122e397babc0604212e7681) chore(deps): bump golang.org/x/crypto from 0.5.0 to 0.6.0 (#1476)
+ * [5bf3816](https://github.com/tensorchord/envd/commit/5bf381601a3bd276a68ee07b28fecb12dd336fe6) chore(deps): bump github.com/containerd/containerd from 1.6.16 to 1.6.17 (#1474)
+ * [986c52a](https://github.com/tensorchord/envd/commit/986c52a2b9ccec53a688de9bd03bd5cc880129bf) fix: unify receiver type for generalManager (#1473)
+ * [ae3a1e5](https://github.com/tensorchord/envd/commit/ae3a1e5680bffa214e22f0ef3d8a5b10b6be824a) fix: pass loop variable as a function parameter (#1470)
+ * [23e4fa9](https://github.com/tensorchord/envd/commit/23e4fa9a552aecab43566504f6c66ede5f57d6b2) feat: add progress bar for `envd up` and `envd run` (#1460)
+ * [d9f8dfc](https://github.com/tensorchord/envd/commit/d9f8dfc8a36d7316dd6908e722418efed7fef17a) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.7.1 to 2.8.0 (#1465)
+ * [8706aef](https://github.com/tensorchord/envd/commit/8706aef34c0aa1f3afd17522199548825459495a) chore(deps): bump github.com/urfave/cli/v2 from 2.24.1 to 2.24.3 (#1464)
+ * [8413af8](https://github.com/tensorchord/envd/commit/8413af8775cc9d59393abd5a2c1365f23deaa216) chore(deps): bump docker/build-push-action from 3 to 4 (#1463)
+ * [4b3e768](https://github.com/tensorchord/envd/commit/4b3e7689fb87b0d0465b89565e7a870669895e6e) chore(deps): bump github.com/cockroachdb/errors from 1.9.0 to 1.9.1 (#1467)
+
+### Contributors
+
+ * Kaiyang Chen
+ * Keming
+ * Zhizhen He
+ * dependabot[bot]
+
+## v0.3.11 (2023-02-01)
+
+ * [89383b5](https://github.com/tensorchord/envd/commit/89383b5bba5229e9cb133515b69a1eccdd0331da) fix: rm redundant ForwardAgent config in ssh config (#1458)
+ * [b9f20a4](https://github.com/tensorchord/envd/commit/b9f20a4bfa28bf4bf0cb4ae90c3ba95e5ef23bb1) feat: separate starship installation by using fixed image (#1424)
+ * [2ae200b](https://github.com/tensorchord/envd/commit/2ae200bf51339b1ddb0b4474ee5b6d1c9deb459a) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.7.0 to 2.7.1 (#1454)
+ * [29ffd89](https://github.com/tensorchord/envd/commit/29ffd895601fad818d5625a03d3e9034d2103ec7) feat: support envd run in local docker context (#1428)
+ * [890b712](https://github.com/tensorchord/envd/commit/890b71228b788949cf4266ddeee90027461fadc8) chore(deps): bump github.com/docker/cli from 23.0.0-rc.1+incompatible to 23.0.0-rc.3+incompatible (#1455)
+ * [a20aa01](https://github.com/tensorchord/envd/commit/a20aa01d35d5cf93cdc3513adfa321143175687e) chore(deps): bump github.com/onsi/gomega from 1.25.0 to 1.26.0 (#1453)
+ * [c781d85](https://github.com/tensorchord/envd/commit/c781d854e659497fbeb4be65fc92baa8fa8195f1) chore(deps): bump github.com/containerd/containerd from 1.6.14 to 1.6.16 (#1451)
+ * [08f6975](https://github.com/tensorchord/envd/commit/08f6975f2a62cbfa085b4dda0ad663bbc50eb5db) chore(deps): bump dependabot/fetch-metadata from 1.3.5 to 1.3.6 (#1450)
+ * [ba63c8f](https://github.com/tensorchord/envd/commit/ba63c8f29b688ecb6deccf0e5c9fa55875a296ce) chore(deps): bump github.com/spf13/viper from 1.14.0 to 1.15.0 (#1439)
+
+### Contributors
+
+ * Jinjing Zhou
+ * Kaiyang Chen
+ * Keming
+ * dependabot[bot]
+
 ## v0.3.10 (2023-01-25)
 
  * [efdd05f](https://github.com/tensorchord/envd/commit/efdd05f5219c92a5cbae14a57fb55199535b9cd4) fix: rm remote cache for v1 (#1447)

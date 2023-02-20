@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -30,6 +31,7 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	dockerutils "github.com/docker/go-units"
 	"github.com/sirupsen/logrus"
 
 	envdconfig "github.com/tensorchord/envd/pkg/config"
@@ -348,8 +350,17 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		"tag":           so.Image,
 		"environment":   so.EnvironmentName,
 		"gpu":           so.NumGPU,
+		"shm":           so.ShmSize,
+		"cpu":           so.NumCPU,
+		"cpu-set":       so.CPUSet,
+		"memory":        so.NumMem,
 		"build-context": so.BuildContext,
 	})
+
+	bar := InitProgressBar(5)
+	defer bar.finish()
+	bar.updateTitle("configure the environment")
+
 	if so.NumGPU != 0 {
 		nvruntimeExists, err := e.GPUEnabled(ctx)
 		if err != nil {
@@ -454,6 +465,30 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	if so.ShmSize > 0 {
 		hostConfig.ShmSize = int64(so.ShmSize) * 1024 * 1024
 	}
+	// resource
+	if len(so.NumCPU) > 0 {
+		cpu, err := strconv.ParseFloat(so.NumCPU, 64)
+		if err != nil {
+			logger.Infof("parse `cpu` error: %v, ignore this argument", err)
+		} else if runtime.GOOS == "windows" {
+			hostConfig.NanoCPUs = int64(cpu * 10e9)
+		} else {
+			// refer to https://docs.docker.com/config/containers/resource_constraints/#configure-the-default-cfs-scheduler
+			// CPU quota and CPU period only work for UNIX platform
+			hostConfig.CPUQuota = int64(cpu * 10e5)
+		}
+	}
+	if len(so.CPUSet) > 0 {
+		hostConfig.CpusetCpus = so.CPUSet
+	}
+	if len(so.NumMem) > 0 {
+		mem, err := dockerutils.RAMInBytes(so.NumMem)
+		if err != nil {
+			logger.Infof("parse `memory` error: %v, ignore this argument", err)
+		} else {
+			hostConfig.Memory = mem
+		}
+	}
 
 	// Configure ssh port.
 	natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.SSHPortInContainer))
@@ -539,6 +574,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	})
 	logger.Debugf("starting %s container", so.EnvironmentName)
 
+	bar.updateTitle("create the environment")
 	resp, err := e.ContainerCreate(ctx, config, hostConfig, nil, nil, so.EnvironmentName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create the container")
@@ -548,6 +584,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		logger.Warnf("run with warnings: %s", w)
 	}
 
+	bar.updateTitle("start the environment")
 	if err := e.ContainerStart(
 		ctx, resp.ID, dockertypes.ContainerStartOptions{}); err != nil {
 		errCause := errors.UnwrapAll(err)
@@ -564,11 +601,13 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		return nil, errors.Wrap(err, "failed to inspect the container")
 	}
 
+	bar.updateTitle("wait for the environment to start")
 	if err := e.WaitUntilRunning(
 		ctx, container.Name, so.Timeout); err != nil {
 		return nil, errors.Wrap(err, "failed to wait until the container is running")
 	}
 
+	bar.updateTitle("attach the environment")
 	result := &StartResult{
 		SSHPort: sshPortInHost,
 		Address: container.NetworkSettings.IPAddress,

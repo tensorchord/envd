@@ -17,16 +17,19 @@ package buildkitd
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"text/tabwriter"
 	"time"
 
 	"github.com/cockroachdb/errors"
+	dockerclient "github.com/docker/docker/client"
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
 	gateway "github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
 	"github.com/tonistiigi/units"
 
 	"github.com/tensorchord/envd/pkg/driver"
@@ -34,12 +37,13 @@ import (
 	"github.com/tensorchord/envd/pkg/driver/nerdctl"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/envutil"
 )
 
 var (
 	interval          = time.Second * 1
-	timeoutConnection = time.Second * 5
-	timeoutRun        = time.Second * 3
+	connectingTimeout = envutil.GetDurationWithDefault("BUILDKIT_CONNECTING_TIMEOUT", time.Second*5)
+	runningTimeout    = envutil.GetDurationWithDefault("BUILDKIT_RUNNING_TIMEOUT", time.Second*3)
 )
 
 // Client is a client for the buildkitd daemon.
@@ -69,6 +73,41 @@ type generalClient struct {
 	logger *logrus.Entry
 }
 
+func NewMobyClient(ctx context.Context, driver types.BuilderType,
+	socket, mirror string) (Client, error) {
+	logrus.Debug("getting moby buildkit client")
+	c := &generalClient{
+		containerName: socket,
+		image:         viper.GetString(flag.FlagBuildkitdImage),
+		mirror:        mirror,
+	}
+	c.socket = socket
+	c.driver = driver
+	c.logger = logrus.WithFields(logrus.Fields{
+		"container": c.containerName,
+		"image":     c.image,
+		"socket":    c.socket,
+		"driver":    c.driver,
+	})
+	dockerCli, err := dockerclient.NewClientWithOpts(dockerclient.FromEnv, dockerclient.WithAPIVersionNegotiation())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create the client")
+	}
+	bkcli, err := client.New(ctx, c.BuildkitdAddr(),
+		client.WithFailFast(),
+		client.WithContextDialer(func(context.Context, string) (net.Conn, error) {
+			return dockerCli.DialHijack(ctx, "/grpc", "h2c", nil)
+		}), client.WithSessionDialer(func(ctx context.Context, proto string, meta map[string][]string) (net.Conn, error) {
+			return dockerCli.DialHijack(ctx, "/session", proto, meta)
+		}),
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create buildkit clientt")
+	}
+	c.Client = bkcli
+	return c, nil
+}
+
 func NewClient(ctx context.Context, driver types.BuilderType,
 	socket, mirror string) (Client, error) {
 	c := &generalClient{
@@ -91,7 +130,7 @@ func NewClient(ctx context.Context, driver types.BuilderType,
 	}
 	c.Client = cli
 
-	if _, err := c.Bootstrap(ctx, timeoutRun, timeoutConnection); err != nil {
+	if _, err := c.Bootstrap(ctx, runningTimeout, connectingTimeout); err != nil {
 		return nil, errors.Wrap(err, "failed to bootstrap the buildkitd")
 	}
 	return c, nil

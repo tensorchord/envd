@@ -90,7 +90,7 @@ func (g *generalGraph) installJuliaPackages(root llb.State) llb.State {
 	for _, packages := range g.JuliaPackages {
 		command := fmt.Sprintf(`julia -e 'using Pkg; Pkg.add(["%s"])'`, strings.Join(packages, `","`))
 		run := root.
-			Run(llb.Shlex(command), llb.WithCustomNamef("[internal] installing Julia pacakges: %s", strings.Join(packages, " ")))
+			Run(llb.Shlex(command), llb.WithCustomNamef("[internal] installing Julia packages: %s", strings.Join(packages, " ")))
 		root = run.Root()
 	}
 

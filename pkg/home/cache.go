@@ -42,21 +42,20 @@ func (m *generalManager) initCache() error {
 	m.cacheStatusFile = cacheStatusFile
 	_, err = os.Stat(m.cacheStatusFile)
 	if err != nil {
-		if os.IsNotExist(err) {
-			logrus.WithField("filename", m.cacheStatusFile).Debug("Creating file")
-			file, err := os.Create(m.cacheStatusFile)
-			if err != nil {
-				return errors.Wrap(err, "failed to create file")
-			}
-			err = file.Close()
-			if err != nil {
-				return errors.Wrap(err, "failed to close file")
-			}
-			if err := m.dumpCacheStatus(); err != nil {
-				return errors.Wrap(err, "failed to dump cache status")
-			}
-		} else {
+		if !os.IsNotExist(err) {
 			return errors.Wrap(err, "failed to stat file")
+		}
+		logrus.WithField("filename", m.cacheStatusFile).Debug("Creating file")
+		file, err := os.Create(m.cacheStatusFile)
+		if err != nil {
+			return errors.Wrap(err, "failed to create file")
+		}
+		err = file.Close()
+		if err != nil {
+			return errors.Wrap(err, "failed to close file")
+		}
+		if err := m.dumpCacheStatus(); err != nil {
+			return errors.Wrap(err, "failed to dump cache status")
 		}
 	}
 
@@ -72,12 +71,12 @@ func (m *generalManager) initCache() error {
 	return nil
 }
 
-func (m generalManager) MarkCache(key string, cached bool) error {
+func (m *generalManager) MarkCache(key string, cached bool) error {
 	m.cacheMap[key] = cached
 	return m.dumpCacheStatus()
 }
 
-func (m generalManager) Cached(key string) bool {
+func (m *generalManager) Cached(key string) bool {
 	return m.cacheMap[key]
 }
 
@@ -95,11 +94,11 @@ func (m *generalManager) dumpCacheStatus() error {
 	return nil
 }
 
-func (m generalManager) CacheDir() string {
+func (m *generalManager) CacheDir() string {
 	return m.cacheDir
 }
 
-func (m generalManager) CleanCache() error {
+func (m *generalManager) CleanCache() error {
 	if m.cacheDir == "" {
 		return nil
 	}

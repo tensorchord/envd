@@ -15,8 +15,12 @@
 package envd
 
 import (
+	"fmt"
+	"sync"
 	"time"
 
+	"github.com/schollz/progressbar/v3"
+	"github.com/sirupsen/logrus"
 	"github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -36,6 +40,7 @@ type StartOptions struct {
 	BuildContext    string
 	NumGPU          int
 	NumCPU          string
+	CPUSet          string
 	NumMem          string
 	Timeout         time.Duration
 	ShmSize         int
@@ -66,4 +71,66 @@ type StartResult struct {
 	Name    string
 
 	Ports []types.EnvironmentPort
+}
+
+type ProgressBar struct {
+	bar        *progressbar.ProgressBar
+	currStage  int
+	totalStage int
+	notify     chan struct{}
+	lock       *sync.Mutex
+}
+
+func InitProgressBar(stage int) *ProgressBar {
+	done := make(chan struct{})
+	bar := progressbar.NewOptions(-1,
+		progressbar.OptionSpinnerType(11),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Println()
+		}),
+	)
+	var lock sync.Mutex
+
+	go func() {
+		timer := time.NewTicker(time.Millisecond * 100)
+		for {
+			select {
+			case <-done:
+				return
+			case <-timer.C:
+				lock.Lock()
+				_ = bar.Add(1)
+				lock.Unlock()
+			}
+		}
+	}()
+
+	b := ProgressBar{
+		notify:     done,
+		bar:        bar,
+		totalStage: stage,
+		lock:       &lock,
+	}
+	return &b
+}
+
+func (b *ProgressBar) updateTitle(title string) {
+	b.lock.Lock()
+	defer b.lock.Unlock()
+	b.currStage += 1
+	b.bar.Describe(fmt.Sprintf("[cyan][%d/%d][reset] %s",
+		b.currStage,
+		b.totalStage,
+		title,
+	))
+}
+
+func (b *ProgressBar) finish() {
+	b.lock.Lock()
+	defer b.lock.Unlock()
+	b.notify <- struct{}{}
+	if err := b.bar.Finish(); err != nil {
+		logrus.Infof("stop progress bar err: %v\n", err)
+	}
 }
