@@ -4,3 +4,7 @@ repos:
     hooks:
       - id: golangci-lint
         args: [--config=.golangci.yml, --timeout=3m]
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.13.10
+    hooks:
+      - id: typos
