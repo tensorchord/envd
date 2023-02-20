@@ -153,7 +153,7 @@ func (s *generalInterpreter) loadGitModule(thread *starlark.Thread, path string)
 }
 
 func (s generalInterpreter) ExecFile(filename string, funcname string) (interface{}, error) {
-	logrus.WithField("filename", filename).Debug("interprete the file")
+	logrus.WithField("filename", filename).Debug("interpret the file")
 	thread := s.NewThread(filename)
 	globals, err := s.exec(thread, filename)
 	if err != nil {

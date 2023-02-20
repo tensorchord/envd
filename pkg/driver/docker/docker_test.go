@@ -22,7 +22,7 @@ import (
 )
 
 var _ = Describe("docker", func() {
-	When("given the a lowcase tag", func() {
+	When("given the a lowercase tag", func() {
 		It("should return the tag identically", func() {
 			tag := "test:test"
 			newTag, err := NormalizeName(tag)
