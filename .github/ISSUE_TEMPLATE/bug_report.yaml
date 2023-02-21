@@ -1,0 +1,56 @@
+name: Bug Report
+description: Bug report for envd
+labels: ["type/bug \U0001F41B"]
+title: "bug: <title>"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: checkboxes
+    attributes:
+      label: Are you use the envd server?
+      description: Please check if you are using the envd server.
+      options:
+        - label: Yes, I am using the envd server.
+        - label: No, I am not using the envd server.
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: To Reproduce
+      description: Steps to reproduce the behavior.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: The `docker info` output
+      description: The output of `docker info` command.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: The `envd version` output
+      description: The output of `envd version` command.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        Impacted by this bug? Give it a 👍. We prioritise the issues with the most 👍.
