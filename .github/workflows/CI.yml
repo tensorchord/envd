@@ -37,7 +37,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - uses: actions/checkout@v3
       - name: Cache Go modules
         uses: actions/cache@preview
@@ -74,7 +74,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -110,7 +110,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -146,7 +146,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -182,7 +182,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -218,7 +218,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -254,7 +254,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -282,7 +282,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Install bins
         run: |
           go install github.com/mattn/goveralls@latest
