@@ -134,16 +134,18 @@ addlicense-install:
 	go install github.com/google/addlicense@latest
 
 build-local:
-	@for target in $(TARGETS); do                                                      \
-	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath -o $(OUTPUT_DIR)/$${target}     \
+	@for target in $(TARGETS); do \
+	  echo "Building $${target} ..."; \
+	  CGO_ENABLED=$(CGO_ENABLED) go build -trimpath -o $(OUTPUT_DIR)/$${target} \
 	    -ldflags "-s -w -X $(ROOT)/pkg/version.version=$(VERSION) \
 		-X $(ROOT)/pkg/version.buildDate=$(BUILD_DATE) \
 		-X $(ROOT)/pkg/version.gitCommit=$(GIT_COMMIT) \
-		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE)                     \
+		-X $(ROOT)/pkg/version.gitTreeState=$(GIT_TREE_STATE) \
 		-X $(ROOT)/pkg/version.gitTag=$(GIT_LATEST_TAG) \
 		-X $(ROOT)/pkg/version.developmentFlag=true" \
-	    $(CMD_DIR)/$${target};                                                         \
+	    $(CMD_DIR)/$${target}; \
 	done
+	@echo "Build envd successfully!"
 
 pypi-build: clean
 	@python3 setup.py sdist bdist_wheel
