@@ -53,16 +53,12 @@ var (
 	once           sync.Once
 )
 
-func defaultBuilderType() types.BuilderType {
+func Initialize() error {
+	builder := types.BuilderTypeDocker
 	dockerVersion, err := docker.GetDockerVersion()
 	if err == nil && dockerVersion > 22 {
-		return types.BuilderTypeMoby
+		builder = types.BuilderTypeMoby
 	}
-	return types.BuilderTypeDocker
-}
-
-func Initialize() error {
-	builder := defaultBuilderType()
 	once.Do(func() {
 		defaultManager = &generalManager{
 			cacheMap: make(map[string]bool),

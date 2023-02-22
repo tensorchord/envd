@@ -48,7 +48,7 @@ var _ = Describe("home manager", func() {
 			Expect(m.ContextFile()).To(Equal(filepath.Join(fileutil.DefaultConfigDir, "contexts")))
 			c, err := m.ContextGetCurrent()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(c.Builder).To(Equal(defaultBuilderType()))
+			Expect(c.Builder).To(Equal(types.BuilderTypeDocker))
 			Expect(c.BuilderAddress).To(Equal("envd_buildkitd"))
 			Expect(c.Runner).To(Equal(types.RunnerTypeDocker))
 		})
