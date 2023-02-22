@@ -83,6 +83,7 @@ GOPATH ?= $(shell go env GOPATH)
 GOROOT ?= $(shell go env GOROOT)
 BIN_DIR := $(GOPATH)/bin
 GOLANGCI_LINT := $(BIN_DIR)/golangci-lint
+MOCKGEN := $(BIN_DIR)/mockgen
 
 # Default golang flags used in build and test
 # -mod=vendor: force go to use the vendor files instead of using the `$GOPATH/pkg/mod`
@@ -152,9 +153,9 @@ dev: clean build-local  ## install envd command for local debug
 	@pip3 install --force-reinstall dist/*.whl
 
 generate: mockgen-install  ## Generate mocks
-	@mockgen -source pkg/buildkitd/buildkitd.go -destination pkg/buildkitd/mock/mock.go -package mock
-	@mockgen -source pkg/lang/frontend/starlark/interpreter.go -destination pkg/lang/frontend/starlark/mock/mock.go -package mock
-	@mockgen -source pkg/progress/compileui/display.go -destination pkg/progress/compileui/mock/mock.go -package mock
+	@$(MOCKGEN) -source pkg/buildkitd/buildkitd.go -destination pkg/buildkitd/mock/mock.go -package mock
+	@$(MOCKGEN) -source pkg/lang/frontend/starlark/interpreter.go -destination pkg/lang/frontend/starlark/mock/mock.go -package mock
+	@$(MOCKGEN) -source pkg/progress/compileui/display.go -destination pkg/progress/compileui/mock/mock.go -package mock
 
 # It is used by vscode to attach into the process.
 debug-local:
