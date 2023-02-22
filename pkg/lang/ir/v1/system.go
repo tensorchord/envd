@@ -231,14 +231,16 @@ func (g *generalGraph) compileExtraSource(root llb.State) (llb.State, error) {
 func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 	lang := root
 	var err error
-	switch g.Language.Name {
-	case "python":
-		lang, err = g.installPython(root)
-	case "r":
-		rSrc := g.compileRLang(root)
-		lang = g.installRLang(rSrc)
-	case "julia":
-		lang = g.installJulia(root)
+	for _, language := range g.Languages {
+		switch language.Name {
+		case "python":
+			lang, err = g.installPython(lang)
+		case "r":
+			rSrc := g.compileRLang(lang)
+			lang = g.installRLang(rSrc)
+		case "julia":
+			lang = g.installJulia(lang)
+		}
 	}
 
 	return lang, err
@@ -246,25 +248,27 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 
 func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 	pack := root
-	switch g.Language.Name {
-	case "python":
-		index := g.compilePyPIIndex(root)
-		pypi := g.compilePyPIPackages(index)
-		if g.CondaConfig == nil {
-			pack = pypi
-		} else {
-			channel := g.compileCondaChannel(root)
-			conda := g.compileCondaPackages(channel)
-			pack = llb.Merge([]llb.State{
-				root,
-				llb.Diff(root, pypi, llb.WithCustomName("[internal] PyPI packages")),
-				llb.Diff(root, conda, llb.WithCustomName("[internal] conda packages")),
-			}, llb.WithCustomName("[internal] Python packages"))
+	for _, language := range g.Languages {
+		switch language.Name {
+		case "python":
+			index := g.compilePyPIIndex(pack)
+			pypi := g.compilePyPIPackages(index)
+			if g.CondaConfig == nil {
+				pack = pypi
+			} else {
+				channel := g.compileCondaChannel(root)
+				conda := g.compileCondaPackages(channel)
+				pack = llb.Merge([]llb.State{
+					root,
+					llb.Diff(root, pypi, llb.WithCustomName("[internal] PyPI packages")),
+					llb.Diff(root, conda, llb.WithCustomName("[internal] conda packages")),
+				}, llb.WithCustomName("[internal] Python packages"))
+			}
+		case "r":
+			pack = g.installRPackages(pack)
+		case "julia":
+			pack = g.installJuliaPackages(pack)
 		}
-	case "r":
-		pack = g.installRPackages(root)
-	case "julia":
-		pack = g.installJuliaPackages(root)
 	}
 	return pack
 }
@@ -313,10 +317,12 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 
 	logger := logrus.WithFields(logrus.Fields{
 		"image":    g.Image,
-		"language": g.Language.Name,
+		"language": g.Languages,
 	})
-	if g.Language.Version != nil {
-		logger = logger.WithField("version", *g.Language.Version)
+	for _, language := range g.Languages {
+		if language.Version != nil {
+			logger = logger.WithField("version", language.Version)
+		}
 	}
 	logger.Debug("compile base image")
 

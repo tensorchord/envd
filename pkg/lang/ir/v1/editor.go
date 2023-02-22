@@ -65,12 +65,12 @@ func (g *generalGraph) compileJupyter() error {
 	}
 
 	g.PyPIPackages = append(g.PyPIPackages, []string{"jupyter"})
-	switch g.Language.Name {
-	case "python":
-		return nil
-	default:
-		return errors.Newf("Jupyter is not supported in %s yet", g.Language.Name)
+	for _, language := range g.Languages {
+		if language.Name == "python" {
+			return nil
+		}
 	}
+	return errors.Newf("Jupyter is not supported in other languages yet")
 }
 
 func (g generalGraph) generateJupyterCommand(workingDir string) []string {
