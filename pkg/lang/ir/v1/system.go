@@ -261,6 +261,7 @@ func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 	for _, language := range g.Languages {
 		wg.Add(1)
 		go func(language ir.Language) {
+			defer wg.Done()
 			switch language.Name {
 			case "python":
 				index := g.compilePyPIIndex(root)
