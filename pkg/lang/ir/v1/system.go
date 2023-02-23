@@ -21,6 +21,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
@@ -229,48 +230,62 @@ func (g *generalGraph) compileExtraSource(root llb.State) (llb.State, error) {
 }
 
 func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
+	var wg sync.WaitGroup
+	langs := []llb.State{}
 	lang := root
 	var err error
 	for _, language := range g.Languages {
-		switch language.Name {
-		case "python":
-			lang, err = g.installPython(lang)
-		case "r":
-			rSrc := g.compileRLang(lang)
-			lang = g.installRLang(rSrc)
-		case "julia":
-			lang = g.installJulia(lang)
-		}
+		wg.Add(1)
+		go func(language ir.Language) {
+			defer wg.Done()
+			switch language.Name {
+			case "python":
+				lang, err = g.installPython(root)
+			case "r":
+				rSrc := g.compileRLang(root)
+				lang = g.installRLang(rSrc)
+			case "julia":
+				lang = g.installJulia(root)
+			}
+			langs = append(langs, lang)
+		}(language)
 	}
-
-	return lang, err
+	wg.Wait()
+	return llb.Merge(langs, llb.WithCustomName("[internal] build all language environments")), err
 }
 
 func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
+	var wg sync.WaitGroup
+	packs := []llb.State{}
 	pack := root
 	for _, language := range g.Languages {
-		switch language.Name {
-		case "python":
-			index := g.compilePyPIIndex(pack)
-			pypi := g.compilePyPIPackages(index)
-			if g.CondaConfig == nil {
-				pack = pypi
-			} else {
-				channel := g.compileCondaChannel(root)
-				conda := g.compileCondaPackages(channel)
-				pack = llb.Merge([]llb.State{
-					root,
-					llb.Diff(root, pypi, llb.WithCustomName("[internal] PyPI packages")),
-					llb.Diff(root, conda, llb.WithCustomName("[internal] conda packages")),
-				}, llb.WithCustomName("[internal] Python packages"))
+		wg.Add(1)
+		go func(language ir.Language) {
+			switch language.Name {
+			case "python":
+				index := g.compilePyPIIndex(root)
+				pypi := g.compilePyPIPackages(index)
+				if g.CondaConfig == nil {
+					pack = pypi
+				} else {
+					channel := g.compileCondaChannel(root)
+					conda := g.compileCondaPackages(channel)
+					pack = llb.Merge([]llb.State{
+						root,
+						llb.Diff(root, pypi, llb.WithCustomName("[internal] PyPI packages")),
+						llb.Diff(root, conda, llb.WithCustomName("[internal] conda packages")),
+					}, llb.WithCustomName("[internal] Python packages"))
+				}
+			case "r":
+				pack = g.installRPackages(root)
+			case "julia":
+				pack = g.installJuliaPackages(root)
 			}
-		case "r":
-			pack = g.installRPackages(pack)
-		case "julia":
-			pack = g.installJuliaPackages(pack)
-		}
+			packs = append(packs, pack)
+		}(language)
 	}
-	return pack
+	wg.Wait()
+	return llb.Merge(packs, llb.WithCustomName("[internal] install packages for all language environments"))
 }
 
 func (g *generalGraph) compileDevPackages(root llb.State) llb.State {
@@ -319,11 +334,6 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 		"image":    g.Image,
 		"language": g.Languages,
 	})
-	for _, language := range g.Languages {
-		if language.Version != nil {
-			logger = logger.WithField("version", language.Version)
-		}
-	}
 	logger.Debug("compile base image")
 
 	// Fix https://github.com/tensorchord/envd/issues/1147.

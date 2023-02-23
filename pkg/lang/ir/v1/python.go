@@ -73,7 +73,6 @@ func (g generalGraph) getAppropriatePythonVersion() (string, error) {
 		if language.Name == "python" {
 			if language.Version == nil {
 				return PythonVersionDefault, nil
-				version = *language.Version
 			}
 			version = *language.Version
 		}
