@@ -43,10 +43,10 @@ func Python(version string) error {
 	}
 	g := DefaultGraph.(*generalGraph)
 
-	g.Language = ir.Language{
+	g.Languages = append(g.Languages, ir.Language{
 		Name:    "python",
 		Version: &version,
-	}
+	})
 	return nil
 }
 
@@ -61,17 +61,17 @@ func Conda(mamba bool) {
 func RLang() {
 	g := DefaultGraph.(*generalGraph)
 
-	g.Language = ir.Language{
+	g.Languages = append(g.Languages, ir.Language{
 		Name: "r",
-	}
+	})
 }
 
 func Julia() {
 	g := DefaultGraph.(*generalGraph)
 
-	g.Language = ir.Language{
+	g.Languages = append(g.Languages, ir.Language{
 		Name: "julia",
-	}
+	})
 }
 
 func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {

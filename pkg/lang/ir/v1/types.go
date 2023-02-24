@@ -28,7 +28,7 @@ type generalGraph struct {
 	uid int `default:"-1"`
 	gid int `default:"-1"`
 
-	ir.Language
+	Languages         []ir.Language
 	EnvdSyntaxVersion string
 	Image             string
 	User              string
