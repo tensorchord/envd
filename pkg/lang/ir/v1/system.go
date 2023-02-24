@@ -21,7 +21,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
@@ -230,62 +229,51 @@ func (g *generalGraph) compileExtraSource(root llb.State) (llb.State, error) {
 }
 
 func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
-	var wg sync.WaitGroup
-	langs := []llb.State{}
+	langs := []llb.State{root}
 	lang := root
 	var err error
 	for _, language := range g.Languages {
-		wg.Add(1)
-		go func(language ir.Language) {
-			defer wg.Done()
-			switch language.Name {
-			case "python":
-				lang, err = g.installPython(root)
-			case "r":
-				rSrc := g.compileRLang(root)
-				lang = g.installRLang(rSrc)
-			case "julia":
-				lang = g.installJulia(root)
-			}
-			langs = append(langs, lang)
-		}(language)
+		switch language.Name {
+		case "python":
+			lang, err = g.installPython(root)
+		case "r":
+			rSrc := g.compileRLang(root)
+			lang = g.installRLang(rSrc)
+		case "julia":
+			lang = g.installJulia(root)
+		}
+		langs = append(langs, llb.Diff(root, lang, llb.WithCustomNamef("[internal] build %s environments", language.Name)))
+		//langs = append(langs, lang)
 	}
-	wg.Wait()
 	return llb.Merge(langs, llb.WithCustomName("[internal] build all language environments")), err
 }
 
 func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
-	var wg sync.WaitGroup
-	packs := []llb.State{}
+	packs := []llb.State{root}
 	pack := root
 	for _, language := range g.Languages {
-		wg.Add(1)
-		go func(language ir.Language) {
-			defer wg.Done()
-			switch language.Name {
-			case "python":
-				index := g.compilePyPIIndex(root)
-				pypi := g.compilePyPIPackages(index)
-				if g.CondaConfig == nil {
-					pack = pypi
-				} else {
-					channel := g.compileCondaChannel(root)
-					conda := g.compileCondaPackages(channel)
-					pack = llb.Merge([]llb.State{
-						root,
-						llb.Diff(root, pypi, llb.WithCustomName("[internal] PyPI packages")),
-						llb.Diff(root, conda, llb.WithCustomName("[internal] conda packages")),
-					}, llb.WithCustomName("[internal] Python packages"))
-				}
-			case "r":
-				pack = g.installRPackages(root)
-			case "julia":
-				pack = g.installJuliaPackages(root)
+		switch language.Name {
+		case "python":
+			index := g.compilePyPIIndex(root)
+			pypi := g.compilePyPIPackages(index)
+			if g.CondaConfig == nil {
+				pack = pypi
+			} else {
+				channel := g.compileCondaChannel(root)
+				conda := g.compileCondaPackages(channel)
+				pack = llb.Merge([]llb.State{
+					root,
+					llb.Diff(root, pypi, llb.WithCustomName("[internal] PyPI packages")),
+					llb.Diff(root, conda, llb.WithCustomName("[internal] conda packages")),
+				}, llb.WithCustomName("[internal] Python packages"))
 			}
-			packs = append(packs, pack)
-		}(language)
+		case "r":
+			pack = g.installRPackages(root)
+		case "julia":
+			pack = g.installJuliaPackages(root)
+		}
+		packs = append(packs, llb.Diff(root, pack, llb.WithCustomNamef("[internal] install %s's packages", language.Name)))
 	}
-	wg.Wait()
 	return llb.Merge(packs, llb.WithCustomName("[internal] install packages for all language environments"))
 }
 
