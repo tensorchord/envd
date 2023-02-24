@@ -243,7 +243,6 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 			lang = g.installJulia(root)
 		}
 		langs = append(langs, llb.Diff(root, lang, llb.WithCustomNamef("[internal] build %s environments", language.Name)))
-		//langs = append(langs, lang)
 	}
 	return llb.Merge(langs, llb.WithCustomName("[internal] build all language environments")), err
 }
