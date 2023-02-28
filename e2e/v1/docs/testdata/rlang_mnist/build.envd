@@ -1,0 +1,10 @@
+# syntax=v1
+
+
+def build():
+    base(dev=True)
+    install.r_lang()
+    install.python()
+    install.r_packages(name=["keras"])
+    install.python_packages(name=["tensorflow"])
+    runtime.command(commands={"rlang-mnist": "Rscript mnist.r 1> /dev/null"})
