@@ -6,7 +6,7 @@ require (
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/bcicen/ctop v0.7.7
 	github.com/charmbracelet/bubbletea v0.23.2
-	github.com/charmbracelet/lipgloss v0.6.0
+	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/cockroachdb/errors v1.9.1
 	github.com/containerd/console v1.0.3
 	github.com/containerd/containerd v1.6.18
@@ -53,7 +53,7 @@ require (
 	github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
-	github.com/aymanbagabas/go-osc52 v1.2.1 // indirect
+	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20211118104740-dabe8e521a4f // indirect
 	github.com/cockroachdb/redact v1.1.3 // indirect
@@ -103,7 +103,7 @@ require (
 	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
-	github.com/muesli/termenv v0.14.0 // indirect
+	github.com/muesli/termenv v0.15.1 // indirect
 	github.com/nsf/termbox-go v0.0.0-20190121233118-02980233997d // indirect
 	github.com/op/go-logging v0.0.0-20160211212156-b2cb9fa56473 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
