@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.3.14 (2023-03-17)
+
+ * [095811d](https://github.com/tensorchord/envd/commit/095811d63651c121e1e941747569f7f8e264efea) fix: add env to the image itself instead of runtime config (#1528)
+ * [84b24ee](https://github.com/tensorchord/envd/commit/84b24eec98a86c479e984d4b8352ec249a791600) fix: upgrade buildkit to fix the secury issue (#1526)
+ * [168434a](https://github.com/tensorchord/envd/commit/168434a7585ab0286417bfa023dece9063bc2b39) chore(deps): bump golang.org/x/crypto from 0.6.0 to 0.7.0 (#1515)
+ * [2ded823](https://github.com/tensorchord/envd/commit/2ded823e77451959fc37f14a80270fe8715ead14) chore(deps): bump github.com/containerd/containerd from 1.6.18 to 1.7.0 (#1524)
+ * [17c7113](https://github.com/tensorchord/envd/commit/17c7113d9b19830ecb4a7c14839c894f05f29326) chore(deps): bump github.com/charmbracelet/lipgloss from 0.6.0 to 0.7.1 (#1525)
+ * [8269b6b](https://github.com/tensorchord/envd/commit/8269b6b65e8cabee7fd70b442b079ac8f5c13e66) chore(deps): bump github.com/urfave/cli/v2 from 2.24.4 to 2.25.0 (#1522)
+ * [7ef5074](https://github.com/tensorchord/envd/commit/7ef507410df7222c4df5fc6814c08af7994623a9) chore(deps): bump crate-ci/typos from 1.13.16 to 1.13.20 (#1521)
+ * [a50d7b5](https://github.com/tensorchord/envd/commit/a50d7b510caa092607bbd08267c03d9012561c34) chore(deps): bump pypa/cibuildwheel from 2.12.0 to 2.12.1 (#1520)
+ * [cb90327](https://github.com/tensorchord/envd/commit/cb90327362f768ba37b3d03b1524dd3535156acf) chore(deps): bump github.com/onsi/gomega from 1.27.1 to 1.27.2 (#1513)
+ * [60ebd49](https://github.com/tensorchord/envd/commit/60ebd49063caf28a2aa53c7f9b825831ea2cb3a3) chore(deps): bump golang.org/x/term from 0.5.0 to 0.6.0 (#1514)
+ * [2a3b592](https://github.com/tensorchord/envd/commit/2a3b59277f53b9901193c7cb6b584fd2850d7ad1) chore(deps): bump crate-ci/typos from 1.13.12 to 1.13.16 (#1512)
+ * [8c23bad](https://github.com/tensorchord/envd/commit/8c23bad4f349a4024ee658c11d0ac056856e0692) e2e MNIST deep learning example for R (#1510)
+ * [1e1819f](https://github.com/tensorchord/envd/commit/1e1819f0083559cc4998259ae9204089094a0daf) chore(deps): bump github.com/stretchr/testify from 1.8.1 to 1.8.2 (#1507)
+ * [c165138](https://github.com/tensorchord/envd/commit/c1651384a0cee0840352c0813b157ff31046dc45) chore(deps): bump github.com/tensorchord/envd-server from 0.0.25 to 0.0.27 (#1505)
+ * [484a452](https://github.com/tensorchord/envd/commit/484a45206aa0a03bd9307cb5dd73167d69b069e3) chore(deps): bump crate-ci/typos from 1.13.10 to 1.13.12 (#1504)
+ * [b641b0c](https://github.com/tensorchord/envd/commit/b641b0c56b9925ee2024093ec6bd7450fca40b4d) feat: Support installing multi-language environment at the same time (#1501)
+ * [f19289e](https://github.com/tensorchord/envd/commit/f19289e1646ed724e1b32b26c527324c95773e80) misc: Use GitHub Issue Form instead of markdown template (#1494)
+ * [dc57256](https://github.com/tensorchord/envd/commit/dc57256211e3a7b714ca5185254e66f5a979e02a) feat: add typos to pre-commit and GitHub action (#1493)
+ * [6bf7d5b](https://github.com/tensorchord/envd/commit/6bf7d5ba68772759904ba434e0394df2d9d08f5f) chore(deps): bump github.com/urfave/cli/v2 from 2.24.3 to 2.24.4 (#1490)
+ * [17e133c](https://github.com/tensorchord/envd/commit/17e133c9680a4e9396dfaf8b3622828d6655a187) chore(deps): bump github.com/onsi/gomega from 1.26.0 to 1.27.1 (#1489)
+ * [3919cb2](https://github.com/tensorchord/envd/commit/3919cb21a19c423d77943a98f0a1ee29e0f820b0) chore(deps): bump golang.org/x/net from 0.6.0 to 0.7.0 (#1488)
+
+### Contributors
+
+ * Keming
+ * Nadeshiko Manju
+ * Zhizhen He
+ * dependabot[bot]
+ * x0oo0x
+
 ## v0.3.13 (2023-02-20)
 
  * [0f21639](https://github.com/tensorchord/envd/commit/0f21639612f0c438bcd57f07de273858f5a70d81) chore(deps): bump github.com/containerd/containerd from 1.6.17 to 1.6.18 (#1481)
