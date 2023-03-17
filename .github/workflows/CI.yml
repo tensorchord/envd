@@ -15,6 +15,7 @@ on:
       - '**.go'
       - 'Makefile'
       - 'go.**'
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
