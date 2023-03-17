@@ -280,6 +280,9 @@ func (g *generalGraph) compileDevPackages(root llb.State) llb.State {
 	for _, env := range types.BaseEnvironment {
 		root = root.AddEnv(env.Name, env.Value)
 	}
+	for k, v := range g.RuntimeEnviron {
+		root = root.AddEnv(k, v)
+	}
 
 	// apt packages
 	var sb strings.Builder
