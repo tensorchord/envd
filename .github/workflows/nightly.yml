@@ -16,7 +16,7 @@ jobs:
     if: github.repository == 'tensorchord/envd'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version: 1.19
       - uses: actions/checkout@v3
@@ -54,7 +54,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
       - name: Cache Go modules
@@ -91,7 +91,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
       - name: Cache Go modules
@@ -128,7 +128,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
       - name: Cache Go modules
@@ -163,7 +163,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
       - name: Install bins
@@ -202,7 +202,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
       - name: Cache Go modules
@@ -230,7 +230,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
       - name: Cache Go modules
@@ -267,7 +267,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
       - name: Cache Go modules
@@ -304,7 +304,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
       - name: Cache Go modules
@@ -341,7 +341,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
       - name: Cache Go modules
