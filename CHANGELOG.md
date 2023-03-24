@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.15 (2023-03-24)
+
+ * [4d62312](https://github.com/tensorchord/envd/commit/4d62312b53db197e6735175eb59e7e58e62dcb60) feat: Support set environment name in `envd up` command (#1495)
+ * [9a4cad6](https://github.com/tensorchord/envd/commit/9a4cad69d460a1bee4cf4f6056e670a8f121931c) fix(v1): add base env and runtime env to both dev&nondev (#1538)
+ * [176637b](https://github.com/tensorchord/envd/commit/176637b7e68081045937a30101e022bda9a2e74d) chore(deps): bump github.com/schollz/progressbar/v3 from 3.13.0 to 3.13.1 (#1534)
+ * [574a93a](https://github.com/tensorchord/envd/commit/574a93adc7a32111fceb37adc27e8fa45632e4e9) chore(deps): bump github.com/onsi/gomega from 1.27.2 to 1.27.4 (#1535)
+ * [b644dc5](https://github.com/tensorchord/envd/commit/b644dc5e543e6794c6ecbdb1bb891673514f5b83) chore(deps): bump actions/setup-go from 3 to 4 (#1532)
+ * [b4ab3f3](https://github.com/tensorchord/envd/commit/b4ab3f3f4c9f3bda18c99eddeded0cc70319528b) chore(deps): bump crate-ci/typos from 1.13.20 to 1.13.26 (#1533)
+ * [c065935](https://github.com/tensorchord/envd/commit/c065935e1ea053a40efd1543f30000f1c5303bc8) feat: support GitHub merge queue (#1531)
+
+### Contributors
+
+ * Keming
+ * Nadeshiko Manju
+ * dependabot[bot]
+
 ## v0.3.14 (2023-03-17)
 
  * [095811d](https://github.com/tensorchord/envd/commit/095811d63651c121e1e941747569f7f8e264efea) fix: add env to the image itself instead of runtime config (#1528)
