@@ -277,13 +277,6 @@ func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 }
 
 func (g *generalGraph) compileDevPackages(root llb.State) llb.State {
-	for _, env := range types.BaseEnvironment {
-		root = root.AddEnv(env.Name, env.Value)
-	}
-	for k, v := range g.RuntimeEnviron {
-		root = root.AddEnv(k, v)
-	}
-
 	// apt packages
 	var sb strings.Builder
 	sb.WriteString("apt-get update && apt-get install -y apt-utils && ")
@@ -341,6 +334,15 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 		kv := strings.SplitN(e, "=", 2)
 		g.RuntimeEnviron[kv[0]] = kv[1]
 	}
+
+	// add necessary envs
+	for _, env := range types.BaseEnvironment {
+		base = base.AddEnv(env.Name, env.Value)
+	}
+	for k, v := range g.RuntimeEnviron {
+		base = base.AddEnv(k, v)
+	}
+
 	// TODO: inherit the USER from base
 	g.User = ""
 	return base, nil
