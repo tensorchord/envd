@@ -43,6 +43,11 @@ var CommandUp = &cli.Command{
 			Aliases:     []string{"t"},
 			DefaultText: "PROJECT:dev",
 		},
+		&cli.StringFlag{
+			Name:  "name",
+			Usage: "environment name",
+			Value: "",
+		},
 		&cli.PathFlag{
 			Name:    "path",
 			Usage:   "Path to the directory containing the build.envd",
@@ -207,9 +212,12 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create the docker client")
 	}
-	name, err := buildutil.CreateEnvNameFromDir(buildOpt.BuildContextDir)
-	if err != nil {
-		return errors.Wrapf(err, "failed to create the env name from %s", buildOpt.BuildContextDir)
+	name := clicontext.String("name")
+	if name == "" {
+		name, err = buildutil.CreateEnvNameFromDir(buildOpt.BuildContextDir)
+		if err != nil {
+			return errors.Wrapf(err, "failed to create the env name from %s", buildOpt.BuildContextDir)
+		}
 	}
 	startOptions := envd.StartOptions{
 		EnvironmentName: name,
