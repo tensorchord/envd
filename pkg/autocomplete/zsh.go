@@ -67,17 +67,18 @@ func InsertZSHCompleteEntry(clicontext *cli.Context) error {
 		return errors.Errorf("can't find zsh in this system, stop setting the zsh-completion.")
 	}
 
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return errors.Wrapf(err, "unable obtain user directory", err)
+	}
 	// should be the same on linux and macOS
 	filename := "envd.zsh"
-	homeDir := os.Getenv("HOME")
 	dirs := []string{
 		"/usr/share/zsh/site-functions",
 		"/usr/local/share/zsh/site-functions",
 		fileutil.DefaultConfigDir,
 	}
 
-	var f *os.File
-	var lastErr error
 	path := ""
 	for _, dir := range dirs {
 		dirPathExists, err := fileutil.DirExists(dir)
@@ -87,42 +88,17 @@ func InsertZSHCompleteEntry(clicontext *cli.Context) error {
 		if dirPathExists {
 			path = fmt.Sprintf("%s/%s", dir, filename)
 			log.L.Debugf("use the zsh-completion path for envd: %s", path)
-
-			pathExists, err := fileutil.FileExists(path)
-			if err != nil {
-				lastErr = errors.Wrapf(err, "failed to check if %s exists", path)
-			}
-			if pathExists {
-				return nil // file already exists, don't update it.
-			}
-
-			// create the completion file
-			f, err = os.Create(path)
-			if err != nil {
-				lastErr = err
-				continue
-			}
-
 			break
 		}
 	}
 
-	if f == nil {
-		return lastErr
-	}
-	defer f.Close()
-
-	compEntry, err := ZshCompleteEntry(clicontext)
+	pathExists, err := fileutil.FileExists(path)
 	if err != nil {
-		return errors.Wrapf(err, "Warning: unable to enable zsh-completion")
+		return errors.Wrapf(err, "failed to check if %s exists", path)
 	}
 
-	_, err = f.Write([]byte(compEntry))
-	if err != nil {
-		return errors.Wrapf(err, "failed writing to %s", path)
-	}
-
-	if strings.HasPrefix(path, homeDir) {
+	if strings.HasPrefix(path, homeDir) && !pathExists {
+		// write when the path does not exist to prevent duplicate writing during updates.
 		zshFile, err := os.OpenFile(fmt.Sprintf("%s/.zshrc", homeDir), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 		if err != nil {
 			log.L.Warnf("unable to open the `~/.zshrc`, please add the following lines into `~/.zshrc` to get the envd zsh completion:\n"+
@@ -139,10 +115,19 @@ func InsertZSHCompleteEntry(clicontext *cli.Context) error {
 		}
 	}
 
+	compEntry, err := ZshCompleteEntry(clicontext)
+	if err != nil {
+		return errors.Wrapf(err, "Warning: unable to enable zsh-completion")
+	}
+
+	if err = os.WriteFile(path, []byte(compEntry), 0644); err != nil {
+		return errors.Wrapf(err, "failed writing to %s", path)
+	}
+
 	return deleteZcompdump()
 }
 
-func ZshCompleteEntry(clicontext *cli.Context) (string, error) {
+func ZshCompleteEntry(_ *cli.Context) (string, error) {
 	return autocompleteZSH, nil
 }
 

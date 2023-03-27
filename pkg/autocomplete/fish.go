@@ -31,7 +31,10 @@ func InsertFishCompleteEntry(clicontext *cli.Context) error {
 		return errors.Errorf("can't find fish in this system, stop settings the fish-completion")
 	}
 
-	homeDir := os.Getenv("HOME")
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return errors.Wrapf(err, "unable obtain user directory", err)
+	}
 	path := filepath.Join(homeDir, ".config/fish/completions/envd.fish")
 	dirPath := filepath.Dir(path)
 
@@ -43,28 +46,11 @@ func InsertFishCompleteEntry(clicontext *cli.Context) error {
 		return errors.Errorf("unable to enable fish-completion: %s does not exists", dirPath)
 	}
 
-	pathExists, err := fileutil.FileExists(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed checking if %s exists", path)
-	}
-	if pathExists {
-		// file already exists, don't update it
-		return nil
-	}
-
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	bashEntry, err := FishCompleteEntry(clicontext)
+	fishEntry, err := FishCompleteEntry(clicontext)
 	if err != nil {
 		return errors.Wrapf(err, "unable to enable fish-completion")
 	}
-
-	_, err = f.Write([]byte(bashEntry))
-	if err != nil {
+	if err = os.WriteFile(path, []byte(fishEntry), 0644); err != nil {
 		return errors.Wrapf(err, "failed writing to %s", path)
 	}
 	return nil

@@ -66,33 +66,16 @@ func InsertBashCompleteEntry(clicontext *cli.Context) error {
 		return errors.Errorf("unable to enable bash-completion: %s does not exist", dirPath)
 	}
 
-	pathExists, err := fileutil.FileExists(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed checking if %s exists", path)
-	}
-	if pathExists {
-		return nil // file already exists, don't update it.
-	}
-
-	// create the completion file
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
 	bashEntry, err := BashCompleteEntry(clicontext)
 	if err != nil {
 		return errors.Wrapf(err, "unable to enable bash-completion")
 	}
-
-	_, err = f.Write([]byte(bashEntry))
-	if err != nil {
+	if err = os.WriteFile(path, []byte(bashEntry), 0644); err != nil {
 		return errors.Wrapf(err, "failed writing to %s", path)
 	}
 	return nil
 }
 
-func BashCompleteEntry(clicontext *cli.Context) (string, error) {
+func BashCompleteEntry(_ *cli.Context) (string, error) {
 	return autocompleteBASH, nil
 }
