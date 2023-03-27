@@ -20,8 +20,9 @@ import (
 	"path/filepath"
 
 	"github.com/cockroachdb/errors"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/urfave/cli/v2"
+
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 func InsertFishCompleteEntry(clicontext *cli.Context) error {
