@@ -20,6 +20,7 @@ import (
 	"runtime"
 
 	"github.com/cockroachdb/errors"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -48,7 +49,7 @@ complete -o bashdefault -o default -o nospace -F _cli_bash_autocomplete $PROG
 unset PROG
 `
 
-func InsertBashCompleteEntry() error {
+func InsertBashCompleteEntry(clicontext *cli.Context) error {
 	var path string
 	if runtime.GOOS == "darwin" {
 		path = "/usr/local/etc/bash_completion.d/envd"
@@ -80,7 +81,7 @@ func InsertBashCompleteEntry() error {
 	}
 	defer f.Close()
 
-	bashEntry, err := BashCompleteEntry()
+	bashEntry, err := BashCompleteEntry(clicontext)
 	if err != nil {
 		return errors.Wrapf(err, "unable to enable bash-completion")
 	}
@@ -92,6 +93,6 @@ func InsertBashCompleteEntry() error {
 	return nil
 }
 
-func BashCompleteEntry() (string, error) {
+func BashCompleteEntry(clicontext *cli.Context) (string, error) {
 	return autocompleteBASH, nil
 }

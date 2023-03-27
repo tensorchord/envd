@@ -45,15 +45,15 @@ var CommandCompletion = &cli.Command{
 	Action: completion,
 }
 
-func handleCompletion(clicontext *cli.Context, installFunc func() error, outputFunc func() (string, error)) error {
+func handleCompletion(clicontext *cli.Context, installFunc func(*cli.Context) error, outputFunc func(*cli.Context) (string, error)) error {
 	if clicontext.Bool("no-install") {
-		script, err := outputFunc()
+		script, err := outputFunc(clicontext)
 		if err != nil {
 			return err
 		}
 		fmt.Println(script)
 	} else {
-		if err := installFunc(); err != nil {
+		if err := installFunc(clicontext); err != nil {
 			return err
 		}
 	}
@@ -83,6 +83,10 @@ func completion(clicontext *cli.Context) error {
 			}
 		case "bash":
 			if err := handleCompletion(clicontext, ac.InsertBashCompleteEntry, ac.BashCompleteEntry); err != nil {
+				return err
+			}
+		case "fish":
+			if err := handleCompletion(clicontext, ac.InsertFishCompleteEntry, ac.FishCompleteEntry); err != nil {
 				return err
 			}
 		default:

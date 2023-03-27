@@ -24,6 +24,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/containerd/containerd/log"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -59,7 +60,7 @@ var zshConfig = `
 `
 
 // If debugging this, it might be required to run `rm ~/.zcompdump*` to remove the cache
-func InsertZSHCompleteEntry() error {
+func InsertZSHCompleteEntry(clicontext *cli.Context) error {
 	// check the system has zsh
 	_, err := exec.LookPath("zsh")
 	if err != nil {
@@ -111,7 +112,7 @@ func InsertZSHCompleteEntry() error {
 	}
 	defer f.Close()
 
-	compEntry, err := ZshCompleteEntry()
+	compEntry, err := ZshCompleteEntry(clicontext)
 	if err != nil {
 		return errors.Wrapf(err, "Warning: unable to enable zsh-completion")
 	}
@@ -141,7 +142,7 @@ func InsertZSHCompleteEntry() error {
 	return deleteZcompdump()
 }
 
-func ZshCompleteEntry() (string, error) {
+func ZshCompleteEntry(clicontext *cli.Context) (string, error) {
 	return autocompleteZSH, nil
 }
 
