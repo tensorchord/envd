@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.16 (2023-03-30)
+
+ * [04f43da](https://github.com/tensorchord/envd/commit/04f43da45423d18feb3a0899ab3589248be7f701) feat: fall back default builder to buildkit-container (#1548)
+ * [1f547f9](https://github.com/tensorchord/envd/commit/1f547f9d7c907557e7f257fa17bf50e39fdce603) chore(deps): bump github.com/onsi/gomega from 1.27.4 to 1.27.5 (#1544)
+ * [ba76ca6](https://github.com/tensorchord/envd/commit/ba76ca6823c515a99e4917ecd1b6fb20f1b8006b) chore(deps): bump github.com/urfave/cli/v2 from 2.25.0 to 2.25.1 (#1543)
+ * [bf88f7c](https://github.com/tensorchord/envd/commit/bf88f7c9e8d68b539281b24a4070cd4e74c1f8bb) chore(deps): bump github.com/mattn/go-isatty from 0.0.17 to 0.0.18 (#1545)
+ * [828fad7](https://github.com/tensorchord/envd/commit/828fad70758f9d81b3811122259ed258d93ff655) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.9.1 to 2.9.2 (#1542)
+ * [21c3355](https://github.com/tensorchord/envd/commit/21c3355c682476179255ed976cbdb70e9b47a60d) feat(CLI): add fish completion (#1546)
+ * [c3a8e1c](https://github.com/tensorchord/envd/commit/c3a8e1cd827c8a99820bbe34e83b9590e2d071b0) chore(deps): bump crate-ci/typos from 1.13.26 to 1.14.3 (#1540)
+
+### Contributors
+
+ * Kaiyang Chen
+ * dependabot[bot]
+ * zhang-wei
+
 ## v0.3.15 (2023-03-24)
 
  * [4d62312](https://github.com/tensorchord/envd/commit/4d62312b53db197e6735175eb59e7e58e62dcb60) feat: Support set environment name in `envd up` command (#1495)
