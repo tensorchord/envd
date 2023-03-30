@@ -20,7 +20,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/tensorchord/envd/pkg/driver/docker"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
 )
@@ -54,11 +53,6 @@ var (
 )
 
 func Initialize() error {
-	builder := types.BuilderTypeDocker
-	dockerVersion, err := docker.GetDockerVersion()
-	if err == nil && dockerVersion > 22 {
-		builder = types.BuilderTypeMoby
-	}
 	once.Do(func() {
 		defaultManager = &generalManager{
 			cacheMap: make(map[string]bool),
@@ -67,7 +61,7 @@ func Initialize() error {
 				Contexts: []types.Context{
 					{
 						Name:           "default",
-						Builder:        builder,
+						Builder:        types.BuilderTypeDocker,
 						BuilderAddress: "envd_buildkitd",
 						Runner:         types.RunnerTypeDocker,
 						RunnerAddress:  nil,
