@@ -116,13 +116,22 @@ func isCondaEnvFile(file string) bool {
 }
 
 func initCommand(clicontext *cli.Context) error {
-	lang := strings.ToLower(clicontext.String("lang"))
 	buildContext, err := filepath.Abs(clicontext.Path("path"))
 	force := clicontext.Bool("force")
 	if err != nil {
 		return err
 	}
 
+	filePath := filepath.Join(buildContext, "build.envd")
+	exists, err := fileutil.FileExists(filePath)
+	if err != nil {
+		return err
+	}
+	if exists && !force {
+		return errors.Errorf("build.envd already exists, use --force to overwrite it.\nOr you can run the command `envd up` to set up a new environment.")
+	}
+
+	lang := strings.ToLower(clicontext.String("lang"))
 	if !isValidLang(lang) {
 		startQuestion(LanguageChoice)
 		if len(selectionMap[LabelLanguage]) > 0 {
@@ -138,15 +147,6 @@ func initCommand(clicontext *cli.Context) error {
 		telemetry.GetReporter().Telemetry(
 			"init", telemetry.AddField("duration", time.Since(start).Seconds()))
 	}(time.Now())
-
-	filePath := filepath.Join(buildContext, "build.envd")
-	exists, err := fileutil.FileExists(filePath)
-	if err != nil {
-		return err
-	}
-	if exists && !force {
-		return errors.Errorf("build.envd already exists, use --force to overwrite it")
-	}
 
 	if lang == "python" {
 		err = InitPythonEnv(buildContext)
