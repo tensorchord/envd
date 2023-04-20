@@ -29,11 +29,11 @@ import (
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
-func (g generalGraph) compileVSCode() (llb.State, error) {
+func (g generalGraph) compileVSCode(root llb.State) (llb.State, error) {
 	if len(g.VSCodePlugins) == 0 {
-		return llb.Scratch(), nil
+		return root, nil
 	}
-	inputs := []llb.State{}
+	inputs := []llb.State{root}
 	for _, p := range g.VSCodePlugins {
 		vscodeClient, err := vscode.NewClient(vscode.MarketplaceVendorOpenVSX)
 		if err != nil {
@@ -45,14 +45,14 @@ func (g generalGraph) compileVSCode() (llb.State, error) {
 			return llb.State{}, err
 		}
 		g.Writer.LogVSCodePlugin(p, compileui.ActionEnd, cached)
-		ext := llb.Scratch().File(llb.Copy(llb.Local(flag.FlagCacheDir),
+		ext := root.File(llb.Copy(llb.Local(flag.FlagCacheDir),
 			vscodeClient.PluginPath(p),
 			fileutil.EnvdHomeDir(".vscode-server", "extensions", p.String()),
 			&llb.CopyInfo{
 				CreateDestPath: true,
 			}, llb.WithUIDGID(g.uid, g.gid)),
 			llb.WithCustomNamef("install vscode plugin %s", p.String()))
-		inputs = append(inputs, ext)
+		inputs = append(inputs, llb.Diff(root, ext))
 	}
 	layer := llb.Merge(inputs, llb.WithCustomName("merging plugins for vscode"))
 	return layer, nil

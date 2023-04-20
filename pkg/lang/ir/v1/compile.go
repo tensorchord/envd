@@ -336,14 +336,11 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
 		}
-		vscode, err := g.compileVSCode()
+		vscode, err := g.compileVSCode(entrypoint)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile VSCode extensions")
 		}
-		copy = llb.Merge([]llb.State{
-			entrypoint,
-			vscode,
-		}, llb.WithCustomName("[internal] final dev environment"))
+		copy = vscode
 	}
 
 	// it's necessary to exec `run` with the desired user
