@@ -31,9 +31,9 @@ import (
 
 func (g generalGraph) compileVSCode(root llb.State) (llb.State, error) {
 	if len(g.VSCodePlugins) == 0 {
-		return llb.Scratch(), nil
+		return root, nil
 	}
-	ext := root
+	inputs := []llb.State{}
 	for _, p := range g.VSCodePlugins {
 		vscodeClient, err := vscode.NewClient(vscode.MarketplaceVendorOpenVSX)
 		if err != nil {
@@ -45,15 +45,17 @@ func (g generalGraph) compileVSCode(root llb.State) (llb.State, error) {
 			return llb.State{}, err
 		}
 		g.Writer.LogVSCodePlugin(p, compileui.ActionEnd, cached)
-		ext = ext.File(llb.Copy(llb.Local(flag.FlagCacheDir),
+		ext := root.File(llb.Copy(llb.Local(flag.FlagCacheDir),
 			vscodeClient.PluginPath(p),
 			fileutil.EnvdHomeDir(".vscode-server", "extensions", p.String()),
 			&llb.CopyInfo{
 				CreateDestPath: true,
 			}, llb.WithUIDGID(g.uid, g.gid)),
 			llb.WithCustomNamef("install vscode plugin %s", p.String()))
+		inputs = append(inputs, ext)
 	}
-	return ext, nil
+	layer := llb.Merge(inputs, llb.WithCustomName("merging plugins for vscode"))
+	return layer, nil
 }
 
 // nolint:unused
