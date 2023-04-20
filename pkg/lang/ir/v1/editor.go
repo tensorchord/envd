@@ -33,7 +33,7 @@ func (g generalGraph) compileVSCode(root llb.State) (llb.State, error) {
 	if len(g.VSCodePlugins) == 0 {
 		return root, nil
 	}
-	inputs := []llb.State{}
+	inputs := []llb.State{root}
 	for _, p := range g.VSCodePlugins {
 		vscodeClient, err := vscode.NewClient(vscode.MarketplaceVendorOpenVSX)
 		if err != nil {
@@ -52,7 +52,7 @@ func (g generalGraph) compileVSCode(root llb.State) (llb.State, error) {
 				CreateDestPath: true,
 			}, llb.WithUIDGID(g.uid, g.gid)),
 			llb.WithCustomNamef("install vscode plugin %s", p.String()))
-		inputs = append(inputs, ext)
+		inputs = append(inputs, llb.Diff(root, ext))
 	}
 	layer := llb.Merge(inputs, llb.WithCustomName("merging plugins for vscode"))
 	return layer, nil
