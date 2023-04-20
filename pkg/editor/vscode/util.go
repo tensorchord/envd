@@ -22,13 +22,64 @@ import (
 	"strings"
 
 	"github.com/cockroachdb/errors"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 )
+
+const (
+	PLATFORM_WIN32_X64    = "win32-x64"
+	PLATFORM_WIN32_IA32   = "win32-ia32"
+	PLATFORM_WIN32_ARM64  = "win32-arm64"
+	PLATFORM_LINUX_X64    = "linux-x64"
+	PLATFORM_LINUX_ARM64  = "linux-arm64"
+	PLATFORM_LINUX_ARMHF  = "linux-armhf"
+	PLATFORM_DARWIN_X64   = "darwin-x64"
+	PLATFORM_DARWIN_ARM64 = "darwin-arm64"
+	PLATFORM_ALPINE_X64   = "alpine-x64"
+)
+
+func ConvertLLBPlatform(platform *v1.Platform) (string, error) {
+	// Convert opencontainers style platform to VSCode extension style platform.
+	switch platform.OS {
+	case "windows":
+		switch platform.Architecture {
+		case "amd64":
+			return PLATFORM_WIN32_X64, nil
+		case "386":
+			return PLATFORM_WIN32_IA32, nil
+		case "arm64":
+			return PLATFORM_WIN32_ARM64, nil
+		}
+	case "linux":
+		switch platform.Architecture {
+		case "amd64":
+			return PLATFORM_LINUX_X64, nil
+		case "arm64":
+			return PLATFORM_LINUX_ARM64, nil
+		case "arm":
+			return PLATFORM_LINUX_ARMHF, nil
+		}
+	case "darwin":
+		switch platform.Architecture {
+		case "amd64":
+			return PLATFORM_DARWIN_X64, nil
+		case "arm64":
+			return PLATFORM_DARWIN_ARM64, nil
+		}
+	case "alpine":
+		switch platform.Architecture {
+		case "amd64":
+			return PLATFORM_ALPINE_X64, nil
+		}
+	}
+
+	return "", errors.Errorf("unsupported platform: %s/%s", platform.OS, platform.Architecture)
+}
 
 func GetLatestVersionURL(p Plugin) (string, error) {
 	// Auto-detect the version.
 	// Refer to https://github.com/tensorchord/envd/issues/161#issuecomment-1129475975
-	latestURL := fmt.Sprintf(vendorOpenVSXTemplate, p.Publisher, p.Extension)
+	latestURL := fmt.Sprintf(vendorOpenVSXTemplate, p.Publisher, p.Extension, p.Platform)
 	resp, err := http.Get(latestURL)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get latest version")
@@ -41,14 +92,17 @@ func GetLatestVersionURL(p Plugin) (string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&jsonResp); err != nil {
 		return "", errors.Wrap(err, "failed to decode response")
 	}
-	if jsonResp["files"] == nil {
-		return "", errors.New("failed to get latest version: no files")
+	if jsonResp["downloads"] == nil {
+		return "", errors.New("failed to get latest version: no downloads")
 	}
-	files := jsonResp["files"].(map[string]interface{})
-	if files["download"] == nil {
-		return "", errors.New("failed to get latest version: no download url")
+	downloads := jsonResp["downloads"].(map[string]interface{})
+	if downloads["universal"] != nil {
+		return downloads["universal"].(string), nil
 	}
-	return files["download"].(string), nil
+	if downloads[p.Platform] == nil {
+		return "", errors.Errorf("failed to get latest version: no target platform %s", p.Platform)
+	}
+	return downloads[p.Platform].(string), nil
 }
 
 func ParsePlugin(p string) (*Plugin, error) {

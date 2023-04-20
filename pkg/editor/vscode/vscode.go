@@ -60,19 +60,19 @@ func NewClient(vendor MarketplaceVendor) (Client, error) {
 
 func (c generalClient) PluginPath(p Plugin) string {
 	if p.Version != nil {
-		return fmt.Sprintf("%s.%s-%s/extension/", p.Publisher, p.Extension, *p.Version)
+		return fmt.Sprintf("%s.%s-%s@%s/extension/", p.Publisher, p.Extension, *p.Version, p.Platform)
 
 	}
-	return fmt.Sprintf("%s.%s/extension/", p.Publisher, p.Extension)
+	return fmt.Sprintf("%s.%s@%s/extension/", p.Publisher, p.Extension, p.Platform)
 }
 
 func unzipPath(p Plugin) string {
 	if p.Version != nil {
-		return fmt.Sprintf("%s/%s.%s-%s", home.GetManager().CacheDir(),
-			p.Publisher, p.Extension, *p.Version)
+		return fmt.Sprintf("%s/%s.%s-%s@%s", home.GetManager().CacheDir(),
+			p.Publisher, p.Extension, *p.Version, p.Platform)
 	}
-	return fmt.Sprintf("%s/%s.%s", home.GetManager().CacheDir(),
-		p.Publisher, p.Extension)
+	return fmt.Sprintf("%s/%s.%s@%s", home.GetManager().CacheDir(),
+		p.Publisher, p.Extension, p.Platform)
 }
 
 // DownloadOrCache downloads or cache the plugin.
@@ -93,23 +93,24 @@ func (c generalClient) DownloadOrCache(p Plugin) (bool, error) {
 		}
 		// TODO(gaocegege): Support version auto-detection.
 		url = fmt.Sprintf(vendorVSCodeTemplate,
-			p.Publisher, p.Publisher, p.Extension, *p.Version)
-		filename = fmt.Sprintf("%s/%s.%s-%s.vsix", home.GetManager().CacheDir(),
-			p.Publisher, p.Extension, *p.Version)
+			p.Publisher, p.Publisher, p.Extension, *p.Version, p.Platform)
+		filename = fmt.Sprintf("%s/%s.%s-%s@%s.vsix", home.GetManager().CacheDir(),
+			p.Publisher, p.Extension, *p.Version, p.Platform)
 	} else {
 		var err error
 		url, err = GetLatestVersionURL(p)
 		if err != nil {
 			return false, errors.Wrap(err, "failed to get latest version url")
 		}
-		filename = fmt.Sprintf("%s/%s.%s.vsix", home.GetManager().CacheDir(),
-			p.Publisher, p.Extension)
+		filename = fmt.Sprintf("%s/%s.%s@%s.vsix", home.GetManager().CacheDir(),
+			p.Publisher, p.Extension, p.Platform)
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
 		"publisher": p.Publisher,
 		"extension": p.Extension,
 		"version":   p.Version,
+		"platform":  p.Platform,
 		"url":       url,
 		"file":      filename,
 	})
