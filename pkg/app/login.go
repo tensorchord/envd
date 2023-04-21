@@ -131,6 +131,7 @@ func login(clicontext *cli.Context) error {
 			}
 		}
 
+		logger.Debug("login request after register")
 		resp, err = cli.Login(clicontext.Context, req)
 		if err != nil {
 			return errors.Wrap(err, "failed to get the response from envd-server client")

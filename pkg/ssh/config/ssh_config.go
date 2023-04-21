@@ -301,7 +301,7 @@ func (h *host) getParam(keyword string) *param {
 	return nil
 }
 
-func buildHostname(name string) string {
+func BuildHostname(name string) string {
 	return fmt.Sprintf("%s.envd", name)
 }
 
@@ -386,7 +386,7 @@ func GetPort(name string) (int, error) {
 		return 0, err
 	}
 
-	hostname := buildHostname(name)
+	hostname := BuildHostname(name)
 	i, found := findHost(cfg, hostname)
 	if !found {
 		return 0, errors.Newf("development container not found")

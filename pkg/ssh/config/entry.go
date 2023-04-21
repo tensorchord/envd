@@ -35,7 +35,7 @@ type EntryOptions struct {
 
 // AddEntry adds an entry to the user's sshconfig
 func AddEntry(eo EntryOptions) error {
-	eo.Name = buildHostname(eo.Name)
+	eo.Name = BuildHostname(eo.Name)
 	err := add(getSSHConfigPath(), eo)
 	if err != nil {
 		return err
@@ -88,7 +88,7 @@ func add(path string, eo EntryOptions) error {
 
 // RemoveEntry removes the entry to the user's sshconfig if found
 func RemoveEntry(name string) error {
-	err := remove(getSSHConfigPath(), buildHostname(name))
+	err := remove(getSSHConfigPath(), BuildHostname(name))
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func RemoveEntry(name string) error {
 		if err != nil {
 			return err
 		}
-		err = remove(winSshConfig, buildHostname(name))
+		err = remove(winSshConfig, BuildHostname(name))
 		if err != nil {
 			return err
 		}

@@ -285,6 +285,7 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 			},
 			Spec: servertypes.EnvironmentSpec{
 				Image: so.Image,
+				Sync:  so.EngineSource.EnvdServerSource.Sync,
 			},
 			Resources: servertypes.ResourceSpec{
 				CPU:    so.NumCPU,

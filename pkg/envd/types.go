@@ -60,7 +60,9 @@ type DockerSource struct {
 	MountOptions []string
 }
 
-type EnvdServerSource struct{}
+type EnvdServerSource struct {
+	Sync bool
+}
 
 type StartResult struct {
 	// TODO(gaocegege): Make result a chan, to send running status to the receiver.

@@ -26,6 +26,7 @@ import (
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
+	"github.com/tensorchord/envd/pkg/syncthing"
 )
 
 var CommandDestroy = &cli.Command{
@@ -96,5 +97,11 @@ func destroy(clicontext *cli.Context) error {
 		logrus.Infof("failed to remove entry %s from your SSH config file: %s", ctrName, err)
 		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}
+
+	err = syncthing.CleanLocalConfig(name)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove syncthing config file")
+	}
+
 	return nil
 }

@@ -31,7 +31,9 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
+	"github.com/tensorchord/envd/pkg/syncthing"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
@@ -101,6 +103,11 @@ var CommandCreate = &cli.Command{
 			Usage: "Request GPU resources (number of gpus), such as 1, 2",
 			Value: "",
 		},
+		&cli.BoolFlag{
+			Name:  "sync",
+			Usage: "Sync the local directory with the remote container",
+			Value: false,
+		},
 		&cli.StringSliceFlag{
 			Name:    "volume",
 			Usage:   "Mount host directory into container",
@@ -140,7 +147,9 @@ func run(clicontext *cli.Context) error {
 		EnvironmentName: name,
 	}
 	if c.Runner == types.RunnerTypeEnvdServer {
-		opt.EnvdServerSource = &envd.EnvdServerSource{}
+		opt.EnvdServerSource = &envd.EnvdServerSource{
+			Sync: clicontext.Bool("sync"),
+		}
 		if len(clicontext.StringSlice("volume")) > 0 {
 			return errors.New("volume is not supported for envd-server runner")
 		}
@@ -177,6 +186,7 @@ func run(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the username")
 	}
+
 	eo := sshconfig.EntryOptions{
 		Name:               res.Name,
 		IFace:              hostname,
@@ -228,6 +238,35 @@ func run(clicontext *cli.Context) error {
 			}()
 		}
 
+		if clicontext.Bool("sync") {
+			go func() {
+				if err := sshClient.LocalForward(syncthing.DefaultRemoteAPIAddress, syncthing.DefaultRemoteAPIAddress); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to remote api port")
+				}
+			}()
+
+			go func() {
+				syncthingRemoteAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultRemoteDeviceAddress))
+				if err := sshClient.LocalForward(syncthingRemoteAddr, syncthingRemoteAddr); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to remote port")
+				}
+			}()
+
+			go func() {
+				syncthingLocalAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultLocalDeviceAddress))
+				if err := sshClient.RemoteForward(syncthingLocalAddr, syncthingLocalAddr); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to local port")
+				}
+			}()
+
+			localSyncthing, _, err := startSyncthing(res.Name)
+			if err != nil {
+				return errors.Wrap(err, "failed to start syncthing")
+			}
+			defer localSyncthing.StopLocalSyncthing()
+
+		}
+
 		go func() {
 			// TODO(gaocegege): Avoid the hard code.
 			if err := sshClient.Attach(); err != nil {
@@ -241,4 +280,36 @@ func run(clicontext *cli.Context) error {
 		}
 	}
 	return nil
+}
+
+func startSyncthing(name string) (*syncthing.Syncthing, *syncthing.Syncthing, error) {
+	cwd, err := fileutil.CWD()
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to get current working directory")
+	}
+	projectName := filepath.Base(cwd)
+
+	localSyncthing, err := syncthing.InitializeLocalSyncthing(name)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to initialize local syncthing")
+	}
+
+	remoteSyncthing, err := syncthing.InitializeRemoteSyncthing()
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to initialize remote syncthing")
+	}
+	logrus.Debug("Remote syncthing initialized")
+
+	err = syncthing.ConnectDevices(localSyncthing, remoteSyncthing)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to connect devices")
+	}
+	logrus.Debug("Syncthing devices connected")
+
+	err = syncthing.SyncFolder(localSyncthing, remoteSyncthing, cwd, fmt.Sprintf("%s/%s", fileutil.EnvdHomeDir(), projectName))
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to sync folders")
+	}
+
+	return localSyncthing, remoteSyncthing, nil
 }

@@ -27,7 +27,7 @@ var _ = Describe("ssh config", func() {
 			port := 8888
 			keyPath := "key"
 			eo := EntryOptions{
-				Name:               buildHostname(env),
+				Name:               BuildHostname(env),
 				IFace:              iface,
 				Port:               port,
 				PrivateKeyPath:     keyPath,
