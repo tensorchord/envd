@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.3.17 (2023-04-21)
+
+ * [3e426d2](https://github.com/tensorchord/envd/commit/3e426d25d300fad5b3d903ee35aefbbb26f0564b) Download vs code extension by platform (#1566)
+ * [f3acdff](https://github.com/tensorchord/envd/commit/f3acdff65d68e9315a0575e0d41c3354fb2562bc) fix: compile vscode extensions with user state (#1564)
+ * [bc0eaf8](https://github.com/tensorchord/envd/commit/bc0eaf86034cd174afa362ecf904c7ea13aec9b6) feat: friendly prompt when exec `envd init` (#1562)
+ * [c0010cc](https://github.com/tensorchord/envd/commit/c0010cc59de11a4a188bbfccd31d3e8f4ff65892) chore(deps): bump github.com/docker/cli from 23.0.0-rc.3+incompatible to 24.0.0-beta.2+incompatible (#1561)
+ * [60686bc](https://github.com/tensorchord/envd/commit/60686bc63ad4bf95bac36b67fb890fe940dab1c3) chore(deps): bump crate-ci/typos from 1.14.5 to 1.14.6 (#1560)
+ * [db8d342](https://github.com/tensorchord/envd/commit/db8d342c1eeb0f41d45b28e6f7b6a82604fb9f4b) chore(deps): bump golang.org/x/crypto from 0.7.0 to 0.8.0 (#1556)
+ * [e383395](https://github.com/tensorchord/envd/commit/e3833954ef61b1ca1305303565ff1376f5bd1ea2) feat: bring apt-source compilation earlier (#1554)
+ * [dd48167](https://github.com/tensorchord/envd/commit/dd4816746720a813755f59b72e281c2cdc5ce59b) chore(deps): bump golang.org/x/term from 0.6.0 to 0.7.0 (#1555)
+ * [c385cb5](https://github.com/tensorchord/envd/commit/c385cb560572c95450a2ba3c3e3f3b9a76f7f9c7) chore(deps): bump crate-ci/typos from 1.14.3 to 1.14.5 (#1557)
+ * [b36f07e](https://github.com/tensorchord/envd/commit/b36f07ed014bfed87e9703dae47fdd532cb741e4) chore(deps): bump peter-evans/create-pull-request from 4 to 5 (#1558)
+ * [3393bc5](https://github.com/tensorchord/envd/commit/3393bc56290265f79a97e83b6eab45faae1e6ae7) chore(deps): bump github.com/onsi/gomega from 1.27.5 to 1.27.6 (#1552)
+
+### Contributors
+
+ * dependabot[bot]
+ * hang lv
+ * rrain7
+
 ## v0.3.16 (2023-03-30)
 
  * [04f43da](https://github.com/tensorchord/envd/commit/04f43da45423d18feb3a0899ab3589248be7f701) feat: fall back default builder to buildkit-container (#1548)
