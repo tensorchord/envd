@@ -20,6 +20,7 @@ import (
 	"runtime"
 
 	"github.com/cockroachdb/errors"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -48,7 +49,7 @@ complete -o bashdefault -o default -o nospace -F _cli_bash_autocomplete $PROG
 unset PROG
 `
 
-func InsertBashCompleteEntry() error {
+func InsertBashCompleteEntry(clicontext *cli.Context) error {
 	var path string
 	if runtime.GOOS == "darwin" {
 		path = "/usr/local/etc/bash_completion.d/envd"
@@ -65,33 +66,16 @@ func InsertBashCompleteEntry() error {
 		return errors.Errorf("unable to enable bash-completion: %s does not exist", dirPath)
 	}
 
-	pathExists, err := fileutil.FileExists(path)
-	if err != nil {
-		return errors.Wrapf(err, "failed checking if %s exists", path)
-	}
-	if pathExists {
-		return nil // file already exists, don't update it.
-	}
-
-	// create the completion file
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	bashEntry, err := BashCompleteEntry()
+	bashEntry, err := BashCompleteEntry(clicontext)
 	if err != nil {
 		return errors.Wrapf(err, "unable to enable bash-completion")
 	}
-
-	_, err = f.Write([]byte(bashEntry))
-	if err != nil {
+	if err = os.WriteFile(path, []byte(bashEntry), 0644); err != nil {
 		return errors.Wrapf(err, "failed writing to %s", path)
 	}
 	return nil
 }
 
-func BashCompleteEntry() (string, error) {
+func BashCompleteEntry(_ *cli.Context) (string, error) {
 	return autocompleteBASH, nil
 }

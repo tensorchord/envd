@@ -286,22 +286,22 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get the base image")
 	}
+	aptMirror := g.compileUbuntuAPT(base)
 
 	// prepare dev env: stable operations should be done here to make it cache friendly
 	if g.Dev {
-		dev := g.compileDevPackages(base)
+		dev := g.compileDevPackages(aptMirror)
 		sshd := g.compileSSHD(dev)
 		horust := g.installHorust(sshd)
 		starship := g.compileStarship(horust)
 		userGroup := g.compileUserGroup(starship)
-		base = userGroup
+		aptMirror = userGroup
 	}
 
-	lang, err := g.compileLanguage(base)
+	lang, err := g.compileLanguage(aptMirror)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile language")
 	}
-	aptMirror := g.compileUbuntuAPT(base)
 	systemPackages := g.compileSystemPackages(aptMirror)
 	merge := llb.Merge([]llb.State{
 		base,
@@ -336,14 +336,11 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")
 		}
-		vscode, err := g.compileVSCode()
+		vscode, err := g.compileVSCode(entrypoint)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile VSCode extensions")
 		}
-		copy = llb.Merge([]llb.State{
-			entrypoint,
-			vscode,
-		}, llb.WithCustomName("[internal] final dev environment"))
+		copy = vscode
 	}
 
 	// it's necessary to exec `run` with the desired user

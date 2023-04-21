@@ -175,17 +175,22 @@ func autocomplete(clicontext *cli.Context) error {
 	shell := os.Getenv("SHELL")
 	if strings.Contains(shell, "zsh") {
 		logrus.Infof("Install zsh autocompletion")
-		if err := ac.InsertZSHCompleteEntry(); err != nil {
+		if err := ac.InsertZSHCompleteEntry(clicontext); err != nil {
 			logrus.Warnf("Warning: %s\n", err.Error())
 		}
 	} else if strings.Contains(shell, "bash") {
 		logrus.Infof("Install bash autocompletion")
-		if err := ac.InsertBashCompleteEntry(); err != nil {
+		if err := ac.InsertBashCompleteEntry(clicontext); err != nil {
+			logrus.Warnf("Warning: %s\n", err.Error())
+		}
+	} else if strings.Contains(shell, "fish") {
+		logrus.Infof("Install fish autocompletion")
+		if err := ac.InsertFishCompleteEntry(clicontext); err != nil {
 			logrus.Warnf("Warning: %s\n", err.Error())
 		}
 	} else {
 		logrus.Infof("Install bash autocompletion (fallback from \"%s\")", shell)
-		if err := ac.InsertBashCompleteEntry(); err != nil {
+		if err := ac.InsertBashCompleteEntry(clicontext); err != nil {
 			logrus.Warnf("Warning: %s\n", err.Error())
 		}
 	}

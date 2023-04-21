@@ -20,9 +20,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Docker Login
         uses: docker/login-action@v2
         with:
@@ -74,7 +74,7 @@ jobs:
         mv dist/envd_darwin_all/envd bin/envd
         chmod +x bin/envd
     - name: Build wheels
-      uses: pypa/cibuildwheel@v2.12.0
+      uses: pypa/cibuildwheel@v2.12.1
       env:
         CIBW_ARCHS_MACOS: arm64, x86_64
         CIBW_ARCHS_LINUX: auto64

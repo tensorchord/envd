@@ -68,11 +68,16 @@ func (g *generalGraph) installPython(root llb.State) (llb.State, error) {
 }
 
 func (g generalGraph) getAppropriatePythonVersion() (string, error) {
-	if g.Language.Version == nil {
-		return PythonVersionDefault, nil
+	var version string
+	for _, language := range g.Languages {
+		if language.Name == "python" {
+			if language.Version == nil {
+				return PythonVersionDefault, nil
+			}
+			version = *language.Version
+		}
 	}
 
-	version := *g.Language.Version
 	if version == "3" || version == "" {
 		return PythonVersionDefault, nil
 	}

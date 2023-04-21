@@ -15,19 +15,30 @@ on:
       - '**.go'
       - 'Makefile'
       - 'go.**'
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  typos-check:
+    name: Spell Check with Typos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v3
+      - name: Check spelling with custom config file
+        uses: crate-ci/typos@v1.14.6
+        with:
+          config: ./typos.toml
   lint:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
       - uses: actions/checkout@v3
       - name: Cache Go modules
         uses: actions/cache@preview
@@ -62,9 +73,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -98,9 +109,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -134,9 +145,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -170,9 +181,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -206,9 +217,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -242,9 +253,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -270,9 +281,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.18
+          go-version: 1.19
       - name: Install bins
         run: |
           go install github.com/mattn/goveralls@latest
