@@ -20,6 +20,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/editor/vscode"
@@ -30,11 +31,14 @@ import (
 )
 
 func (g generalGraph) compileVSCode(root llb.State) (llb.State, error) {
-	if len(g.VSCodePlugins) == 0 {
-		return root, nil
+	// TODO(n063h): support multiple platforms
+	p := &v1.Platform{Architecture: "amd64", OS: "linux"}
+	platform, err := vscode.ConvertLLBPlatform(p)
+	if err != nil {
+		return llb.State{}, errors.Wrap(err, "failed to convert llb platform")
 	}
-	inputs := []llb.State{root}
 	for _, p := range g.VSCodePlugins {
+		p.Platform = platform
 		vscodeClient, err := vscode.NewClient(vscode.MarketplaceVendorOpenVSX)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to create vscode client")
@@ -45,17 +49,15 @@ func (g generalGraph) compileVSCode(root llb.State) (llb.State, error) {
 			return llb.State{}, err
 		}
 		g.Writer.LogVSCodePlugin(p, compileui.ActionEnd, cached)
-		ext := root.File(llb.Copy(llb.Local(flag.FlagCacheDir),
+		root = root.File(llb.Copy(llb.Local(flag.FlagCacheDir),
 			vscodeClient.PluginPath(p),
 			fileutil.EnvdHomeDir(".vscode-server", "extensions", p.String()),
 			&llb.CopyInfo{
 				CreateDestPath: true,
 			}, llb.WithUIDGID(g.uid, g.gid)),
 			llb.WithCustomNamef("install vscode plugin %s", p.String()))
-		inputs = append(inputs, llb.Diff(root, ext))
 	}
-	layer := llb.Merge(inputs, llb.WithCustomName("merging plugins for vscode"))
-	return layer, nil
+	return root, nil
 }
 
 // nolint:unused
