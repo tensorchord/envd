@@ -16,7 +16,6 @@ package envd
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/schollz/progressbar/v3"
@@ -78,7 +77,6 @@ type ProgressBar struct {
 	currStage  int
 	totalStage int
 	notify     chan struct{}
-	lock       *sync.Mutex
 }
 
 func InitProgressBar(stage int) *ProgressBar {
@@ -90,7 +88,6 @@ func InitProgressBar(stage int) *ProgressBar {
 			fmt.Println()
 		}),
 	)
-	var lock sync.Mutex
 
 	go func() {
 		timer := time.NewTicker(time.Millisecond * 100)
@@ -99,9 +96,7 @@ func InitProgressBar(stage int) *ProgressBar {
 			case <-done:
 				return
 			case <-timer.C:
-				lock.Lock()
 				_ = bar.Add(1)
-				lock.Unlock()
 			}
 		}
 	}()
@@ -110,14 +105,11 @@ func InitProgressBar(stage int) *ProgressBar {
 		notify:     done,
 		bar:        bar,
 		totalStage: stage,
-		lock:       &lock,
 	}
 	return &b
 }
 
 func (b *ProgressBar) updateTitle(title string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.currStage += 1
 	b.bar.Describe(fmt.Sprintf("[cyan][%d/%d][reset] %s",
 		b.currStage,
@@ -127,8 +119,6 @@ func (b *ProgressBar) updateTitle(title string) {
 }
 
 func (b *ProgressBar) finish() {
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.notify <- struct{}{}
 	if err := b.bar.Finish(); err != nil {
 		logrus.Infof("stop progress bar err: %v\n", err)
