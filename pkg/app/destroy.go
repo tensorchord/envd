@@ -94,7 +94,8 @@ func destroy(clicontext *cli.Context) error {
 			return errors.Wrap(err, "failed to create an env name")
 		}
 	} else {
-		// Destroy the environment in the current directory if user confirms
+		// Both path and name are empty
+		// Destroy the environment in the current directory only if user confirms
 		buildContext, err := filepath.Abs(".")
 		if err != nil {
 			return errors.Wrap(err, "failed to get absolute path of the build context")
