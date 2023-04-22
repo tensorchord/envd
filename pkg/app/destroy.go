@@ -58,7 +58,7 @@ func destroy(clicontext *cli.Context) error {
 		return errors.New("Cannot specify --path and --name at the same time.")
 	}
 	if path == "" && name == "" {
-		path = "."
+		return errors.New("Must specify --path or --name. If you want to destroy the current environment, please run `envd destroy -p .`")
 	}
 	var ctrName string
 	if name != "" {
