@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.18 (2023-04-23)
+
+ * [e2f9e6b](https://github.com/tensorchord/envd/commit/e2f9e6b180f28735096e8ce70dbe734723fd45c7) feat: confirm `envd destroy` when path and name are both empty (#1568)
+ * [ac0dd7e](https://github.com/tensorchord/envd/commit/ac0dd7eb0516651bbc175e42870ccdecad86ab93) fix: remove the lock in progressbar (#1569)
+ * [e56981a](https://github.com/tensorchord/envd/commit/e56981a47ecd1e4f8a7684e1cea6b1720476084f) feat: file sync (#1416)
+
+### Contributors
+
+ * Alex Xi
+ * Huan Xu
+ * Keming
+
 ## v0.3.17 (2023-04-21)
 
  * [3e426d2](https://github.com/tensorchord/envd/commit/3e426d25d300fad5b3d903ee35aefbbb26f0564b) Download vs code extension by platform (#1566)
