@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.19 (2023-04-25)
+
+ * [ad73e37](https://github.com/tensorchord/envd/commit/ad73e37a17a4142c903d9f7bd4434f67708384fa) fix: hard code amd64 to support remote build (#1577)
+ * [599f001](https://github.com/tensorchord/envd/commit/599f00164d821f2b3caac5909d623d504c6d8ca4) chore(deps): bump dependabot/fetch-metadata from 1.3.6 to 1.4.0 (#1573)
+ * [78ac026](https://github.com/tensorchord/envd/commit/78ac026949a967504e01f36e2c379de1d7d02acf) chore(deps): bump google.golang.org/protobuf from 1.29.0 to 1.29.1 (#1576)
+ * [00cbc47](https://github.com/tensorchord/envd/commit/00cbc47ab31261d2a1ce890974de523979a763fc) chore(deps): bump pypa/cibuildwheel from 2.12.1 to 2.12.3 (#1572)
+ * [42c5913](https://github.com/tensorchord/envd/commit/42c591385b96bbaa826f70b3e5a7e8293ec1bac3) chore(deps): bump github.com/syncthing/syncthing from 1.23.1 to 1.23.4 (#1574)
+ * [d9bbb37](https://github.com/tensorchord/envd/commit/d9bbb3786f87663e7ff7555a58f156dad4a6bec5) chore(deps): bump crate-ci/typos from 1.14.6 to 1.14.8 (#1571)
+
+### Contributors
+
+ * Ce Gao
+ * dependabot[bot]
+
 ## v0.3.18 (2023-04-23)
 
  * [e2f9e6b](https://github.com/tensorchord/envd/commit/e2f9e6b180f28735096e8ce70dbe734723fd45c7) feat: confirm `envd destroy` when path and name are both empty (#1568)
