@@ -13,7 +13,7 @@ var _ = Describe("rlang_mnist", Ordered, func() {
 	e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 	BeforeAll(e.BuildImage(true))
 	BeforeEach(e.RunContainer())
-	FIt("execute runtime command `Rscript`", func() {
+	It("execute runtime command `Rscript`", func() {
 		res, err := e.ExecRuntimeCommand("rlang-mnist")
 		Expect(err).To(BeNil())
 		isNumeric := "TRUE"
