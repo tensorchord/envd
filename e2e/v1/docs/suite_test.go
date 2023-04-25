@@ -30,5 +30,5 @@ func init() {
 
 func TestMain(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "envd cli Suite")
+	RunSpecs(t, "envd docs Suite")
 }
