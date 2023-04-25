@@ -23,7 +23,6 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/containerd/console"
-	"github.com/containerd/containerd/platforms"
 	"github.com/moby/buildkit/client"
 	gatewayclient "github.com/moby/buildkit/frontend/gateway/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
@@ -37,7 +36,6 @@ const (
 
 func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 	entrypoint []string, env []string, user string) (string, error) {
-	pl := platforms.Normalize(platforms.DefaultSpec())
 	img := v1.Image{
 		Config: v1.ImageConfig{
 			Labels:       labels,
@@ -47,7 +45,7 @@ func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 			ExposedPorts: ports,
 			Entrypoint:   entrypoint,
 		},
-		Architecture: pl.Architecture,
+		Architecture: "amd64",
 		// Refer to https://github.com/tensorchord/envd/issues/269#issuecomment-1152944914
 		OS: "linux",
 		RootFS: v1.RootFS{
