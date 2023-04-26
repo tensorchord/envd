@@ -137,8 +137,7 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 				llb.WithCustomNamef("pip install -r %s", *g.RequirementsFile))
 		run.AddMount(cacheDir, cache,
 			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
-		run.AddMount(g.getWorkingDir(),
-			llb.Local(flag.FlagBuildContext), llb.Readonly)
+		run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext))
 		root = run.Root()
 	}
 
