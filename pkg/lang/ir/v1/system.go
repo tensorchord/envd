@@ -229,9 +229,6 @@ func (g *generalGraph) compileExtraSource(root llb.State) (llb.State, error) {
 }
 
 func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
-	if len(g.Languages) == 0 {
-		return root, nil
-	}
 	langs := []llb.State{}
 	lang := root
 	var err error
@@ -247,8 +244,8 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 		}
 		langs = append(langs, lang)
 	}
-	if len(langs) == 1 {
-		return langs[0], err
+	if len(langs) <= 1 {
+		return lang, err
 	}
 	for i, lang := range g.Languages {
 		langs[i] = llb.Diff(root, langs[i], llb.WithCustomNamef("[internal] build %s env", lang.Name))
@@ -258,18 +255,17 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 }
 
 func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
-	if len(g.Languages) == 0 {
-		return root
-	}
 	packs := []llb.State{}
 	pack := root
 	for _, language := range g.Languages {
 		switch language.Name {
 		case "python":
 			index := g.compilePyPIIndex(root)
-			pypi := g.compilePyPIPackages(index)
-			channel := g.compileCondaChannel(pypi)
-			pack = g.compileCondaPackages(channel)
+			pack = g.compilePyPIPackages(index)
+			if g.CondaConfig != nil {
+				channel := g.compileCondaChannel(pack)
+				pack = g.compileCondaPackages(channel)
+			}
 		case "r":
 			pack = g.installRPackages(root)
 		case "julia":
@@ -277,9 +273,9 @@ func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 		}
 		packs = append(packs, pack)
 	}
-	if len(packs) == 1 {
+	if len(packs) <= 1 {
 		// there is only one language needs to be installed, thus no need to merge
-		return packs[0]
+		return pack
 	}
 	for i, lang := range g.Languages {
 		packs[i] = llb.Diff(root, packs[i], llb.WithCustomNamef("[internal] get diff of %s's packages", lang.Name))
