@@ -71,7 +71,8 @@ func confirm(prompt string) bool {
 	}
 
 	response = response[:len(response)-1] // Remove newline character
-	return response == "y" || response == "Y" || response == "yes" || response == "Yes"
+	// default is "Yes"
+	return response == "y" || response == "Y" || response == "yes" || response == "Yes" || response == ""
 }
 
 func destroy(clicontext *cli.Context) error {
@@ -104,7 +105,7 @@ func destroy(clicontext *cli.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to create an env name")
 		}
-		if !confirm(fmt.Sprintf("Are you sure you want to destroy container %s in the current directory?", ctrName)) {
+		if !confirm(fmt.Sprintf("Are you sure you want to destroy container `%s` in the current directory?", ctrName)) {
 			return nil
 		}
 	}

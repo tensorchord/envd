@@ -229,7 +229,10 @@ func (g *generalGraph) compileExtraSource(root llb.State) (llb.State, error) {
 }
 
 func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
-	langs := []llb.State{root}
+	if len(g.Languages) == 0 {
+		return root, nil
+	}
+	langs := []llb.State{}
 	lang := root
 	var err error
 	for _, language := range g.Languages {
@@ -242,38 +245,47 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 		case "julia":
 			lang = g.installJulia(root)
 		}
-		langs = append(langs, llb.Diff(root, lang, llb.WithCustomNamef("[internal] build %s environments", language.Name)))
+		langs = append(langs, lang)
 	}
-	return llb.Merge(langs, llb.WithCustomName("[internal] build all language environments")), err
+	if len(langs) == 1 {
+		return langs[0], err
+	}
+	for i, lang := range g.Languages {
+		langs[i] = llb.Diff(root, langs[i], llb.WithCustomNamef("[internal] build %s env", lang.Name))
+	}
+	return llb.Merge(append([]llb.State{root}, langs...),
+		llb.WithCustomName("[internal] merge all the language environments")), err
 }
 
 func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
-	packs := []llb.State{root}
+	if len(g.Languages) == 0 {
+		return root
+	}
+	packs := []llb.State{}
 	pack := root
 	for _, language := range g.Languages {
 		switch language.Name {
 		case "python":
 			index := g.compilePyPIIndex(root)
 			pypi := g.compilePyPIPackages(index)
-			if g.CondaConfig == nil {
-				pack = pypi
-			} else {
-				channel := g.compileCondaChannel(root)
-				conda := g.compileCondaPackages(channel)
-				pack = llb.Merge([]llb.State{
-					root,
-					llb.Diff(root, pypi, llb.WithCustomName("[internal] PyPI packages")),
-					llb.Diff(root, conda, llb.WithCustomName("[internal] conda packages")),
-				}, llb.WithCustomName("[internal] Python packages"))
-			}
+			channel := g.compileCondaChannel(pypi)
+			pack = g.compileCondaPackages(channel)
 		case "r":
 			pack = g.installRPackages(root)
 		case "julia":
 			pack = g.installJuliaPackages(root)
 		}
-		packs = append(packs, llb.Diff(root, pack, llb.WithCustomNamef("[internal] install %s's packages", language.Name)))
+		packs = append(packs, pack)
 	}
-	return llb.Merge(packs, llb.WithCustomName("[internal] install packages for all language environments"))
+	if len(packs) == 1 {
+		// there is only one language needs to be installed, thus no need to merge
+		return packs[0]
+	}
+	for i, lang := range g.Languages {
+		packs[i] = llb.Diff(root, packs[i], llb.WithCustomNamef("[internal] get diff of %s's packages", lang.Name))
+	}
+	return llb.Merge(append([]llb.State{root}, packs...),
+		llb.WithCustomName("[internal] merge packages for all language environments"))
 }
 
 func (g *generalGraph) compileDevPackages(root llb.State) llb.State {
