@@ -246,6 +246,9 @@ func CondaChannel(channel string) error {
 func CondaPackage(deps []string, channel []string, envFile string) error {
 	g := DefaultGraph.(*generalGraph)
 
+	if g.CondaConfig == nil {
+		return errors.New("cannot install conda packages when conda is not installed")
+	}
 	g.CondaConfig.CondaPackages = append(
 		g.CondaConfig.CondaPackages, deps...)
 
