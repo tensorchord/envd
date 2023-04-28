@@ -1,5 +1,5 @@
-// Copyright 2022 The envd Authors
-// Copyright 2022 The Okteto Authors
+// Copyright 2023 The envd Authors
+// Copyright 2023 The Okteto Authors
 // based on https://github.com/havoc-io/sshconfig
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
