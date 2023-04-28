@@ -18,12 +18,13 @@ import (
 	"context"
 
 	"github.com/moby/buildkit/client/llb"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 )
 
 type Graph interface {
-	Compile(ctx context.Context, envName string, pub string) (*llb.Definition, error)
+	Compile(ctx context.Context, envName string, pub string, platform *v1.Platform) (*llb.Definition, error)
 
 	graphDebugger
 	graphVisitor
@@ -56,4 +57,5 @@ type graphVisitor interface {
 	GetHTTP() []HTTPInfo
 	GetRuntimeCommands() map[string]string
 	GetUser() string
+	GetPlatform() *v1.Platform
 }

@@ -15,6 +15,7 @@
 package v0
 
 import (
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
@@ -77,6 +78,8 @@ type generalGraph struct {
 	EnvironmentName string
 
 	ir.RuntimeGraph
+
+	Platform *v1.Platform
 }
 
 const (

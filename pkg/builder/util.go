@@ -35,7 +35,7 @@ const (
 )
 
 func ImageConfigStr(labels map[string]string, ports map[string]struct{},
-	entrypoint []string, env []string, user string) (string, error) {
+	entrypoint []string, env []string, user string, platform *v1.Platform) (string, error) {
 	img := v1.Image{
 		Config: v1.ImageConfig{
 			Labels:       labels,
@@ -45,9 +45,9 @@ func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 			ExposedPorts: ports,
 			Entrypoint:   entrypoint,
 		},
-		Architecture: "amd64",
+		Architecture: platform.Architecture,
 		// Refer to https://github.com/tensorchord/envd/issues/269#issuecomment-1152944914
-		OS: "linux",
+		OS: platform.OS,
 		RootFS: v1.RootFS{
 			Type: "layers",
 		},

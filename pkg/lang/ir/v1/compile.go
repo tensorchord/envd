@@ -24,6 +24,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 
@@ -57,6 +58,7 @@ func NewGraph() ir.Graph {
 		UserDirectories: []string{},
 		Shell:           shellBASH,
 		RuntimeGraph:    runtimeGraph,
+		Platform:        &v1.Platform{},
 	}
 }
 
@@ -102,7 +104,11 @@ func (g generalGraph) GetRuntimeCommands() map[string]string {
 	return g.RuntimeCommands
 }
 
-func (g *generalGraph) Compile(ctx context.Context, envName string, pub string) (*llb.Definition, error) {
+func (g generalGraph) GetPlatform() *v1.Platform {
+	return g.Platform
+}
+
+func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, platform *v1.Platform) (*llb.Definition, error) {
 	w, err := compileui.New(ctx, os.Stdout, "auto")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
@@ -110,6 +116,7 @@ func (g *generalGraph) Compile(ctx context.Context, envName string, pub string) 
 	g.Writer = w
 	g.EnvironmentName = envName
 	g.PublicKeyPath = pub
+	g.Platform = platform
 
 	uid, gid, err := g.getUIDGID()
 	if err != nil {
@@ -119,8 +126,7 @@ func (g *generalGraph) Compile(ctx context.Context, envName string, pub string) 
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile the graph")
 	}
-	// TODO(gaocegege): Support multi platform.
-	def, err := state.Marshal(ctx, llb.LinuxAmd64)
+	def, err := state.Marshal(ctx, llb.Platform(*g.Platform))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal the llb definition")
 	}

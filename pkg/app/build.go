@@ -89,6 +89,11 @@ To build and push the image to a registry:
 			Usage:   "Import the cache (e.g. type=registry,ref=<image>)",
 			Aliases: []string{"ic"},
 		},
+		&cli.StringFlag{
+			Name:        "platform",
+			Usage:       "Specify the target platform for the build output, (for example, windows/amd64, linux/amd64, or darwin/arm64)",
+			DefaultText: "linux/amd64",
+		},
 	},
 	Action: build,
 }
