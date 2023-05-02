@@ -351,12 +351,15 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 		base = base.AddEnv(k, v)
 	}
 
-	config, err := ir.FetchImageConfig(context.Background(), g.Image)
-	if err != nil {
-		return llb.State{}, err
-	}
-	if len(g.Entrypoint) == 0 {
-		g.Entrypoint = config.Entrypoint
+	if !g.Dev {
+		// fetching the image config may take some time
+		config, err := ir.FetchImageConfig(context.Background(), g.Image)
+		if err != nil {
+			return llb.State{}, err
+		}
+		if len(g.Entrypoint) == 0 {
+			g.Entrypoint = config.Entrypoint
+		}
 	}
 	// TODO: inherit the USER from base
 	g.User = ""
