@@ -15,10 +15,42 @@
 package ir
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/cockroachdb/errors"
+	"github.com/containers/image/v5/docker"
+	"github.com/containers/image/v5/image"
+	"github.com/containers/image/v5/types"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
+
+func FetchImageConfig(ctx context.Context, imageName string) (config v1.ImageConfig, err error) {
+	ref, err := docker.ParseReference(fmt.Sprintf("//%s", imageName))
+	if err != nil {
+		return config, errors.Wrap(err, "failed to parse image reference")
+	}
+	sys := types.SystemContext{}
+	src, err := ref.NewImageSource(ctx, &sys)
+	if err != nil {
+		return config, errors.Wrap(err, "failed to get image source from ref")
+	}
+	defer src.Close()
+	digest, err := docker.GetDigest(ctx, &sys, ref)
+	if err != nil {
+		return config, errors.Wrap(err, "failed to get the image digest")
+	}
+	image, err := image.FromUnparsedImage(ctx, &sys, image.UnparsedInstance(src, &digest))
+	if err != nil {
+		return config, errors.Wrap(err, "failed to get unparsed image")
+	}
+	img, err := image.OCIConfig(ctx)
+	if err != nil {
+		return config, errors.Wrap(err, "failed to get OCI config")
+	}
+	return img.Config, nil
+}
 
 func (rg *RuntimeGraph) Dump() (string, error) {
 	b, err := json.Marshal(rg)
