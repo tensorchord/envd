@@ -259,13 +259,11 @@ func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 	pack := root
 
 	// Use default python in the base image if install.python() is not specified.
-	if g.PyPIPackages != nil || g.RequirementsFile != nil || g.PythonWheels != nil {
-		index := g.compilePyPIIndex(root)
-		pack = g.compilePyPIPackages(index)
-		if g.CondaConfig != nil {
-			channel := g.compileCondaChannel(pack)
-			pack = g.compileCondaPackages(channel)
-		}
+	index := g.compilePyPIIndex(root)
+	pack = g.compilePyPIPackages(index)
+	if g.CondaConfig != nil {
+		channel := g.compileCondaChannel(pack)
+		pack = g.compileCondaPackages(channel)
 	}
 
 	for _, language := range g.Languages {
