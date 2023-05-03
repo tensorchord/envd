@@ -256,11 +256,10 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 
 func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 	packs := []llb.State{}
-	pack := root
 
 	// Use default python in the base image if install.python() is not specified.
 	index := g.compilePyPIIndex(root)
-	pack = g.compilePyPIPackages(index)
+	pack := g.compilePyPIPackages(index)
 	if g.CondaConfig != nil {
 		channel := g.compileCondaChannel(pack)
 		pack = g.compileCondaPackages(channel)
