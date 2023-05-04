@@ -267,13 +267,6 @@ func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 
 	for _, language := range g.Languages {
 		switch language.Name {
-		case "python":
-			index := g.compilePyPIIndex(root)
-			pack = g.compilePyPIPackages(index)
-			if g.CondaConfig != nil {
-				channel := g.compileCondaChannel(pack)
-				pack = g.compileCondaPackages(channel)
-			}
 		case "r":
 			pack = g.installRPackages(root)
 		case "julia":
