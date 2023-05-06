@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.21 (2023-05-05)
+
+ * [0a55acd](https://github.com/tensorchord/envd/commit/0a55acd03c6daae2f1de640e4bc751115a8f3564) Use default python in the base image (#1589)
+
+### Contributors
+
+ * Kevin Su
+
 ## v0.3.20 (2023-05-02)
 
  * [6e055c6](https://github.com/tensorchord/envd/commit/6e055c61fdc1cdba6959c8a54ead5aad6654090e) feat: inherit entrypoint from the base image (#1587)
