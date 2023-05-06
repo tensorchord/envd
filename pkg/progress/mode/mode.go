@@ -14,8 +14,6 @@
 
 package progressmode
 
-type Name string
-
 const (
 	AUTO  = "auto"
 	TTY   = "tty"
