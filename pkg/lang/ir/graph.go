@@ -23,7 +23,7 @@ import (
 )
 
 type Graph interface {
-	Compile(ctx context.Context, envName string, pub string) (*llb.Definition, error)
+	Compile(ctx context.Context, envName string, pub string, progressMode string) (*llb.Definition, error)
 
 	graphDebugger
 	graphVisitor

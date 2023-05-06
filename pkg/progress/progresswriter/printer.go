@@ -23,6 +23,7 @@ import (
 	"github.com/containerd/console"
 	"github.com/moby/buildkit/client"
 
+	progressmode "github.com/tensorchord/envd/pkg/progress/mode"
 	"github.com/tensorchord/envd/pkg/progress/progressui"
 )
 
@@ -82,21 +83,21 @@ func NewPrinter(ctx context.Context, out console.File, mode string) (Writer, err
 		done:   doneCh,
 	}
 
-	if v := os.Getenv("BUILDKIT_PROGRESS"); v != "" && mode == "auto" {
+	if v := os.Getenv("BUILDKIT_PROGRESS"); v != "" && mode == progressmode.AUTO {
 		mode = v
 	}
 
 	var c console.Console
 	switch mode {
-	case "auto", "tty", "":
+	case progressmode.AUTO, progressmode.TTY, progressmode.NONE:
 		if cons, err := console.ConsoleFromFile(out); err == nil {
 			c = cons
 		} else {
-			if mode == "tty" {
+			if mode == progressmode.TTY {
 				return nil, errors.Wrap(err, "failed to get console")
 			}
 		}
-	case "plain":
+	case progressmode.PLAIN:
 	default:
 		return nil, errors.Errorf("invalid progress mode %s", mode)
 	}
