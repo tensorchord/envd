@@ -27,7 +27,7 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/session"
 	"github.com/moby/buildkit/session/auth/authprovider"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
@@ -343,14 +343,18 @@ func constructSolveOpt(ce []client.CacheOptionsEntry, entry client.ExportEntry,
 	return opt
 }
 
-func parsePlatform(platform string) (*v1.Platform, error) {
+func parsePlatform(platform string) (*ocispecs.Platform, error) {
+	os, arch, variant := "linux", "amd64", ""
 	if platform == "" {
-		return &v1.Platform{Architecture: "amd64", OS: "linux"}, nil
+		return &ocispecs.Platform{Architecture: arch, OS: os, Variant: variant}, nil
 	}
 	arr := strings.Split(platform, "/")
-	if len(arr) != 2 {
-		return nil, errors.New("invalid platform format, expected `os/arch`")
+	if len(arr) < 2 {
+		return nil, errors.New("invalid platform format, expected `os/arch[/variant]`")
 	}
-	os, arch := arr[0], arr[1]
-	return &v1.Platform{Architecture: arch, OS: os}, nil
+	os, arch = arr[0], arr[1]
+	if len(arr) >= 3 {
+		variant = arr[2]
+	}
+	return &ocispecs.Platform{Architecture: arch, OS: os, Variant: variant}, nil
 }

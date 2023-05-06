@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	"github.com/cockroachdb/errors"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,7 +38,7 @@ const (
 	PLATFORM_ALPINE_X64   = "alpine-x64"
 )
 
-func ConvertLLBPlatform(platform *v1.Platform) (string, error) {
+func ConvertLLBPlatform(platform *ocispecs.Platform) (string, error) {
 	// Convert opencontainers style platform to VSCode extension style platform.
 	switch platform.OS {
 	case "windows":

@@ -24,7 +24,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	servertypes "github.com/tensorchord/envd-server/api/types"
@@ -66,7 +66,7 @@ func NewGraph() ir.Graph {
 		Shell:           shellBASH,
 		CondaConfig:     conda,
 		RuntimeGraph:    runtimeGraph,
-		Platform:        &v1.Platform{},
+		Platform:        &ocispecs.Platform{},
 	}
 }
 
@@ -108,11 +108,11 @@ func (g generalGraph) GetUser() string {
 	return "envd"
 }
 
-func (g generalGraph) GetPlatform() *v1.Platform {
+func (g generalGraph) GetPlatform() *ocispecs.Platform {
 	return g.Platform
 }
 
-func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, platform *v1.Platform) (*llb.Definition, error) {
+func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, platform *ocispecs.Platform) (*llb.Definition, error) {
 	w, err := compileui.New(ctx, os.Stdout, "auto")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")

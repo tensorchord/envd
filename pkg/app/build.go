@@ -15,6 +15,7 @@
 package app
 
 import (
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -91,7 +92,7 @@ To build and push the image to a registry:
 		},
 		&cli.StringFlag{
 			Name:        "platform",
-			Usage:       "Specify the target platform for the build output, (for example, windows/amd64, linux/amd64, or darwin/arm64)",
+			Usage:       "Specify the target platforms for the build output (for example, windows/amd64 or linux/amd64,darwin/arm64)",
 			DefaultText: "linux/amd64",
 		},
 	},
@@ -111,12 +112,23 @@ func build(clicontext *cli.Context) error {
 	logger := logrus.WithField("builder-options", opt)
 	logger.Debug("starting build command")
 
-	builder, err := buildutil.GetBuilder(clicontext, opt)
-	if err != nil {
-		return err
+	platforms := strings.Split(opt.Platform, ",")
+	for _, platform := range platforms {
+		o, p := opt, platform
+		o.Platform = p
+		if len(platforms) > 1 {
+			o.Tag += "-" + strings.Replace(p, "/", "-", 1)
+		}
+		builder, err := buildutil.GetBuilder(clicontext, o)
+		if err != nil {
+			return err
+		}
+		if err = buildutil.InterpretEnvdDef(builder); err != nil {
+			return err
+		}
+		if err := buildutil.BuildImage(clicontext, builder); err != nil {
+			return err
+		}
 	}
-	if err = buildutil.InterpretEnvdDef(builder); err != nil {
-		return err
-	}
-	return buildutil.BuildImage(clicontext, builder)
+	return nil
 }
