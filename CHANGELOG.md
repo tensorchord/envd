@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.3.21 (2023-05-05)
+
+ * [0a55acd](https://github.com/tensorchord/envd/commit/0a55acd03c6daae2f1de640e4bc751115a8f3564) Use default python in the base image (#1589)
+
+### Contributors
+
+ * Kevin Su
+
+## v0.3.20 (2023-05-02)
+
+ * [6e055c6](https://github.com/tensorchord/envd/commit/6e055c61fdc1cdba6959c8a54ead5aad6654090e) feat: inherit entrypoint from the base image (#1587)
+ * [9673a1f](https://github.com/tensorchord/envd/commit/9673a1fdff7b38cc3f230931e6138eddbc38a5af) chore(deps): bump github.com/urfave/cli/v2 from 2.25.1 to 2.25.2 (#1586)
+ * [f638d07](https://github.com/tensorchord/envd/commit/f638d07b6afc4d341b29fc315d60881cab354e9f) chore(deps): bump github.com/opencontainers/image-spec from 1.1.0-rc2.0.20221005185240-3a7f492d3f1b to 1.1.0-rc.3 (#1584)
+ * [4a38eca](https://github.com/tensorchord/envd/commit/4a38eca4ddffdb3c24361de90cf2102e7c80fdab) fix: reduce llb merge in language part if not necessary (#1581)
+ * [d4e5836](https://github.com/tensorchord/envd/commit/d4e58366802efc444c9e0986d42f3836871abe8a) fix: rm the focus in docs v1 test (#1579)
+
+### Contributors
+
+ * Keming
+ * dependabot[bot]
+
 ## v0.3.19 (2023-04-25)
 
  * [ad73e37](https://github.com/tensorchord/envd/commit/ad73e37a17a4142c903d9f7bd4434f67708384fa) fix: hard code amd64 to support remote build (#1577)

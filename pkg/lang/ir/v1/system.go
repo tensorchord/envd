@@ -1,4 +1,4 @@
-// Copyright 2022 The envd Authors
+// Copyright 2023 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -256,16 +256,17 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 
 func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 	packs := []llb.State{}
-	pack := root
+
+	// Use default python in the base image if install.python() is not specified.
+	index := g.compilePyPIIndex(root)
+	pack := g.compilePyPIPackages(index)
+	if g.CondaConfig != nil {
+		channel := g.compileCondaChannel(pack)
+		pack = g.compileCondaPackages(channel)
+	}
+
 	for _, language := range g.Languages {
 		switch language.Name {
-		case "python":
-			index := g.compilePyPIIndex(root)
-			pack = g.compilePyPIPackages(index)
-			if g.CondaConfig != nil {
-				channel := g.compileCondaChannel(pack)
-				pack = g.compileCondaPackages(channel)
-			}
 		case "r":
 			pack = g.installRPackages(root)
 		case "julia":
@@ -351,6 +352,16 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 		base = base.AddEnv(k, v)
 	}
 
+	if !g.Dev {
+		// fetching the image config may take some time
+		config, err := ir.FetchImageConfig(context.Background(), g.Image)
+		if err != nil {
+			return llb.State{}, err
+		}
+		if len(g.Entrypoint) == 0 {
+			g.Entrypoint = config.Entrypoint
+		}
+	}
 	// TODO: inherit the USER from base
 	g.User = ""
 	return base, nil

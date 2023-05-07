@@ -1,6 +1,6 @@
-// Copyright 2022 The envd Authors
-// Copyright 2022 The okteto Authors
-// Copyright 2022 stefanprodan
+// Copyright 2023 The envd Authors
+// Copyright 2023 The okteto Authors
+// Copyright 2023 stefanprodan
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

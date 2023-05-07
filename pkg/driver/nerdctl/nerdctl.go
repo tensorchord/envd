@@ -1,4 +1,4 @@
-// Copyright 2022 The envd Authors
+// Copyright 2023 The envd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -173,7 +173,7 @@ func (nc *nerdctlClient) containerExists(ctx context.Context, tag string) (bool,
 func (nc *nerdctlClient) containerInspect(ctx context.Context, tag string) (*types.ContainerJSON, error) {
 	out, err := nc.exec(ctx, nil, "inspect", tag)
 	if err != nil {
-		//TODO(kweizh): check not found
+		// TODO(kweizh): check not found
 		return nil, err
 	}
 
@@ -211,7 +211,7 @@ func (nc *nerdctlClient) imageInspect(ctx context.Context, tag string) error {
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
-		//TODO(kweizh): check not found
+		// TODO(kweizh): check not found
 		return err
 	}
 
