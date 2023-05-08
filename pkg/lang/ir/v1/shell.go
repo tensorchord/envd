@@ -56,7 +56,7 @@ deleted = "x"
 )
 
 func (g *generalGraph) compileShell(root llb.State) (_ llb.State, err error) {
-	g.RuntimeEnviron["SHELL"] = "/usr/bin/bash"
+	g.RuntimeEnviron["SHELL"] = "bash"
 	if g.Shell == shellZSH {
 		g.RuntimeEnviron["SHELL"] = "/usr/bin/zsh"
 		root, err = g.compileZSH(root)

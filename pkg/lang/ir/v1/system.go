@@ -150,7 +150,7 @@ func (g generalGraph) compileRun(root llb.State) llb.State {
 			sb.WriteString(c + "\n")
 		}
 
-		cmdStr := fmt.Sprintf("/usr/bin/bash -c '%s'", sb.String())
+		cmdStr := fmt.Sprintf("bash -c '%s'", sb.String())
 		logrus.WithField("command", cmdStr).Debug("compile run command")
 		// Mount the build context into the build process.
 		// TODO(gaocegege): Maybe we should make it readonly,
