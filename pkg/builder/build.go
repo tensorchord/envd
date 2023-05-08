@@ -157,7 +157,7 @@ func (b generalBuilder) Interpret() error {
 
 func (b generalBuilder) Compile(ctx context.Context) (*llb.Definition, error) {
 	envName := filepath.Base(b.BuildContextDir)
-	def, err := b.graph.Compile(ctx, envName, b.PubKeyPath)
+	def, err := b.graph.Compile(ctx, envName, b.PubKeyPath, b.Options.ProgressMode)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}

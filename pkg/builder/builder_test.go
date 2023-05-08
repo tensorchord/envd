@@ -31,6 +31,7 @@ import (
 	v0 "github.com/tensorchord/envd/pkg/lang/ir/v0"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	compileuimock "github.com/tensorchord/envd/pkg/progress/compileui/mock"
+	progressmode "github.com/tensorchord/envd/pkg/progress/mode"
 	"github.com/tensorchord/envd/pkg/progress/progresswriter"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 )
@@ -56,7 +57,7 @@ var _ = Describe("Builder", func() {
 					Options: Options{
 						ManifestFilePath: manifestFilePath,
 						ConfigFilePath:   configFilePath,
-						ProgressMode:     "plain",
+						ProgressMode:     progressmode.PLAIN,
 						Tag:              tag,
 						BuildFuncName:    "build",
 						PubKeyPath:       pub,

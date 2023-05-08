@@ -106,8 +106,8 @@ func (g generalGraph) GetUser() string {
 	return "envd"
 }
 
-func (g *generalGraph) Compile(ctx context.Context, envName string, pub string) (*llb.Definition, error) {
-	w, err := compileui.New(ctx, os.Stdout, "auto")
+func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, progressMode string) (*llb.Definition, error) {
+	w, err := compileui.New(ctx, os.Stdout, progressMode)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
 	}

@@ -28,6 +28,7 @@ import (
 	"github.com/tensorchord/envd/pkg/driver/docker"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
+	progressmode "github.com/tensorchord/envd/pkg/progress/mode"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -143,7 +144,7 @@ func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
 		Tag:              tag,
 		OutputOpts:       output,
 		PubKeyPath:       clicontext.Path("public-key"),
-		ProgressMode:     "auto",
+		ProgressMode:     progressmode.AUTO,
 		ExportCache:      exportCache,
 		ImportCache:      importCache,
 		UseHTTPProxy:     useProxy,
@@ -151,7 +152,7 @@ func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
 
 	debug := clicontext.Bool("debug")
 	if debug {
-		opt.ProgressMode = "plain"
+		opt.ProgressMode = progressmode.PLAIN
 	}
 	return opt, nil
 }
