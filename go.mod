@@ -24,7 +24,7 @@ require (
 	github.com/hashicorp/go-getter v1.7.1
 	github.com/mattn/go-isatty v0.0.18
 	github.com/moby/buildkit v0.11.4
-	github.com/moby/term v0.0.0-20221120202655-abb19827d345
+	github.com/moby/term v0.5.0
 	github.com/morikuni/aec v1.0.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo/v2 v2.9.4
