@@ -24,6 +24,7 @@ import (
 	buildutil "github.com/tensorchord/envd/pkg/app/build"
 	"github.com/tensorchord/envd/pkg/app/telemetry"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
+	"github.com/tensorchord/envd/pkg/util/runtimeutil"
 )
 
 var CommandBuild = &cli.Command{
@@ -91,9 +92,10 @@ To build and push the image to a registry:
 			Aliases: []string{"ic"},
 		},
 		&cli.StringFlag{
-			Name:        "platform",
-			Usage:       "Specify the target platforms for the build output (for example, windows/amd64 or linux/amd64,darwin/arm64)",
-			DefaultText: "linux/amd64",
+			Name: "platform",
+			Usage: `Specify the target platforms for the build output (for example, windows/amd64 or linux/amd64,darwin/arm64).
+	Build images with same tags could cause image overwriting, platform suffixes will be added to differentiate the images.`,
+			DefaultText: runtimeutil.GetRuntimePlatform(),
 		},
 	},
 	Action: build,
@@ -114,10 +116,11 @@ func build(clicontext *cli.Context) error {
 
 	platforms := strings.Split(opt.Platform, ",")
 	for _, platform := range platforms {
-		o, p := opt, platform
-		o.Platform = p
+		o:= opt
+		o.Platform = platform
 		if len(platforms) > 1 {
-			o.Tag += "-" + strings.Replace(p, "/", "-", 1)
+			// Transform the platform suffix to comply with the tag naming rule.
+			o.Tag += "-" + strings.Replace(platform, "/", "-", 1)
 		}
 		builder, err := buildutil.GetBuilder(clicontext, o)
 		if err != nil {
