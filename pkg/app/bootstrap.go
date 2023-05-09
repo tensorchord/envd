@@ -54,6 +54,11 @@ var CommandBootstrap = &cli.Command{
 			Usage:   "Dockerhub mirror to use",
 			Aliases: []string{"m"},
 		},
+		&cli.StringFlag{
+			Name:    "registry-ca-keypair",
+			Usage:   "Specify the ca/key/cert file path for the private registry (format: 'ca=/etc/config/ca.pem,key=/etc/config/key.pem,cert=/etc/config/cert.pem')",
+			Aliases: []string{"ca"},
+		},
 		&cli.StringSliceFlag{
 			Name: "ssh-keypair",
 			Usage: fmt.Sprintf("Manually specify ssh key pair as `publicKey,privateKey`. Envd will generate a keypair at %s and %s if not specified",
@@ -73,6 +78,9 @@ func bootstrap(clicontext *cli.Context) error {
 		"SSH Key",
 		sshKey,
 	}, {
+		"registry CA keypair",
+		registryCA,
+	}, {
 		"autocomplete",
 		autocomplete,
 	}, {
@@ -89,6 +97,61 @@ func bootstrap(clicontext *cli.Context) error {
 		}
 	}
 
+	return nil
+}
+
+func registryCA(clicontext *cli.Context) error {
+	ca := clicontext.String("registry-ca-keypair")
+	if len(ca) == 0 {
+		return nil
+	}
+	mirror := clicontext.String("dockerhub-mirror")
+	if len(mirror) == 0 {
+		return errors.New("`registry-ca-keypair` should be used with `dockerhub-mirror`")
+	}
+
+	// parse ca/key/cert
+	kvPairs := strings.Split(ca, ",")
+	if len(kvPairs) != 3 {
+		return errors.New("`registry-ca-keypair` requires ca/key/cert 3 part separated by ','")
+	}
+	names := []string{"ca", "cert", "key"}
+	for _, pair := range kvPairs {
+		kv := strings.SplitN(pair, "=", 2)
+		index := -1
+		for i, name := range names {
+			if name == kv[0] {
+				index = i
+				break
+			}
+		}
+		if index == -1 {
+			return errors.Newf("parse error: `%s` is not a valid ca/key/cert key or it's duplicated")
+		}
+		exist, err := fileutil.FileExists(kv[1])
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf("failed to parse file path %s", pair))
+		}
+		if !exist {
+			return errors.Newf("file %s doesn't exist", kv[1])
+		}
+		path, err := fileutil.ConfigFile(fmt.Sprintf("registry_%s.pem", kv[0]))
+		if err != nil {
+			return errors.Wrap(err, "failed to get the envd config file path")
+		}
+		content, err := os.ReadFile(kv[1])
+		if err != nil {
+			return errors.Wrap(err, "failed to read the file")
+		}
+		if err = os.WriteFile(path, content, 0644); err != nil {
+			return errors.Wrap(err, "failed to store the CA file")
+		}
+		names = append(names[:index], names[index+1:]...)
+	}
+
+	if len(names) != 0 {
+		return errors.Newf("registry %s are not provided", names)
+	}
 	return nil
 }
 
@@ -214,13 +277,15 @@ func buildkit(clicontext *cli.Context) error {
 	var bkClient buildkitd.Client
 	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
-			c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"))
+			c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"),
+			clicontext.IsSet("registry-ca-keypair"))
 		if err != nil {
 			return errors.Wrap(err, "failed to create moby buildkit client")
 		}
 	} else {
 		bkClient, err = buildkitd.NewClient(clicontext.Context,
-			c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"))
+			c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"),
+			clicontext.IsSet("registry-ca-keypair"))
 		if err != nil {
 			return errors.Wrap(err, "failed to create buildkit client")
 		}

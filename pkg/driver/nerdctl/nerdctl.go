@@ -63,8 +63,8 @@ func (nc *nerdctlClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) 
 	return nil
 }
 
-func (nc *nerdctlClient) StartBuildkitd(ctx context.Context,
-	tag, name, mirror string, timeout time.Duration) (string, error) {
+func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name, mirror string,
+	enableRegistryCA bool, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
@@ -82,6 +82,7 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context,
 	existed, _ := nc.containerExists(ctx, name)
 	if !existed {
 		buildkitdCmd := "buildkitd"
+		// TODO: support mirror CA keypair
 		if mirror != "" {
 			cfg := fmt.Sprintf(`
 [registry."docker.io"]
