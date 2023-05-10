@@ -117,7 +117,7 @@ func sshKey(clicontext *cli.Context) error {
 			return errors.Wrap(err, "Cannot get default key status")
 		}
 
-		path, err := sshconfig.GetPrivateKey()
+		privatePath, err := sshconfig.GetPrivateKey()
 		if err != nil {
 			return errors.Wrap(err, "Cannot get private key path")
 		}
@@ -127,7 +127,7 @@ func sshKey(clicontext *cli.Context) error {
 			var newPrivateKeyName string
 
 			for ok := true; ok; ok = exists {
-				newPrivateKeyName = filepath.Join(filepath.Dir(path),
+				newPrivateKeyName = filepath.Join(filepath.Dir(privatePath),
 					fmt.Sprintf("envd_%s.pk", namesgenerator.GetRandomName(0)))
 				exists, err = fileutil.FileExists(newPrivateKeyName)
 				if err != nil {
@@ -136,7 +136,7 @@ func sshKey(clicontext *cli.Context) error {
 			}
 			logrus.Debugf("New key name: %s", newPrivateKeyName)
 			if err := sshconfig.ReplaceKeyManagedByEnvd(
-				path, newPrivateKeyName); err != nil {
+				privatePath, newPrivateKeyName); err != nil {
 				return err
 			}
 		}
@@ -145,7 +145,11 @@ func sshKey(clicontext *cli.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "Cannot open public key")
 		}
-		err = os.WriteFile(path, pubKey, 0644)
+		publicPath, err := sshconfig.GetPublicKey()
+		if err != nil {
+			return errors.Wrap(err, "Cannot get the public key path")
+		}
+		err = os.WriteFile(publicPath, pubKey, 0644)
 		if err != nil {
 			return errors.Wrap(err, "Cannot write public key")
 		}
@@ -155,7 +159,7 @@ func sshKey(clicontext *cli.Context) error {
 			return errors.Wrap(err, "Cannot open private key")
 		}
 
-		err = os.WriteFile(path, priKey, 0600)
+		err = os.WriteFile(privatePath, priKey, 0600)
 		if err != nil {
 			return errors.Wrap(err, "Cannot write private key")
 		}
