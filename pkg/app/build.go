@@ -116,7 +116,7 @@ func build(clicontext *cli.Context) error {
 
 	platforms := strings.Split(opt.Platform, ",")
 	for _, platform := range platforms {
-		o:= opt
+		o := opt
 		o.Platform = platform
 		if len(platforms) > 1 {
 			// Transform the platform suffix to comply with the tag naming rule.
