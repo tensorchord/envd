@@ -112,8 +112,8 @@ func (g generalGraph) GetPlatform() *ocispecs.Platform {
 	return g.Platform
 }
 
-func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, platform *ocispecs.Platform) (*llb.Definition, error) {
-	w, err := compileui.New(ctx, os.Stdout, "auto")
+func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, platform *ocispecs.Platform, progressMode string) (*llb.Definition, error) {
+	w, err := compileui.New(ctx, os.Stdout, progressMode)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
 	}

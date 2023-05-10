@@ -108,8 +108,8 @@ func (g generalGraph) GetPlatform() *ocispecs.Platform {
 	return g.Platform
 }
 
-func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, platform *ocispecs.Platform) (*llb.Definition, error) {
-	w, err := compileui.New(ctx, os.Stdout, "auto")
+func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, platform *ocispecs.Platform, progressMode string) (*llb.Definition, error) {
+	w, err := compileui.New(ctx, os.Stdout, progressMode)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
 	}
@@ -304,15 +304,15 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 		aptMirror = userGroup
 	}
 
+	systemPackages := g.compileSystemPackages(aptMirror)
 	lang, err := g.compileLanguage(aptMirror)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile language")
 	}
-	systemPackages := g.compileSystemPackages(aptMirror)
 	merge := llb.Merge([]llb.State{
 		base,
-		llb.Diff(base, lang, llb.WithCustomName("[internal] prepare language")),
 		llb.Diff(base, systemPackages, llb.WithCustomName("[internal] install system packages")),
+		llb.Diff(base, lang, llb.WithCustomName("[internal] prepare language")),
 	}, llb.WithCustomName("[internal] language environment and system packages"))
 	packages := g.compileLanguagePackages(merge)
 	if err != nil {

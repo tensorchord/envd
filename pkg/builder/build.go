@@ -163,7 +163,7 @@ func (b generalBuilder) Compile(ctx context.Context) (*llb.Definition, error) {
 	if err != nil {
 		return nil, err
 	}
-	def, err := b.graph.Compile(ctx, envName, b.PubKeyPath, platform)
+	def, err := b.graph.Compile(ctx, envName, b.PubKeyPath, platform, b.Options.ProgressMode)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}

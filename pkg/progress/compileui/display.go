@@ -26,6 +26,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/editor/vscode"
+	progressmode "github.com/tensorchord/envd/pkg/progress/mode"
 )
 
 type Writer interface {
@@ -48,15 +49,15 @@ type generalWriter struct {
 func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 	var c console.Console
 	switch mode {
-	case "auto", "tty", "":
+	case progressmode.AUTO, progressmode.TTY, progressmode.NONE:
 		if cons, err := console.ConsoleFromFile(out); err == nil {
 			c = cons
 		} else {
-			if mode == "tty" {
+			if mode == progressmode.TTY {
 				return nil, errors.Wrap(err, "failed to get console")
 			}
 		}
-	case "plain":
+	case progressmode.PLAIN:
 	default:
 		return nil, errors.Errorf("invalid progress mode %s", mode)
 	}
