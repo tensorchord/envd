@@ -354,7 +354,7 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 
 	if !g.Dev {
 		// fetching the image config may take some time
-		config, err := ir.FetchImageConfig(context.Background(), g.Image)
+		config, err := ir.FetchImageConfig(context.Background(), g.Image, g.Platform)
 		if err != nil {
 			return llb.State{}, err
 		}

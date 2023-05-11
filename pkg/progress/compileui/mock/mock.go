@@ -8,7 +8,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-
 	vscode "github.com/tensorchord/envd/pkg/editor/vscode"
 	compileui "github.com/tensorchord/envd/pkg/progress/compileui"
 )
