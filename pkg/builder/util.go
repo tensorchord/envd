@@ -25,7 +25,7 @@ import (
 	"github.com/containerd/console"
 	"github.com/moby/buildkit/client"
 	gatewayclient "github.com/moby/buildkit/frontend/gateway/client"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 )
 
@@ -35,9 +35,9 @@ const (
 )
 
 func ImageConfigStr(labels map[string]string, ports map[string]struct{},
-	entrypoint []string, env []string, user string) (string, error) {
-	img := v1.Image{
-		Config: v1.ImageConfig{
+	entrypoint []string, env []string, user string, platform *ocispecs.Platform) (string, error) {
+	img := ocispecs.Image{
+		Config: ocispecs.ImageConfig{
 			Labels:       labels,
 			User:         user,
 			WorkingDir:   "/",
@@ -45,10 +45,10 @@ func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 			ExposedPorts: ports,
 			Entrypoint:   entrypoint,
 		},
-		Architecture: "amd64",
+		Architecture: platform.Architecture,
 		// Refer to https://github.com/tensorchord/envd/issues/269#issuecomment-1152944914
-		OS: "linux",
-		RootFS: v1.RootFS{
+		OS: platform.OS,
+		RootFS: ocispecs.RootFS{
 			Type: "layers",
 		},
 	}

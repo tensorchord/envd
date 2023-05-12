@@ -15,6 +15,7 @@
 package app
 
 import (
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -23,6 +24,7 @@ import (
 	buildutil "github.com/tensorchord/envd/pkg/app/build"
 	"github.com/tensorchord/envd/pkg/app/telemetry"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
+	"github.com/tensorchord/envd/pkg/util/runtimeutil"
 )
 
 var CommandBuild = &cli.Command{
@@ -89,6 +91,12 @@ To build and push the image to a registry:
 			Usage:   "Import the cache (e.g. type=registry,ref=<image>)",
 			Aliases: []string{"ic"},
 		},
+		&cli.StringFlag{
+			Name: "platform",
+			Usage: `Specify the target platforms for the build output (for example, windows/amd64 or linux/amd64,darwin/arm64).
+	Build images with same tags could cause image overwriting, platform suffixes will be added to differentiate the images.`,
+			DefaultText: runtimeutil.GetRuntimePlatform(),
+		},
 	},
 	Action: build,
 }
@@ -106,12 +114,24 @@ func build(clicontext *cli.Context) error {
 	logger := logrus.WithField("builder-options", opt)
 	logger.Debug("starting build command")
 
-	builder, err := buildutil.GetBuilder(clicontext, opt)
-	if err != nil {
-		return err
+	platforms := strings.Split(opt.Platform, ",")
+	for _, platform := range platforms {
+		o := opt
+		o.Platform = platform
+		if len(platforms) > 1 {
+			// Transform the platform suffix to comply with the tag naming rule.
+			o.Tag += "-" + strings.Replace(platform, "/", "-", 1)
+		}
+		builder, err := buildutil.GetBuilder(clicontext, o)
+		if err != nil {
+			return err
+		}
+		if err = buildutil.InterpretEnvdDef(builder); err != nil {
+			return err
+		}
+		if err := buildutil.BuildImage(clicontext, builder); err != nil {
+			return err
+		}
 	}
-	if err = buildutil.InterpretEnvdDef(builder); err != nil {
-		return err
-	}
-	return buildutil.BuildImage(clicontext, builder)
+	return nil
 }

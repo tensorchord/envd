@@ -24,6 +24,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
+	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	servertypes "github.com/tensorchord/envd-server/api/types"
@@ -65,6 +66,7 @@ func NewGraph() ir.Graph {
 		Shell:           shellBASH,
 		CondaConfig:     conda,
 		RuntimeGraph:    runtimeGraph,
+		Platform:        &ocispecs.Platform{},
 	}
 }
 
@@ -106,7 +108,11 @@ func (g generalGraph) GetUser() string {
 	return "envd"
 }
 
-func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, progressMode string) (*llb.Definition, error) {
+func (g generalGraph) GetPlatform() *ocispecs.Platform {
+	return g.Platform
+}
+
+func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, platform *ocispecs.Platform, progressMode string) (*llb.Definition, error) {
 	w, err := compileui.New(ctx, os.Stdout, progressMode)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
@@ -114,6 +120,7 @@ func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, 
 	g.Writer = w
 	g.EnvironmentName = envName
 	g.PublicKeyPath = pub
+	g.Platform = platform
 
 	uid, gid, err := getUIDGID()
 	if err != nil {
@@ -123,8 +130,7 @@ func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, 
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile the graph")
 	}
-	// TODO(gaocegege): Support multi platform.
-	def, err := state.Marshal(ctx, llb.LinuxAmd64)
+	def, err := state.Marshal(ctx, llb.Platform(*g.Platform))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal the llb definition")
 	}

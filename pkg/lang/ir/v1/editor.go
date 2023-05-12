@@ -20,7 +20,6 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/tensorchord/envd/pkg/config"
 	"github.com/tensorchord/envd/pkg/editor/vscode"
@@ -31,9 +30,7 @@ import (
 )
 
 func (g generalGraph) compileVSCode(root llb.State) (llb.State, error) {
-	// TODO(n063h): support multiple platforms
-	p := &v1.Platform{Architecture: "amd64", OS: "linux"}
-	platform, err := vscode.ConvertLLBPlatform(p)
+	platform, err := vscode.ConvertLLBPlatform(g.Platform)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to convert llb platform")
 	}

@@ -36,7 +36,7 @@ const (
 	PythonBaseImage   = "ubuntu:20.04"
 	EnvdStarshipImage = "tensorchord/starship:v0.0.1"
 	// supervisor
-	HorustImage      = "tensorchord/horust:v0.2.1"
+	HorustImage      = "tensorchord/horust:v0.2.3"
 	HorustServiceDir = "/etc/horust/services"
 	HorustLogDir     = "/var/log/horust"
 	// env

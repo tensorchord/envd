@@ -19,6 +19,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/cli/cli/config"
@@ -26,6 +27,7 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/session"
 	"github.com/moby/buildkit/session/auth/authprovider"
+	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
@@ -157,7 +159,11 @@ func (b generalBuilder) Interpret() error {
 
 func (b generalBuilder) Compile(ctx context.Context) (*llb.Definition, error) {
 	envName := filepath.Base(b.BuildContextDir)
-	def, err := b.graph.Compile(ctx, envName, b.PubKeyPath, b.Options.ProgressMode)
+	platform, err := parsePlatform(b.Platform)
+	if err != nil {
+		return nil, err
+	}
+	def, err := b.graph.Compile(ctx, envName, b.PubKeyPath, platform, b.Options.ProgressMode)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}
@@ -191,8 +197,9 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 
 	env := b.graph.GetEnviron()
 	user := b.graph.GetUser()
+	platform := b.graph.GetPlatform()
 
-	data, err := ImageConfigStr(labels, ports, ep, env, user)
+	data, err := ImageConfigStr(labels, ports, ep, env, user, platform)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get image config")
 	}
@@ -334,4 +341,20 @@ func constructSolveOpt(ce []client.CacheOptionsEntry, entry client.ExportEntry,
 		}
 	}
 	return opt
+}
+
+func parsePlatform(platform string) (*ocispecs.Platform, error) {
+	os, arch, variant := "linux", "amd64", ""
+	if platform == "" {
+		return &ocispecs.Platform{Architecture: arch, OS: os, Variant: variant}, nil
+	}
+	arr := strings.Split(platform, "/")
+	if len(arr) < 2 {
+		return nil, errors.New("invalid platform format, expected `os/arch[/variant]`")
+	}
+	os, arch = arr[0], arr[1]
+	if len(arr) >= 3 {
+		variant = arr[2]
+	}
+	return &ocispecs.Platform{Architecture: arch, OS: os, Variant: variant}, nil
 }

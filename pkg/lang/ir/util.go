@@ -26,12 +26,16 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
-func FetchImageConfig(ctx context.Context, imageName string) (config v1.ImageConfig, err error) {
+func FetchImageConfig(ctx context.Context, imageName string, platform *v1.Platform) (config v1.ImageConfig, err error) {
 	ref, err := docker.ParseReference(fmt.Sprintf("//%s", imageName))
 	if err != nil {
 		return config, errors.Wrap(err, "failed to parse image reference")
 	}
 	sys := types.SystemContext{}
+	if platform != nil {
+		sys.ArchitectureChoice = platform.Architecture
+		sys.OSChoice = platform.OS
+	}
 	src, err := ref.NewImageSource(ctx, &sys)
 	if err != nil {
 		return config, errors.Wrap(err, "failed to get image source from ref")

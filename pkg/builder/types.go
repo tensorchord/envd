@@ -49,6 +49,9 @@ type Options struct {
 	ImportCache string
 	// UseHTTPProxy uses HTTPS_PROXY/HTTP_PROXY/NO_PROXY in the build process.
 	UseHTTPProxy bool
+	// Specify the target platform for the build output.
+	// e.g. platform=linux/arm64,linux/amd64
+	Platform string
 }
 
 type generalBuilder struct {

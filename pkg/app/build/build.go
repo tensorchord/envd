@@ -135,6 +135,7 @@ func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
 	exportCache := clicontext.String("export-cache")
 	importCache := clicontext.String("import-cache")
 	useProxy := clicontext.Bool("use-proxy")
+	platform := clicontext.String("platform")
 
 	opt := builder.Options{
 		ManifestFilePath: manifest,
@@ -148,6 +149,7 @@ func ParseBuildOpt(clicontext *cli.Context) (builder.Options, error) {
 		ExportCache:      exportCache,
 		ImportCache:      importCache,
 		UseHTTPProxy:     useProxy,
+		Platform:         platform,
 	}
 
 	debug := clicontext.Bool("debug")

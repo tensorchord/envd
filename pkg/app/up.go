@@ -29,6 +29,7 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/runtimeutil"
 )
 
 var CommandUp = &cli.Command{
@@ -140,6 +141,11 @@ var CommandUp = &cli.Command{
 			Name:    "import-cache",
 			Usage:   "Import the cache (e.g. type=registry,ref=<image>)",
 			Aliases: []string{"ic"},
+		},
+		&cli.StringFlag{
+			Name:        "platform",
+			Usage:       "Specify the target platform for the build output, (for example, windows/amd64, linux/amd64, or darwin/arm64)",
+			DefaultText: runtimeutil.GetRuntimePlatform(),
 		},
 	},
 
