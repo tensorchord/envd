@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.3.22 (2023-05-12)
+
+ * [6569021](https://github.com/tensorchord/envd/commit/656902196da2e847bdfa30999883702f22a7e118) feat: build image by platform (#1582)
+ * [2839aa3](https://github.com/tensorchord/envd/commit/2839aa33bf097b440064aad9a1aaba461647db50) feat: support mirror ca for buildkitd (#1602)
+ * [2fbb447](https://github.com/tensorchord/envd/commit/2fbb4475c7da55dc4fc23e25dfb6f6c8666f63cf) chore(deps): bump github.com/docker/distribution from 2.8.1+incompatible to 2.8.2+incompatible (#1604)
+ * [fd45847](https://github.com/tensorchord/envd/commit/fd45847e4ebec79bf644d291fa4d2420ea032373) fix: bootstrap with key pair using the same path for pri/pub key (#1603)
+ * [2fa41c7](https://github.com/tensorchord/envd/commit/2fa41c7388af41e3ed8de2653d5402ad4bf52369) fix: merge language packages to system packages (#1593)
+ * [4306ddf](https://github.com/tensorchord/envd/commit/4306ddf8b490b546f7292df5605a866c63110686) chore(deps): bump github.com/urfave/cli/v2 from 2.25.2 to 2.25.3 (#1600)
+ * [e9c1cb9](https://github.com/tensorchord/envd/commit/e9c1cb9efe743a241c8c7436402e866c76d73d53) chore(deps): bump github.com/docker/cli from 24.0.0-beta.2+incompatible to 24.0.0-rc.2+incompatible (#1598)
+ * [0700488](https://github.com/tensorchord/envd/commit/0700488320abbaf4a142a93c2f497bf2915d6da7) chore(deps): bump golang.org/x/term from 0.7.0 to 0.8.0 (#1599)
+ * [d109a28](https://github.com/tensorchord/envd/commit/d109a280ff9c67f64cf8275dd712ae2c471c6994) chore(deps): bump github.com/moby/term from 0.0.0-20221120202655-abb19827d345 to 0.5.0 (#1601)
+ * [e5972b2](https://github.com/tensorchord/envd/commit/e5972b27eb700af06b739f17d0fcbbaa659f0798) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.9.2 to 2.9.4 (#1597)
+ * [4f731b9](https://github.com/tensorchord/envd/commit/4f731b9a6ebfa2fb105c34dadd88f053c9e8cbb6) chore(deps): bump crate-ci/typos from 1.14.8 to 1.14.9 (#1596)
+ * [d4df02a](https://github.com/tensorchord/envd/commit/d4df02a4e15e73aff64dfd38cc68ffc2058892f3) fix: In debug model, there is progress display. (#1595)
+ * [8ab73d8](https://github.com/tensorchord/envd/commit/8ab73d8a7faa9b9fa4a0f882ae904683e2867868) fix(v1): rm bash absolute path (#1594)
+
+### Contributors
+
+ * Keming
+ * dependabot[bot]
+ * hang lv
+ * rrain7
+
 ## v0.3.21 (2023-05-05)
 
  * [0a55acd](https://github.com/tensorchord/envd/commit/0a55acd03c6daae2f1de640e4bc751115a8f3564) Use default python in the base image (#1589)
