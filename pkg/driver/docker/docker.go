@@ -29,13 +29,29 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/moby/term"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/driver"
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
+
+const buildkitdMirror = `
+[registry."docker.io"]
+  mirrors = ["%s"]
+`
+const buildkitdCertPath = "/etc/registry"
+const buildkitdRegistry = `
+[registry."docker.io"]
+  mirrors = ["%s"]
+  ca=["/etc/registry/ca.pem"]
+  [[registry."docker.io".keypair]]
+    key="/etc/registry/key.pem"
+    cert="/etc/registry/cert.pem"
+`
 
 var (
 	anchoredIdentifierRegexp = regexp.MustCompile(`^([a-f0-9]{64})$`)
@@ -169,8 +185,8 @@ func (c dockerClient) ResumeContainer(ctx context.Context, name string) (string,
 	return name, nil
 }
 
-func (c dockerClient) StartBuildkitd(ctx context.Context,
-	tag, name, mirror string, timeout time.Duration) (string, error) {
+func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror string,
+	enableRegistryCA bool, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
@@ -198,19 +214,28 @@ func (c dockerClient) StartBuildkitd(ctx context.Context,
 	config := &container.Config{
 		Image: tag,
 	}
+	hostConfig := &container.HostConfig{
+		Privileged: true,
+		AutoRemove: true,
+	}
 	if mirror != "" {
-		cfg := fmt.Sprintf(`
-[registry."docker.io"]
-	mirrors = ["%s"]`, mirror)
+		var cfg string
+		if enableRegistryCA {
+			cfg = fmt.Sprintf(buildkitdRegistry, mirror)
+			hostConfig.Mounts = append(hostConfig.Mounts, mount.Mount{
+				Type:   mount.TypeBind,
+				Source: fileutil.DefaultConfigDir,
+				Target: buildkitdCertPath,
+			})
+		} else {
+			cfg = fmt.Sprintf(buildkitdMirror, mirror)
+		}
 		config.Entrypoint = []string{
 			"/bin/sh",
 			"-c",
 			fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg),
 		}
 		logger.Debugf("setting buildkit config: %s", cfg)
-	}
-	hostConfig := &container.HostConfig{
-		Privileged: true,
 	}
 	created, _ := c.Exists(ctx, name)
 	if created {

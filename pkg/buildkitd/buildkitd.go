@@ -62,9 +62,10 @@ type Client interface {
 }
 
 type generalClient struct {
-	containerName string
-	image         string
-	mirror        string
+	containerName    string
+	image            string
+	mirror           string
+	enableRegistryCA bool
 
 	driver types.BuilderType
 	socket string
@@ -74,15 +75,16 @@ type generalClient struct {
 }
 
 func NewMobyClient(ctx context.Context, driver types.BuilderType,
-	socket, mirror string) (Client, error) {
+	socket, mirror string, enableRegistryCA bool) (Client, error) {
 	logrus.Debug("getting moby buildkit client")
 	c := &generalClient{
-		containerName: socket,
-		image:         viper.GetString(flag.FlagBuildkitdImage),
-		mirror:        mirror,
+		containerName:    socket,
+		image:            viper.GetString(flag.FlagBuildkitdImage),
+		mirror:           mirror,
+		enableRegistryCA: enableRegistryCA,
+		socket:           socket,
+		driver:           driver,
 	}
-	c.socket = socket
-	c.driver = driver
 	c.logger = logrus.WithFields(logrus.Fields{
 		"container": c.containerName,
 		"image":     c.image,
@@ -109,14 +111,15 @@ func NewMobyClient(ctx context.Context, driver types.BuilderType,
 }
 
 func NewClient(ctx context.Context, driver types.BuilderType,
-	socket, mirror string) (Client, error) {
+	socket, mirror string, enableRegistryCA bool) (Client, error) {
 	c := &generalClient{
-		containerName: socket,
-		image:         viper.GetString(flag.FlagBuildkitdImage),
-		mirror:        mirror,
+		containerName:    socket,
+		image:            viper.GetString(flag.FlagBuildkitdImage),
+		mirror:           mirror,
+		enableRegistryCA: enableRegistryCA,
+		socket:           socket,
+		driver:           driver,
 	}
-	c.socket = socket
-	c.driver = driver
 	c.logger = logrus.WithFields(logrus.Fields{
 		"container": c.containerName,
 		"image":     c.image,
@@ -170,8 +173,8 @@ func (c *generalClient) maybeStart(ctx context.Context,
 	}
 
 	if client != nil {
-		if _, err := client.StartBuildkitd(ctx,
-			c.image, c.containerName, c.mirror, runningTimeout); err != nil {
+		if _, err := client.StartBuildkitd(ctx, c.image, c.containerName, c.mirror,
+			c.enableRegistryCA, runningTimeout); err != nil {
 			return "", err
 		}
 	}
