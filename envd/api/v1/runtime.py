@@ -70,7 +70,7 @@ def daemon(commands: List[List[str]]):
     """Run daemon processes in the container
     Proposal: https://github.com/tensorchord/envd/pull/769
 
-    It's better to redirect the logs to local files for debug purposes.
+    It's better to redirect the logs to local files for debugging purposes.
 
     You can find the generated horust config files under `/etc/horust/services`
     and log files under `/var/log/horust` in the container.
