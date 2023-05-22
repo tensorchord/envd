@@ -35,7 +35,7 @@ require (
 	github.com/pkg/sftp v1.13.5
 	github.com/schollz/progressbar/v3 v3.13.1
 	github.com/segmentio/analytics-go/v3 v3.2.1
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.2
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.2
 	github.com/syncthing/syncthing v1.23.4
