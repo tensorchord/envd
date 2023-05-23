@@ -37,7 +37,7 @@ def base(image: str = "ubuntu:20.04", dev: bool = False):
     """Set up the base env.
 
     Args:
-        image (str): docker image, can be any Debian-based images
+        image (str): docker image, can be any Debian-based image
         dev (bool): enabling the dev env will add lots of development related libraries like
             envd-sshd, vim, git, shell prompt, vscode extensions, etc.
     """
@@ -89,7 +89,7 @@ def include(git: str):
     """Import from another git repo
 
     This will pull the git repo and execute all the `envd` files. The return value will be a module
-    contains all the variables/functions defined (expect those has `_` prefix).
+    contains all the variables/functions defined (except the ones with `_` prefix).
 
     Args:
         git (str): git URL

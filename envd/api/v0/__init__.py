@@ -29,7 +29,7 @@ def base(os: str, language: str, image: Optional[str]):
 
     Args:
         os (str): The operating system (i.e. `ubuntu20.04`)
-        language (str): The programing language dependency (i.e. `python3.8`)
+        language (str): The programming language dependency (i.e. `python3.8`)
         image (Optional[str]): Custom image (i.e. `python:3.9-slim`)
     """
 
@@ -80,7 +80,7 @@ def include(git: str):
     """Import from another git repo
 
     This will pull the git repo and execute all the `envd` files. The return value will be a module
-    contains all the variables/functions defined (expect those has `_` prefix).
+    contains all the variables/functions defined (except the ones with `_` prefix).
 
     Args:
         git (str): git URL
