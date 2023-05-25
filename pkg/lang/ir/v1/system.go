@@ -175,6 +175,7 @@ func (g generalGraph) compileCopy(root llb.State) llb.State {
 	for _, c := range g.Copy {
 		result = result.File(llb.Copy(
 			llb.Local(flag.FlagBuildContext), c.Source, c.Destination,
+			&llb.CopyInfo{CreateDestPath: true},
 			llb.WithUIDGID(g.uid, g.gid)))
 	}
 	return result
