@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.3.24 (2023-06-08)
+
+ * [edf21bf](https://github.com/tensorchord/envd/commit/edf21bfbe8bfd19f6cdb6be505c0dee0dc851570) fix: authentication for private base image (#1639)
+ * [1af61d3](https://github.com/tensorchord/envd/commit/1af61d3777c5c19652643411c87c068831899e01) chore(deps): bump github.com/syncthing/syncthing from 1.23.4 to 1.23.5 (#1637)
+ * [70b8b60](https://github.com/tensorchord/envd/commit/70b8b60af45704f3de3165462d844ba283a68d3c) chore(deps): bump github.com/containerd/containerd from 1.6.19 to 1.7.2 (#1633)
+ * [9cdc234](https://github.com/tensorchord/envd/commit/9cdc234638b72a161bd004338671cf91355acdce) chore(deps): bump github.com/sirupsen/logrus from 1.9.2 to 1.9.3 (#1634)
+ * [ef97732](https://github.com/tensorchord/envd/commit/ef97732a6a0258ed104ffb3fc99fcb1036762257) chore(deps): bump github.com/urfave/cli/v2 from 2.25.4 to 2.25.5 (#1635)
+ * [b2ae823](https://github.com/tensorchord/envd/commit/b2ae823bf97c4351a9fa26d5317e2ad76211ad2d) chore(deps): bump crate-ci/typos from 1.14.11 to 1.14.12 (#1630)
+ * [7d6f107](https://github.com/tensorchord/envd/commit/7d6f107aa2a65572b549169fe92a8f992d592f4c) chore(deps): bump github.com/opencontainers/image-spec from 1.1.0-rc2.0.20221005185240-3a7f492d3f1b to 1.1.0-rc.3 (#1625)
+ * [67f0962](https://github.com/tensorchord/envd/commit/67f096235fc580542bda91fa5207374277c4b912) chore(deps): bump github.com/charmbracelet/bubbletea from 0.24.0 to 0.24.1 (#1627)
+ * [2f37763](https://github.com/tensorchord/envd/commit/2f37763851fc918707589be335758348eb95dd0b) chore(deps): bump github.com/onsi/gomega from 1.27.6 to 1.27.7 (#1626)
+ * [637b1f2](https://github.com/tensorchord/envd/commit/637b1f2447dc21155b5038ea7001658f5db064ed) chore(deps): bump github.com/urfave/cli/v2 from 2.25.3 to 2.25.4 (#1624)
+ * [886c1f5](https://github.com/tensorchord/envd/commit/886c1f5c5299251f6fb218df291a676bdade502b) chore(deps): bump pypa/cibuildwheel from 2.12.3 to 2.13.0 (#1621)
+ * [c7dc7f9](https://github.com/tensorchord/envd/commit/c7dc7f945e096c54a1b30b23e197fed94ad6eda7) chore(deps): bump dependabot/fetch-metadata from 1.4.0 to 1.5.1 (#1622)
+ * [fa5e457](https://github.com/tensorchord/envd/commit/fa5e457a785b95e5453be51fa5bf01c780f21bfd) chore(deps): bump crate-ci/typos from 1.14.10 to 1.14.11 (#1623)
+
+### Contributors
+
+ * Keming
+ * dependabot[bot]
+
 ## v0.3.23 (2023-05-25)
 
  * [8a175ed](https://github.com/tensorchord/envd/commit/8a175ed71d59859f57592ddbe73203c4dd8dd6c5) feat: create dest path in io.copy (#1619)
