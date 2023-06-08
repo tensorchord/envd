@@ -24,7 +24,6 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
-	"github.com/moby/buildkit/client/llb/imagemetaresolver"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/config"
@@ -332,14 +331,19 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 
 	// Fix https://github.com/tensorchord/envd/issues/1147.
 	// Fetch the image metadata from base image.
-	base := llb.Image(g.Image, llb.WithMetaResolver(imagemetaresolver.Default()))
-	envs, err := base.Env(context.Background())
+	base := llb.Image(g.Image)
+	// fetching the image config may take some time
+	config, err := ir.FetchImageConfig(context.Background(), g.Image, g.Platform)
+	if err != nil {
+		return llb.State{}, err
+	}
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get the image metadata")
 	}
 
 	// Set the environment variables to RuntimeEnviron to keep it in the resulting image.
-	for _, e := range envs {
+	logger.Logger.Debugf("inherit envs from base image: %s", config.Env)
+	for _, e := range config.Env {
 		// in case the env value also contains `=`
 		kv := strings.SplitN(e, "=", 2)
 		g.RuntimeEnviron[kv[0]] = kv[1]
@@ -354,11 +358,6 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 	}
 
 	if !g.Dev {
-		// fetching the image config may take some time
-		config, err := ir.FetchImageConfig(context.Background(), g.Image, g.Platform)
-		if err != nil {
-			return llb.State{}, err
-		}
 		if len(g.Entrypoint) == 0 {
 			g.Entrypoint = config.Entrypoint
 		}

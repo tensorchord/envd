@@ -61,7 +61,7 @@ func New() EnvdApp {
 		&cli.StringFlag{
 			Name:   flag.FlagBuildkitdImage,
 			Usage:  "docker image to use for buildkitd",
-			Value:  "docker.io/moby/buildkit:v0.10.3",
+			Value:  "docker.io/moby/buildkit:v0.10.6",
 			Hidden: true,
 		},
 		&cli.StringFlag{
