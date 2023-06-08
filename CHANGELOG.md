@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.3.23 (2023-05-25)
+
+ * [8a175ed](https://github.com/tensorchord/envd/commit/8a175ed71d59859f57592ddbe73203c4dd8dd6c5) feat: create dest path in io.copy (#1619)
+ * [7500fa2](https://github.com/tensorchord/envd/commit/7500fa282a582883501c7a70145b4b36f5d2d40b) Documentation improvements (typos, grammar etc) (#1617)
+ * [ef72477](https://github.com/tensorchord/envd/commit/ef724776d2da7e75c092c02d5177d5e2c8d4914c) chore(deps): bump github.com/mattn/go-isatty from 0.0.18 to 0.0.19 (#1613)
+ * [8ab6389](https://github.com/tensorchord/envd/commit/8ab63891391e32d9f4c384ff50d6da97fd5e5074) chore(deps): bump github.com/containers/image/v5 from 5.24.1 to 5.25.0 (#1612)
+ * [77ff5a5](https://github.com/tensorchord/envd/commit/77ff5a5de9e46fb4a4176e31c3b513d27ab06b08) chore(deps): bump github.com/sirupsen/logrus from 1.9.0 to 1.9.2 (#1614)
+ * [e59c289](https://github.com/tensorchord/envd/commit/e59c2897d75316c65e8082c162b0cc4bb37a055c) chore(deps): bump crate-ci/typos from 1.14.9 to 1.14.10 (#1611)
+ * [4c34791](https://github.com/tensorchord/envd/commit/4c34791959433ee6a2e691884b83666def08ebff) chore(deps): bump github.com/docker/cli from 24.0.0-rc.2+incompatible to 24.0.1+incompatible (#1616)
+ * [0aef7ce](https://github.com/tensorchord/envd/commit/0aef7ceebe7a316c7068ffd89f79a06d184e6efa) chore(deps): bump github.com/stretchr/testify from 1.8.2 to 1.8.3 (#1615)
+ * [cef883b](https://github.com/tensorchord/envd/commit/cef883bedc8efe4482bcab9e96ede59b80acd608) chore(deps): bump golang.org/x/sync from 0.1.0 to 0.2.0 (#1608)
+ * [889cf6d](https://github.com/tensorchord/envd/commit/889cf6d41e54a7d2b15277e90993d39927516b5a) chore(deps): bump github.com/containerd/containerd from 1.6.19 to 1.7.1 (#1607)
+ * [8e3deeb](https://github.com/tensorchord/envd/commit/8e3deebd9b2e2b5655eb3294774435207bf44d73) chore(deps): bump github.com/charmbracelet/bubbletea from 0.23.2 to 0.24.0 (#1610)
+ * [bd07f0f](https://github.com/tensorchord/envd/commit/bd07f0fef3e914f2ecdad414651392e7ebb97eb9) chore(deps): bump golang.org/x/crypto from 0.8.0 to 0.9.0 (#1609)
+ * [a1615f2](https://github.com/tensorchord/envd/commit/a1615f2083f7c8c79d8bcf9b91578e03bfbfa56b) chore(deps): bump github.com/opencontainers/image-spec from 1.1.0-rc2 to 1.1.0-rc.3 (#1606)
+
+### Contributors
+
+ * Keming
+ * Teddy Xinyuan Chen
+ * dependabot[bot]
+
 ## v0.3.22 (2023-05-12)
 
  * [6569021](https://github.com/tensorchord/envd/commit/656902196da2e847bdfa30999883702f22a7e118) feat: build image by platform (#1582)
