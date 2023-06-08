@@ -23,7 +23,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/go-getter v1.7.1
 	github.com/mattn/go-isatty v0.0.19
-	github.com/moby/buildkit v0.11.4
+	github.com/moby/buildkit v0.11.6
 	github.com/moby/term v0.5.0
 	github.com/morikuni/aec v1.0.0
 	github.com/olekukonko/tablewriter v0.0.5
