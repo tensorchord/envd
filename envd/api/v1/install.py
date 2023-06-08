@@ -114,7 +114,10 @@ def vscode_extensions(name: List[str]):
 
 
 def cuda(version: str, cudnn: Optional[str] = "8"):
-    """Install CUDA dependency
+    """Replace the base image with a `nvidia/cuda` image.
+
+    If you want to install CUDA on your custom base image, you can use
+    `install.apt_packages` or `run` to install the CUDA toolkit.
 
     Args:
         version (str): CUDA version, such as '11.6.2'

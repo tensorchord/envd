@@ -43,7 +43,7 @@ def base(image: str = "ubuntu:20.04", dev: bool = False):
     """
 
 
-def shell(name: str = "base"):
+def shell(name: str = "bash"):
     """Interactive shell
 
     Args:
