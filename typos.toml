@@ -3,3 +3,4 @@
 extend-exclude = ["CHANGELOG.md"]
 [default.extend-words]
 iterm = "iterm"
+WRONLY = "WRONLY"
