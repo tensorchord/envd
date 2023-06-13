@@ -335,7 +335,7 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 	// fetching the image config may take some time
 	config, err := ir.FetchImageConfig(context.Background(), g.Image, g.Platform)
 	if err != nil {
-		return llb.State{}, err
+		return llb.State{}, errors.Wrapf(err, "failed to get the image config, check if the image(%s) exists", g.Image)
 	}
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to get the image metadata")
