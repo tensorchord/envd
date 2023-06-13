@@ -143,7 +143,11 @@ func GetCUDAImage(image string, cuda *string, cudnn string, dev bool) string {
 	}
 	imageTag := strings.Replace(image, ":", "", 1)
 
-	return fmt.Sprintf("docker.io/nvidia/cuda:%s-cudnn%s-%s-%s", *cuda, cudnn, target, imageTag)
+	newImage := fmt.Sprintf("docker.io/nvidia/cuda:%s-cudnn%s-%s-%s", *cuda, cudnn, target, imageTag)
+	if image != defaultImage {
+		logrus.Warnf("CUDA is only tested for %s, it might work with Ubuntu 18/22 base images. This feature will replace your base image to %s, make sure this meets your expectation.", defaultImage, newImage)
+	}
+	return newImage
 }
 
 func (g *generalGraph) Dump() (string, error) {
