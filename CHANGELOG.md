@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.25 (2023-06-13)
+
+ * [b233d20](https://github.com/tensorchord/envd/commit/b233d204bdaed4a2f8544b11c858611d45f6f427) chore(deps): bump crate-ci/typos from 1.14.12 to 1.15.0 (#1643)
+ * [170ca4d](https://github.com/tensorchord/envd/commit/170ca4d73d85a4aee0da69625e6d229aaeb2fe87) chore(deps): bump github.com/charmbracelet/bubbletea from 0.24.1 to 0.24.2 (#1645)
+ * [7e0ab37](https://github.com/tensorchord/envd/commit/7e0ab3789f1b91d3d60a2b9b495d3e3c2bbce4dd) chore(deps): bump github.com/containers/image/v5 from 5.24.1 to 5.25.0 (#1648)
+ * [cb10df9](https://github.com/tensorchord/envd/commit/cb10df940d38a20b7ddd0eaf2311b962aee9ab9a) chore(deps): bump pypa/cibuildwheel from 2.13.0 to 2.13.1 (#1644)
+ * [1f9aaf4](https://github.com/tensorchord/envd/commit/1f9aaf4edcd1ec49dc5bfd76dbdd8307f59f1ffc) chore(deps): bump github.com/onsi/ginkgo/v2 from 2.9.5 to 2.10.0 (#1646)
+
+### Contributors
+
+ * dependabot[bot]
+
 ## v0.3.24 (2023-06-08)
 
  * [edf21bf](https://github.com/tensorchord/envd/commit/edf21bfbe8bfd19f6cdb6be505c0dee0dc851570) fix: authentication for private base image (#1639)
