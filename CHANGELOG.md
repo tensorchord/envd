@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.26 (2023-06-14)
+
+ * [56406e9](https://github.com/tensorchord/envd/commit/56406e980f63acfe27e17738f9eab4a24b1e5565) feat: support bootstrap buildkit with HTTP (#1652)
+
+### Contributors
+
+ * Keming
+
 ## v0.3.25 (2023-06-13)
 
  * [b233d20](https://github.com/tensorchord/envd/commit/b233d204bdaed4a2f8544b11c858611d45f6f427) chore(deps): bump crate-ci/typos from 1.14.12 to 1.15.0 (#1643)
