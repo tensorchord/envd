@@ -1,6 +1,6 @@
 # See https://github.com/crate-ci/typos/blob/master/docs/reference.md to configure typos
 [files]
-extend-exclude = ["CHANGELOG.md"]
+extend-exclude = ["CHANGELOG.md", "go.mod", "go.sum"]
 [default.extend-words]
 iterm = "iterm"
 WRONLY = "WRONLY"
