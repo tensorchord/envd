@@ -43,6 +43,10 @@ const buildkitdMirror = `
 [registry."docker.io"]
   mirrors = ["%s"]
 `
+const buildkitdHTTP = `
+[registry."docker.io"]
+  http = true
+`
 const buildkitdCertPath = "/etc/registry"
 const buildkitdRegistry = `
 [registry."docker.io"]
@@ -186,7 +190,7 @@ func (c dockerClient) ResumeContainer(ctx context.Context, name string) (string,
 }
 
 func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror string,
-	enableRegistryCA bool, timeout time.Duration) (string, error) {
+	enableRegistryCA, useHTTP bool, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
 		"container": name,
@@ -218,8 +222,8 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror stri
 		Privileged: true,
 		AutoRemove: true,
 	}
+	var cfg string
 	if mirror != "" {
-		var cfg string
 		if enableRegistryCA {
 			cfg = fmt.Sprintf(buildkitdRegistry, mirror)
 			hostConfig.Mounts = append(hostConfig.Mounts, mount.Mount{
@@ -230,13 +234,15 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror stri
 		} else {
 			cfg = fmt.Sprintf(buildkitdMirror, mirror)
 		}
-		config.Entrypoint = []string{
-			"/bin/sh",
-			"-c",
-			fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg),
-		}
-		logger.Debugf("setting buildkit config: %s", cfg)
+	} else if useHTTP {
+		cfg = buildkitdHTTP
 	}
+	config.Entrypoint = []string{
+		"/bin/sh",
+		"-c",
+		fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg),
+	}
+	logger.Debugf("setting buildkit config: %s", cfg)
 	created, _ := c.Exists(ctx, name)
 	if created {
 		err := c.ContainerStart(ctx, name, types.ContainerStartOptions{})
