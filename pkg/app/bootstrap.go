@@ -65,6 +65,11 @@ var CommandBootstrap = &cli.Command{
 				sshconfig.GetPublicKeyOrPanic(), sshconfig.GetPrivateKeyOrPanic()),
 			Aliases: []string{"k"},
 		},
+		&cli.BoolFlag{
+			Name:  "use-http",
+			Usage: "Use HTTP instead of HTTPS for the registry",
+			Value: false,
+		},
 	},
 
 	Action: bootstrap,
@@ -279,17 +284,23 @@ func buildkit(clicontext *cli.Context) error {
 
 	logrus.Debug("bootstrap the buildkitd container")
 	var bkClient buildkitd.Client
+	mirror := clicontext.String("dockerhub-mirror")
+	setRegistryCA := clicontext.IsSet("registry-ca-keypair")
+	useHTTP := clicontext.Bool("use-http")
+
+	if setRegistryCA && useHTTP {
+		return errors.New("cannot use both registry CA and HTTP")
+	}
+
 	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
-			c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"),
-			clicontext.IsSet("registry-ca-keypair"))
+			c.Builder, c.BuilderAddress, mirror, setRegistryCA, useHTTP)
 		if err != nil {
 			return errors.Wrap(err, "failed to create moby buildkit client")
 		}
 	} else {
 		bkClient, err = buildkitd.NewClient(clicontext.Context,
-			c.Builder, c.BuilderAddress, clicontext.String("dockerhub-mirror"),
-			clicontext.IsSet("registry-ca-keypair"))
+			c.Builder, c.BuilderAddress, mirror, setRegistryCA, useHTTP)
 		if err != nil {
 			return errors.Wrap(err, "failed to create buildkit client")
 		}

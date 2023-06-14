@@ -66,6 +66,7 @@ type generalClient struct {
 	image            string
 	mirror           string
 	enableRegistryCA bool
+	useHTTP          bool
 
 	driver types.BuilderType
 	socket string
@@ -75,13 +76,14 @@ type generalClient struct {
 }
 
 func NewMobyClient(ctx context.Context, driver types.BuilderType,
-	socket, mirror string, enableRegistryCA bool) (Client, error) {
+	socket, mirror string, enableRegistryCA bool, useHTTP bool) (Client, error) {
 	logrus.Debug("getting moby buildkit client")
 	c := &generalClient{
 		containerName:    socket,
 		image:            viper.GetString(flag.FlagBuildkitdImage),
 		mirror:           mirror,
 		enableRegistryCA: enableRegistryCA,
+		useHTTP:          useHTTP,
 		socket:           socket,
 		driver:           driver,
 	}
@@ -104,19 +106,20 @@ func NewMobyClient(ctx context.Context, driver types.BuilderType,
 		}),
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create buildkit clientt")
+		return nil, errors.Wrap(err, "failed to create buildkit client")
 	}
 	c.Client = bkcli
 	return c, nil
 }
 
 func NewClient(ctx context.Context, driver types.BuilderType,
-	socket, mirror string, enableRegistryCA bool) (Client, error) {
+	socket, mirror string, enableRegistryCA bool, useHTTP bool) (Client, error) {
 	c := &generalClient{
 		containerName:    socket,
 		image:            viper.GetString(flag.FlagBuildkitdImage),
 		mirror:           mirror,
 		enableRegistryCA: enableRegistryCA,
+		useHTTP:          useHTTP,
 		socket:           socket,
 		driver:           driver,
 	}
@@ -174,7 +177,7 @@ func (c *generalClient) maybeStart(ctx context.Context,
 
 	if client != nil {
 		if _, err := client.StartBuildkitd(ctx, c.image, c.containerName, c.mirror,
-			c.enableRegistryCA, runningTimeout); err != nil {
+			c.enableRegistryCA, c.useHTTP, runningTimeout); err != nil {
 			return "", err
 		}
 	}
