@@ -70,6 +70,11 @@ var CommandBootstrap = &cli.Command{
 			Usage: "Use HTTP instead of HTTPS for the registry",
 			Value: false,
 		},
+		&cli.StringFlag{
+			Name:    "registry",
+			Usage:   "Specify the registry to pull the image from",
+			Aliases: []string{"r"},
+		},
 	},
 
 	Action: bootstrap,
@@ -287,6 +292,7 @@ func buildkit(clicontext *cli.Context) error {
 	mirror := clicontext.String("dockerhub-mirror")
 	setRegistryCA := clicontext.IsSet("registry-ca-keypair")
 	useHTTP := clicontext.Bool("use-http")
+	registry := clicontext.String("registry")
 
 	if setRegistryCA && useHTTP {
 		return errors.New("cannot use both registry CA and HTTP")
@@ -294,13 +300,13 @@ func buildkit(clicontext *cli.Context) error {
 
 	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
-			c.Builder, c.BuilderAddress, mirror, setRegistryCA, useHTTP)
+			c.Builder, c.BuilderAddress, mirror, registry, setRegistryCA, useHTTP)
 		if err != nil {
 			return errors.Wrap(err, "failed to create moby buildkit client")
 		}
 	} else {
 		bkClient, err = buildkitd.NewClient(clicontext.Context,
-			c.Builder, c.BuilderAddress, mirror, setRegistryCA, useHTTP)
+			c.Builder, c.BuilderAddress, mirror, registry, setRegistryCA, useHTTP)
 		if err != nil {
 			return errors.Wrap(err, "failed to create buildkit client")
 		}

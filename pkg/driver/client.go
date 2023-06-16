@@ -25,7 +25,7 @@ import (
 type Client interface {
 	// Load loads the image from the reader to the docker host.
 	Load(ctx context.Context, r io.ReadCloser, quiet bool) error
-	StartBuildkitd(ctx context.Context, tag, name, mirror string, enableRegistryCA, useHTTP bool, timeout time.Duration) (string, error)
+	StartBuildkitd(ctx context.Context, tag, name, mirror, registry string, enableRegistryCA, useHTTP bool, timeout time.Duration) (string, error)
 
 	Exec(ctx context.Context, cname string, cmd []string) error
 
