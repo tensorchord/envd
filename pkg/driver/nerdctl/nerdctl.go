@@ -63,7 +63,7 @@ func (nc *nerdctlClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) 
 	return nil
 }
 
-func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name, mirror string,
+func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name, mirror, registry string,
 	enableRegistryCA, useHTTP bool, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,

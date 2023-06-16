@@ -47,8 +47,12 @@ const buildkitdHTTP = `
 [registry."docker.io"]
   http = true
 `
-const buildkitdCertPath = "/etc/registry"
 const buildkitdRegistry = `
+[registry."%s"]
+  http = %v
+`
+const buildkitdCertPath = "/etc/registry"
+const buildkitdWithCA = `
 [registry."docker.io"]
   mirrors = ["%s"]
   ca=["/etc/registry/ca.pem"]
@@ -189,7 +193,7 @@ func (c dockerClient) ResumeContainer(ctx context.Context, name string) (string,
 	return name, nil
 }
 
-func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror string,
+func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror, registry string,
 	enableRegistryCA, useHTTP bool, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":       tag,
@@ -225,7 +229,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror stri
 	var cfg string
 	if mirror != "" {
 		if enableRegistryCA {
-			cfg = fmt.Sprintf(buildkitdRegistry, mirror)
+			cfg = fmt.Sprintf(buildkitdWithCA, mirror)
 			hostConfig.Mounts = append(hostConfig.Mounts, mount.Mount{
 				Type:   mount.TypeBind,
 				Source: fileutil.DefaultConfigDir,
@@ -234,6 +238,8 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror stri
 		} else {
 			cfg = fmt.Sprintf(buildkitdMirror, mirror)
 		}
+	} else if registry != "" {
+		cfg = fmt.Sprintf(buildkitdRegistry, registry, useHTTP)
 	} else if useHTTP {
 		cfg = buildkitdHTTP
 	}

@@ -81,13 +81,13 @@ func prune(clicontext *cli.Context) error {
 	var bkClient buildkitd.Client
 	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
-			c.Builder, c.BuilderAddress, "", false, false)
+			c.Builder, c.BuilderAddress, "", "", false, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to create moby buildkit client")
 		}
 	} else {
 		bkClient, err = buildkitd.NewClient(clicontext.Context,
-			c.Builder, c.BuilderAddress, "", false, false)
+			c.Builder, c.BuilderAddress, "", "", false, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to create buildkit client")
 		}
