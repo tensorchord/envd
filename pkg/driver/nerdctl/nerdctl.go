@@ -28,6 +28,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/driver"
+	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 )
 
 type nerdctlClient struct {
@@ -63,13 +64,12 @@ func (nc *nerdctlClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) 
 	return nil
 }
 
-func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name, mirror, registry string,
-	enableRegistryCA, useHTTP bool, timeout time.Duration) (string, error) {
+func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, bc *buildkitutil.BuildkitConfig, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
-		"tag":       tag,
-		"container": name,
-		"mirror":    mirror,
-		"driver":    "nerdctl",
+		"tag":             tag,
+		"container":       name,
+		"buildkit-config": bc,
+		"driver":          "nerdctl",
 	})
 	logger.Debug("starting buildkitd")
 
@@ -83,10 +83,11 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name, mirror, 
 	if !existed {
 		buildkitdCmd := "buildkitd"
 		// TODO: support mirror CA keypair
-		if mirror != "" {
-			cfg := fmt.Sprintf(`
-[registry."docker.io"]
-	mirrors = ["%s"]`, mirror)
+		if bc.Registry != "" || bc.Mirror != "" || bc.UseHTTP {
+			cfg, err := bc.String()
+			if err != nil {
+				return "", errors.Wrap(err, "failed to generate buildkit config")
+			}
 			buildkitdCmd = fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg)
 			logger.Debugf("setting buildkit config: %s", cfg)
 		}

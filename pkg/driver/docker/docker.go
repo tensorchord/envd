@@ -36,30 +36,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/driver"
+	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
-const buildkitdMirror = `
-[registry."docker.io"]
-  mirrors = ["%s"]
-`
-const buildkitdHTTP = `
-[registry."docker.io"]
-  http = true
-`
-const buildkitdRegistry = `
-[registry."%s"]
-  http = %v
-`
 const buildkitdCertPath = "/etc/registry"
-const buildkitdWithCA = `
-[registry."docker.io"]
-  mirrors = ["%s"]
-  ca=["/etc/registry/ca.pem"]
-  [[registry."docker.io".keypair]]
-    key="/etc/registry/key.pem"
-    cert="/etc/registry/cert.pem"
-`
 
 var (
 	anchoredIdentifierRegexp = regexp.MustCompile(`^([a-f0-9]{64})$`)
@@ -193,12 +174,11 @@ func (c dockerClient) ResumeContainer(ctx context.Context, name string) (string,
 	return name, nil
 }
 
-func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror, registry string,
-	enableRegistryCA, useHTTP bool, timeout time.Duration) (string, error) {
+func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *buildkitutil.BuildkitConfig, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
-		"tag":       tag,
-		"container": name,
-		"mirror":    mirror,
+		"tag":             tag,
+		"container":       name,
+		"buildkit-config": bc,
 	})
 	logger.Debug("starting buildkitd")
 	if _, _, err := c.ImageInspectWithRaw(ctx, tag); err != nil {
@@ -226,22 +206,17 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name, mirror, reg
 		Privileged: true,
 		AutoRemove: true,
 	}
-	var cfg string
-	if mirror != "" {
-		if enableRegistryCA {
-			cfg = fmt.Sprintf(buildkitdWithCA, mirror)
-			hostConfig.Mounts = append(hostConfig.Mounts, mount.Mount{
-				Type:   mount.TypeBind,
-				Source: fileutil.DefaultConfigDir,
-				Target: buildkitdCertPath,
-			})
-		} else {
-			cfg = fmt.Sprintf(buildkitdMirror, mirror)
-		}
-	} else if registry != "" {
-		cfg = fmt.Sprintf(buildkitdRegistry, registry, useHTTP)
-	} else if useHTTP {
-		cfg = buildkitdHTTP
+
+	if bc.SetCA {
+		hostConfig.Mounts = append(hostConfig.Mounts, mount.Mount{
+			Type:   mount.TypeBind,
+			Source: fileutil.DefaultConfigDir,
+			Target: buildkitdCertPath,
+		})
+	}
+	cfg, err := bc.String()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to generate buildkit config")
 	}
 	config.Entrypoint = []string{
 		"/bin/sh",

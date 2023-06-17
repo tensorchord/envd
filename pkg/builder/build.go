@@ -90,13 +90,13 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 	var cli buildkitd.Client
 	if c.Builder == types.BuilderTypeMoby {
 		cli, err = buildkitd.NewMobyClient(ctx,
-			c.Builder, c.BuilderAddress, "", "", false, false)
+			c.Builder, c.BuilderAddress, nil)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create moby buildkit client")
 		}
 	} else {
 		cli, err = buildkitd.NewClient(ctx,
-			c.Builder, c.BuilderAddress, "", "", false, false)
+			c.Builder, c.BuilderAddress, nil)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create buildkit client")
 		}

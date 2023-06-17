@@ -37,6 +37,7 @@ import (
 	"github.com/tensorchord/envd/pkg/driver/nerdctl"
 	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 	"github.com/tensorchord/envd/pkg/util/envutil"
 )
 
@@ -62,12 +63,9 @@ type Client interface {
 }
 
 type generalClient struct {
-	containerName    string
-	image            string
-	mirror           string
-	registry         string
-	enableRegistryCA bool
-	useHTTP          bool
+	containerName  string
+	image          string
+	buildkitConfig *buildkitutil.BuildkitConfig
 
 	driver types.BuilderType
 	socket string
@@ -77,17 +75,14 @@ type generalClient struct {
 }
 
 func NewMobyClient(ctx context.Context, driver types.BuilderType,
-	socket, mirror, registry string, enableRegistryCA bool, useHTTP bool) (Client, error) {
+	socket string, config *buildkitutil.BuildkitConfig) (Client, error) {
 	logrus.Debug("getting moby buildkit client")
 	c := &generalClient{
-		containerName:    socket,
-		image:            viper.GetString(flag.FlagBuildkitdImage),
-		registry:         registry,
-		mirror:           mirror,
-		enableRegistryCA: enableRegistryCA,
-		useHTTP:          useHTTP,
-		socket:           socket,
-		driver:           driver,
+		containerName:  socket,
+		image:          viper.GetString(flag.FlagBuildkitdImage),
+		buildkitConfig: config,
+		socket:         socket,
+		driver:         driver,
 	}
 	c.logger = logrus.WithFields(logrus.Fields{
 		"container": c.containerName,
@@ -115,16 +110,13 @@ func NewMobyClient(ctx context.Context, driver types.BuilderType,
 }
 
 func NewClient(ctx context.Context, driver types.BuilderType,
-	socket, mirror, registry string, enableRegistryCA bool, useHTTP bool) (Client, error) {
+	socket string, config *buildkitutil.BuildkitConfig) (Client, error) {
 	c := &generalClient{
-		containerName:    socket,
-		image:            viper.GetString(flag.FlagBuildkitdImage),
-		mirror:           mirror,
-		registry:         registry,
-		enableRegistryCA: enableRegistryCA,
-		useHTTP:          useHTTP,
-		socket:           socket,
-		driver:           driver,
+		containerName:  socket,
+		image:          viper.GetString(flag.FlagBuildkitdImage),
+		buildkitConfig: config,
+		socket:         socket,
+		driver:         driver,
 	}
 	c.logger = logrus.WithFields(logrus.Fields{
 		"container": c.containerName,
@@ -179,8 +171,7 @@ func (c *generalClient) maybeStart(ctx context.Context,
 	}
 
 	if client != nil {
-		if _, err := client.StartBuildkitd(ctx, c.image, c.containerName, c.mirror, c.registry,
-			c.enableRegistryCA, c.useHTTP, runningTimeout); err != nil {
+		if _, err := client.StartBuildkitd(ctx, c.image, c.containerName, c.buildkitConfig, runningTimeout); err != nil {
 			return "", err
 		}
 	}
