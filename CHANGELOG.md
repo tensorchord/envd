@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.27 (2023-06-17)
+
+ * [fa7e989](https://github.com/tensorchord/envd/commit/fa7e989b186149a4f85d39a758bdee7a245b5ebf) refactor: use template for buildkit config file (#1658)
+ * [45dffe7](https://github.com/tensorchord/envd/commit/45dffe79097b92f59a61391df72f54e15475bb16) feat: support bootstrap buildkit with registry (#1656)
+
+### Contributors
+
+ * Keming
+ * Kevin Su
+
 ## v0.3.26 (2023-06-14)
 
  * [56406e9](https://github.com/tensorchord/envd/commit/56406e980f63acfe27e17738f9eab4a24b1e5565) feat: support bootstrap buildkit with HTTP (#1652)
