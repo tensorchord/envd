@@ -30,6 +30,7 @@ import (
 	"github.com/tensorchord/envd/pkg/home"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
@@ -289,24 +290,22 @@ func buildkit(clicontext *cli.Context) error {
 
 	logrus.Debug("bootstrap the buildkitd container")
 	var bkClient buildkitd.Client
-	mirror := clicontext.String("dockerhub-mirror")
-	setRegistryCA := clicontext.IsSet("registry-ca-keypair")
-	useHTTP := clicontext.Bool("use-http")
-	registry := clicontext.String("registry")
-
-	if setRegistryCA && useHTTP {
-		return errors.New("cannot use both registry CA and HTTP")
+	config := buildkitutil.BuildkitConfig{
+		Registry: clicontext.String("registry"),
+		Mirror:   clicontext.String("dockerhub-mirror"),
+		UseHTTP:  clicontext.Bool("use-http"),
+		SetCA:    clicontext.IsSet("registry-ca-keypair"),
 	}
 
 	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
-			c.Builder, c.BuilderAddress, mirror, registry, setRegistryCA, useHTTP)
+			c.Builder, c.BuilderAddress, &config)
 		if err != nil {
 			return errors.Wrap(err, "failed to create moby buildkit client")
 		}
 	} else {
 		bkClient, err = buildkitd.NewClient(clicontext.Context,
-			c.Builder, c.BuilderAddress, mirror, registry, setRegistryCA, useHTTP)
+			c.Builder, c.BuilderAddress, &config)
 		if err != nil {
 			return errors.Wrap(err, "failed to create buildkit client")
 		}
