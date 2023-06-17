@@ -15,6 +15,7 @@
 package buildkitutil
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -44,17 +45,25 @@ func TestBuildkitWithRegistry(t *testing.T) {
 			},
 			`
 [registry."registry.example.com"]
+  http = false
   ca=["/etc/registry/ca.pem"]
   [[registry."registry.example.com".keypair]]
 	key="/etc/registry/key.pem"
 	cert="/etc/registry/cert.pem"
 `,
 		},
+		{
+			BuildkitConfig{},
+			`
+[registry."docker.io"]
+  http = false
+			`,
+		},
 	}
 
 	for _, tc := range testCases {
 		config, err := tc.bc.String()
 		assert.NoError(t, err)
-		assert.Equal(t, tc.expected, config)
+		assert.Equal(t, strings.TrimSpace(tc.expected), strings.TrimSpace(config))
 	}
 }

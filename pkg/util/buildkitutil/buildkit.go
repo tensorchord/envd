@@ -20,8 +20,8 @@ import (
 )
 
 const buildkitConfigTemplate = `
-[registry."{{ if .Registry }}{{ .Registry }}{{ else }}docker.io{{ end }}"]
-  mirrors = ["{{ .Mirror }}"]
+[registry."{{ if .Registry }}{{ .Registry }}{{ else }}docker.io{{ end }}"]{{ if .Mirror }}
+  mirrors = ["{{ .Mirror }}"]{{ end }}
   http = {{ .UseHTTP }}
   {{ if .SetCA}}ca=["/etc/registry/ca.pem"]
   [[registry."{{ if .Registry }}{{ .Registry }}{{ else }}docker.io{{ end }}".keypair]]

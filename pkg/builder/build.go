@@ -39,6 +39,7 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/version"
 	"github.com/tensorchord/envd/pkg/progress/progresswriter"
 	"github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 )
 
 func New(ctx context.Context, opt Options) (Builder, error) {
@@ -88,15 +89,16 @@ func New(ctx context.Context, opt Options) (Builder, error) {
 	}
 
 	var cli buildkitd.Client
+	bc := buildkitutil.BuildkitConfig{}
 	if c.Builder == types.BuilderTypeMoby {
 		cli, err = buildkitd.NewMobyClient(ctx,
-			c.Builder, c.BuilderAddress, nil)
+			c.Builder, c.BuilderAddress, &bc)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create moby buildkit client")
 		}
 	} else {
 		cli, err = buildkitd.NewClient(ctx,
-			c.Builder, c.BuilderAddress, nil)
+			c.Builder, c.BuilderAddress, &bc)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create buildkit client")
 		}
