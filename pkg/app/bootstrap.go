@@ -108,69 +108,70 @@ func bootstrap(clicontext *cli.Context) error {
 
 func registryCA(clicontext *cli.Context) error {
 	// Loop over all registry strings
-	for _, reg := range strings.Split(clicontext.String("registry"), " ") {
-		// Split into parts
-		parts := strings.Split(reg, ",")
-		if len(parts) != 4 {
-			return fmt.Errorf("invalid registry string: %s", reg)
-		}
-
-		// Parse registry and ca/key/cert parts
-		names := []string{"registry", "ca", "key", "cert"}
-		for _, part := range parts {
-			kv := strings.SplitN(part, "=", 2)
-			if len(kv) != 2 {
-				return fmt.Errorf("invalid part: %s", part)
+	if clicontext.IsSet("registry") {
+		for _, reg := range strings.Split(clicontext.String("registry"), " ") {
+			// Split into parts
+			parts := strings.Split(reg, ",")
+			if len(parts) != 4 {
+				return fmt.Errorf("invalid registry string: %s", reg)
 			}
 
-			// Check for valid key
-			index := -1
-			for i, name := range names {
-				if name == kv[0] {
-					index = i
-					break
+			// Parse registry and ca/key/cert parts
+			names := []string{"registry", "ca", "key", "cert"}
+			for _, part := range parts {
+				kv := strings.SplitN(part, "=", 2)
+				if len(kv) != 2 {
+					return fmt.Errorf("invalid part: %s", part)
 				}
+
+				// Check for valid key
+				index := -1
+				for i, name := range names {
+					if name == kv[0] {
+						index = i
+						break
+					}
+				}
+				if index == -1 {
+					return errors.Newf("parse error: `%s` is not a valid ca/key/cert key or it's duplicated")
+				}
+
+				// Read file if not registry part
+				if kv[0] != "registry" {
+					exist, err := fileutil.FileExists(kv[1])
+					if err != nil {
+						return errors.Wrap(err, fmt.Sprintf("failed to parse file path %s", part))
+					}
+					if !exist {
+						return fmt.Errorf("file %s doesn't exist", kv[1])
+					}
+
+					// Generate file path
+					path, err := fileutil.ConfigFile(fmt.Sprintf("registry_%s.pem", kv[0]))
+					if err != nil {
+						return errors.Wrap(err, "failed to get the envd config file path")
+					}
+
+					// Read and write file content
+					content, err := os.ReadFile(kv[1])
+					if err != nil {
+						return errors.Wrap(err, "failed to read the file")
+					}
+					if err = os.WriteFile(path, content, 0644); err != nil {
+						return errors.Wrap(err, "failed to store the CA file")
+					}
+				}
+
+				// Remove key from names
+				names = append(names[:index], names[index+1:]...)
 			}
-			if index == -1 {
-				return errors.Newf("parse error: `%s` is not a valid ca/key/cert key or it's duplicated")
+
+			// Check if any parts were not provided
+			if len(names) != 0 {
+				return fmt.Errorf("%s parts are not provided", names)
 			}
-
-			// Read file if not registry part
-			if kv[0] != "registry" {
-				exist, err := fileutil.FileExists(kv[1])
-				if err != nil {
-					return errors.Wrap(err, fmt.Sprintf("failed to parse file path %s", part))
-				}
-				if !exist {
-					return fmt.Errorf("file %s doesn't exist", kv[1])
-				}
-
-				// Generate file path
-				path, err := fileutil.ConfigFile(fmt.Sprintf("registry_%s.pem", kv[0]))
-				if err != nil {
-					return errors.Wrap(err, "failed to get the envd config file path")
-				}
-
-				// Read and write file content
-				content, err := os.ReadFile(kv[1])
-				if err != nil {
-					return errors.Wrap(err, "failed to read the file")
-				}
-				if err = os.WriteFile(path, content, 0644); err != nil {
-					return errors.Wrap(err, "failed to store the CA file")
-				}
-			}
-
-			// Remove key from names
-			names = append(names[:index], names[index+1:]...)
-		}
-
-		// Check if any parts were not provided
-		if len(names) != 0 {
-			return fmt.Errorf("%s parts are not provided", names)
 		}
 	}
-
 	return nil
 }
 
