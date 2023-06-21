@@ -55,11 +55,6 @@ var CommandBootstrap = &cli.Command{
 			Usage:   "Dockerhub mirror to use",
 			Aliases: []string{"m"},
 		},
-		&cli.StringFlag{
-			Name:    "registry-ca-keypair",
-			Usage:   "Specify the ca/key/cert file path for the private registry (format: 'ca=/etc/config/ca.pem,key=/etc/config/key.pem,cert=/etc/config/cert.pem')",
-			Aliases: []string{"ca"},
-		},
 		&cli.StringSliceFlag{
 			Name: "ssh-keypair",
 			Usage: fmt.Sprintf("Manually specify ssh key pair as `publicKey,privateKey`. Envd will generate a keypair at %s and %s if not specified",
@@ -73,7 +68,7 @@ var CommandBootstrap = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:    "registry",
-			Usage:   "Specify the registry to pull the image from",
+			Usage:   "Specify private registries and their respective ca/key/cert file paths. Each group is separated by a space. Format: --registry 'registry=my-registry,ca=/etc/config/ca.pem,key=/etc/config/key.pem,cert=/etc/config/cert.pem registry=my-registry2,ca=/etc/config/ca2.pem,key=/etc/config/key2.pem,cert=/etc/config/cert2.pem'",
 			Aliases: []string{"r"},
 		},
 	},
@@ -89,7 +84,7 @@ func bootstrap(clicontext *cli.Context) error {
 		"SSH Key",
 		sshKey,
 	}, {
-		"registry CA keypair",
+		"registry",
 		registryCA,
 	}, {
 		"autocomplete",
@@ -112,57 +107,70 @@ func bootstrap(clicontext *cli.Context) error {
 }
 
 func registryCA(clicontext *cli.Context) error {
-	ca := clicontext.String("registry-ca-keypair")
-	if len(ca) == 0 {
-		return nil
-	}
-	mirror := clicontext.String("dockerhub-mirror")
-	if len(mirror) == 0 {
-		return errors.New("`registry-ca-keypair` should be used with `dockerhub-mirror`")
-	}
+	// Loop over all registry strings
+	for _, reg := range strings.Split(clicontext.String("registry"), " ") {
+		// Split into parts
+		parts := strings.Split(reg, ",")
+		if len(parts) != 4 {
+			return fmt.Errorf("invalid registry string: %s", reg)
+		}
 
-	// parse ca/key/cert
-	kvPairs := strings.Split(ca, ",")
-	if len(kvPairs) != 3 {
-		return errors.New("`registry-ca-keypair` requires ca/key/cert 3 part separated by ','")
-	}
-	names := []string{"ca", "cert", "key"}
-	for _, pair := range kvPairs {
-		kv := strings.SplitN(pair, "=", 2)
-		index := -1
-		for i, name := range names {
-			if name == kv[0] {
-				index = i
-				break
+		// Parse registry and ca/key/cert parts
+		names := []string{"registry", "ca", "key", "cert"}
+		for _, part := range parts {
+			kv := strings.SplitN(part, "=", 2)
+			if len(kv) != 2 {
+				return fmt.Errorf("invalid part: %s", part)
 			}
+
+			// Check for valid key
+			index := -1
+			for i, name := range names {
+				if name == kv[0] {
+					index = i
+					break
+				}
+			}
+			if index == -1 {
+				return errors.Newf("parse error: `%s` is not a valid ca/key/cert key or it's duplicated")
+			}
+
+			// Read file if not registry part
+			if kv[0] != "registry" {
+				exist, err := fileutil.FileExists(kv[1])
+				if err != nil {
+					return errors.Wrap(err, fmt.Sprintf("failed to parse file path %s", part))
+				}
+				if !exist {
+					return fmt.Errorf("file %s doesn't exist", kv[1])
+				}
+
+				// Generate file path
+				path, err := fileutil.ConfigFile(fmt.Sprintf("registry_%s.pem", kv[0]))
+				if err != nil {
+					return errors.Wrap(err, "failed to get the envd config file path")
+				}
+
+				// Read and write file content
+				content, err := os.ReadFile(kv[1])
+				if err != nil {
+					return errors.Wrap(err, "failed to read the file")
+				}
+				if err = os.WriteFile(path, content, 0644); err != nil {
+					return errors.Wrap(err, "failed to store the CA file")
+				}
+			}
+
+			// Remove key from names
+			names = append(names[:index], names[index+1:]...)
 		}
-		if index == -1 {
-			return errors.Newf("parse error: `%s` is not a valid ca/key/cert key or it's duplicated")
+
+		// Check if any parts were not provided
+		if len(names) != 0 {
+			return fmt.Errorf("%s parts are not provided", names)
 		}
-		exist, err := fileutil.FileExists(kv[1])
-		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("failed to parse file path %s", pair))
-		}
-		if !exist {
-			return errors.Newf("file %s doesn't exist", kv[1])
-		}
-		path, err := fileutil.ConfigFile(fmt.Sprintf("registry_%s.pem", kv[0]))
-		if err != nil {
-			return errors.Wrap(err, "failed to get the envd config file path")
-		}
-		content, err := os.ReadFile(kv[1])
-		if err != nil {
-			return errors.Wrap(err, "failed to read the file")
-		}
-		if err = os.WriteFile(path, content, 0644); err != nil {
-			return errors.Wrap(err, "failed to store the CA file")
-		}
-		names = append(names[:index], names[index+1:]...)
 	}
 
-	if len(names) != 0 {
-		return errors.Newf("registry %s are not provided", names)
-	}
 	return nil
 }
 
@@ -289,14 +297,21 @@ func buildkit(clicontext *cli.Context) error {
 	}
 
 	logrus.Debug("bootstrap the buildkitd container")
-	var bkClient buildkitd.Client
+
 	config := buildkitutil.BuildkitConfig{
-		Registry: clicontext.String("registry"),
-		Mirror:   clicontext.String("dockerhub-mirror"),
-		UseHTTP:  clicontext.Bool("use-http"),
-		SetCA:    clicontext.IsSet("registry-ca-keypair"),
+		Mirror:  clicontext.String("dockerhub-mirror"),
+		UseHTTP: clicontext.Bool("use-http"),
 	}
 
+	// Update the config with the registry info if needed
+	if clicontext.IsSet("registry") {
+		err = updateConfigWithRegistry(clicontext, &config)
+		if err != nil {
+			return err
+		}
+	}
+
+	var bkClient buildkitd.Client
 	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
 			c.Builder, c.BuilderAddress, &config)
@@ -312,6 +327,33 @@ func buildkit(clicontext *cli.Context) error {
 	}
 	defer bkClient.Close()
 	logrus.Infof("The buildkit is running at %s", bkClient.BuildkitdAddr())
+
+	return nil
+}
+
+func updateConfigWithRegistry(clicontext *cli.Context, config *buildkitutil.BuildkitConfig) error {
+
+	// Parse registry strings
+	dirSet := make(map[string]bool)
+	for _, reg := range strings.Split(clicontext.String("registry"), " ") {
+		parts := strings.Split(reg, ",")
+		if len(parts) != 4 {
+			return fmt.Errorf("invalid registry string: %s", reg)
+		}
+
+		config.Registry = append(config.Registry, strings.Split(parts[0], "=")[1])
+		caPath := strings.Split(parts[1], "=")[1]
+		config.Ca = append(config.Ca, caPath)
+		config.Key = append(config.Key, strings.Split(parts[2], "=")[1])
+		config.Cert = append(config.Cert, strings.Split(parts[3], "=")[1])
+
+		// Add bindings to config
+		dir := filepath.Dir(caPath)
+		if !dirSet[dir] {
+			dirSet[dir] = true
+			config.Bindings = append(config.Bindings, fmt.Sprintf("%s:%s", dir, dir))
+		}
+	}
 
 	return nil
 }

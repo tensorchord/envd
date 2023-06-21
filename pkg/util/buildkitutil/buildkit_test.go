@@ -28,36 +28,64 @@ func TestBuildkitWithRegistry(t *testing.T) {
 	}{
 		{
 			BuildkitConfig{
-				Registry: "registry.example.com",
+				Registry: []string{"registry.example.com"},
 				Mirror:   "https://mirror.example.com",
 				UseHTTP:  true,
 			},
 			`
-[registry."registry.example.com"]
-  mirrors = ["https://mirror.example.com"]
-  http = true
+[registry]
+  [registry."registry.example.com"]
+    http = true
+    mirrors = ["https://mirror.example.com"]
 `,
 		},
 		{
 			BuildkitConfig{
-				Registry: "registry.example.com",
-				SetCA:    true,
+				Registry: []string{"registry.example.com"},
+				Ca:       []string{"/etc/registry/ca.pem"},
+				Key:      []string{"/etc/registry/key.pem"},
+				Cert:     []string{"/etc/registry/cert.pem"},
 			},
 			`
-[registry."registry.example.com"]
-  http = false
-  ca=["/etc/registry/ca.pem"]
-  [[registry."registry.example.com".keypair]]
-	key="/etc/registry/key.pem"
-	cert="/etc/registry/cert.pem"
+[registry]
+  [registry."registry.example.com"]
+    ca=["/etc/registry/ca.pem"]
+    key=["/etc/registry/key.pem"]
+    cert=["/etc/registry/cert.pem"]
 `,
 		},
 		{
-			BuildkitConfig{},
+			BuildkitConfig{
+				Registry: []string{},
+			},
 			`
-[registry."docker.io"]
-  http = false
-			`,
+[registry]
+`,
+		},
+		{
+			BuildkitConfig{
+				Registry: []string{"registry.example.com", "registry.example2.com"},
+				Mirror:   "https://mirror.example.com",
+				UseHTTP:  true,
+				Ca:       []string{"/etc/registry/ca.pem", "/etc/registry2/ca.pem"},
+				Key:      []string{"/etc/registry/key.pem", "/etc/registry2/key.pem"},
+				Cert:     []string{"/etc/registry/cert.pem", "/etc/registry2/cert.pem"},
+			},
+			`
+[registry]
+  [registry."registry.example.com"]
+    http = true
+    mirrors = ["https://mirror.example.com"]
+    ca=["/etc/registry/ca.pem"]
+    key=["/etc/registry/key.pem"]
+    cert=["/etc/registry/cert.pem"]
+  [registry."registry.example2.com"]
+    http = true
+    mirrors = ["https://mirror.example.com"]
+    ca=["/etc/registry2/ca.pem"]
+    key=["/etc/registry2/key.pem"]
+    cert=["/etc/registry2/cert.pem"]
+`,
 		},
 	}
 

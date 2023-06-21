@@ -29,7 +29,6 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/moby/term"
@@ -37,10 +36,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/driver"
 	"github.com/tensorchord/envd/pkg/util/buildkitutil"
-	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
-
-const buildkitdCertPath = "/etc/registry"
 
 var (
 	anchoredIdentifierRegexp = regexp.MustCompile(`^([a-f0-9]{64})$`)
@@ -202,22 +198,22 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 	config := &container.Config{
 		Image: tag,
 	}
+
 	hostConfig := &container.HostConfig{
 		Privileged: true,
 		AutoRemove: true,
 	}
 
-	if bc.SetCA {
-		hostConfig.Mounts = append(hostConfig.Mounts, mount.Mount{
-			Type:   mount.TypeBind,
-			Source: fileutil.DefaultConfigDir,
-			Target: buildkitdCertPath,
-		})
+	// Attach bindings to Docker container. Bind mounts allow the container to access certain directories or files from the host machine.
+	if len(bc.Bindings) > 0 {
+		hostConfig.Binds = bc.Bindings
 	}
+
 	cfg, err := bc.String()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to generate buildkit config")
 	}
+
 	config.Entrypoint = []string{
 		"/bin/sh",
 		"-c",
