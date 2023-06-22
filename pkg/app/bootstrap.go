@@ -109,7 +109,7 @@ func bootstrap(clicontext *cli.Context) error {
 func registryCA(clicontext *cli.Context) error {
 	// Loop over all registry strings
 	if clicontext.IsSet("registry") {
-		for _, reg := range strings.Split(clicontext.String("registry"), " ") {
+		for _, reg := range strings.Split(clicontext.String("registry"), ";") {
 			// Split into parts
 			parts := strings.Split(reg, ",")
 			if len(parts) != 4 {
@@ -333,10 +333,9 @@ func buildkit(clicontext *cli.Context) error {
 }
 
 func updateConfigWithRegistry(clicontext *cli.Context, config *buildkitutil.BuildkitConfig) error {
-
 	// Parse registry strings
 	dirSet := make(map[string]bool)
-	for _, reg := range strings.Split(clicontext.String("registry"), " ") {
+	for _, reg := range strings.Split(clicontext.String("registry"), ";") {
 		parts := strings.Split(reg, ",")
 		if len(parts) != 4 {
 			return fmt.Errorf("invalid registry string: %s", reg)
