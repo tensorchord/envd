@@ -68,7 +68,7 @@ var CommandBootstrap = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:    "registry",
-			Usage:   "Specify private registries and their respective ca/key/cert file paths. Each group is separated by a space. Format: --registry 'registry=my-registry,ca=/etc/config/ca.pem,key=/etc/config/key.pem,cert=/etc/config/cert.pem registry=my-registry2,ca=/etc/config/ca2.pem,key=/etc/config/key2.pem,cert=/etc/config/cert2.pem'",
+			Usage:   "Specify private registries and their respective ca/key/cert file paths. Each group is separated by a semicolon. Format: --registry 'registry=my-registry,ca=/etc/config/ca.pem,key=/etc/config/key.pem,cert=/etc/config/cert.pem;registry=my-registry2,ca=/etc/config/ca2.pem,key=/etc/config/key2.pem,cert=/etc/config/cert2.pem'",
 			Aliases: []string{"r"},
 		},
 	},
