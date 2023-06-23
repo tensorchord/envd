@@ -21,30 +21,32 @@ import (
 
 const buildkitConfigTemplate = `
 [registry]
-{{- range $index, $value := .Registry }}
+{{- range $index, $value := .RegistryName }}
   [registry."{{ if $value }}{{ $value }}{{ else }}docker.io{{ end }}"]
-  	{{- if $.UseHTTP }}
+    {{- if index $.UseHTTP $index }}
     http = true
-  	{{- end }}
-  	{{- if $.Mirror }}
+    {{- end }}
+    {{- if $.Mirror }}
     mirrors = ["{{ $.Mirror }}"]
-  	{{- end }}
-    {{- if $.Ca }}
-    ca=["{{ index $.Ca $index }}"]
-    key=["{{ index $.Key $index }}"]
-    cert=["{{ index $.Cert $index }}"]
+    {{- end }}
+    {{- if index $.CaPath $index }}
+    ca=["/etc/registry/{{ $value }}_ca.pem"]
+    {{- end }}
+    {{- if and (index $.CertPath $index) (index $.KeyPath $index) }}
+    [[registry."{{ if $value }}{{ $value }}{{ else }}docker.io{{ end }}".keypair]]
+      key="/etc/registry/{{ $value }}_key.pem"
+      cert="/etc/registry/{{ $value }}_cert.pem"
     {{- end }}
 {{- end }}
 `
 
 type BuildkitConfig struct {
-	Mirror   string
-	UseHTTP  bool
-	Registry []string
-	Ca       []string
-	Cert     []string
-	Key      []string
-	Bindings []string
+	RegistryName []string
+	CaPath       []string
+	CertPath     []string
+	KeyPath      []string
+	UseHTTP      []bool
+	Mirror       string
 }
 
 func (c *BuildkitConfig) String() (string, error) {
@@ -54,9 +56,5 @@ func (c *BuildkitConfig) String() (string, error) {
 	}
 	var config strings.Builder
 	err = tmpl.Execute(&config, c)
-	if err != nil {
-		return "", err
-	}
-
-	return config.String(), nil
+	return config.String(), err
 }
