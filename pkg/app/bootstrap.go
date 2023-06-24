@@ -307,27 +307,29 @@ func buildkit(clicontext *cli.Context) error {
 	var bkClient buildkitd.Client
 	var data RegistriesData
 
-	configFile := clicontext.String("registry-config")
-	configJson, err := os.ReadFile(configFile)
-	if err != nil {
-		return errors.Wrap(err, "Failed to read registry config file")
-	}
-	if err := json.Unmarshal(configJson, &data); err != nil {
-		return errors.Wrap(err, "Failed to parse registry config file")
-	}
-
 	// Populate the BuildkitConfig struct
 	config := buildkitutil.BuildkitConfig{
 		Mirror: clicontext.String("dockerhub-mirror"),
 	}
-	for _, registry := range data.Registries {
-		config.RegistryName = append(config.RegistryName, registry.Name)
-		config.CaPath = append(config.CaPath, registry.Ca)
-		config.CertPath = append(config.CertPath, registry.Cert)
-		config.KeyPath = append(config.KeyPath, registry.Key)
-		config.UseHTTP = append(config.UseHTTP, registry.UseHttp)
+	
+	configFile := clicontext.String("registry-config")
+	if len(configFile) != 0 {
+		configJson, err := os.ReadFile(configFile)
+		if err != nil {
+			return errors.Wrap(err, "Failed to read registry config file")
+		}
+		if err := json.Unmarshal(configJson, &data); err != nil {
+			return errors.Wrap(err, "Failed to parse registry config file")
+		}
+		for _, registry := range data.Registries {
+			config.RegistryName = append(config.RegistryName, registry.Name)
+			config.CaPath = append(config.CaPath, registry.Ca)
+			config.CertPath = append(config.CertPath, registry.Cert)
+			config.KeyPath = append(config.KeyPath, registry.Key)
+			config.UseHTTP = append(config.UseHTTP, registry.UseHttp)
+		}	
 	}
-
+	
 	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
 			c.Builder, c.BuilderAddress, &config)
