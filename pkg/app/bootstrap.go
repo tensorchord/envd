@@ -311,7 +311,7 @@ func buildkit(clicontext *cli.Context) error {
 	config := buildkitutil.BuildkitConfig{
 		Mirror: clicontext.String("dockerhub-mirror"),
 	}
-	
+
 	configFile := clicontext.String("registry-config")
 	if len(configFile) != 0 {
 		configJson, err := os.ReadFile(configFile)
@@ -327,9 +327,9 @@ func buildkit(clicontext *cli.Context) error {
 			config.CertPath = append(config.CertPath, registry.Cert)
 			config.KeyPath = append(config.KeyPath, registry.Key)
 			config.UseHTTP = append(config.UseHTTP, registry.UseHttp)
-		}	
+		}
 	}
-	
+
 	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
 			c.Builder, c.BuilderAddress, &config)
