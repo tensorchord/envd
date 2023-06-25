@@ -62,14 +62,9 @@ var CommandBootstrap = &cli.Command{
 				sshconfig.GetPublicKeyOrPanic(), sshconfig.GetPrivateKeyOrPanic()),
 			Aliases: []string{"k"},
 		},
-		&cli.BoolFlag{
-			Name:  "use-http",
-			Usage: "Use HTTP instead of HTTPS for the registry",
-			Value: false,
-		},
 		&cli.StringFlag{
 			Name:  "registry-config",
-			Usage: "Path to a JSON file containing private registry configuration",
+			Usage: "Path to a JSON file containing registry configuration",
 		},
 	},
 
