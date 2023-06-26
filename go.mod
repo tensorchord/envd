@@ -7,7 +7,7 @@ require (
 	github.com/bcicen/ctop v0.7.7
 	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/lipgloss v0.7.1
-	github.com/cockroachdb/errors v1.9.1
+	github.com/cockroachdb/errors v1.10.0
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81
 	github.com/containerd/containerd v1.7.2
 	github.com/containers/image/v5 v5.25.0
@@ -67,8 +67,8 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
-	github.com/cockroachdb/logtags v0.0.0-20211118104740-dabe8e521a4f // indirect
-	github.com/cockroachdb/redact v1.1.3 // indirect
+	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
+	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/containerd/continuity v0.4.1 // indirect
 	github.com/containerd/ttrpc v1.2.2 // indirect
 	github.com/containerd/typeurl v1.0.2 // indirect
@@ -83,7 +83,7 @@ require (
 	github.com/docker/docker-credential-helpers v0.7.0 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/getsentry/sentry-go v0.12.0 // indirect
+	github.com/getsentry/sentry-go v0.18.0 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
