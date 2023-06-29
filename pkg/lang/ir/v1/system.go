@@ -343,7 +343,6 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 
 	// Set the environment variables to RuntimeEnviron to keep it in the resulting image.
 	logger.Logger.Debugf("inherit envs from base image: %s", config.Env)
-
 	for _, e := range config.Env {
 		// in case the env value also contains `=`
 		kv := strings.SplitN(e, "=", 2)
