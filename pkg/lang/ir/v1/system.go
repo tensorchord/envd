@@ -347,6 +347,25 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 		// in case the env value also contains `=`
 		kv := strings.SplitN(e, "=", 2)
 		g.RuntimeEnviron[kv[0]] = kv[1]
+		if kv[0] == "PATH" {
+			// deduplicate the PATH but keep the order as:
+			// 0. default Unix PATH
+			// 1. configured paths in the Starlark frontend `runtime.environ(extra_path=[...])`
+			// 2. paths in the base image
+			// 3. others added during the image building (Python paths, etc.)
+			extraPaths := make(map[string]bool)
+			for _, path := range strings.Split(kv[1], ":") {
+				extraPaths[path] = true
+			}
+			for _, path := range g.RuntimeEnvPaths {
+				extraPaths[path] = false
+			}
+			for path, required := range extraPaths {
+				if required {
+					g.RuntimeEnvPaths = append(g.RuntimeEnvPaths, path)
+				}
+			}
+		}
 	}
 
 	// add necessary envs

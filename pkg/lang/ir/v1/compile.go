@@ -39,7 +39,7 @@ func NewGraph() ir.Graph {
 	runtimeGraph := ir.RuntimeGraph{
 		RuntimeCommands: make(map[string]string),
 		RuntimeEnviron:  make(map[string]string),
-		RuntimeEnvPaths: []string{types.DefaultSystemPath},
+		RuntimeEnvPaths: strings.Split(types.DefaultSystemPath, ":"),
 	}
 	return &generalGraph{
 		uid:               -1,
@@ -261,6 +261,9 @@ func (g generalGraph) ExposedPorts() (map[string]struct{}, error) {
 func (g generalGraph) EnvString() []string {
 	var envs []string
 	for k, v := range g.RuntimeEnviron {
+		if k == "PATH" {
+			continue
+		}
 		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
 	}
 	envs = append(envs, fmt.Sprintf("PATH=%s", strings.Join(g.RuntimeEnvPaths, ":")))
