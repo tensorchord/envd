@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.29 (2023-06-29)
+
+
+### Contributors
+
+
 ## v0.3.28 (2023-06-29)
 
  * [88f1541](https://github.com/tensorchord/envd/commit/88f1541c675a5ee50a6b2cedc57ce336e4d6df6f) fix(v1): keep the PATH from the base image (#1673)
