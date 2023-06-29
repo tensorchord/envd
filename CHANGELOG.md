@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.28 (2023-06-29)
+
+ * [88f1541](https://github.com/tensorchord/envd/commit/88f1541c675a5ee50a6b2cedc57ce336e4d6df6f) fix(v1): keep the PATH from the base image (#1673)
+ * [7379401](https://github.com/tensorchord/envd/commit/73794012482324ed8a909118869631e8401e78f6) feat(v1): inherit the base user for non-dev mode (#1672)
+
+### Contributors
+
+ * Keming
+
 ## v0.3.27 (2023-06-17)
 
  * [fa7e989](https://github.com/tensorchord/envd/commit/fa7e989b186149a4f85d39a758bdee7a245b5ebf) refactor: use template for buildkit config file (#1658)
@@ -837,6 +846,56 @@
 ### Contributors
 
 
+## v0.2.0-beta.1 (2022-09-27)
+
+
+### Contributors
+
+
+## v0.2.0-beta6 (2022-09-28)
+
+ * [9046f3b](https://github.com/tensorchord/envd/commit/9046f3b1e0bd6e990e0b651584d042a585fd17c8) fix gorlease v
+ * [9fea9e8](https://github.com/tensorchord/envd/commit/9fea9e8b1944acf82ac81d07874d7b2d22b4ce97) cache gpu
+ * [c7917a6](https://github.com/tensorchord/envd/commit/c7917a607553338b58a4d40af1a3262cd5618bb8) use git tag
+ * [c5aeec6](https://github.com/tensorchord/envd/commit/c5aeec6ee82fdeb2d6da2ecc0f5d3baf1093e918) fix ref bug
+
+### Contributors
+
+ * Keming
+
+## v0.2.0-beta5 (2022-09-27)
+
+ * [86f0b17](https://github.com/tensorchord/envd/commit/86f0b170902275d9320de819cfd708d6fd797015) fix ci secret
+
+### Contributors
+
+ * Keming
+
+## v0.2.0-beta4 (2022-09-27)
+
+ * [5cb30f3](https://github.com/tensorchord/envd/commit/5cb30f33067c3334435ade69a5c082a870a63a70) only run some ci in tensorchord
+ * [cfefb15](https://github.com/tensorchord/envd/commit/cfefb15c7120b04bb711ee4a7f84e0803fbae487) fix ci yml
+ * [84c80be](https://github.com/tensorchord/envd/commit/84c80be8cb4f753a2131fa671569925bd9c1bf7f) fix ci
+ * [cea390d](https://github.com/tensorchord/envd/commit/cea390ddf1a61358ade9cebbe2f4fdc71a7233fe) del python dockerfile
+ * [2a45a8f](https://github.com/tensorchord/envd/commit/2a45a8f2f918288c3d862597c4c94566f9138773) cuda version
+ * [5e407d0](https://github.com/tensorchord/envd/commit/5e407d0eb1a73cac86721b66c2bed290d35ac76e) delete outdated comments
+ * [16ca22f](https://github.com/tensorchord/envd/commit/16ca22f7d2e1f02060f299c4a69c74db647ef843) add llb log
+ * [7327c13](https://github.com/tensorchord/envd/commit/7327c13c32ff897160b40e49eb70b884589b5bd1) copy envd-sshd
+ * [f58e55b](https://github.com/tensorchord/envd/commit/f58e55ba4b52b7b9efa1a4669e5f5b11b364b7a0) change to docker hub
+ * [0863ac5](https://github.com/tensorchord/envd/commit/0863ac5c6ea050dd5832d54c6dd90f80b5adf3d4) change python dockerfile to llb
+ * [bd69c3d](https://github.com/tensorchord/envd/commit/bd69c3df326f1f213472960c099dff0c6d35e41c) feat: Support envd-server (#932)
+ * [171b82f](https://github.com/tensorchord/envd/commit/171b82fcbac1da9543b9acda1911d110c322d802) fix: e2e doc test (#926)
+ * [ce36545](https://github.com/tensorchord/envd/commit/ce36545d4865a6062ab4b6332a0e26e0d7030db2) feat(cli): rm image when destroying the env (#925)
+ * [eecc7cf](https://github.com/tensorchord/envd/commit/eecc7cf48cf354ef3d72f17dfcf1d6f19bf90b85) feat: informative error message (#859)
+ * [c3c0b4e](https://github.com/tensorchord/envd/commit/c3c0b4e33ab696c3863632d0d4179f8211813fcb) fix: Use macos 11 (#912)
+ * [6721a88](https://github.com/tensorchord/envd/commit/6721a88aa1e2a97bfd3060e3168ab15b61f25609) chore(goreleaser): Skip homebrew (#909)
+
+### Contributors
+
+ * Ce Gao
+ * Jinjing Zhou
+ * Keming
+
 ## v0.2.0-alpha.22 (2022-09-16)
 
  * [4707bfe](https://github.com/tensorchord/envd/commit/4707bfeaea030a48c5601bffb87ff034e4d1b413)  fix: Fix jupyter in root (#900)
@@ -856,6 +915,14 @@
 ## v0.2.0-alpha.21 (2022-09-12)
 
  * [f1b3fe5](https://github.com/tensorchord/envd/commit/f1b3fe5029091cffc0a1022b665d585132c5a8d8) chore(CLI): test new release for envd-sshd (#866)
+
+### Contributors
+
+ * Yuedong Wu
+
+## v0.2.0-alpha.20 (2022-09-11)
+
+ * [b38c5de](https://github.com/tensorchord/envd/commit/b38c5de82aac50fe085cd48d2111f7f5d241b6d7) chore(CLI): test new release for envd-sshd (#866)
  * [49d79fb](https://github.com/tensorchord/envd/commit/49d79fb17bee4a2baaeadd500607cba7d8426b28) fix: Update readme (#865)
  * [d7995a7](https://github.com/tensorchord/envd/commit/d7995a7171cbe48a65aad3e3b56077ffee9a625a) feat(lang): io.http download files to extra_source (#858)
  * [0d3b42f](https://github.com/tensorchord/envd/commit/0d3b42fe4f33241742986030a45431a5f068dc75) feat: Support HTTP PROXY (#857)
