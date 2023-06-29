@@ -361,9 +361,11 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 		if len(g.Entrypoint) == 0 {
 			g.Entrypoint = config.Entrypoint
 		}
+		g.User = config.User
+	} else {
+		// for dev mode, we will create an `envd` user
+		g.User = ""
 	}
-	// TODO: inherit the USER from base
-	g.User = ""
 	return base, nil
 }
 
