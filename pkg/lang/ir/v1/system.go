@@ -353,15 +353,20 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 			// 1. configured paths in the Starlark frontend `runtime.environ(extra_path=[...])`
 			// 2. paths in the base image
 			// 3. others added during the image building (Python paths, etc.)
-			extraPaths := make(map[string]bool)
-			for _, path := range strings.Split(kv[1], ":") {
-				extraPaths[path] = true
-			}
+
+			// iterate over the original paths and add them to the map
+			pathMap := make(map[string]bool)
 			for _, path := range g.RuntimeEnvPaths {
-				extraPaths[path] = false
+				pathMap[path] = true
 			}
-			for path, required := range extraPaths {
-				if required {
+			// split the PATH into different paths
+			newPaths := strings.Split(kv[1], ":")
+			// iterate over the new paths
+			for _, path := range newPaths {
+				// check if the path is already in the map
+				if _, ok := pathMap[path]; !ok {
+					// if not, add the path to the map and slice
+					pathMap[path] = true
 					g.RuntimeEnvPaths = append(g.RuntimeEnvPaths, path)
 				}
 			}
