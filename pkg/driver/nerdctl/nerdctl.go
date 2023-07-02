@@ -83,7 +83,7 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 	if !existed {
 		buildkitdCmd := "buildkitd"
 		// TODO: support mirror CA keypair
-		if bc.Registry != "" || bc.Mirror != "" || bc.UseHTTP {
+		if len(bc.RegistryName) > 0 || bc.Mirror != "" || len(bc.UseHTTP) > 0 {
 			cfg, err := bc.String()
 			if err != nil {
 				return "", errors.Wrap(err, "failed to generate buildkit config")

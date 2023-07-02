@@ -15,6 +15,7 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -76,9 +77,25 @@ var CommandBootstrap = &cli.Command{
 			Usage:   "Specify the registry to pull the image from",
 			Aliases: []string{"r"},
 		},
+		&cli.StringFlag{
+			Name:  "registry-config",
+			Usage: "Path to a JSON file containing registry configuration. Cannot be used with 'registry' or 'registry-ca-keypair'",
+		},
 	},
 
 	Action: bootstrap,
+}
+
+type Registry struct {
+	Name    string `json:"name"`
+	Ca      string `json:"ca"`
+	Cert    string `json:"cert"`
+	Key     string `json:"key"`
+	UseHttp bool   `json:"use_http"`
+}
+
+type RegistriesData struct {
+	Registries []Registry `json:"registries"`
 }
 
 func bootstrap(clicontext *cli.Context) error {
@@ -91,6 +108,9 @@ func bootstrap(clicontext *cli.Context) error {
 	}, {
 		"registry CA keypair",
 		registryCA,
+	}, {
+		"registry json config",
+		registryJSONConfig,
 	}, {
 		"autocomplete",
 		autocomplete,
@@ -112,7 +132,17 @@ func bootstrap(clicontext *cli.Context) error {
 }
 
 func registryCA(clicontext *cli.Context) error {
+	configFile := clicontext.String("registry-config")
 	ca := clicontext.String("registry-ca-keypair")
+	registry := clicontext.String("registry")
+
+	// We only need this check in registryCA because it is called before registryJSONConfig
+	if len(configFile) > 0 && len(ca) > 0 {
+		return errors.New("only one of `registry-config` and `registry-ca-keypair` can be used")
+	}
+	if len(configFile) > 0 && len(registry) > 0 {
+		return errors.New("only one of `registry-config` and `registry` can be used")
+	}
 	if len(ca) == 0 {
 		return nil
 	}
@@ -146,7 +176,12 @@ func registryCA(clicontext *cli.Context) error {
 		if !exist {
 			return errors.Newf("file %s doesn't exist", kv[1])
 		}
-		path, err := fileutil.ConfigFile(fmt.Sprintf("registry_%s.pem", kv[0]))
+
+		if len(registry) == 0 {
+			registry = "docker.io"
+		}
+
+		path, err := fileutil.ConfigFile(fmt.Sprintf("%s_%s.pem", registry, kv[0]))
 		if err != nil {
 			return errors.Wrap(err, "failed to get the envd config file path")
 		}
@@ -162,6 +197,69 @@ func registryCA(clicontext *cli.Context) error {
 
 	if len(names) != 0 {
 		return errors.Newf("registry %s are not provided", names)
+	}
+	return nil
+}
+
+func registryJSONConfig(clicontext *cli.Context) error {
+	configFile := clicontext.String("registry-config")
+	if len(configFile) == 0 {
+		return nil
+	}
+
+	// Check if file exists
+	exist, err := fileutil.FileExists(configFile)
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("failed to parse file path %s", configFile))
+	}
+	if !exist {
+		return errors.Newf("file %s doesn't exist", configFile)
+	}
+
+	var data RegistriesData
+	configJson, err := os.ReadFile(configFile)
+	if err != nil {
+		return errors.Wrap(err, "Failed to read registry config file")
+	}
+	if err := json.Unmarshal(configJson, &data); err != nil {
+		return errors.Wrap(err, "Failed to parse registry config file")
+	}
+
+	// Check for required keys in each registry
+	for i, registry := range data.Registries {
+		if registry.Name == "" {
+			return errors.Newf("`name` key is required in the config for registry at index %d", i)
+		}
+
+		// Check for optional keys and if they exist, ensure they point to existing files
+		optionalKeys := map[string]string{"ca": registry.Ca, "cert": registry.Cert, "key": registry.Key}
+		for key, value := range optionalKeys {
+			if value != "" {
+				exist, err := fileutil.FileExists(value)
+				if err != nil {
+					return errors.Wrap(err, fmt.Sprintf("failed to parse file path %s", value))
+				}
+				if !exist {
+					return errors.Newf("file %s doesn't exist", value)
+				}
+
+				// Read the file
+				content, err := os.ReadFile(value)
+				if err != nil {
+					return errors.Wrap(err, fmt.Sprintf("failed to read the %s file for registry %s", key, registry.Name))
+				}
+
+				// Write the content to the envd config directory
+				envdConfigPath, err := fileutil.ConfigFile(fmt.Sprintf("%s_%s.pem", registry.Name, key))
+				if err != nil {
+					return errors.Wrap(err, fmt.Sprintf("failed to get the envd config file path for %s of registry %s", key, registry.Name))
+				}
+
+				if err = os.WriteFile(envdConfigPath, content, 0644); err != nil {
+					return errors.Wrap(err, fmt.Sprintf("failed to store the %s file for registry %s", key, registry.Name))
+				}
+			}
+		}
 	}
 	return nil
 }
@@ -240,7 +338,7 @@ func sshKey(clicontext *cli.Context) error {
 		return nil
 
 	default:
-		return errors.Errorf("Invalid ssh-keypair flag")
+		return errors.Newf("Invalid ssh-keypair flag")
 	}
 }
 
@@ -290,11 +388,40 @@ func buildkit(clicontext *cli.Context) error {
 
 	logrus.Debug("bootstrap the buildkitd container")
 	var bkClient buildkitd.Client
+	var data RegistriesData
+
+	// Populate the BuildkitConfig struct
 	config := buildkitutil.BuildkitConfig{
-		Registry: clicontext.String("registry"),
-		Mirror:   clicontext.String("dockerhub-mirror"),
-		UseHTTP:  clicontext.Bool("use-http"),
-		SetCA:    clicontext.IsSet("registry-ca-keypair"),
+		Mirror: clicontext.String("dockerhub-mirror"),
+	}
+
+	configFile := clicontext.String("registry-config")
+	if len(configFile) != 0 {
+		configJson, err := os.ReadFile(configFile)
+		if err != nil {
+			return errors.Wrap(err, "Failed to read registry config file")
+		}
+		if err := json.Unmarshal(configJson, &data); err != nil {
+			return errors.Wrap(err, "Failed to parse registry config file")
+		}
+		for _, registry := range data.Registries {
+			config.RegistryName = append(config.RegistryName, registry.Name)
+			config.CaPath = append(config.CaPath, registry.Ca)
+			config.CertPath = append(config.CertPath, registry.Cert)
+			config.KeyPath = append(config.KeyPath, registry.Key)
+			config.UseHTTP = append(config.UseHTTP, registry.UseHttp)
+		}
+	} else if len(clicontext.String("registry-ca-keypair")) != 0 {
+		if len(clicontext.String("registry")) == 0 {
+			config.RegistryName = append(config.RegistryName, "docker.io")
+		} else {
+			config.RegistryName = append(config.RegistryName, clicontext.String("registry"))
+		}
+		// the path values aren't actually necessary since we already hardcoded the paths to /etc/registry. we just need something arbitrary in the struct so the template parses properly, so we'll just use /etc/registry
+		config.CaPath = append(config.CaPath, "/etc/registry")
+		config.CertPath = append(config.CertPath, "/etc/registry")
+		config.KeyPath = append(config.KeyPath, "/etc/registry")
+		config.UseHTTP = append(config.UseHTTP, clicontext.Bool("use-http"))
 	}
 
 	if c.Builder == types.BuilderTypeMoby {

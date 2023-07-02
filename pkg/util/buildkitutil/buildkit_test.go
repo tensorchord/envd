@@ -28,36 +28,79 @@ func TestBuildkitWithRegistry(t *testing.T) {
 	}{
 		{
 			BuildkitConfig{
-				Registry: "registry.example.com",
-				Mirror:   "https://mirror.example.com",
-				UseHTTP:  true,
+				RegistryName: []string{"registry.example.com"},
+				CaPath:       []string{"/etc/registry/ca.pem"},
+				CertPath:     []string{"/etc/registry/cert.pem"},
+				KeyPath:      []string{"/etc/registry/key.pem"},
+				UseHTTP:      []bool{false},
+				Mirror:       "https://mirror.example.com",
 			},
 			`
-[registry."registry.example.com"]
-  mirrors = ["https://mirror.example.com"]
-  http = true
+[registry]
+  [registry."registry.example.com"]
+    mirrors = ["https://mirror.example.com"]
+    ca=["/etc/registry/registry.example.com_ca.pem"]
+    [[registry."registry.example.com".keypair]]
+      key="/etc/registry/registry.example.com_key.pem"
+      cert="/etc/registry/registry.example.com_cert.pem"
 `,
 		},
 		{
 			BuildkitConfig{
-				Registry: "registry.example.com",
-				SetCA:    true,
+				RegistryName: []string{"registry.example.com", "docker.io"},
+				CaPath:       []string{"", ""},
+				CertPath:     []string{"", ""},
+				KeyPath:      []string{"", ""},
+				UseHTTP:      []bool{true, false},
+				Mirror:       "https://mirror.example.com",
 			},
 			`
-[registry."registry.example.com"]
-  http = false
-  ca=["/etc/registry/ca.pem"]
-  [[registry."registry.example.com".keypair]]
-	key="/etc/registry/key.pem"
-	cert="/etc/registry/cert.pem"
+[registry]
+  [registry."registry.example.com"]
+    http = true
+    mirrors = ["https://mirror.example.com"]
+  [registry."docker.io"]
+    mirrors = ["https://mirror.example.com"]
 `,
 		},
 		{
-			BuildkitConfig{},
+			BuildkitConfig{
+				RegistryName: []string{},
+				CaPath:       []string{},
+				CertPath:     []string{},
+				KeyPath:      []string{},
+				UseHTTP:      []bool{},
+				Mirror:       "",
+			},
 			`
-[registry."docker.io"]
-  http = false
-			`,
+[registry]
+`,
+		},
+		{
+			BuildkitConfig{
+				RegistryName: []string{"registry1.example.com", "registry2.example.com"},
+				CaPath:       []string{"/etc/registry/ca1.pem", "/etc/registry/ca2.pem"},
+				CertPath:     []string{"/etc/registry/cert1.pem", "/etc/registry/cert2.pem"},
+				KeyPath:      []string{"/etc/registry/key1.pem", "/etc/registry/key2.pem"},
+				UseHTTP:      []bool{true, false},
+				Mirror:       "https://mirror.example.com",
+			},
+			`
+[registry]
+  [registry."registry1.example.com"]
+    http = true
+    mirrors = ["https://mirror.example.com"]
+    ca=["/etc/registry/registry1.example.com_ca.pem"]
+    [[registry."registry1.example.com".keypair]]
+      key="/etc/registry/registry1.example.com_key.pem"
+      cert="/etc/registry/registry1.example.com_cert.pem"
+  [registry."registry2.example.com"]
+    mirrors = ["https://mirror.example.com"]
+    ca=["/etc/registry/registry2.example.com_ca.pem"]
+    [[registry."registry2.example.com".keypair]]
+      key="/etc/registry/registry2.example.com_key.pem"
+      cert="/etc/registry/registry2.example.com_cert.pem"
+`,
 		},
 	}
 

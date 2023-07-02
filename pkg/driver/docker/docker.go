@@ -207,7 +207,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 		AutoRemove: true,
 	}
 
-	if bc.SetCA {
+	if len(bc.RegistryName) > 0 {
 		hostConfig.Mounts = append(hostConfig.Mounts, mount.Mount{
 			Type:   mount.TypeBind,
 			Source: fileutil.DefaultConfigDir,

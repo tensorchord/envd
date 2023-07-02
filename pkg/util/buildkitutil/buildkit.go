@@ -20,21 +20,33 @@ import (
 )
 
 const buildkitConfigTemplate = `
-[registry."{{ if .Registry }}{{ .Registry }}{{ else }}docker.io{{ end }}"]{{ if .Mirror }}
-  mirrors = ["{{ .Mirror }}"]{{ end }}
-  http = {{ .UseHTTP }}
-  {{ if .SetCA}}ca=["/etc/registry/ca.pem"]
-  [[registry."{{ if .Registry }}{{ .Registry }}{{ else }}docker.io{{ end }}".keypair]]
-	key="/etc/registry/key.pem"
-	cert="/etc/registry/cert.pem"
-  {{ end }}
+[registry]
+{{- range $index, $value := .RegistryName }}
+  [registry."{{ if $value }}{{ $value }}{{ else }}docker.io{{ end }}"]
+    {{- if index $.UseHTTP $index }}
+    http = true
+    {{- end }}
+    {{- if $.Mirror }}
+    mirrors = ["{{ $.Mirror }}"]
+    {{- end }}
+    {{- if index $.CaPath $index }}
+    ca=["/etc/registry/{{ $value }}_ca.pem"]
+    {{- end }}
+    {{- if and (index $.CertPath $index) (index $.KeyPath $index) }}
+    [[registry."{{ if $value }}{{ $value }}{{ else }}docker.io{{ end }}".keypair]]
+      key="/etc/registry/{{ $value }}_key.pem"
+      cert="/etc/registry/{{ $value }}_cert.pem"
+    {{- end }}
+{{- end }}
 `
 
 type BuildkitConfig struct {
-	Registry string
-	Mirror   string
-	UseHTTP  bool
-	SetCA    bool
+	RegistryName []string
+	CaPath       []string
+	CertPath     []string
+	KeyPath      []string
+	UseHTTP      []bool
+	Mirror       string
 }
 
 func (c *BuildkitConfig) String() (string, error) {
