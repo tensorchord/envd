@@ -207,13 +207,14 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 		AutoRemove: true,
 	}
 
-	if len(bc.RegistryName) > 0 {
+	if len(bc.Registries) > 0 {
 		hostConfig.Mounts = append(hostConfig.Mounts, mount.Mount{
 			Type:   mount.TypeBind,
 			Source: fileutil.DefaultConfigDir,
 			Target: buildkitdCertPath,
 		})
 	}
+
 	cfg, err := bc.String()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to generate buildkit config")

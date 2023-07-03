@@ -76,6 +76,7 @@ var CommandBootstrap = &cli.Command{
 			Name:    "registry",
 			Usage:   "Specify the registry to pull the image from",
 			Aliases: []string{"r"},
+			Value:   "docker.io",
 		},
 		&cli.StringFlag{
 			Name:  "registry-config",
@@ -84,18 +85,6 @@ var CommandBootstrap = &cli.Command{
 	},
 
 	Action: bootstrap,
-}
-
-type Registry struct {
-	Name    string `json:"name"`
-	Ca      string `json:"ca"`
-	Cert    string `json:"cert"`
-	Key     string `json:"key"`
-	UseHttp bool   `json:"use_http"`
-}
-
-type RegistriesData struct {
-	Registries []Registry `json:"registries"`
 }
 
 func bootstrap(clicontext *cli.Context) error {
@@ -136,22 +125,21 @@ func registryCA(clicontext *cli.Context) error {
 	ca := clicontext.String("registry-ca-keypair")
 	registry := clicontext.String("registry")
 
+	if len(ca) == 0 {
+		return nil
+	}
+
 	// We only need this check in registryCA because it is called before registryJSONConfig
 	if len(configFile) > 0 && len(ca) > 0 {
 		return errors.New("only one of `registry-config` and `registry-ca-keypair` can be used")
 	}
-	if len(configFile) > 0 && len(registry) > 0 {
-		return errors.New("only one of `registry-config` and `registry` can be used")
-	}
-	if len(ca) == 0 {
-		return nil
-	}
+
 	mirror := clicontext.String("dockerhub-mirror")
 	if len(mirror) == 0 {
 		return errors.New("`registry-ca-keypair` should be used with `dockerhub-mirror`")
 	}
 
-	// parse ca/key/cert
+	// Parse ca/key/cert
 	kvPairs := strings.Split(ca, ",")
 	if len(kvPairs) != 3 {
 		return errors.New("`registry-ca-keypair` requires ca/key/cert 3 part separated by ','")
@@ -175,10 +163,6 @@ func registryCA(clicontext *cli.Context) error {
 		}
 		if !exist {
 			return errors.Newf("file %s doesn't exist", kv[1])
-		}
-
-		if len(registry) == 0 {
-			registry = "docker.io"
 		}
 
 		path, err := fileutil.ConfigFile(fmt.Sprintf("%s_%s.pem", registry, kv[0]))
@@ -216,17 +200,17 @@ func registryJSONConfig(clicontext *cli.Context) error {
 		return errors.Newf("file %s doesn't exist", configFile)
 	}
 
-	var data RegistriesData
+	config := buildkitutil.BuildkitConfig{}
 	configJson, err := os.ReadFile(configFile)
 	if err != nil {
 		return errors.Wrap(err, "Failed to read registry config file")
 	}
-	if err := json.Unmarshal(configJson, &data); err != nil {
+	if err := json.Unmarshal(configJson, &config); err != nil {
 		return errors.Wrap(err, "Failed to parse registry config file")
 	}
 
 	// Check for required keys in each registry
-	for i, registry := range data.Registries {
+	for i, registry := range config.Registries {
 		if registry.Name == "" {
 			return errors.Newf("`name` key is required in the config for registry at index %d", i)
 		}
@@ -387,13 +371,8 @@ func buildkit(clicontext *cli.Context) error {
 	}
 
 	logrus.Debug("bootstrap the buildkitd container")
-	var bkClient buildkitd.Client
-	var data RegistriesData
-
 	// Populate the BuildkitConfig struct
-	config := buildkitutil.BuildkitConfig{
-		Mirror: clicontext.String("dockerhub-mirror"),
-	}
+	config := buildkitutil.BuildkitConfig{}
 
 	configFile := clicontext.String("registry-config")
 	if len(configFile) != 0 {
@@ -401,29 +380,24 @@ func buildkit(clicontext *cli.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "Failed to read registry config file")
 		}
-		if err := json.Unmarshal(configJson, &data); err != nil {
+		if err := json.Unmarshal(configJson, &config); err != nil {
 			return errors.Wrap(err, "Failed to parse registry config file")
 		}
-		for _, registry := range data.Registries {
-			config.RegistryName = append(config.RegistryName, registry.Name)
-			config.CaPath = append(config.CaPath, registry.Ca)
-			config.CertPath = append(config.CertPath, registry.Cert)
-			config.KeyPath = append(config.KeyPath, registry.Key)
-			config.UseHTTP = append(config.UseHTTP, registry.UseHttp)
-		}
 	} else if len(clicontext.String("registry-ca-keypair")) != 0 {
-		if len(clicontext.String("registry")) == 0 {
-			config.RegistryName = append(config.RegistryName, "docker.io")
-		} else {
-			config.RegistryName = append(config.RegistryName, clicontext.String("registry"))
-		}
-		// the path values aren't actually necessary since we already hardcoded the paths to /etc/registry. we just need something arbitrary in the struct so the template parses properly, so we'll just use /etc/registry
-		config.CaPath = append(config.CaPath, "/etc/registry")
-		config.CertPath = append(config.CertPath, "/etc/registry")
-		config.KeyPath = append(config.KeyPath, "/etc/registry")
-		config.UseHTTP = append(config.UseHTTP, clicontext.Bool("use-http"))
+		config.Registries = append(config.Registries, buildkitutil.Registry{
+			Name:    clicontext.String("registry"),
+			Ca:      "/etc/registry",
+			Cert:    "/etc/registry",
+			Key:     "/etc/registry",
+			UseHttp: clicontext.Bool("use-http"),
+			Mirror:  clicontext.String("dockerhub-mirror"),
+		})
+		// The values of Ca, Cert, and Key don't actually matter since we already copied their contents to /etc/registry
+		// So instead of parsing registry-ca-keypair again, we'll just put an arbitrary value
+		// This is to ensure that buildkitConfigTemplate parses properly
 	}
 
+	var bkClient buildkitd.Client
 	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
 			c.Builder, c.BuilderAddress, &config)

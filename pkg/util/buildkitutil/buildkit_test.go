@@ -28,12 +28,16 @@ func TestBuildkitWithRegistry(t *testing.T) {
 	}{
 		{
 			BuildkitConfig{
-				RegistryName: []string{"registry.example.com"},
-				CaPath:       []string{"/etc/registry/ca.pem"},
-				CertPath:     []string{"/etc/registry/cert.pem"},
-				KeyPath:      []string{"/etc/registry/key.pem"},
-				UseHTTP:      []bool{false},
-				Mirror:       "https://mirror.example.com",
+				Registries: []Registry{
+					{
+						Name:    "registry.example.com",
+						Ca:      "/etc/registry/ca.pem",
+						Cert:    "/etc/registry/cert.pem",
+						Key:     "/etc/registry/key.pem",
+						UseHttp: false,
+						Mirror:  "https://mirror.example.com",
+					},
+				},
 			},
 			`
 [registry]
@@ -47,12 +51,17 @@ func TestBuildkitWithRegistry(t *testing.T) {
 		},
 		{
 			BuildkitConfig{
-				RegistryName: []string{"registry.example.com", "docker.io"},
-				CaPath:       []string{"", ""},
-				CertPath:     []string{"", ""},
-				KeyPath:      []string{"", ""},
-				UseHTTP:      []bool{true, false},
-				Mirror:       "https://mirror.example.com",
+				Registries: []Registry{
+					{
+						Name:    "registry.example.com",
+						UseHttp: true,
+						Mirror:  "https://mirror.example.com",
+					},
+					{
+						Name:   "docker.io",
+						Mirror: "https://mirror.example.com",
+					},
+				},
 			},
 			`
 [registry]
@@ -65,12 +74,7 @@ func TestBuildkitWithRegistry(t *testing.T) {
 		},
 		{
 			BuildkitConfig{
-				RegistryName: []string{},
-				CaPath:       []string{},
-				CertPath:     []string{},
-				KeyPath:      []string{},
-				UseHTTP:      []bool{},
-				Mirror:       "",
+				Registries: []Registry{},
 			},
 			`
 [registry]
@@ -78,12 +82,23 @@ func TestBuildkitWithRegistry(t *testing.T) {
 		},
 		{
 			BuildkitConfig{
-				RegistryName: []string{"registry1.example.com", "registry2.example.com"},
-				CaPath:       []string{"/etc/registry/ca1.pem", "/etc/registry/ca2.pem"},
-				CertPath:     []string{"/etc/registry/cert1.pem", "/etc/registry/cert2.pem"},
-				KeyPath:      []string{"/etc/registry/key1.pem", "/etc/registry/key2.pem"},
-				UseHTTP:      []bool{true, false},
-				Mirror:       "https://mirror.example.com",
+				Registries: []Registry{
+					{
+						Name:    "registry1.example.com",
+						Ca:      "/etc/registry/ca1.pem",
+						Cert:    "/etc/registry/cert1.pem",
+						Key:     "/etc/registry/key1.pem",
+						UseHttp: true,
+						Mirror:  "https://mirror.example.com",
+					},
+					{
+						Name:   "registry2.example.com",
+						Ca:     "/etc/registry/ca2.pem",
+						Cert:   "/etc/registry/cert2.pem",
+						Key:    "/etc/registry/key2.pem",
+						Mirror: "https://mirror.example.com",
+					},
+				},
 			},
 			`
 [registry]
