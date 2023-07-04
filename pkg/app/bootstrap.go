@@ -392,7 +392,13 @@ func buildkit(clicontext *cli.Context) error {
 			Ca:      "/etc/registry",
 			Cert:    "/etc/registry",
 			Key:     "/etc/registry",
-			UseHttp: clicontext.Bool("use-http"),
+			UseHTTP: clicontext.Bool("use-http"),
+			Mirror:  clicontext.String("dockerhub-mirror"),
+		})
+	} else if len(clicontext.String("dockerhub-mirror")) != 0 {
+		config.Registries = append(config.Registries, buildkitutil.Registry{
+			Name:    clicontext.String("registry"),
+			UseHTTP: clicontext.Bool("use-http"),
 			Mirror:  clicontext.String("dockerhub-mirror"),
 		})
 	}

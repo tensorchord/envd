@@ -34,7 +34,7 @@ func TestBuildkitWithRegistry(t *testing.T) {
 						Ca:      "/etc/registry/ca.pem",
 						Cert:    "/etc/registry/cert.pem",
 						Key:     "/etc/registry/key.pem",
-						UseHttp: false,
+						UseHTTP: false,
 						Mirror:  "https://mirror.example.com",
 					},
 				},
@@ -54,7 +54,7 @@ func TestBuildkitWithRegistry(t *testing.T) {
 				Registries: []Registry{
 					{
 						Name:    "registry.example.com",
-						UseHttp: true,
+						UseHTTP: true,
 						Mirror:  "https://mirror.example.com",
 					},
 					{
@@ -88,7 +88,7 @@ func TestBuildkitWithRegistry(t *testing.T) {
 						Ca:      "/etc/registry/ca1.pem",
 						Cert:    "/etc/registry/cert1.pem",
 						Key:     "/etc/registry/key1.pem",
-						UseHttp: true,
+						UseHTTP: true,
 						Mirror:  "https://mirror.example.com",
 					},
 					{
