@@ -384,6 +384,9 @@ func buildkit(clicontext *cli.Context) error {
 			return errors.Wrap(err, "Failed to parse registry config file")
 		}
 	} else if len(clicontext.String("registry-ca-keypair")) != 0 {
+		// The values of Ca, Cert, and Key don't actually matter since we already copied their contents to the envd config directory and mounted to `/etc/registry`.
+		// So instead of parsing registry-ca-keypair again, we'll just put the default value.
+		// This is to ensure that buildkitConfigTemplate parses properly.
 		config.Registries = append(config.Registries, buildkitutil.Registry{
 			Name:    clicontext.String("registry"),
 			Ca:      "/etc/registry",
@@ -392,9 +395,6 @@ func buildkit(clicontext *cli.Context) error {
 			UseHttp: clicontext.Bool("use-http"),
 			Mirror:  clicontext.String("dockerhub-mirror"),
 		})
-		// The values of Ca, Cert, and Key don't actually matter since we already copied their contents to /etc/registry
-		// So instead of parsing registry-ca-keypair again, we'll just put an arbitrary value
-		// This is to ensure that buildkitConfigTemplate parses properly
 	}
 
 	var bkClient buildkitd.Client
