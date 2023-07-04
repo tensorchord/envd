@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.3.31 (2023-07-04)
+
+ * [67ce1d7](https://github.com/tensorchord/envd/commit/67ce1d7cd5c234a59294a4bba02df35fa190bb2b) fix: mount buildkitd toml file (#1686)
+ * [cde4632](https://github.com/tensorchord/envd/commit/cde4632b2954b510e72efe2a7373d2c1d37456e9) support using json for registry config (#1680)
+ * [b5f9a49](https://github.com/tensorchord/envd/commit/b5f9a49d911ce5ee1e8859968f449835d4147c5f) Fix PATH Order (#1679)
+
+### Contributors
+
+ * Keming
+ * Richard Li
+
 ## v0.3.30 (2023-06-29)
 
 
