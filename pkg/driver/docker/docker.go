@@ -17,9 +17,9 @@ package docker
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -40,7 +40,7 @@ import (
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
-const buildkitdCertPath = "/etc/registry"
+const buildkitdConfigPath = "/etc/registry"
 
 var (
 	anchoredIdentifierRegexp = regexp.MustCompile(`^([a-f0-9]{64})$`)
@@ -205,26 +205,22 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 	hostConfig := &container.HostConfig{
 		Privileged: true,
 		AutoRemove: true,
+		Mounts: []mount.Mount{
+			{
+				Type:   mount.TypeBind,
+				Source: fileutil.DefaultConfigDir,
+				Target: buildkitdConfigPath,
+			},
+		},
 	}
 
-	if len(bc.Registries) > 0 {
-		hostConfig.Mounts = append(hostConfig.Mounts, mount.Mount{
-			Type:   mount.TypeBind,
-			Source: fileutil.DefaultConfigDir,
-			Target: buildkitdCertPath,
-		})
-	}
-
-	cfg, err := bc.String()
+	err := bc.Save()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to generate buildkit config")
 	}
 	config.Entrypoint = []string{
-		"/bin/sh",
-		"-c",
-		fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg),
+		"buildkitd", "--config", filepath.Join(buildkitdConfigPath, "buildkitd.toml"),
 	}
-	logger.Debugf("setting buildkit config: %s", cfg)
 	created, _ := c.Exists(ctx, name)
 	if created {
 		err := c.ContainerStart(ctx, name, types.ContainerStartOptions{})

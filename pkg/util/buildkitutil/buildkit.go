@@ -15,15 +15,20 @@
 package buildkitutil
 
 import (
+	"os"
 	"strings"
 	"text/template"
+
+	"github.com/cockroachdb/errors"
+
+	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
 
 const buildkitConfigTemplate = `
 [registry]
 {{- range $registry := .Registries }}
   [registry."{{ if $registry.Name }}{{ $registry.Name }}{{ else }}docker.io{{ end }}"]
-    {{- if $registry.UseHttp }}
+    {{- if $registry.UseHTTP }}
     http = true
     {{- end }}
     {{- if $registry.Mirror }}
@@ -45,7 +50,7 @@ type Registry struct {
 	Ca      string `json:"ca"`
 	Cert    string `json:"cert"`
 	Key     string `json:"key"`
-	UseHttp bool   `json:"use_http"`
+	UseHTTP bool   `json:"use_http"`
 	Mirror  string `json:"mirror"`
 }
 
@@ -61,4 +66,18 @@ func (c *BuildkitConfig) String() (string, error) {
 	var config strings.Builder
 	err = tmpl.Execute(&config, c)
 	return config.String(), err
+}
+
+func (c *BuildkitConfig) Save() error {
+	text, err := c.String()
+	if err != nil {
+		return err
+	}
+
+	path, err := fileutil.ConfigFile("buildkitd.toml")
+	if err != nil {
+		return errors.Wrap(err, "failed to get the buildkitd config file")
+	}
+	err = os.WriteFile(path, []byte(text), 0644)
+	return err
 }
