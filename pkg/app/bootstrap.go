@@ -15,6 +15,7 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -75,6 +76,11 @@ var CommandBootstrap = &cli.Command{
 			Name:    "registry",
 			Usage:   "Specify the registry to pull the image from",
 			Aliases: []string{"r"},
+			Value:   "docker.io",
+		},
+		&cli.StringFlag{
+			Name:  "registry-config",
+			Usage: "Path to a JSON file containing registry configuration. Cannot be used with 'registry' or 'registry-ca-keypair'",
 		},
 	},
 
@@ -91,6 +97,9 @@ func bootstrap(clicontext *cli.Context) error {
 	}, {
 		"registry CA keypair",
 		registryCA,
+	}, {
+		"registry json config",
+		registryJSONConfig,
 	}, {
 		"autocomplete",
 		autocomplete,
@@ -112,16 +121,25 @@ func bootstrap(clicontext *cli.Context) error {
 }
 
 func registryCA(clicontext *cli.Context) error {
+	configFile := clicontext.String("registry-config")
 	ca := clicontext.String("registry-ca-keypair")
+	registry := clicontext.String("registry")
+
 	if len(ca) == 0 {
 		return nil
 	}
+
+	// We only need this check in registryCA because it is called before registryJSONConfig
+	if len(configFile) > 0 && len(ca) > 0 {
+		return errors.New("only one of `registry-config` and `registry-ca-keypair` can be used")
+	}
+
 	mirror := clicontext.String("dockerhub-mirror")
 	if len(mirror) == 0 {
 		return errors.New("`registry-ca-keypair` should be used with `dockerhub-mirror`")
 	}
 
-	// parse ca/key/cert
+	// Parse ca/key/cert
 	kvPairs := strings.Split(ca, ",")
 	if len(kvPairs) != 3 {
 		return errors.New("`registry-ca-keypair` requires ca/key/cert 3 part separated by ','")
@@ -146,7 +164,8 @@ func registryCA(clicontext *cli.Context) error {
 		if !exist {
 			return errors.Newf("file %s doesn't exist", kv[1])
 		}
-		path, err := fileutil.ConfigFile(fmt.Sprintf("registry_%s.pem", kv[0]))
+
+		path, err := fileutil.ConfigFile(fmt.Sprintf("%s_%s.pem", registry, kv[0]))
 		if err != nil {
 			return errors.Wrap(err, "failed to get the envd config file path")
 		}
@@ -162,6 +181,69 @@ func registryCA(clicontext *cli.Context) error {
 
 	if len(names) != 0 {
 		return errors.Newf("registry %s are not provided", names)
+	}
+	return nil
+}
+
+func registryJSONConfig(clicontext *cli.Context) error {
+	configFile := clicontext.String("registry-config")
+	if len(configFile) == 0 {
+		return nil
+	}
+
+	// Check if file exists
+	exist, err := fileutil.FileExists(configFile)
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("failed to parse file path %s", configFile))
+	}
+	if !exist {
+		return errors.Newf("file %s doesn't exist", configFile)
+	}
+
+	config := buildkitutil.BuildkitConfig{}
+	configJson, err := os.ReadFile(configFile)
+	if err != nil {
+		return errors.Wrap(err, "Failed to read registry config file")
+	}
+	if err := json.Unmarshal(configJson, &config); err != nil {
+		return errors.Wrap(err, "Failed to parse registry config file")
+	}
+
+	// Check for required keys in each registry
+	for i, registry := range config.Registries {
+		if registry.Name == "" {
+			return errors.Newf("`name` key is required in the config for registry at index %d", i)
+		}
+
+		// Check for optional keys and if they exist, ensure they point to existing files
+		optionalKeys := map[string]string{"ca": registry.Ca, "cert": registry.Cert, "key": registry.Key}
+		for key, value := range optionalKeys {
+			if value != "" {
+				exist, err := fileutil.FileExists(value)
+				if err != nil {
+					return errors.Wrap(err, fmt.Sprintf("failed to parse file path %s", value))
+				}
+				if !exist {
+					return errors.Newf("file %s doesn't exist", value)
+				}
+
+				// Read the file
+				content, err := os.ReadFile(value)
+				if err != nil {
+					return errors.Wrap(err, fmt.Sprintf("failed to read the %s file for registry %s", key, registry.Name))
+				}
+
+				// Write the content to the envd config directory
+				envdConfigPath, err := fileutil.ConfigFile(fmt.Sprintf("%s_%s.pem", registry.Name, key))
+				if err != nil {
+					return errors.Wrap(err, fmt.Sprintf("failed to get the envd config file path for %s of registry %s", key, registry.Name))
+				}
+
+				if err = os.WriteFile(envdConfigPath, content, 0644); err != nil {
+					return errors.Wrap(err, fmt.Sprintf("failed to store the %s file for registry %s", key, registry.Name))
+				}
+			}
+		}
 	}
 	return nil
 }
@@ -240,7 +322,7 @@ func sshKey(clicontext *cli.Context) error {
 		return nil
 
 	default:
-		return errors.Errorf("Invalid ssh-keypair flag")
+		return errors.Newf("Invalid ssh-keypair flag")
 	}
 }
 
@@ -289,14 +371,33 @@ func buildkit(clicontext *cli.Context) error {
 	}
 
 	logrus.Debug("bootstrap the buildkitd container")
-	var bkClient buildkitd.Client
-	config := buildkitutil.BuildkitConfig{
-		Registry: clicontext.String("registry"),
-		Mirror:   clicontext.String("dockerhub-mirror"),
-		UseHTTP:  clicontext.Bool("use-http"),
-		SetCA:    clicontext.IsSet("registry-ca-keypair"),
+	// Populate the BuildkitConfig struct
+	config := buildkitutil.BuildkitConfig{}
+
+	configFile := clicontext.String("registry-config")
+	if len(configFile) != 0 {
+		configJson, err := os.ReadFile(configFile)
+		if err != nil {
+			return errors.Wrap(err, "Failed to read registry config file")
+		}
+		if err := json.Unmarshal(configJson, &config); err != nil {
+			return errors.Wrap(err, "Failed to parse registry config file")
+		}
+	} else if len(clicontext.String("registry-ca-keypair")) != 0 {
+		// The values of Ca, Cert, and Key don't actually matter since we already copied their contents to the envd config directory and mounted to `/etc/registry`.
+		// So instead of parsing registry-ca-keypair again, we'll just put the default value.
+		// This is to ensure that buildkitConfigTemplate parses properly.
+		config.Registries = append(config.Registries, buildkitutil.Registry{
+			Name:    clicontext.String("registry"),
+			Ca:      "/etc/registry",
+			Cert:    "/etc/registry",
+			Key:     "/etc/registry",
+			UseHttp: clicontext.Bool("use-http"),
+			Mirror:  clicontext.String("dockerhub-mirror"),
+		})
 	}
 
+	var bkClient buildkitd.Client
 	if c.Builder == types.BuilderTypeMoby {
 		bkClient, err = buildkitd.NewMobyClient(clicontext.Context,
 			c.Builder, c.BuilderAddress, &config)

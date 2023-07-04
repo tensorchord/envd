@@ -20,21 +20,37 @@ import (
 )
 
 const buildkitConfigTemplate = `
-[registry."{{ if .Registry }}{{ .Registry }}{{ else }}docker.io{{ end }}"]{{ if .Mirror }}
-  mirrors = ["{{ .Mirror }}"]{{ end }}
-  http = {{ .UseHTTP }}
-  {{ if .SetCA}}ca=["/etc/registry/ca.pem"]
-  [[registry."{{ if .Registry }}{{ .Registry }}{{ else }}docker.io{{ end }}".keypair]]
-	key="/etc/registry/key.pem"
-	cert="/etc/registry/cert.pem"
-  {{ end }}
+[registry]
+{{- range $registry := .Registries }}
+  [registry."{{ if $registry.Name }}{{ $registry.Name }}{{ else }}docker.io{{ end }}"]
+    {{- if $registry.UseHttp }}
+    http = true
+    {{- end }}
+    {{- if $registry.Mirror }}
+    mirrors = ["{{ $registry.Mirror }}"]
+    {{- end }}
+    {{- if $registry.Ca }}
+    ca=["/etc/registry/{{ $registry.Name }}_ca.pem"]
+    {{- end }}
+    {{- if and $registry.Cert $registry.Key }}
+    [[registry."{{ if $registry.Name }}{{ $registry.Name }}{{ else }}docker.io{{ end }}".keypair]]
+      key="/etc/registry/{{ $registry.Name }}_key.pem"
+      cert="/etc/registry/{{ $registry.Name }}_cert.pem"
+    {{- end }}
+{{- end }}
 `
 
+type Registry struct {
+	Name    string `json:"name"`
+	Ca      string `json:"ca"`
+	Cert    string `json:"cert"`
+	Key     string `json:"key"`
+	UseHttp bool   `json:"use_http"`
+	Mirror  string `json:"mirror"`
+}
+
 type BuildkitConfig struct {
-	Registry string
-	Mirror   string
-	UseHTTP  bool
-	SetCA    bool
+	Registries []Registry `json:"registries"`
 }
 
 func (c *BuildkitConfig) String() (string, error) {
