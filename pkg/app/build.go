@@ -83,12 +83,12 @@ To build and push the image to a registry:
 		// https://github.com/urfave/cli/issues/1134#issuecomment-1191407527
 		&cli.StringFlag{
 			Name:    "export-cache",
-			Usage:   "Export the cache (e.g. type=registry,ref=<image>)",
+			Usage:   "Export the cache (e.g. `type=registry,ref=<image>`)",
 			Aliases: []string{"ec"},
 		},
 		&cli.StringFlag{
 			Name:    "import-cache",
-			Usage:   "Import the cache (e.g. type=registry,ref=<image>)",
+			Usage:   "Import the cache (e.g. `type=registry,ref=<image>`)",
 			Aliases: []string{"ic"},
 		},
 		&cli.StringFlag{
