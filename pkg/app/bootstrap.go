@@ -48,12 +48,12 @@ var CommandBootstrap = &cli.Command{
 		},
 		&cli.BoolFlag{
 			Name:  "with-autocomplete",
-			Usage: "Add envd autocompletions",
+			Usage: "Add envd auto-completions",
 			Value: true,
 		},
 		&cli.StringFlag{
 			Name:    "dockerhub-mirror",
-			Usage:   "Dockerhub mirror to use",
+			Usage:   "DockerHub mirror to use",
 			Aliases: []string{"m"},
 		},
 		&cli.StringFlag{
@@ -63,7 +63,7 @@ var CommandBootstrap = &cli.Command{
 		},
 		&cli.StringSliceFlag{
 			Name: "ssh-keypair",
-			Usage: fmt.Sprintf("Manually specify ssh key pair as `publicKey,privateKey`. Envd will generate a keypair at %s and %s if not specified",
+			Usage: fmt.Sprintf("Manually specify ssh key pair as `publicKey,privateKey`. envd will generate a keypair at %s and %s if not specified",
 				sshconfig.GetPublicKeyOrPanic(), sshconfig.GetPrivateKeyOrPanic()),
 			Aliases: []string{"k"},
 		},

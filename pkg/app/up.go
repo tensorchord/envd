@@ -128,18 +128,18 @@ var CommandUp = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "host",
-			Usage: "Assign the host address for environment ssh acesss server listening",
+			Usage: "Assign the host address for the environment SSH access server listening",
 			Value: envd.Localhost,
 		},
 		// https://github.com/urfave/cli/issues/1134#issuecomment-1191407527
 		&cli.StringFlag{
 			Name:    "export-cache",
-			Usage:   "Export the cache (e.g. type=registry,ref=<image>)",
+			Usage:   "Export the cache (e.g. `type=registry,ref=<image>`)",
 			Aliases: []string{"ec"},
 		},
 		&cli.StringFlag{
 			Name:    "import-cache",
-			Usage:   "Import the cache (e.g. type=registry,ref=<image>)",
+			Usage:   "Import the cache (e.g. `type=registry,ref=<image>`)",
 			Aliases: []string{"ic"},
 		},
 		&cli.StringFlag{

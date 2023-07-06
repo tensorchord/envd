@@ -80,7 +80,7 @@ var CommandCreate = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "host",
-			Usage: "Assign the host address for environment ssh acesss server listening",
+			Usage: "Assign the host address for the environment SSH access server listening",
 			Value: envd.Localhost,
 		},
 		&cli.IntFlag{
