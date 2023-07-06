@@ -42,8 +42,7 @@ archives:
     builds:
       - envd
     name_template: >-
-      {{ .Binary }}_
-      {{ .Tag }}_
+      {{ .Binary }}_{{ .Version }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
@@ -53,8 +52,7 @@ archives:
     builds:
       - envd-sshd
     name_template: >-
-      {{ .Binary }}_
-      {{ .Tag }}_
+      {{ .Binary }}_{{ .Version }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
