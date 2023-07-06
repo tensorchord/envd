@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.32 (2023-07-06)
+
+
+### Contributors
+
+
 ## v0.3.31 (2023-07-04)
 
  * [67ce1d7](https://github.com/tensorchord/envd/commit/67ce1d7cd5c234a59294a4bba02df35fa190bb2b) fix: mount buildkitd toml file (#1686)
