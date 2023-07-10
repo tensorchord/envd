@@ -79,6 +79,10 @@ type generalGraph struct {
 	// e.g. mnist, streamlit-mnist
 	EnvironmentName string
 
+	// (v1) disable `merge` op for `moby` builder
+	// check https://github.com/tensorchord/envd/issues/1693
+	DisableMergeOp bool
+
 	ir.RuntimeGraph
 
 	Platform *ocispecs.Platform

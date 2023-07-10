@@ -58,18 +58,13 @@ func (g generalGraph) compileVSCode(root llb.State) (llb.State, error) {
 }
 
 // nolint:unused
-func (g *generalGraph) compileJupyter() error {
+func (g *generalGraph) compileJupyter() {
 	if g.JupyterConfig == nil {
-		return nil
+		return
 	}
 
+	// no need to check if `python` is installed since v1 should support user costumed image
 	g.PyPIPackages = append(g.PyPIPackages, []string{"jupyter"})
-	for _, language := range g.Languages {
-		if language.Name == "python" {
-			return nil
-		}
-	}
-	return errors.Newf("Jupyter is not supported in other languages yet")
 }
 
 func (g generalGraph) generateJupyterCommand(workingDir string) []string {
