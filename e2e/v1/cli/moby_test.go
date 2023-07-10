@@ -30,7 +30,7 @@ var _ = Describe("e2e moby builder test", Ordered, func() {
 	ctx := types.Context{
 		Name:    mobyContext,
 		Builder: types.BuilderTypeMoby,
-		Runner: types.RunnerTypeDocker,
+		Runner:  types.RunnerTypeDocker,
 	}
 
 	BeforeAll(func() {
@@ -38,14 +38,14 @@ var _ = Describe("e2e moby builder test", Ordered, func() {
 		err := home.GetManager().ContextCreate(ctx, true)
 		Expect(err).NotTo(HaveOccurred())
 	})
-	
+
 	It("should find a new context", func() {
 		ctx, err := home.GetManager().ContextGetCurrent()
 		Expect(err).NotTo(HaveOccurred())
 		Expect(ctx.Name).To(Equal(mobyContext))
 		Expect(ctx.Builder).To(Equal(types.BuilderTypeMoby))
 	})
-	
+
 	It("build images with moby", func() {
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), "e2e")
 		e.BuildImage(true)()
