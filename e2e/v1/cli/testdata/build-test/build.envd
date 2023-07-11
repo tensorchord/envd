@@ -2,6 +2,7 @@
 
 
 def build():
-    base(dev=True)
+    base()
+    install.apt_packages(name=["htop"])
     install.conda()
     install.python()

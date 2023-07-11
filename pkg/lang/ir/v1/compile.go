@@ -29,6 +29,7 @@ import (
 	servertypes "github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/config"
+	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
@@ -113,10 +114,18 @@ func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, 
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
 	}
+	c, err := home.GetManager().ContextGetCurrent()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get the current envd context")
+	}
+
 	g.Writer = w
 	g.EnvironmentName = envName
 	g.PublicKeyPath = pub
 	g.Platform = platform
+	if c.Builder == types.BuilderTypeMoby {
+		g.DisableMergeOp = true
+	}
 
 	uid, gid, err := g.getUIDGID()
 	if err != nil {
@@ -308,24 +317,29 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 	}
 
 	systemPackages := g.compileSystemPackages(aptMirror)
-	lang, err := g.compileLanguage(aptMirror)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile language")
+	var language llb.State
+	if g.DisableMergeOp {
+		language, err = g.compileLanguage(systemPackages)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to compile language from system packages")
+		}
+	} else {
+		lang, err := g.compileLanguage(aptMirror)
+		if err != nil {
+			return llb.State{}, errors.Wrap(err, "failed to compile language from apt mirror")
+		}
+		language = llb.Merge([]llb.State{
+			base,
+			llb.Diff(base, systemPackages, llb.WithCustomName("[internal] install system packages")),
+			llb.Diff(base, lang, llb.WithCustomName("[internal] prepare language")),
+		}, llb.WithCustomName("[internal] language environment and system packages"))
 	}
-	merge := llb.Merge([]llb.State{
-		base,
-		llb.Diff(base, systemPackages, llb.WithCustomName("[internal] install system packages")),
-		llb.Diff(base, lang, llb.WithCustomName("[internal] prepare language")),
-	}, llb.WithCustomName("[internal] language environment and system packages"))
-	packages := g.compileLanguagePackages(merge)
+	packages := g.compileLanguagePackages(language)
 	if err != nil {
 		return llb.State{}, errors.Wrap(err, "failed to compile language")
 	}
 
-	source, err := g.compileExtraSource(packages)
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to compile extra source")
-	}
+	source := g.compileExtraSource(packages)
 	copy := g.compileCopy(source)
 
 	// dev postprocessing: related to UID, which may not be cached
