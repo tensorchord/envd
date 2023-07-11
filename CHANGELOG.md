@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.34 (2023-07-11)
+
+ * [0ff9405](https://github.com/tensorchord/envd/commit/0ff9405d607e1f4a3b1c141c8ea80d5d23e652a7) feat(v1): disable diff/merge op for moby builder (#1699)
+
+### Contributors
+
+ * Keming
+
 ## v0.3.33 (2023-07-06)
 
 
