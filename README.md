@@ -147,7 +147,7 @@ def tensorboard(
 `envd` can be installed with `pip`, or you can download the binary [release](https://github.com/tensorchord/envd/releases) directly. After the installation, please run `envd bootstrap` to bootstrap.
 
 ```bash
-pip3 install --upgrade envd
+pip install --upgrade envd
 ```
 
 After the installation, please run `envd bootstrap` to bootstrap:
@@ -245,6 +245,25 @@ $ envd envs ls
 NAME                    JUPYTER                 SSH TARGET              CONTEXT                                 IMAGE                   GPU     CUDA    CUDNN   STATUS          CONTAINER ID
 envd-quick-start        http://localhost:42779   envd-quick-start.envd   /home/gaocegege/code/envd-quick-start   envd-quick-start:dev    false   <none>  <none>  Up 54 seconds   bd3f6a729e94
 ```
+
+## Difference between v0 and v1
+
+> **Note**
+> To use the `v1` config file, add `# syntax=v1` to the first line of your `build.envd` file.
+
+| Features | v0 | v1 |
+| --- | --- | --- |
+| is default for `envd<v1.0` | ✅ | ❌ |
+| support dev | ✅ | ✅ |
+| support CUDA | ✅ | ✅ |
+| support serving | ⚠️ | ✅ |
+| support custom base image | ⚠️ | ✅ |
+| support installing multiple languages | ⚠️ | ✅ |
+| support `moby` builder | ❌ | ✅ <sup>[(a)](#v1-moby)</sup> |
+
+> **Note**
+> <a name="v1-moby">(a)</a> To use the `moby` builder, you will need to create a new context with `envd context create --name moby-test --builder moby-worker --use`.
+> For more information about the `moby` builder, check the [issue-1693](https://github.com/tensorchord/envd/issues/1693).
 
 ## More on documentation 📝
 
