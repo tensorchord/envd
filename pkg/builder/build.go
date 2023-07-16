@@ -318,12 +318,16 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 func constructSolveOpt(ce []client.CacheOptionsEntry, entry client.ExportEntry,
 	b generalBuilder, attachable []session.Attachable) client.SolveOpt {
 	c, _ := home.GetManager().ContextGetCurrent()
-	if entry.Attrs == nil && c.Builder == types.BuilderTypeMoby {
-		entry = client.ExportEntry{
-			Type: "moby",
-			Attrs: map[string]string{
-				"name": b.Tag,
-			},
+	if c.Builder == types.BuilderTypeMoby {
+		if entry.Attrs == nil {
+			entry = client.ExportEntry{
+				Type: "moby",
+				Attrs: map[string]string{
+					"name": b.Tag,
+				},
+			}
+		} else if entry.Type == "image" {
+			entry.Type = "moby"
 		}
 	}
 	opt := client.SolveOpt{
