@@ -252,7 +252,7 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 					}
 				}
 				defer pipeW.Close()
-				solveOpt := constructSolveOpt(ce, entry, b, attachable)
+				solveOpt := constructSolveOpt(ce, &entry, b, attachable)
 				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
 					err = errors.Wrap(&BuildkitdErr{err: err}, "Buildkit error")
@@ -281,13 +281,31 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 		default:
 			func(entry client.ExportEntry) {
 				eg.Go(func() error {
-					solveOpt := constructSolveOpt(ce, entry, b, attachable)
+					solveOpt := constructSolveOpt(ce, &entry, b, attachable)
 					_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 					if err != nil {
 						err = errors.Wrap(err, "failed to solve LLB")
 						return err
 					}
 					b.logger.Debug("llb def is solved successfully")
+
+					// push the image if it's moby builder and push=true
+					if !(entry.Type == "moby" && entry.Attrs["push"] == "true") {
+						return nil
+					}
+					b.logger.Debug("pushing image to registry")
+					client, err := docker.NewClient(ctx)
+					if err != nil {
+						err = errors.Wrap(err, "failed to init docker client")
+						b.logger.Error(err)
+						return err
+					}
+					if err = client.PushImage(ctx, entry.Attrs["name"], b.Platform); err != nil {
+						err = errors.Wrap(err, "failed to push image")
+						b.logger.Error(err)
+						return err
+					}
+					b.logger.Debug("pushed image:", entry.Attrs["name"])
 					return nil
 				})
 			}(entry)
@@ -315,12 +333,92 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 	return nil
 }
 
-func constructSolveOpt(ce []client.CacheOptionsEntry, entry client.ExportEntry,
+// func pushWithMoby(ctx context.Context, name string, l progress.SubLogger) error {
+// 	api := d.Config().DockerAPI
+// 	if api == nil {
+// 		return errors.Errorf("invalid empty Docker API reference") // should never happen
+// 	}
+// 	creds, err := imagetools.RegistryAuthForRef(name, d.Config().Auth)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	rc, err := api.ImagePush(ctx, name, types.ImagePushOptions{
+// 		RegistryAuth: creds,
+// 	})
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	started := map[string]*client.VertexStatus{}
+
+// 	defer func() {
+// 		for _, st := range started {
+// 			if st.Completed == nil {
+// 				now := time.Now()
+// 				st.Completed = &now
+// 				l.SetStatus(st)
+// 			}
+// 		}
+// 	}()
+
+// 	dec := json.NewDecoder(rc)
+// 	var parsedError error
+// 	for {
+// 		var jm jsonmessage.JSONMessage
+// 		if err := dec.Decode(&jm); err != nil {
+// 			if parsedError != nil {
+// 				return parsedError
+// 			}
+// 			if err == io.EOF {
+// 				break
+// 			}
+// 			return err
+// 		}
+// 		if jm.ID != "" {
+// 			id := "pushing layer " + jm.ID
+// 			st, ok := started[id]
+// 			if !ok {
+// 				if jm.Progress != nil || jm.Status == "Pushed" {
+// 					now := time.Now()
+// 					st = &client.VertexStatus{
+// 						ID:      id,
+// 						Started: &now,
+// 					}
+// 					started[id] = st
+// 				} else {
+// 					continue
+// 				}
+// 			}
+// 			st.Timestamp = time.Now()
+// 			if jm.Progress != nil {
+// 				st.Current = jm.Progress.Current
+// 				st.Total = jm.Progress.Total
+// 			}
+// 			if jm.Error != nil {
+// 				now := time.Now()
+// 				st.Completed = &now
+// 			}
+// 			if jm.Status == "Pushed" {
+// 				now := time.Now()
+// 				st.Completed = &now
+// 				st.Current = st.Total
+// 			}
+// 			l.SetStatus(st)
+// 		}
+// 		if jm.Error != nil {
+// 			parsedError = jm.Error
+// 		}
+// 	}
+// 	return nil
+// }
+
+func constructSolveOpt(ce []client.CacheOptionsEntry, entry *client.ExportEntry,
 	b generalBuilder, attachable []session.Attachable) client.SolveOpt {
 	c, _ := home.GetManager().ContextGetCurrent()
 	if c.Builder == types.BuilderTypeMoby {
 		if entry.Attrs == nil {
-			entry = client.ExportEntry{
+			entry = &client.ExportEntry{
 				Type: "moby",
 				Attrs: map[string]string{
 					"name": b.Tag,
@@ -332,7 +430,7 @@ func constructSolveOpt(ce []client.CacheOptionsEntry, entry client.ExportEntry,
 	}
 	opt := client.SolveOpt{
 		CacheExports: ce,
-		Exports:      []client.ExportEntry{entry},
+		Exports:      []client.ExportEntry{*entry},
 		LocalDirs: map[string]string{
 			flag.FlagCacheDir:     home.GetManager().CacheDir(),
 			flag.FlagBuildContext: b.BuildContextDir,

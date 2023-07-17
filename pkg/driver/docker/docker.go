@@ -16,7 +16,9 @@ package docker
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -26,6 +28,8 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/containers/image/v5/docker/reference"
+	"github.com/containers/image/v5/pkg/docker/config"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
@@ -36,6 +40,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/driver"
+	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -68,7 +73,7 @@ please visit https://docs.docker.com/engine/install/linux-postinstall/ for more 
 	return dockerClient{cli}, nil
 }
 
-// Normalize the name accord the spec of docker, It may support normalize imagea and container in the future.
+// Normalize the name accord the spec of docker, It may support normalize image and container in the future.
 func NormalizeName(s string) (string, error) {
 	if ok := anchoredIdentifierRegexp.MatchString(s); ok {
 		return "", errors.Newf("invalid repository name (%s), cannot specify 64-byte hexadecimal strings, please rename it", s)
@@ -106,6 +111,58 @@ func (c dockerClient) RemoveImage(ctx context.Context, image string) error {
 	if err != nil {
 		logrus.WithError(err).Errorf("failed to remove image %s", image)
 		return err
+	}
+	return nil
+}
+
+func (c dockerClient) PushImage(ctx context.Context, image string, platform string) error {
+	ref, err := reference.ParseNormalizedNamed(image)
+	if err != nil {
+		return errors.Wrap(err, "failed to normalize the image name")
+	}
+	auth, err := config.GetCredentialsForRef(nil, ref)
+	if err != nil {
+		return errors.Wrap(err, "failed to get credentials for image")
+	}
+	buf, err := json.Marshal(auth)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal auth struct")
+	}
+	reader, err := c.ImagePush(ctx, image, types.ImagePushOptions{
+		RegistryAuth: base64.URLEncoding.EncodeToString(buf),
+		Platform:     platform,
+	})
+	if err != nil {
+		logrus.WithError(err).Errorf("failed to push image %s", image)
+		return err
+	}
+
+	bar := envd.InitProgressBar(0)
+
+	defer func() {
+		reader.Close()
+		bar.Finish()
+	}()
+
+	decoder := json.NewDecoder(reader)
+	stats := new(jsonmessage.JSONMessage)
+	for err := decoder.Decode(stats); !errors.Is(err, io.EOF); err = decoder.Decode(stats) {
+		if err != nil {
+			return err
+		}
+		if stats.Error != nil {
+			return stats.Error
+		}
+
+		if stats.Status != "" {
+			if stats.ID == "" {
+				bar.UpdateTitle(stats.Status)
+			} else {
+				bar.UpdateTitle(fmt.Sprintf("Pushing image => [%s] %s %s", stats.ID, stats.Status, stats.Progress))
+			}
+		}
+
+		stats = new(jsonmessage.JSONMessage)
 	}
 	return nil
 }

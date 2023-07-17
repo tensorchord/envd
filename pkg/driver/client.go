@@ -33,7 +33,7 @@ type Client interface {
 
 	GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error)
 	RemoveImage(ctx context.Context, image string) error
-
+	PushImage(ctx context.Context, image, platform string) error
 	PruneImage(ctx context.Context) (types.ImagesPruneReport, error)
 
 	Stats(ctx context.Context, cname string, statChan chan<- *Stats, done <-chan bool) error
