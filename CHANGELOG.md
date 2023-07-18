@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.36 (2023-07-18)
+
+ * [854798c](https://github.com/tensorchord/envd/commit/854798c5b368505ea81eb040a5584f39eaee1d68) feat(v1): support moby pushing image (#1708)
+
+### Contributors
+
+ * Keming
+
 ## v0.3.35 (2023-07-11)
 
 
