@@ -35,7 +35,7 @@ var CommandContextCreate = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "builder",
-			Usage: "Builder to use (docker-container, kube-pod, tcp, unix)",
+			Usage: "Builder to use (docker-container, moby-worker, kube-pod, tcp, unix)",
 			Value: string(types.BuilderTypeDocker),
 		},
 		&cli.StringFlag{
