@@ -72,7 +72,7 @@ To build and push the image to a registry:
 		},
 		&cli.StringFlag{
 			Name:    "output",
-			Usage:   "Output destination (e.g. type=tar,dest=path,push=true)",
+			Usage:   "Output destination (e.g. `type=tar,dest=path,push=true`)",
 			Aliases: []string{"o"},
 		},
 		&cli.BoolFlag{
@@ -93,8 +93,8 @@ To build and push the image to a registry:
 		},
 		&cli.StringFlag{
 			Name: "platform",
-			Usage: `Specify the target platforms for the build output (for example, windows/amd64 or linux/amd64,darwin/arm64).
-	Build images with same tags could cause image overwriting, platform suffixes will be added to differentiate the images.`,
+			Usage: `Specify the target platforms for the build output (for example, "windows/amd64" or "linux/amd64,darwin/arm64").
+Build images with same tags could cause image overwriting, platform suffixes will be added to differentiate the images.`,
 			DefaultText: runtimeutil.GetRuntimePlatform(),
 		},
 	},

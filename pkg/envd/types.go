@@ -73,12 +73,14 @@ type StartResult struct {
 }
 
 type ProgressBar struct {
-	bar        *progressbar.ProgressBar
-	currStage  int
-	totalStage int
-	notify     chan struct{}
+	bar          *progressbar.ProgressBar
+	currentStage int
+	totalStage   int
+	notify       chan struct{}
 }
 
+// InitProgressBar initializes a progress bar.
+// If stage <= 0, the progress bar will not show the (current/total) stage information.
 func InitProgressBar(stage int) *ProgressBar {
 	done := make(chan struct{})
 	bar := progressbar.NewOptions(-1,
@@ -109,16 +111,20 @@ func InitProgressBar(stage int) *ProgressBar {
 	return &b
 }
 
-func (b *ProgressBar) updateTitle(title string) {
-	b.currStage += 1
-	b.bar.Describe(fmt.Sprintf("[cyan][%d/%d][reset] %s",
-		b.currStage,
-		b.totalStage,
-		title,
-	))
+func (b *ProgressBar) UpdateTitle(title string) {
+	if b.totalStage > 0 {
+		b.currentStage += 1
+		b.bar.Describe(fmt.Sprintf("[cyan][%d/%d][reset] %s",
+			b.currentStage,
+			b.totalStage,
+			title,
+		))
+	} else {
+		b.bar.Describe(fmt.Sprintf("[cyan]%s[reset]", title))
+	}
 }
 
-func (b *ProgressBar) finish() {
+func (b *ProgressBar) Finish() {
 	b.notify <- struct{}{}
 	if err := b.bar.Finish(); err != nil {
 		logrus.Infof("stop progress bar err: %v\n", err)

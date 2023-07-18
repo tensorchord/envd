@@ -252,7 +252,7 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 					}
 				}
 				defer pipeW.Close()
-				solveOpt := constructSolveOpt(ce, entry, b, attachable)
+				solveOpt := constructSolveOpt(ce, &entry, b, attachable)
 				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
 					err = errors.Wrap(&BuildkitdErr{err: err}, "Buildkit error")
@@ -281,13 +281,31 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 		default:
 			func(entry client.ExportEntry) {
 				eg.Go(func() error {
-					solveOpt := constructSolveOpt(ce, entry, b, attachable)
+					solveOpt := constructSolveOpt(ce, &entry, b, attachable)
 					_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 					if err != nil {
 						err = errors.Wrap(err, "failed to solve LLB")
 						return err
 					}
 					b.logger.Debug("llb def is solved successfully")
+
+					// push the image if it's moby builder and push=true
+					if !(entry.Type == "moby" && entry.Attrs["push"] == "true") {
+						return nil
+					}
+					b.logger.Debug("pushing image to registry")
+					client, err := docker.NewClient(ctx)
+					if err != nil {
+						err = errors.Wrap(err, "failed to init docker client")
+						b.logger.Error(err)
+						return err
+					}
+					if err = client.PushImage(ctx, entry.Attrs["name"], b.Platform); err != nil {
+						err = errors.Wrap(err, "failed to push image")
+						b.logger.Error(err)
+						return err
+					}
+					b.logger.Debug("pushed image:", entry.Attrs["name"])
 					return nil
 				})
 			}(entry)
@@ -315,20 +333,24 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 	return nil
 }
 
-func constructSolveOpt(ce []client.CacheOptionsEntry, entry client.ExportEntry,
+func constructSolveOpt(ce []client.CacheOptionsEntry, entry *client.ExportEntry,
 	b generalBuilder, attachable []session.Attachable) client.SolveOpt {
 	c, _ := home.GetManager().ContextGetCurrent()
-	if entry.Attrs == nil && c.Builder == types.BuilderTypeMoby {
-		entry = client.ExportEntry{
-			Type: "moby",
-			Attrs: map[string]string{
-				"name": b.Tag,
-			},
+	if c.Builder == types.BuilderTypeMoby {
+		if entry.Attrs == nil {
+			entry = &client.ExportEntry{
+				Type: "moby",
+				Attrs: map[string]string{
+					"name": b.Tag,
+				},
+			}
+		} else if entry.Type == "image" {
+			entry.Type = "moby"
 		}
 	}
 	opt := client.SolveOpt{
 		CacheExports: ce,
-		Exports:      []client.ExportEntry{entry},
+		Exports:      []client.ExportEntry{*entry},
 		LocalDirs: map[string]string{
 			flag.FlagCacheDir:     home.GetManager().CacheDir(),
 			flag.FlagBuildContext: b.BuildContextDir,

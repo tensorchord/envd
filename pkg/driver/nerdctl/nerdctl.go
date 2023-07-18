@@ -118,6 +118,9 @@ func (nc *nerdctlClient) GetImageWithCacheHashLabel(ctx context.Context, image s
 func (nc *nerdctlClient) RemoveImage(ctx context.Context, image string) error {
 	return nil
 }
+func (nc *nerdctlClient) PushImage(ctx context.Context, image, platform string) error {
+	return nil
+}
 func (nc *nerdctlClient) PruneImage(ctx context.Context) (types.ImagesPruneReport, error) {
 	return types.ImagesPruneReport{}, nil
 }

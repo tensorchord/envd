@@ -358,8 +358,8 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	})
 
 	bar := InitProgressBar(5)
-	defer bar.finish()
-	bar.updateTitle("configure the environment")
+	defer bar.Finish()
+	bar.UpdateTitle("configure the environment")
 
 	if so.NumGPU != 0 {
 		nvruntimeExists, err := e.GPUEnabled(ctx)
@@ -574,7 +574,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	})
 	logger.Debugf("starting %s container", so.EnvironmentName)
 
-	bar.updateTitle("create the environment")
+	bar.UpdateTitle("create the environment")
 	resp, err := e.ContainerCreate(ctx, config, hostConfig, nil, nil, so.EnvironmentName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create the container")
@@ -584,7 +584,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		logger.Warnf("run with warnings: %s", w)
 	}
 
-	bar.updateTitle("start the environment")
+	bar.UpdateTitle("start the environment")
 	if err := e.ContainerStart(
 		ctx, resp.ID, dockertypes.ContainerStartOptions{}); err != nil {
 		errCause := errors.UnwrapAll(err)
@@ -601,13 +601,13 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		return nil, errors.Wrap(err, "failed to inspect the container")
 	}
 
-	bar.updateTitle("wait for the environment to start")
+	bar.UpdateTitle("wait for the environment to start")
 	if err := e.WaitUntilRunning(
 		ctx, container.Name, so.Timeout); err != nil {
 		return nil, errors.Wrap(err, "failed to wait until the container is running")
 	}
 
-	bar.updateTitle("attach the environment")
+	bar.UpdateTitle("attach the environment")
 	result := &StartResult{
 		SSHPort: sshPortInHost,
 		Address: container.NetworkSettings.IPAddress,
