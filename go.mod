@@ -12,7 +12,7 @@ require (
 	github.com/containerd/containerd v1.7.3
 	github.com/containers/image/v5 v5.25.0
 	github.com/creack/pty v1.1.18
-	github.com/docker/cli v24.0.1+incompatible
+	github.com/docker/cli v24.0.5+incompatible
 	github.com/docker/docker v23.0.3+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.5.0
