@@ -149,7 +149,7 @@ func (r *defaultReporter) Identify() {
 			Timestamp: time.Now(),
 			Traits:    segmentio.NewTraits(),
 		}); err != nil {
-			logrus.Warn("telemetry failed")
+			logrus.Debug("telemetry failed")
 			return
 		}
 	}
@@ -176,7 +176,7 @@ func (r *defaultReporter) Telemetry(command string, fields ...TelemetryField) {
 			field(&t.Properties)
 		}
 		if err := r.client.Enqueue(t); err != nil {
-			logrus.Warn(err)
+			logrus.Debug(err)
 		}
 		// make sure the msg can be sent out
 		r.client.Close()
