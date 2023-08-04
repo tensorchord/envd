@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.3.37 (2023-08-04)
+
+ * [f51990e](https://github.com/tensorchord/envd/commit/f51990e82aaae662d923f9f6a1e6d8bd53c6f7bd) feat: add envd app exit handler (#1722)
+ * [ddc3009](https://github.com/tensorchord/envd/commit/ddc3009c2bd7739bd1bfd6ac4b1c02892daacbe4) fix: prune bin from py source dist (#1721)
+ * [af583f4](https://github.com/tensorchord/envd/commit/af583f4db4b842e3c61001981d4aa066ff8d4e63) fix: suppress telemetry send err msg (#1718)
+ * [b6b70c8](https://github.com/tensorchord/envd/commit/b6b70c8c2fbe6f7b116f0539768abfe165b7b200) fix(v1): chown the whole envd conda env to user envd (#1712)
+
+### Contributors
+
+ * Keming
+
 ## v0.3.36 (2023-07-18)
 
  * [854798c](https://github.com/tensorchord/envd/commit/854798c5b368505ea81eb040a5584f39eaee1d68) feat(v1): support moby pushing image (#1708)
