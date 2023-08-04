@@ -96,7 +96,11 @@ func NormalizeName(s string) (string, error) {
 	}
 	// remove the spaces
 	s = strings.ReplaceAll(s, " ", "")
-	return s, nil
+	name, err := reference.Parse(s)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse the name '%s', please provide a valid image name", s)
+	}
+	return name.String(), nil
 }
 
 func (c dockerClient) ListImage(ctx context.Context) ([]types.ImageSummary, error) {

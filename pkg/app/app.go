@@ -155,6 +155,12 @@ func New() EnvdApp {
 		return nil
 	}
 
+	internalApp.ExitErrHandler = func(context *cli.Context, err error) {
+		if err != nil {
+			logrus.Fatal(err)
+		}
+	}
+
 	return EnvdApp{
 		App: *internalApp,
 	}
