@@ -98,8 +98,7 @@ func NormalizeName(s string) (string, error) {
 	s = strings.ReplaceAll(s, " ", "")
 	name, err := reference.ParseDockerRef(s)
 	if err != nil {
-		// return "", errors.Newf("failed to parse the name %s, please provide another valid name", s)
-		return "", errors.Wrapf(err, "failed to parse the name '%s'", s)
+		return "", errors.Wrapf(err, "failed to parse the name '%s', please provide a valid image name", s)
 	}
 	return name.String(), nil
 }
