@@ -118,8 +118,13 @@ var CommandUp = &cli.Command{
 		},
 		&cli.BoolFlag{
 			Name:  "no-gpu",
-			Usage: "Launch the CPU container",
+			Usage: "Launch the CPU container even if it's a GPU image",
 			Value: false,
+		},
+		&cli.IntFlag{
+			Name:  "gpus",
+			Usage: "Number of GPUs used in this environment",
+			Value: 0,
 		},
 		&cli.BoolFlag{
 			Name:  "force",
@@ -199,15 +204,15 @@ func up(clicontext *cli.Context) error {
 
 	logrus.Debug("start running the environment")
 	// Do not attach GPU if the flag is set.
-	gpuEnable := clicontext.Bool("no-gpu")
-	var gpu bool
-	if gpuEnable {
-		gpu = false
+	disableGPU := clicontext.Bool("no-gpu")
+	var defaultGPU bool
+	if disableGPU {
+		defaultGPU = false
 	} else {
-		gpu = builder.GPUEnabled()
+		defaultGPU = builder.GPUEnabled()
 	}
-	numGPU := 0
-	if gpu {
+	numGPU := clicontext.Int("gpus")
+	if defaultGPU && numGPU == 0 {
 		numGPU = 1
 	}
 
