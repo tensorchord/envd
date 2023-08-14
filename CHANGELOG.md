@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.38 (2023-08-14)
+
+ * [be78326](https://github.com/tensorchord/envd/commit/be783264fdd79ad7262cea0485b7d449ca514f80) feat(v1): copy the requirements content if possible (#1738)
+ * [66d6d78](https://github.com/tensorchord/envd/commit/66d6d785c8cd810423981a83b8838e98d2c54978) feat(v1): support copy from an image (#1737)
+ * [7dfd379](https://github.com/tensorchord/envd/commit/7dfd3790b36afde7038b456808bbfd7b187365e2) feat: envd up with `--gpus` (#1730)
+
+### Contributors
+
+ * Keming
+
 ## v0.3.37 (2023-08-04)
 
  * [f51990e](https://github.com/tensorchord/envd/commit/f51990e82aaae662d923f9f6a1e6d8bd53c6f7bd) feat: add envd app exit handler (#1722)
