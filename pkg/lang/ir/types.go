@@ -31,6 +31,7 @@ type RuntimeGraph struct {
 type CopyInfo struct {
 	Source      string
 	Destination string
+	Image       string
 }
 
 type MountInfo struct {

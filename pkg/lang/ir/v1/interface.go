@@ -261,12 +261,13 @@ func CondaPackage(deps []string, channel []string, envFile string) error {
 	return nil
 }
 
-func Copy(src, dest string) {
+func Copy(src, dest, image string) {
 	g := DefaultGraph.(*generalGraph)
 
 	g.Copy = append(g.Copy, ir.CopyInfo{
 		Source:      src,
 		Destination: dest,
+		Image:       image,
 	})
 }
 
