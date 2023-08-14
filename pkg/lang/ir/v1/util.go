@@ -15,13 +15,16 @@
 package v1
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/md5"
 	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/user"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -174,4 +177,49 @@ func (g generalGraph) GeneralGraphFromLabel(label []byte) (ir.Graph, error) {
 		return nil, err
 	}
 	return &newg, nil
+}
+
+// IsRequirementsFileSafeToCopyContent returns true and the dependencies in this file if the
+// requirements file is safe to copy. Otherwise, it returns false and empty dependencies.
+// check https://github.com/tensorchord/envd/issues/1629
+func (g generalGraph) IsRequirementsFileSafeToCopyContent() (dependencies []string, safe bool) {
+	if g.RequirementsFile == nil {
+		return
+	}
+	filePath := filepath.Join(g.EnvironmentPath, *g.RequirementsFile)
+	file, err := os.Open(filePath)
+	if err != nil {
+		logrus.WithError(err).Debugf("failed to open requirements file: %s", filePath)
+		return
+	}
+	defer file.Close()
+
+	forbidden := []string{
+		"-e",
+		"-r",
+		"-c",
+		"--find-links",
+	}
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		for _, f := range forbidden {
+			if strings.Contains(line, f) {
+				logrus.Debugf("requirements file contains %s, which is not safe to copy", f)
+				return []string{}, false
+			}
+		}
+		exist, err := fileutil.FileExists(line)
+		// has a local file to install
+		if err == nil && exist {
+			logrus.Debugf("requirements file contains local file %s, which is not safe to copy", line)
+			return []string{}, false
+		}
+		dependencies = append(dependencies, line)
+	}
+	return dependencies, true
 }

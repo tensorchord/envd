@@ -132,13 +132,25 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 		logrus.WithField("file", *g.RequirementsFile).
 			Debug("Configure pip install requirements statements")
 		root = root.Dir(g.getWorkingDir())
-		run := root.
-			Run(llb.Shlexf("python -m pip install -r %s", *g.RequirementsFile),
-				llb.WithCustomNamef("pip install -r %s", *g.RequirementsFile))
-		run.AddMount(cacheDir, cache,
-			llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
-		run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext))
-		root = run.Root()
+		dependencies, safeToCopy := g.IsRequirementsFileSafeToCopyContent()
+		logrus.WithField("safeToCopy", safeToCopy).WithField("dependencies", dependencies).
+			Debug("Is requirements file safe to copy")
+		if safeToCopy {
+			// avoid mounting host directory to make it cache friendly
+			root = root.Run(llb.Shlexf(
+				"python -m pip install %s",
+				strings.Join(dependencies, " ")),
+				llb.WithCustomNamef("[internal] pip install from %s with %s", *g.RequirementsFile, strings.Join(dependencies, " ")),
+			).Root()
+		} else {
+			run := root.
+				Run(llb.Shlexf("python -m pip install -r %s", *g.RequirementsFile),
+					llb.WithCustomNamef("[internal] pip install -r %s", *g.RequirementsFile))
+			run.AddMount(cacheDir, cache,
+				llb.AsPersistentCacheDir(g.CacheID(cacheDir), llb.CacheMountShared), llb.SourcePath("/cache/pip"))
+			run.AddMount(g.getWorkingDir(), llb.Local(flag.FlagBuildContext))
+			root = run.Root()
+		}
 	}
 
 	if len(g.PythonWheels) > 0 {

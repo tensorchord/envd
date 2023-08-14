@@ -109,7 +109,7 @@ func (g generalGraph) GetPlatform() *ocispecs.Platform {
 	return g.Platform
 }
 
-func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, platform *ocispecs.Platform, progressMode string) (*llb.Definition, error) {
+func (g *generalGraph) Compile(ctx context.Context, envPath string, pub string, platform *ocispecs.Platform, progressMode string) (*llb.Definition, error) {
 	w, err := compileui.New(ctx, os.Stdout, progressMode)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create compileui")
@@ -120,7 +120,8 @@ func (g *generalGraph) Compile(ctx context.Context, envName string, pub string, 
 	}
 
 	g.Writer = w
-	g.EnvironmentName = envName
+	g.EnvironmentPath = envPath
+	g.EnvironmentName = filepath.Base(envPath)
 	g.PublicKeyPath = pub
 	g.Platform = platform
 	if c.Builder == types.BuilderTypeMoby {

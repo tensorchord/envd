@@ -77,6 +77,8 @@ type generalGraph struct {
 	// It is the BaseDir(BuildContextDir)
 	// e.g. mnist, streamlit-mnist
 	EnvironmentName string
+	// EnvironmentPath is the full path of this environment.
+	EnvironmentPath string
 
 	ir.RuntimeGraph
 
