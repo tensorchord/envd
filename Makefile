@@ -164,6 +164,7 @@ debug-local:
 	@for target in $(TARGETS); do                                                      \
 	  CGO_ENABLED=$(CGO_ENABLED) go build                                              \
 	  	-v -o $(DEBUG_DIR)/$${target}                                                  \
+	  	-ldflags="-X $(ROOT)/pkg/version.gitTag=$(GIT_LATEST_TAG)"                     \
 	  	-gcflags='all=-N -l'                                                           \
 	    $(CMD_DIR)/$${target};                                                         \
 	done
