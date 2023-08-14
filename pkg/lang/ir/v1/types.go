@@ -78,6 +78,8 @@ type generalGraph struct {
 	// It is the BaseDir(BuildContextDir)
 	// e.g. mnist, streamlit-mnist
 	EnvironmentName string
+	// EnvironmentPath is the full path of this environment.
+	EnvironmentPath string
 
 	// (v1) disable `merge` op for `moby` builder
 	// check https://github.com/tensorchord/envd/issues/1693

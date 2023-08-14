@@ -18,7 +18,6 @@ import (
 	"context"
 	"io"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/cockroachdb/errors"
@@ -160,12 +159,11 @@ func (b generalBuilder) Interpret() error {
 }
 
 func (b generalBuilder) Compile(ctx context.Context) (*llb.Definition, error) {
-	envName := filepath.Base(b.BuildContextDir)
 	platform, err := parsePlatform(b.Platform)
 	if err != nil {
 		return nil, err
 	}
-	def, err := b.graph.Compile(ctx, envName, b.PubKeyPath, platform, b.Options.ProgressMode)
+	def, err := b.graph.Compile(ctx, b.BuildContextDir, b.PubKeyPath, platform, b.Options.ProgressMode)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to compile build.envd")
 	}
