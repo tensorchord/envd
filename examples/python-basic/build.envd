@@ -6,7 +6,7 @@ def build():
             "via",
         ]
     )
-    io.copy(host_path="./build.envd", envd_path="/")
+    io.copy("./build.envd", "/")
     runtime.command(
         commands={
             "test": "ls /",

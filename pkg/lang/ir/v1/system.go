@@ -172,8 +172,14 @@ func (g generalGraph) compileCopy(root llb.State) llb.State {
 	result := root
 	// Compose the copy command.
 	for _, c := range g.Copy {
+		var from llb.State
+		if c.Image == "" {
+			from = llb.Local(flag.FlagBuildContext)
+		} else {
+			from = llb.Image(c.Image)
+		}
 		result = result.File(llb.Copy(
-			llb.Local(flag.FlagBuildContext), c.Source, c.Destination,
+			from, c.Source, c.Destination,
 			&llb.CopyInfo{CreateDestPath: true},
 			llb.WithUIDGID(g.uid, g.gid)))
 	}

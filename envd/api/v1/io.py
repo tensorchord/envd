@@ -30,12 +30,21 @@ v1 is experimental and may change in the future. Make sure to freeze the envd ve
 from typing import Optional
 
 
-def copy(host_path: str, envd_path: str):
+def copy(source: str, target: str, image: Optional[str]):
     """Copy from host path to container path (build time)
 
     Args:
-        host_path (str): source path in the host machine
-        envd_path (str): destination path in the envd container
+        source (str): source path in the host machine or in the ``image``
+        target (str): destination path in the envd container
+        image(Optional[str]): image name, if not specified, will use the host
+
+    Examples:
+    ```
+    # copy from host to container
+    io.copy(source='main.py', target='/home/envd/')
+    # copy from image to container
+    io.copy(source='/bin/micromamba', target='/usr/local/bin/micromamba', image='mambaorg/micromamba:1.0.0')
+    ```
     """
 
 

@@ -36,19 +36,16 @@ var Module = &starlarkstruct.Module{
 
 func ruleFuncCopy(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	var source, destination starlark.String
+	var source, destination, image string
 
 	if err := starlark.UnpackArgs(ruleCopy, args, kwargs,
-		"host_path?", &source, "envd_path?", &destination); err != nil {
+		"source", &source, "target", &destination, "image?", &image); err != nil {
 		return nil, err
 	}
 
-	sourceStr := source.GoString()
-	destinationStr := destination.GoString()
-
-	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s\n",
-		ruleCopy, sourceStr, destinationStr)
-	ir.Copy(sourceStr, destinationStr)
+	logger.Debugf("rule `%s` is invoked, src=%s, dest=%s, image=%s\n",
+		ruleCopy, source, destination, image)
+	ir.Copy(source, destination, image)
 
 	return starlark.None, nil
 }
