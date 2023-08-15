@@ -198,8 +198,9 @@ func (b generalBuilder) imageConfig(ctx context.Context) (string, error) {
 	env := b.graph.GetEnviron()
 	user := b.graph.GetUser()
 	platform := b.graph.GetPlatform()
+	workingDir := b.graph.GetWorkingDir()
 
-	data, err := ImageConfigStr(labels, ports, ep, env, user, platform)
+	data, err := ImageConfigStr(labels, ports, ep, env, user, workingDir, platform)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get image config")
 	}

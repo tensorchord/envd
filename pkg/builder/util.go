@@ -35,12 +35,12 @@ const (
 )
 
 func ImageConfigStr(labels map[string]string, ports map[string]struct{},
-	entrypoint []string, env []string, user string, platform *ocispecs.Platform) (string, error) {
+	entrypoint []string, env []string, user, workingDir string, platform *ocispecs.Platform) (string, error) {
 	img := ocispecs.Image{
 		Config: ocispecs.ImageConfig{
 			Labels:       labels,
 			User:         user,
-			WorkingDir:   "/",
+			WorkingDir:   workingDir,
 			Env:          env,
 			ExposedPorts: ports,
 			Entrypoint:   entrypoint,

@@ -224,6 +224,8 @@ func (g *generalGraph) compileBase() (llb.State, error) {
 		base = g.compileCUDAPackages("nvidia/cuda")
 	}
 
+	g.WorkingDir = g.getWorkingDir()
+
 	// Install conda first.
 	condaStage := g.installConda(base)
 	supervisor := g.installHorust(condaStage)

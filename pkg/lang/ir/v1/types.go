@@ -80,6 +80,9 @@ type generalGraph struct {
 	EnvironmentName string
 	// EnvironmentPath is the full path of this environment.
 	EnvironmentPath string
+	// WorkingDir is the working directory of this environment.
+	// This only affect the `WorkingDir` in the image config.
+	WorkingDir string
 
 	// (v1) disable `merge` op for `moby` builder
 	// check https://github.com/tensorchord/envd/issues/1693

@@ -252,6 +252,22 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 	langs := []llb.State{}
 	lang := root
 	var err error
+
+	if g.DisableMergeOp {
+		for _, language := range g.Languages {
+			switch language.Name {
+			case "python":
+				root, err = g.installPython(root)
+			case "r":
+				rSrc := g.compileRLang(root)
+				root = g.installRLang(rSrc)
+			case "julia":
+				root = g.installJulia(root)
+			}
+		}
+		return root, err
+	}
+
 	for _, language := range g.Languages {
 		switch language.Name {
 		case "python":
@@ -396,9 +412,11 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 			g.Entrypoint = config.Entrypoint
 		}
 		g.User = config.User
+		g.WorkingDir = config.WorkingDir
 	} else {
 		// for dev mode, we will create an `envd` user
 		g.User = ""
+		g.WorkingDir = g.getWorkingDir()
 	}
 	return base, nil
 }

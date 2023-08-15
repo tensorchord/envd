@@ -60,6 +60,7 @@ func NewGraph() ir.Graph {
 		Shell:           shellBASH,
 		RuntimeGraph:    runtimeGraph,
 		Platform:        &ocispecs.Platform{},
+		WorkingDir:      "/",
 	}
 }
 
@@ -107,6 +108,10 @@ func (g generalGraph) GetRuntimeCommands() map[string]string {
 
 func (g generalGraph) GetPlatform() *ocispecs.Platform {
 	return g.Platform
+}
+
+func (g generalGraph) GetWorkingDir() string {
+	return g.WorkingDir
 }
 
 func (g *generalGraph) Compile(ctx context.Context, envPath string, pub string, platform *ocispecs.Platform, progressMode string) (*llb.Definition, error) {
