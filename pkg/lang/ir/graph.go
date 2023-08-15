@@ -58,4 +58,5 @@ type graphVisitor interface {
 	GetRuntimeCommands() map[string]string
 	GetUser() string
 	GetPlatform() *ocispecs.Platform
+	GetWorkingDir() string
 }

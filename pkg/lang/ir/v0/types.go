@@ -79,6 +79,9 @@ type generalGraph struct {
 	EnvironmentName string
 	// EnvironmentPath is the full path of this environment.
 	EnvironmentPath string
+	// WorkingDir is the working directory of this environment.
+	// This only affect the `WorkingDir` in the image config.
+	WorkingDir string
 
 	ir.RuntimeGraph
 

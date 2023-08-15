@@ -131,7 +131,6 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 	if g.RequirementsFile != nil {
 		logrus.WithField("file", *g.RequirementsFile).
 			Debug("Configure pip install requirements statements")
-		root = root.Dir(g.getWorkingDir())
 		dependencies, safeToCopy := g.IsRequirementsFileSafeToCopyContent()
 		logrus.WithField("safeToCopy", safeToCopy).WithField("dependencies", dependencies).
 			Debug("Is requirements file safe to copy")
@@ -143,7 +142,7 @@ func (g generalGraph) compilePyPIPackages(root llb.State) llb.State {
 				llb.WithCustomNamef("[internal] pip install from %s with %s", *g.RequirementsFile, strings.Join(dependencies, " ")),
 			).Root()
 		} else {
-			run := root.
+			run := root.Dir(g.getWorkingDir()).
 				Run(llb.Shlexf("python -m pip install -r %s", *g.RequirementsFile),
 					llb.WithCustomNamef("[internal] pip install -r %s", *g.RequirementsFile))
 			run.AddMount(cacheDir, cache,
