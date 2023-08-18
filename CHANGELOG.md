@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.39 (2023-08-15)
+
+ * [3bcce05](https://github.com/tensorchord/envd/commit/3bcce055b0fd07b442b2d39f4fa9c0e4d2300e2e) feat: inherit the workdir from base image for non-dev env (#1743)
+ * [0c63598](https://github.com/tensorchord/envd/commit/0c63598f0d932e21df8d236c93d3b4f51d65817a) fix: add ldflags for debug-local (#1741)
+
+### Contributors
+
+ * Keming
+ * heyjude
+
 ## v0.3.38 (2023-08-14)
 
  * [be78326](https://github.com/tensorchord/envd/commit/be783264fdd79ad7262cea0485b7d449ca514f80) feat(v1): copy the requirements content if possible (#1738)
