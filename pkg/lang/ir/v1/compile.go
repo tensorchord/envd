@@ -49,6 +49,7 @@ func NewGraph() ir.Graph {
 		CUDA:              nil,
 		CUDNN:             CUDNNVersionDefault,
 		NumGPUs:           0,
+		ShmSize:           0,
 		EnvdSyntaxVersion: "v1",
 
 		PyPIPackages:    [][]string{},
@@ -72,6 +73,10 @@ func (g *generalGraph) SetWriter(w compileui.Writer) {
 
 func (g generalGraph) GetHTTP() []ir.HTTPInfo {
 	return g.HTTP
+}
+
+func (g generalGraph) GetShmSize() int {
+	return g.ShmSize
 }
 
 func (g generalGraph) GetNumGPUs() int {

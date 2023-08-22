@@ -56,6 +56,7 @@ func NewGraph() ir.Graph {
 		CUDA:    nil,
 		CUDNN:   CUDNNVersionDefault,
 		NumGPUs: 0,
+		ShmSize: 0,
 
 		PyPIPackages:    [][]string{},
 		RPackages:       []string{},
@@ -72,6 +73,10 @@ func NewGraph() ir.Graph {
 }
 
 var DefaultGraph = NewGraph()
+
+func (g generalGraph) GetShmSize() int {
+	return g.ShmSize
+}
 
 func (g generalGraph) GetNumGPUs() int {
 	return g.NumGPUs

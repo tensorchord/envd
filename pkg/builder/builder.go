@@ -29,5 +29,6 @@ type Builder interface {
 	Compile(ctx context.Context) (*llb.Definition, error)
 	GPUEnabled() bool
 	NumGPUs() int
+	ShmSize() int
 	GetGraph() ir.Graph
 }

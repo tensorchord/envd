@@ -75,6 +75,12 @@ func SystemPackage(deps []string) {
 	g.SystemPackages = append(g.SystemPackages, deps...)
 }
 
+func ShmSize(shmSize int) {
+	g := DefaultGraph.(*generalGraph)
+
+	g.ShmSize = shmSize
+}
+
 func GPU(numGPUs int) {
 	g := DefaultGraph.(*generalGraph)
 

@@ -26,4 +26,5 @@ const (
 	ruleEntrypoint         = "config.entrypoint"
 	ruleRepo               = "config.repo"
 	ruleOwner              = "config.owner"
+	ruleShmSize            = "config.shm_size"
 )
