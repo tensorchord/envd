@@ -116,10 +116,16 @@ def vscode_extensions(name: List[str]):
 def cuda(version: str, cudnn: Optional[str] = "8"):
     """Replace the base image with a `nvidia/cuda` image.
 
-    If you want to install CUDA on your custom base image, you can use
-    `install.apt_packages` or `run` to install the CUDA toolkit.
+    This will replace the default base image to an `nvidia/cuda` image. You can
+    also use a CUDA base image directly like
+    `base(image="nvidia/cuda:12.2.0-devel-ubuntu20.04", dev=True)`.
 
     Args:
         version (str): CUDA version, such as '11.6.2'
         cudnn (optional, str): CUDNN version, such as '8'
+
+    Example usage:
+    ```python
+    install.cuda(version="11.6.2", cudnn="8")
+    ```
     """
