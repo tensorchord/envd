@@ -60,7 +60,7 @@ def run(commands: List[str], mount_host: bool = False):
             Enabling this will disable the build cache for this operation.
 
     Example:
-    ```
+    ```python
     run(commands=["conda install -y -c conda-forge exa"])
     ```
     """
@@ -71,7 +71,7 @@ def git_config(
     email: Optional[str] = None,
     editor: Optional[str] = None,
 ):
-    """Setup git config
+    """Setup git config.
 
     Args:
         name (str): User name
@@ -79,7 +79,7 @@ def git_config(
         editor (str): Editor for git operations
 
     Example usage:
-    ```
+    ```python
     git_config(name="My Name", email="my@email.com", editor="vim")
     ```
     """
@@ -95,7 +95,7 @@ def include(git: str):
         git (str): git URL
 
     Example usage:
-    ```
+    ```python
     envd = include("https://github.com/tensorchord/envdlib")
 
     def build():

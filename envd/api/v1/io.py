@@ -39,7 +39,7 @@ def copy(source: str, target: str, image: Optional[str]):
         image(Optional[str]): image name, if not specified, will use the host
 
     Examples:
-    ```
+    ```python
     # copy from host to container
     io.copy(source='main.py', target='/home/envd/')
     # copy from image to container

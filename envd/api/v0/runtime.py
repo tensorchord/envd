@@ -31,7 +31,7 @@ def command(commands: Dict[str, str]):
         commands (Dict[str, str]): map name to command, similar to Makefile
 
     Example usage:
-    ```
+    ```python
     runtime.command(commands={
         "train": "python train.py --epoch 20 --notify me@tensorchord.ai",
         "run": "python server.py --batch 1 --host 0.0.0.0 --port 8000",
@@ -73,7 +73,7 @@ def daemon(commands: List[List[str]]):
         commands (List[List[str]]): run multiple commands in the background
 
     Example usage:
-    ```
+    ```python
     runtime.daemon(commands=[
         ["jupyter-lab", "--port", "8080"],
         ["python3", "serving.py", ">>serving.log", "2>&1"],
@@ -90,7 +90,7 @@ def environ(env: Dict[str, str], extra_path: List[str]):
         extra_path (List[str]): additional PATH
 
     Example usage:
-    ```
+    ```python
     runtime.environ(env={"ENVD_MODE": "DEV"}, extra_path=["/usr/bin/go/bin"])
     ```
     """
