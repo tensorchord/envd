@@ -116,6 +116,19 @@ def gpu(count: int):
     """
 
 
+def shm_size(size: int):
+    """Configure the shared memory size (megabyte) of docker containers
+
+    Example usage:
+    ```python
+    config.shm_size(size=1024)
+    ```
+
+    Args:
+        size (int): the shared memory size (megabyte) of docker containers
+    """
+
+
 def cran_mirror(url: str):
     """Configure the mirror URL, default is https://cran.rstudio.com
 

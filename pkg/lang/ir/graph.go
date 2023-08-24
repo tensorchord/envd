@@ -43,6 +43,7 @@ type graphVisitor interface {
 	GetDepsFiles(deps []string) []string
 	GPUEnabled() bool
 	GetNumGPUs() int
+	GetShmSize() int
 	Labels() (map[string]string, error)
 	ExposedPorts() (map[string]struct{}, error)
 	GetEntrypoint(buildContextDir string) ([]string, error)

@@ -46,7 +46,27 @@ var Module = &starlarkstruct.Module{
 		"entrypoint":     starlark.NewBuiltin(ruleEntrypoint, ruleFuncEntrypoint),
 		"repo":           starlark.NewBuiltin(ruleRepo, ruleFuncRepo),
 		"owner":          starlark.NewBuiltin(ruleOwner, ruleFuncOwner),
+		"shm_size":       starlark.NewBuiltin(ruleShmSize, ruleFuncShmSize),
 	},
+}
+
+func ruleFuncShmSize(thread *starlark.Thread, _ *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var shmSize starlark.Int
+
+	if err := starlark.UnpackArgs(ruleShmSize, args, kwargs, "size", &shmSize); err != nil {
+		return nil, err
+	}
+
+	shmSizeInt, ok := shmSize.Int64()
+
+	if ok {
+		ir.ShmSize(int(shmSizeInt))
+		logger.Debugf("Using %d shm size", int(shmSizeInt))
+	} else {
+		logger.Debugf("Failed to convert shm size to int64")
+	}
+
+	return starlark.None, nil
 }
 
 func ruleFuncGPU(thread *starlark.Thread, _ *starlark.Builtin,

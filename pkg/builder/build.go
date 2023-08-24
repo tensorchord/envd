@@ -121,6 +121,10 @@ func (b generalBuilder) NumGPUs() int {
 	return b.graph.GetNumGPUs()
 }
 
+func (b generalBuilder) ShmSize() int {
+	return b.graph.GetShmSize()
+}
+
 func (b generalBuilder) Build(ctx context.Context, force bool) error {
 	if !force && !b.checkIfNeedBuild(ctx) {
 		return nil

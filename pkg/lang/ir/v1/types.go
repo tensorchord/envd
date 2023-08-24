@@ -40,6 +40,7 @@ type generalGraph struct {
 	CUDA    *string
 	CUDNN   string
 	NumGPUs int
+	ShmSize int
 
 	UbuntuAPTSource    *string
 	CRANMirrorURL      *string

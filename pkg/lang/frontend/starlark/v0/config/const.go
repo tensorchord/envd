@@ -25,4 +25,5 @@ const (
 	ruleRStudioServer      = "config.rstudio_server"
 	ruleEntrypoint         = "config.entrypoint"
 	ruleRepo               = "config.repo"
+	ruleShmSize            = "config.shm_size"
 )

@@ -216,6 +216,12 @@ func up(clicontext *cli.Context) error {
 		numGPU = 1
 	}
 
+	shmSize := builder.ShmSize()
+	isSetShmSize := clicontext.IsSet("shm-size")
+	if shmSize == 0 || isSetShmSize {
+		shmSize = clicontext.Int("shm-size")
+	}
+
 	opt := envd.Options{
 		Context: c,
 	}
@@ -238,7 +244,7 @@ func up(clicontext *cli.Context) error {
 		Forced:          clicontext.Bool("force"),
 		Timeout:         clicontext.Duration("timeout"),
 		SshdHost:        clicontext.String("host"),
-		ShmSize:         clicontext.Int("shm-size"),
+		ShmSize:         shmSize,
 		NumCPU:          clicontext.String("cpus"),
 		NumMem:          clicontext.String("memory"),
 		CPUSet:          clicontext.String("cpu-set"),
