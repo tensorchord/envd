@@ -71,6 +71,10 @@ func (g *generalGraph) SetWriter(w compileui.Writer) {
 	g.Writer = w
 }
 
+func (g generalGraph) IsDev() bool {
+	return g.Dev
+}
+
 func (g generalGraph) GetHTTP() []ir.HTTPInfo {
 	return g.HTTP
 }
