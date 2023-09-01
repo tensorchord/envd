@@ -75,7 +75,7 @@ func NewGraph() ir.Graph {
 var DefaultGraph = NewGraph()
 
 func (g generalGraph) IsDev() bool {
-	return g.Image != nil
+	return g.Image == nil
 }
 
 func (g generalGraph) GetShmSize() int {
