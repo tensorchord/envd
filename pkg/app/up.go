@@ -195,6 +195,9 @@ func up(clicontext *cli.Context) error {
 	if err = buildutil.InterpretEnvdDef(builder); err != nil {
 		return err
 	}
+	if !builder.GetGraph().IsDev() {
+		return errors.New("`envd up` only works for dev images. If you're using v1, please enable dev with `base(dev=True)`.")
+	}
 	if err = buildutil.DetectEnvironment(clicontext, buildOpt); err != nil {
 		return err
 	}

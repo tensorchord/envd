@@ -125,6 +125,10 @@ func (b generalBuilder) ShmSize() int {
 	return b.graph.GetShmSize()
 }
 
+func (b generalBuilder) IsDev() bool {
+	return b.graph.IsDev()
+}
+
 func (b generalBuilder) Build(ctx context.Context, force bool) error {
 	if !force && !b.checkIfNeedBuild(ctx) {
 		return nil

@@ -44,6 +44,7 @@ type graphVisitor interface {
 	GPUEnabled() bool
 	GetNumGPUs() int
 	GetShmSize() int
+	IsDev() bool
 	Labels() (map[string]string, error)
 	ExposedPorts() (map[string]struct{}, error)
 	GetEntrypoint(buildContextDir string) ([]string, error)
