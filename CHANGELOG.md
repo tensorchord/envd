@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.40 (2023-09-01)
+
+ * [d99cfa4](https://github.com/tensorchord/envd/commit/d99cfa423c035cf1361bd22882ccc1a0b2436d64) feat: abort when trying to run `envd up` on non-dev images (#1751)
+ * [a6613c7](https://github.com/tensorchord/envd/commit/a6613c7c340ee03839a97ba006afaf6653907013) feat: add shm size support (#1746)
+
+### Contributors
+
+ * Keming
+ * heyjude
+
 ## v0.3.39 (2023-08-15)
 
  * [3bcce05](https://github.com/tensorchord/envd/commit/3bcce055b0fd07b442b2d39f4fa9c0e4d2300e2e) feat: inherit the workdir from base image for non-dev env (#1743)
