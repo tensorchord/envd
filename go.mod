@@ -12,8 +12,8 @@ require (
 	github.com/containerd/containerd v1.7.3
 	github.com/containers/image/v5 v5.25.0
 	github.com/creack/pty v1.1.18
-	github.com/docker/cli v24.0.1+incompatible
-	github.com/docker/docker v23.0.3+incompatible
+	github.com/docker/cli v24.0.4+incompatible
+	github.com/docker/docker v24.0.0-rc.2.0.20230718135204-8e51b8b59cb8+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.5.0
 	github.com/gizak/termui/v3 v3.1.0
@@ -23,14 +23,14 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/hashicorp/go-getter v1.7.2
 	github.com/mattn/go-isatty v0.0.19
-	github.com/moby/buildkit v0.11.6
+	github.com/moby/buildkit v0.12.2
 	github.com/moby/term v0.5.0
 	github.com/morikuni/aec v1.0.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo/v2 v2.12.0
 	github.com/onsi/gomega v1.27.10
 	github.com/opencontainers/go-digest v1.0.0
-	github.com/opencontainers/image-spec v1.1.0-rc2.0.20221005185240-3a7f492d3f1b
+	github.com/opencontainers/image-spec v1.1.0-rc3
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.6
 	github.com/schollz/progressbar/v3 v3.13.1
@@ -41,7 +41,7 @@ require (
 	github.com/syncthing/syncthing v1.23.7
 	github.com/tensorchord/envd-server v0.0.27
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea
-	github.com/tonistiigi/vt100 v0.0.0-20210615222946-8066bb97264f
+	github.com/tonistiigi/vt100 v0.0.0-20230623042737-f9a4f7ef6531
 	github.com/urfave/cli/v2 v2.25.7
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.12.0
@@ -71,7 +71,6 @@ require (
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/containerd/continuity v0.4.1 // indirect
 	github.com/containerd/ttrpc v1.2.2 // indirect
-	github.com/containerd/typeurl v1.0.2 // indirect
 	github.com/containerd/typeurl/v2 v2.1.1 // indirect
 	github.com/containers/libtrust v0.0.0-20230121012942-c1716e8a8d01 // indirect
 	github.com/containers/ocicrypt v1.1.7 // indirect
@@ -105,7 +104,7 @@ require (
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/greatroar/blobloom v0.7.2 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.0 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -114,6 +113,7 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.15 // indirect
+	github.com/in-toto/in-toto-golang v0.5.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -147,8 +147,8 @@ require (
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/nsf/termbox-go v0.0.0-20190121233118-02980233997d // indirect
 	github.com/op/go-logging v0.0.0-20160211212156-b2cb9fa56473 // indirect
-	github.com/opencontainers/runc v1.1.5 // indirect
-	github.com/opencontainers/runtime-spec v1.1.0-rc.1 // indirect
+	github.com/opencontainers/runc v1.1.7 // indirect
+	github.com/opencontainers/runtime-spec v1.1.0-rc.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/petermattis/goid v0.0.0-20230518223814-80aa455d8761 // indirect
 	github.com/pierrec/lz4/v4 v4.1.18 // indirect
@@ -158,8 +158,10 @@ require (
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
+	github.com/secure-systems-lab/go-securesystemslib v0.4.0 // indirect
 	github.com/segmentio/backo-go v1.0.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
+	github.com/shibumi/go-pathspec v1.3.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.23.6 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
@@ -170,7 +172,7 @@ require (
 	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/thejerf/suture/v4 v4.0.2 // indirect
-	github.com/tonistiigi/fsutil v0.0.0-20230105215944-fb433841cbfa // indirect
+	github.com/tonistiigi/fsutil v0.0.0-20230629203738-36ef4d8c0dbb // indirect
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/vbatts/tar-split v0.11.3 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
