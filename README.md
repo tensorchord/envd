@@ -265,6 +265,9 @@ envd-quick-start        http://localhost:42779   envd-quick-start.envd   /home/g
 > <a name="v1-moby">(a)</a> To use the `moby` builder, you will need to create a new context with `envd context create --name moby-test --builder moby-worker --use`.
 > For more information about the `moby` builder, check the [issue-1693](https://github.com/tensorchord/envd/issues/1693).
 
+> **Important**
+> For more details, check the [upgrade to v1](https://envd.tensorchord.ai/guide/v1.html) doc.
+
 ## More on documentation 📝
 
 See [envd documentation](https://envd.tensorchord.ai/guide/getting-started.html).
