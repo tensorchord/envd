@@ -17,6 +17,7 @@ package v0
 import (
 	"github.com/cockroachdb/errors"
 	"github.com/opencontainers/go-digest"
+	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/editor/vscode"
 	"github.com/tensorchord/envd/pkg/lang/ir"
@@ -35,9 +36,13 @@ func Base(os, language, image string) error {
 	}
 	if len(os) > 0 {
 		g.OS = os
+		logrus.Warn("`os` only affects the GPU base image. If you want to use a different base image, " +
+			"envd v1 has better support. Check the doc https://envd.tensorchord.ai/guide/v1.html")
 	}
 	if image != "" {
 		g.Image = &image
+		logrus.Warn("Custom base image can only be used in non-dev env for envd v0. " +
+			"For better custom image support, check the envd v1 doc https://envd.tensorchord.ai/guide/v1.html")
 	}
 	return nil
 }
