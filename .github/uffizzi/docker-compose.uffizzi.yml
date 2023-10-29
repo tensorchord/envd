@@ -1,0 +1,17 @@
+version: "3"
+
+x-uffizzi:
+  ingress:
+    service: envd
+    port: 7681
+
+services:
+  envd:
+    image: "${APP_IMAGE}"
+    restart: unless-stopped
+    ports:
+    - "7681:7681"
+    deploy:
+      resources:
+        limits:
+          memory: 500M
