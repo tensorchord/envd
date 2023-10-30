@@ -127,7 +127,6 @@ func colorScale(n int) ui.Color {
 		return ui.ColorGreen
 	} else if n < 80 {
 		return ui.ColorYellow
-	} else {
-		return ui.ColorRed
 	}
+	return ui.ColorRed
 }
