@@ -41,7 +41,7 @@ func Write(w Writer, name string, f func() error) {
 	}
 
 	status <- &client.SolveStatus{
-		Vertexes: []*client.Vertex{&vtx},
+		Vertices: []*client.Vertex{&vtx},
 	}
 
 	var err error
@@ -56,6 +56,6 @@ func Write(w Writer, name string, f func() error) {
 		vtx2.Error = err.Error()
 	}
 	status <- &client.SolveStatus{
-		Vertexes: []*client.Vertex{&vtx2},
+		Vertices: []*client.Vertex{&vtx2},
 	}
 }
