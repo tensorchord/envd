@@ -428,7 +428,7 @@ func (t *trace) triggerVertexEvent(v *client.Vertex) {
 func (t *trace) update(s *client.SolveStatus, termWidth int) {
 	seenGroups := make(map[string]struct{})
 	var groups []string
-	for _, v := range s.Vertices {
+	for _, v := range s.Vertexes {
 		if t.startTime == nil {
 			t.startTime = v.Started
 		}

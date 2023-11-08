@@ -4,3 +4,5 @@ extend-exclude = ["CHANGELOG.md", "go.mod", "go.sum"]
 [default.extend-words]
 iterm = "iterm"
 WRONLY = "WRONLY"
+# this typo is introduced in the upstream library
+vertexes = "vertexes"
