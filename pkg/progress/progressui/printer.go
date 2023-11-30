@@ -326,7 +326,7 @@ func (p *textMux) print(t *trace) {
 		}
 	}
 
-	// fair split between vertexes
+	// fair split between vertices
 	if 1.0/(1.0-stats[current].share)*antiFlicker.Seconds() < stats[current].blockTime.Seconds() {
 		p.printVtx(t, max)
 		return

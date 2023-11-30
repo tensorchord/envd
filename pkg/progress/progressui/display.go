@@ -133,7 +133,7 @@ type trace struct {
 	w             io.Writer
 	startTime     *time.Time
 	localTimeDiff time.Duration
-	vertexes      []*vertex
+	vertices      []*vertex
 	byDigest      map[digest.Digest]*vertex
 	updates       map[digest.Digest]struct{}
 	modeConsole   bool
@@ -378,7 +378,7 @@ func newTrace(w io.Writer, modeConsole bool) *trace {
 
 func (t *trace) warnings() []client.VertexWarning {
 	var out []client.VertexWarning
-	for _, v := range t.vertexes {
+	for _, v := range t.vertices {
 		out = append(out, v.warnings...)
 	}
 	return out
@@ -478,7 +478,7 @@ func (t *trace) update(s *client.SolveStatus, termWidth int) {
 			if t.localTimeDiff == 0 {
 				t.localTimeDiff = time.Since(*v.Started)
 			}
-			t.vertexes = append(t.vertexes, t.byDigest[v.Digest])
+			t.vertices = append(t.vertices, t.byDigest[v.Digest])
 		}
 		// allow a duplicate initial vertex that shouldn't reset state
 		if !(prev != nil && prev.isStarted() && v.Started == nil) {
@@ -509,7 +509,7 @@ func (t *trace) update(s *client.SolveStatus, termWidth int) {
 			continue
 		}
 		if newlyRevealed {
-			t.vertexes = append(t.vertexes, group.vertex)
+			t.vertices = append(t.vertices, group.vertex)
 		}
 		if changed {
 			group.update(1)
@@ -584,7 +584,7 @@ func (t *trace) update(s *client.SolveStatus, termWidth int) {
 }
 
 func (t *trace) printErrorLogs(f io.Writer) {
-	for _, v := range t.vertexes {
+	for _, v := range t.vertices {
 		if v.Error != "" && !strings.HasSuffix(v.Error, context.Canceled.Error()) {
 			fmt.Fprintln(f, "------")
 			fmt.Fprintf(f, " > %s:\n", v.Name)
@@ -625,7 +625,7 @@ func (t *trace) displayInfo() (d displayInfo) {
 		}
 	}
 
-	for _, v := range t.vertexes {
+	for _, v := range t.vertices {
 		if v.jobCached {
 			d.jobs = append(d.jobs, v.jobs...)
 			continue
