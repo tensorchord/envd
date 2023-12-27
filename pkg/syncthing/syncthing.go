@@ -50,6 +50,14 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 		ApiKey:        DefaultApiKey,
 	}
 
+	logger := logrus.WithFields(logrus.Fields{
+		"name": 	s.Name,
+		"port": 	s.Port,
+		"homedir": 	s.HomeDirectory,
+		"apikey": 	s.ApiKey,
+		"config":	s.Config,
+	})
+
 	s.Client = s.NewClient()
 
 	err := s.WaitForStartup(15 * time.Second)
@@ -62,7 +70,7 @@ func InitializeRemoteSyncthing() (*Syncthing, error) {
 		return nil, fmt.Errorf("failed to pull latest config: %w", err)
 	}
 
-	logrus.Debug("Remote syncthing connected")
+	logger.Debug("Remote syncthing connected")
 
 	err = s.SetDeviceAddress(DefaultRemoteDeviceAddress)
 	if err != nil {
@@ -96,9 +104,17 @@ func InitializeLocalSyncthing(name string) (*Syncthing, error) {
 		Port:          ParsePortFromAddress(initConfig.GUI.Address()),
 	}
 
+	logger := logrus.WithFields(logrus.Fields{
+		"name": 	s.Name,
+		"port": 	s.Port,
+		"homedir": 	s.HomeDirectory,
+		"apikey": 	s.ApiKey,
+		"config":	s.Config,
+	})
+
 	s.Client = s.NewClient()
 
-	logrus.Debug("Port for local syncthing is: ", initConfig.GUI.Address())
+	logger.Debug("Port for local syncthing is: ", initConfig.GUI.Address())
 
 	if err != nil {
 		return nil, err
@@ -142,7 +158,15 @@ func (s *Syncthing) StartLocalSyncthing() error {
 		}
 	}
 
-	logrus.Debug("Starting local syncthing...")
+	logger := logrus.WithFields(logrus.Fields{
+		"name": 	s.Name,
+		"port": 	s.Port,
+		"homedir": 	s.HomeDirectory,
+		"apikey": 	s.ApiKey,
+		"config":	s.Config,
+	})
+
+	logger.Debug("Starting local syncthing...")
 	cmd := exec.Command(GetSyncthingBinPath(), "-no-restart", "-no-browser", "-home", s.HomeDirectory)
 
 	err := cmd.Start()
@@ -150,7 +174,7 @@ func (s *Syncthing) StartLocalSyncthing() error {
 		return fmt.Errorf("failed to run syncthing executable: %w", err)
 	}
 	s.Cmd = cmd
-	logrus.Debug("Local syncthing started!")
+	logger.Debug("Local syncthing started!")
 
 	err = s.WaitForStartup(10 * time.Second)
 	if err != nil {
@@ -166,12 +190,12 @@ func (s *Syncthing) StartLocalSyncthing() error {
 
 		err := cmd.Process.Signal(os.Interrupt)
 		if err != nil {
-			logrus.Errorf("Failed to send SIGINT to syncthing: %s", err)
+			logger.WithError(err).Error("Failed to send SIGINT to syncthing")
 		}
 
 		err = cmd.Wait()
 		if err != nil {
-			logrus.Errorf("Failed to wait for syncthing to exit: %s", err)
+			logger.WithError(err).Error("Failed to wait for syncthing to exit")
 		}
 
 		os.Exit(0)
@@ -183,7 +207,13 @@ func (s *Syncthing) StartLocalSyncthing() error {
 func (s *Syncthing) Ping() (bool, error) {
 	_, err := s.Client.SendRequest(GET, "/rest/system/ping", nil, nil)
 	if err != nil {
-		logrus.Debug("Failed to ping syncthing: ", err)
+		logrus.WithFields(logrus.Fields{
+			"name": 	s.Name,
+			"port": 	s.Port,
+			"homedir": 	s.HomeDirectory,
+			"apikey": 	s.ApiKey,
+			"config":	s.Config,
+		}).Debug("Failed to ping syncthing: ", err)
 		return false, fmt.Errorf("failed to ping syncthing: %w", err)
 	}
 
@@ -194,7 +224,13 @@ func (s *Syncthing) WaitForStartup(timeout time.Duration) error {
 	start := time.Now()
 	for {
 		if time.Since(start) > timeout {
-			logrus.Debugf("Timeout reached for syncthing: %s", s.Name)
+			logrus.WithFields(logrus.Fields{
+				"name": 	s.Name,
+				"port": 	s.Port,
+				"homedir": 	s.HomeDirectory,
+				"apikey": 	s.ApiKey,
+				"config":	s.Config,
+			}).Debugf("Timeout reached for syncthing: %s", s.Name)
 			return fmt.Errorf("timed out waiting for syncthing to start")
 		}
 		if ok, _ := s.Ping(); ok {
@@ -205,22 +241,29 @@ func (s *Syncthing) WaitForStartup(timeout time.Duration) error {
 }
 
 func (s *Syncthing) StopLocalSyncthing() {
+	logger := logrus.WithFields(logrus.Fields{
+		"name": 	s.Name,
+		"port": 	s.Port,
+		"homedir": 	s.HomeDirectory,
+		"apikey": 	s.ApiKey,
+		"config":	s.Config,
+	})
 	if s.Cmd == nil {
-		logrus.Error("syncthing is not running")
+		logger.Error("syncthing is not running")
 	}
 
 	err := s.Cmd.Process.Signal(syscall.SIGINT)
 	if err != nil {
-		logrus.Errorf("failed to kill syncthing process: %s", err)
+		logger.WithError(err).Error("failed ot kill syncthing process")
 	}
 
 	_, err = s.Cmd.Process.Wait()
 	if err != nil {
-		logrus.Errorf("failed to kill syncthing process: %s", err)
+		logger.WithError(err).Error("failed to kill syncthing process")
 	}
 
 	if err = CleanLocalConfig(s.Name); err != nil {
-		logrus.Errorf("failed to clean local syncthing config: %s", err)
+		logger.WithError(err).Error("failed to clean local syncthing config")
 	}
 
 }
