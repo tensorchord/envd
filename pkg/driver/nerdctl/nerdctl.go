@@ -98,7 +98,7 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 			"--entrypoint", "sh",
 			tag, "-c", buildkitdCmd)
 		if err != nil {
-			logrus.Error("can not run buildkitd", out, err)
+			logger.WithError(err).Error("can not run buildkitd", out)
 			return "", errors.Wrap(err, "running buildkitd")
 		}
 	}
@@ -185,7 +185,7 @@ func (nc *nerdctlClient) containerInspect(ctx context.Context, tag string) (*typ
 	cs := []types.ContainerJSON{}
 	err = json.Unmarshal([]byte(out), &cs)
 	if err != nil {
-		logrus.Error(cs, err)
+		logrus.WithError(err).Error(cs)
 		return nil, err
 	}
 
