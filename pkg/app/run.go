@@ -171,9 +171,9 @@ func run(clicontext *cli.Context) error {
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cmd": "run",
+		"cmd": 			"run",
 		"StartOptions": opt,
-		"StartResult": res,
+		"StartResult": 	res,
 	})
 
 	logger.Debugf("container %s is running", res.Name)
@@ -296,8 +296,8 @@ func startSyncthing(name string) (*syncthing.Syncthing, *syncthing.Syncthing, er
 	projectName := filepath.Base(cwd)
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cwd": cwd,
-		"projectName": projectName,
+		"cwd": 			cwd,
+		"projectName": 	projectName,
 	})
 
 	localSyncthing, err := syncthing.InitializeLocalSyncthing(name)

@@ -112,8 +112,8 @@ func build(clicontext *cli.Context) error {
 	}(time.Now())
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cmd": "build",
-		"builder-options": opt,
+		"cmd": 				"build",
+		"builder-options": 	opt,
 	})
 	logger.Debug("starting build command")
 

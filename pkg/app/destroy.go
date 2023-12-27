@@ -83,7 +83,7 @@ func destroy(clicontext *cli.Context) error {
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cmd": "destroy",
+		"cmd": 	"destroy",
 		"path": path,
 		"name": name,
 	})

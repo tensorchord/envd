@@ -69,13 +69,13 @@ func contextCreate(clicontext *cli.Context) error {
 	use := clicontext.Bool("use")
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cmd": "context use",
-		"name": name,
-		"builder": builder,
-		"builderAddress": builderAddress,
-		"runner": runner,
-		"runnerAddress": runnerAddress,
-		"use": use,
+		"cmd": 				"context use",
+		"name": 			name,
+		"builder": 			builder,
+		"builderAddress": 	builderAddress,
+		"runner": 			runner,
+		"runnerAddress": 	runnerAddress,
+		"use": 				use,
 	})
 
 	c := types.Context{

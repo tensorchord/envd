@@ -75,7 +75,8 @@ func completion(clicontext *cli.Context) error {
 	}
 
 	for i := 0; i < n; i++ {
-		logrus.WithField("cmd", "completion").Infof("[%d/%d] Add completion %s", i+1, n, shellList[i])
+		logrus.WithField("cmd", "completion").
+			Infof("[%d/%d] Add completion %s", i+1, n, shellList[i])
 		switch shellList[i] {
 		case "zsh":
 			if err := handleCompletion(clicontext, ac.InsertZSHCompleteEntry, ac.ZshCompleteEntry); err != nil {

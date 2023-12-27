@@ -252,12 +252,6 @@ func registryJSONConfig(clicontext *cli.Context) error {
 func sshKey(clicontext *cli.Context) error {
 	sshKeyPair := clicontext.StringSlice("ssh-keypair")
 
-	logger := logrus.WithFields(logrus.Fields{
-		"cmd": "bootstrap",
-		"stage": "sshKey",
-		"sshKeyPair": sshKeyPair,
-	})
-
 	switch len(sshKeyPair) {
 	case 0:
 		// If not specified, generate only if key doesn't exist
@@ -297,7 +291,13 @@ func sshKey(clicontext *cli.Context) error {
 					return err
 				}
 			}
-			logger.Debugf("New key name: %s", newPrivateKeyName)
+
+			logrus.WithFields(logrus.Fields{
+				"cmd": 			"bootstrap",
+				"stage": 		"sshKey",
+				"sshKeyPair": 	sshKeyPair,
+			}).Debugf("New key name: %s", newPrivateKeyName)
+			
 			if err := sshconfig.ReplaceKeyManagedByEnvd(
 				privatePath, newPrivateKeyName); err != nil {
 				return err
@@ -342,9 +342,9 @@ func autocomplete(clicontext *cli.Context) error {
 	shell := os.Getenv("SHELL")
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cmd": "bootstrap",
-		"stage": "autocomplete",
-		"shell": shell,
+		"cmd": 		"bootstrap",
+		"stage": 	"autocomplete",
+		"shell": 	shell,
 	})
 
 	if strings.Contains(shell, "zsh") {
@@ -385,8 +385,8 @@ func buildkit(clicontext *cli.Context) error {
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cmd": "bootstrap",
-		"stage": "buildkit",
+		"cmd": 		"bootstrap",
+		"stage": 	"buildkit",
 	})
 
 	logger.Debug("bootstrap the buildkitd container")
