@@ -363,13 +363,13 @@ func autocomplete(clicontext *cli.Context) error {
 			logger.WithError(err).Warn()
 		}
 	} else {
-		logger.Infof("Install bash autocompletion (fallback from \"%s\")", shell)
+		logger.Infof(`Install bash autocompletion (fallback from "%s")`, shell)
 		if err := ac.InsertBashCompleteEntry(clicontext); err != nil {
 			logger.WithError(err).Warn()
 		}
 	}
 
-	logger.Info("You may have to restart your shell for autocomplete to get initialized (e.g. run \"exec $SHELL\")\n")
+	logger.Info(`You may have to restart your shell for autocomplete to get initialized (e.g. run "exec $SHELL")\n`)
 	return nil
 }
 

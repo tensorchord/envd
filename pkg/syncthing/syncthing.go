@@ -114,7 +114,7 @@ func InitializeLocalSyncthing(name string) (*Syncthing, error) {
 
 	s.Client = s.NewClient()
 
-	logger.Debug("Port for local syncthing is: ", initConfig.GUI.Address())
+	logger.Debugf("Port for local syncthing is: %s", initConfig.GUI.Address())
 
 	if err != nil {
 		return nil, err
@@ -207,7 +207,7 @@ func (s *Syncthing) StartLocalSyncthing() error {
 func (s *Syncthing) Ping() (bool, error) {
 	_, err := s.Client.SendRequest(GET, "/rest/system/ping", nil, nil)
 	if err != nil {
-		logrus.Debug("Failed to ping syncthing")
+		logrus.WithError(err).Debug("Failed to ping syncthing")
 		return false, fmt.Errorf("failed to ping syncthing: %w", err)
 	}
 
@@ -224,7 +224,7 @@ func (s *Syncthing) WaitForStartup(timeout time.Duration) error {
 				"homedir": s.HomeDirectory,
 				"apikey":  s.ApiKey,
 				"config":  s.Config,
-			}).Debugf("Timeout reached for syncthing: %s", s.Name)
+			}).Debugf("Timeout reached for syncthing")
 			return fmt.Errorf("timed out waiting for syncthing to start")
 		}
 		if ok, _ := s.Ping(); ok {

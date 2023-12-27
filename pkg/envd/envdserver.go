@@ -185,7 +185,7 @@ func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult
 		}
 		localAddress := fmt.Sprintf("%s:%d", "localhost", localPort)
 		remoteAddress := fmt.Sprintf("%s:%d", "localhost", p.Port)
-		logrus.Infof("service \"%s\" is listening at %s\n", p.Name, localAddress)
+		logrus.Infof(`service "%s" is listening at %s\n`, p.Name, localAddress)
 		go func() {
 			if err := sshClient.LocalForward(localAddress, remoteAddress); err != nil {
 				outputChannel <- errors.Wrap(err, "failed to forward to local port")
