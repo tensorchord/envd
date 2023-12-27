@@ -198,7 +198,7 @@ func (c generalClient) waitUntilConnected(
 		case <-time.After(interval):
 			connected, err := c.connected(ctxTimeout)
 			if err != nil {
-				c.logger.Debugf("failed to connect to buildkitd: %s", err.Error())
+				c.logger.WithError(err).Debug("failed to connect to buildkitd")
 				continue
 			}
 			if !connected {

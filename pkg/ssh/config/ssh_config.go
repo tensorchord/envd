@@ -232,7 +232,8 @@ func (config *sshConfig) writeTo(w io.Writer) error {
 func (config *sshConfig) writeToFilepath(p string) error {
 	sshDir := filepath.Dir(p)
 	if err := os.MkdirAll(sshDir, 0700); err != nil {
-		logrus.Infof("failed to create SSH directory %s: %s", sshDir, err)
+		logrus.WithError(err).
+			Infof("failed to create SSH directory %s", sshDir)
 	}
 
 	stat, err := os.Stat(p)
@@ -477,7 +478,7 @@ func save(cfg *sshConfig, path string) error {
 func getSSHConfigPath() string {
 	dirname, err := os.UserHomeDir()
 	if err != nil {
-		logrus.Fatal(err)
+		logrus.WithError(err).Fatal()
 	}
 	return filepath.Join(dirname, ".ssh", "config")
 }

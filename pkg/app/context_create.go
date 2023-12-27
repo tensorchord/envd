@@ -69,7 +69,7 @@ func contextCreate(clicontext *cli.Context) error {
 	use := clicontext.Bool("use")
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cmd":            "context use",
+		"cmd":            "context create",
 		"name":           name,
 		"builder":        builder,
 		"builderAddress": builderAddress,
@@ -94,7 +94,7 @@ func contextCreate(clicontext *cli.Context) error {
 	}
 	logger.Infof("Context %s is created", name)
 	if use {
-		logger.Infof("Current context is now \"%s\"", name)
+		logger.Infof(`Current context is "%s"`, name)
 	}
 	return nil
 }

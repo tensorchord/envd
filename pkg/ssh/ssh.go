@@ -217,13 +217,13 @@ func (c generalClient) Attach() error {
 		width, height, err = term.GetSize(int(os.Stdout.Fd()))
 		logger.Debugf("terminal width %d height %d", width, height)
 		if err != nil {
-			logger.Debugf("request for terminal size failed: %s", err)
+			logger.WithError(err).Debug("request for terminal size failed")
 		}
 	}
 
 	state, err := term.MakeRaw(termFD)
 	if err != nil {
-		logger.Debugf("request for raw terminal failed: %s", err)
+		logger.WithError(err).Debug("request for raw terminal failed")
 	}
 
 	defer func() {
@@ -232,7 +232,7 @@ func (c generalClient) Attach() error {
 		}
 
 		if err := term.Restore(termFD, state); err != nil {
-			logger.Debugf("failed to restore terminal: %s", err)
+			logger.WithError(err).Debugf("failed to restore terminal")
 		}
 
 		logger.Debugf("terminal restored")
@@ -264,7 +264,7 @@ func (c generalClient) Attach() error {
 		}
 		var emr *ssh.ExitMissingError
 		if ok := errors.As(err, &emr); ok {
-			logger.Debugf("exit status missing: %s", emr)
+			logger.WithError(emr).Debug("exit status missing")
 			return nil
 		}
 		return errors.Wrap(err, "waiting for session failed")
@@ -282,7 +282,7 @@ func (c generalClient) LocalForward(localAddress, targetAddress string) error {
 
 	logger := logrus.WithField("type", "local")
 
-	logger.Debug("begin to forward " + localAddress + " to " + targetAddress)
+	logger.Debugf("begin to forward %s to %s", localAddress, targetAddress)
 	for {
 		localCon, err := localListener.Accept()
 		if err != nil {
@@ -298,7 +298,7 @@ func (c generalClient) LocalForward(localAddress, targetAddress string) error {
 		go func() {
 			_, err = io.Copy(sshConn, localCon)
 			if err != nil {
-				logger.Debugf("io.Copy failed: %v", err)
+				logger.WithError(err).Debug("io.Copy failed")
 			}
 		}()
 
@@ -306,7 +306,7 @@ func (c generalClient) LocalForward(localAddress, targetAddress string) error {
 		go func() {
 			_, err = io.Copy(localCon, sshConn)
 			if err != nil {
-				logger.Debugf("io.Copy failed: %v", err)
+				logger.WithError(err).Debug("io.Copy failed")
 			}
 		}()
 	}
@@ -320,7 +320,7 @@ func (c generalClient) RemoteForward(remoteAddress, targetAddress string) error 
 
 	logger := logrus.WithField("type", "remote")
 
-	logger.Debug("begin to remote forward " + remoteAddress + " to " + targetAddress)
+	logger.Debugf("begin to forward %s to %s", remoteAddress, targetAddress)
 	for {
 		sshCon, err := sshListener.Accept()
 		if err != nil {
@@ -336,7 +336,7 @@ func (c generalClient) RemoteForward(remoteAddress, targetAddress string) error 
 		go func() {
 			_, err = io.Copy(targetCon, sshCon)
 			if err != nil {
-				logger.Debugf("io.Copy failed: %v", err)
+				logger.WithError(err).Debug("io.Copy failed")
 			}
 		}()
 
@@ -344,7 +344,7 @@ func (c generalClient) RemoteForward(remoteAddress, targetAddress string) error 
 		go func() {
 			_, err = io.Copy(sshCon, targetCon)
 			if err != nil {
-				logger.Debugf("io.Copy failed: %v", err)
+				logger.WithError(err).Debug("io.Copy failed")
 			}
 		}()
 	}

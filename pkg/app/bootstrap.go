@@ -350,22 +350,22 @@ func autocomplete(clicontext *cli.Context) error {
 	if strings.Contains(shell, "zsh") {
 		logger.Infof("Install zsh autocompletion")
 		if err := ac.InsertZSHCompleteEntry(clicontext); err != nil {
-			logger.Warnf("Warning: %s\n", err.Error())
+			logger.WithError(err).Warn()
 		}
 	} else if strings.Contains(shell, "bash") {
 		logger.Infof("Install bash autocompletion")
 		if err := ac.InsertBashCompleteEntry(clicontext); err != nil {
-			logger.Warnf("Warning: %s\n", err.Error())
+			logger.WithError(err).Warn()
 		}
 	} else if strings.Contains(shell, "fish") {
 		logger.Infof("Install fish autocompletion")
 		if err := ac.InsertFishCompleteEntry(clicontext); err != nil {
-			logger.Warnf("Warning: %s\n", err.Error())
+			logger.WithError(err).Warn()
 		}
 	} else {
 		logger.Infof("Install bash autocompletion (fallback from \"%s\")", shell)
 		if err := ac.InsertBashCompleteEntry(clicontext); err != nil {
-			logger.Warnf("Warning: %s\n", err.Error())
+			logger.WithError(err).Warn()
 		}
 	}
 

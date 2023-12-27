@@ -207,13 +207,7 @@ func (s *Syncthing) StartLocalSyncthing() error {
 func (s *Syncthing) Ping() (bool, error) {
 	_, err := s.Client.SendRequest(GET, "/rest/system/ping", nil, nil)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"name":    s.Name,
-			"port":    s.Port,
-			"homedir": s.HomeDirectory,
-			"apikey":  s.ApiKey,
-			"config":  s.Config,
-		}).Debug("Failed to ping syncthing: ", err)
+		logrus.Debug("Failed to ping syncthing")
 		return false, fmt.Errorf("failed to ping syncthing: %w", err)
 	}
 

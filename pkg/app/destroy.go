@@ -137,7 +137,8 @@ func destroy(clicontext *cli.Context) error {
 	}
 
 	if err = sshconfig.RemoveEntry(ctrName); err != nil {
-		logger.Infof("failed to remove entry %s from your SSH config file: %s", ctrName, err)
+		logger.WithError(err).
+			Infof("failed to remove entry %s from your SSH config file", ctrName)
 		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}
 

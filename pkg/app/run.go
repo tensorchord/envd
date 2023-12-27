@@ -203,7 +203,8 @@ func run(clicontext *cli.Context) error {
 		User:               username,
 	}
 	if err = sshconfig.AddEntry(eo); err != nil {
-		logger.Infof("failed to add entry %s to your SSH config file: %s", res.Name, err)
+		logger.WithError(err).
+			Infof("failed to add entry %s to your SSH config file", res.Name)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 
@@ -236,7 +237,7 @@ func run(clicontext *cli.Context) error {
 			}
 			localAddress := fmt.Sprintf("%s:%d", "localhost", localPort)
 			remoteAddress := fmt.Sprintf("%s:%d", "localhost", p.Port)
-			logger.Infof("service \"%s\" is listening at %s\n", p.Name, localAddress)
+			logger.Infof(`service "%s" is listening at %s\n`, p.Name, localAddress)
 			go func() {
 				if err := sshClient.LocalForward(localAddress, remoteAddress); err != nil {
 					outputChannel <- errors.Wrap(err, "failed to forward to local port")

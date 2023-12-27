@@ -31,7 +31,7 @@ func (b generalBuilder) checkIfNeedBuild(ctx context.Context) bool {
 	depsFiles = b.GetDepsFilesHandler(depsFiles)
 	isUpdated, err := b.checkDepsFileUpdate(ctx, b.Tag, b.ManifestFilePath, depsFiles)
 	if err != nil {
-		b.logger.Debugf("failed to check manifest update: %s", err)
+		b.logger.WithError(err).Debug("failed to check manifest update")
 	}
 	if !isUpdated {
 		b.logger.Infof("manifest is not updated, skip building")

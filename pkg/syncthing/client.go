@@ -56,7 +56,7 @@ func (c *Client) SendRequest(method string, url string, params map[string]string
 		"method": method,
 		"url":    url,
 		"params": params,
-	}).Debug("calling syncthing API: ", url)
+	}).Debug("calling syncthing API")
 	// TODO: can implement retry logic
 
 	var urlPath = c.BasePath + url
