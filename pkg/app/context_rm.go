@@ -43,6 +43,7 @@ func contextRemove(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to remove context")
 	}
-	logrus.Infof("Context %s is removed", name)
+	logrus.WithField("cmd", "context remove").
+		Infof("Context %s is removed", name)
 	return nil
 }

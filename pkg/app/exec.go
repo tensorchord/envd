@@ -111,7 +111,14 @@ func exec(clicontext *cli.Context) error {
 			return errors.Wrapf(err, "failed to get environment: %s", name)
 		}
 
-		logrus.Debugf("runtime commands: %s", rg.RuntimeCommands)
+		logrus.WithFields(logrus.Fields{
+			"cmd": "exec",
+			"name": name,
+			"command": command,
+			"rawCommand": rawCommand,
+			"path": path,
+		}).Debugf("runtime commands: %s", rg.RuntimeCommands)
+		
 		cmd, ok := rg.RuntimeCommands[command]
 		if !ok {
 			return errors.Newf("command %s does not exist", command)

@@ -110,7 +110,8 @@ func bootstrap(clicontext *cli.Context) error {
 
 	total := len(stages)
 	for i, stage := range stages {
-		logrus.Infof("[%d/%d] Bootstrap %s", i+1, total, stage.Name)
+		logrus.WithField("cmd", "bootstrap").
+			Infof("[%d/%d] Bootstrap %s", i+1, total, stage.Name)
 		err := stage.Func(clicontext)
 		if err != nil {
 			return err
@@ -251,6 +252,12 @@ func registryJSONConfig(clicontext *cli.Context) error {
 func sshKey(clicontext *cli.Context) error {
 	sshKeyPair := clicontext.StringSlice("ssh-keypair")
 
+	logger := logrus.WithFields(logrus.Fields{
+		"cmd": "bootstrap",
+		"stage": "sshKey",
+		"sshKeyPair": sshKeyPair,
+	})
+
 	switch len(sshKeyPair) {
 	case 0:
 		// If not specified, generate only if key doesn't exist
@@ -290,7 +297,7 @@ func sshKey(clicontext *cli.Context) error {
 					return err
 				}
 			}
-			logrus.Debugf("New key name: %s", newPrivateKeyName)
+			logger.Debugf("New key name: %s", newPrivateKeyName)
 			if err := sshconfig.ReplaceKeyManagedByEnvd(
 				privatePath, newPrivateKeyName); err != nil {
 				return err
@@ -333,29 +340,36 @@ func autocomplete(clicontext *cli.Context) error {
 	}
 
 	shell := os.Getenv("SHELL")
+
+	logger := logrus.WithFields(logrus.Fields{
+		"cmd": "bootstrap",
+		"stage": "autocomplete",
+		"shell": shell,
+	})
+
 	if strings.Contains(shell, "zsh") {
-		logrus.Infof("Install zsh autocompletion")
+		logger.Infof("Install zsh autocompletion")
 		if err := ac.InsertZSHCompleteEntry(clicontext); err != nil {
-			logrus.Warnf("Warning: %s\n", err.Error())
+			logger.Warnf("Warning: %s\n", err.Error())
 		}
 	} else if strings.Contains(shell, "bash") {
-		logrus.Infof("Install bash autocompletion")
+		logger.Infof("Install bash autocompletion")
 		if err := ac.InsertBashCompleteEntry(clicontext); err != nil {
-			logrus.Warnf("Warning: %s\n", err.Error())
+			logger.Warnf("Warning: %s\n", err.Error())
 		}
 	} else if strings.Contains(shell, "fish") {
-		logrus.Infof("Install fish autocompletion")
+		logger.Infof("Install fish autocompletion")
 		if err := ac.InsertFishCompleteEntry(clicontext); err != nil {
-			logrus.Warnf("Warning: %s\n", err.Error())
+			logger.Warnf("Warning: %s\n", err.Error())
 		}
 	} else {
-		logrus.Infof("Install bash autocompletion (fallback from \"%s\")", shell)
+		logger.Infof("Install bash autocompletion (fallback from \"%s\")", shell)
 		if err := ac.InsertBashCompleteEntry(clicontext); err != nil {
-			logrus.Warnf("Warning: %s\n", err.Error())
+			logger.Warnf("Warning: %s\n", err.Error())
 		}
 	}
 
-	logrus.Info("You may have to restart your shell for autocomplete to get initialized (e.g. run \"exec $SHELL\")\n")
+	logger.Info("You may have to restart your shell for autocomplete to get initialized (e.g. run \"exec $SHELL\")\n")
 	return nil
 }
 
@@ -370,7 +384,12 @@ func buildkit(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get the current context")
 	}
 
-	logrus.Debug("bootstrap the buildkitd container")
+	logger := logrus.WithFields(logrus.Fields{
+		"cmd": "bootstrap",
+		"stage": "buildkit",
+	})
+
+	logger.Debug("bootstrap the buildkitd container")
 	// Populate the BuildkitConfig struct
 	config := buildkitutil.BuildkitConfig{}
 
@@ -418,7 +437,7 @@ func buildkit(clicontext *cli.Context) error {
 		}
 	}
 	defer bkClient.Close()
-	logrus.Infof("The buildkit is running at %s", bkClient.BuildkitdAddr())
+	logger.Infof("The buildkit is running at %s", bkClient.BuildkitdAddr())
 
 	return nil
 }

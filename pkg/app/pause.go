@@ -60,7 +60,7 @@ func pause(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to pause the environment")
 	}
 	if name != "" {
-		logrus.Infof("%s is paused", name)
+		logrus.WithField("cmd", "pause").Infof("%s is paused", name)
 	}
 	return nil
 }

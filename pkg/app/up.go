@@ -182,6 +182,7 @@ func up(clicontext *cli.Context) error {
 	ctr := filepath.Base(buildOpt.BuildContextDir)
 	detach := clicontext.Bool("detach")
 	logger := logrus.WithFields(logrus.Fields{
+		"cmd": "up",
 		"builder-options": buildOpt,
 		"container-name":  ctr,
 		"detach":          detach,

@@ -130,9 +130,10 @@ func (r *defaultReporter) dumpTelemetry() error {
 }
 
 func (r *defaultReporter) Identify() {
-	logrus.WithField("UID", r.UID).Debug("telemetry initialization")
+	logger := logrus.WithField("UID", r.UID)
+	logger.Debug("telemetry initialization")
 	if r.enabled {
-		logrus.Debug("sending telemetry")
+		logger.Debug("sending telemetry")
 		v := version.GetVersion()
 		if err := r.client.Enqueue(segmentio.Identify{
 			UserId: r.UID,
@@ -149,7 +150,7 @@ func (r *defaultReporter) Identify() {
 			Timestamp: time.Now(),
 			Traits:    segmentio.NewTraits(),
 		}); err != nil {
-			logrus.Debug("telemetry failed")
+			logger.Debug("telemetry failed")
 			return
 		}
 	}
@@ -163,10 +164,11 @@ func AddField(name string, value interface{}) TelemetryField {
 
 func (r *defaultReporter) Telemetry(command string, fields ...TelemetryField) {
 	if r.enabled {
-		logrus.WithFields(logrus.Fields{
+		logger := logrus.WithFields(logrus.Fields{
 			"UID":     r.UID,
 			"command": command,
-		}).Debug("sending telemetry track event")
+		})
+		logger.Debug("sending telemetry track event")
 		t := segmentio.Track{
 			UserId:     r.UID,
 			Event:      command,
@@ -176,7 +178,7 @@ func (r *defaultReporter) Telemetry(command string, fields ...TelemetryField) {
 			field(&t.Properties)
 		}
 		if err := r.client.Enqueue(t); err != nil {
-			logrus.Debug(err)
+			logger.Debug(err)
 		}
 		// make sure the msg can be sent out
 		r.client.Close()

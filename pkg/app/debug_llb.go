@@ -77,6 +77,7 @@ func debugLLB(clicontext *cli.Context) error {
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
+		"cmd": 			 "debug llb",
 		"build-context": opt.BuildContextDir,
 		"build-file":    opt.ManifestFilePath,
 		"config":        opt.ConfigFilePath,

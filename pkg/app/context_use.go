@@ -43,6 +43,7 @@ func contextUse(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrapf(err, "failed to use the specified context %s", name)
 	}
-	logrus.Infof("Current context is now \"%s\"", name)
+	logrus.WithField("cmd", "context use").
+		Infof("Current context is now \"%s\"", name)
 	return nil
 }
