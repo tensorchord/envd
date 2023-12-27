@@ -112,13 +112,13 @@ func exec(clicontext *cli.Context) error {
 		}
 
 		logrus.WithFields(logrus.Fields{
-			"cmd": 			"exec",
-			"name": 		name,
-			"command": 		command,
-			"rawCommand": 	rawCommand,
-			"path": 		path,
+			"cmd":        "exec",
+			"name":       name,
+			"command":    command,
+			"rawCommand": rawCommand,
+			"path":       path,
 		}).Debugf("runtime commands: %s", rg.RuntimeCommands)
-		
+
 		cmd, ok := rg.RuntimeCommands[command]
 		if !ok {
 			return errors.Newf("command %s does not exist", command)

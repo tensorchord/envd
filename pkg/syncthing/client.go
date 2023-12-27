@@ -53,9 +53,9 @@ func (s *Syncthing) NewClient() *Client {
 // Makes API calls to the syncthing instance's rest api
 func (c *Client) SendRequest(method string, url string, params map[string]string, body []byte) ([]byte, error) {
 	logrus.WithFields(logrus.Fields{
-		"method": 	method,
-		"url": 		url,
-		"params": 	params,
+		"method": method,
+		"url":    url,
+		"params": params,
 	}).Debug("calling syncthing API: ", url)
 	// TODO: can implement retry logic
 

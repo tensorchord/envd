@@ -49,9 +49,9 @@ func removeImage(clicontext *cli.Context) error {
 	tag := clicontext.String("tag")
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cmd": 			"images remove",
-		"imageName": 	imageName,
-		"tag": 			tag,
+		"cmd":       "images remove",
+		"imageName": imageName,
+		"tag":       tag,
 	})
 
 	if imageName == "" {

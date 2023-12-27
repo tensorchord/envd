@@ -293,11 +293,11 @@ func sshKey(clicontext *cli.Context) error {
 			}
 
 			logrus.WithFields(logrus.Fields{
-				"cmd": 			"bootstrap",
-				"stage": 		"sshKey",
-				"sshKeyPair": 	sshKeyPair,
+				"cmd":        "bootstrap",
+				"stage":      "sshKey",
+				"sshKeyPair": sshKeyPair,
 			}).Debugf("New key name: %s", newPrivateKeyName)
-			
+
 			if err := sshconfig.ReplaceKeyManagedByEnvd(
 				privatePath, newPrivateKeyName); err != nil {
 				return err
@@ -342,9 +342,9 @@ func autocomplete(clicontext *cli.Context) error {
 	shell := os.Getenv("SHELL")
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cmd": 		"bootstrap",
-		"stage": 	"autocomplete",
-		"shell": 	shell,
+		"cmd":   "bootstrap",
+		"stage": "autocomplete",
+		"shell": shell,
 	})
 
 	if strings.Contains(shell, "zsh") {
@@ -385,8 +385,8 @@ func buildkit(clicontext *cli.Context) error {
 	}
 
 	logger := logrus.WithFields(logrus.Fields{
-		"cmd": 		"bootstrap",
-		"stage": 	"buildkit",
+		"cmd":   "bootstrap",
+		"stage": "buildkit",
 	})
 
 	logger.Debug("bootstrap the buildkitd container")

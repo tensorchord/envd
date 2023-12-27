@@ -23,10 +23,10 @@ import (
 
 func ConnectDevices(s1 *Syncthing, s2 *Syncthing) error {
 	logger := logrus.WithFields(logrus.Fields{
-		"s1": 			s1.Name,
-		"s2": 			s2.Name,
-		"config-s1": 	s1.Config,
-		"config-s2": 	s2.Config,
+		"s1":        s1.Name,
+		"s2":        s2.Name,
+		"config-s1": s1.Config,
+		"config-s2": s2.Config,
 	})
 	logger.Debug("Connecting syncthings")
 	var err error
