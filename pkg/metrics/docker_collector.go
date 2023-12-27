@@ -55,7 +55,8 @@ func (c *dockerCollector) Watch(ctx context.Context, cid string) chan Metrics {
 		defer close(stats)
 		err := c.client.Stats(ctx, cid, stats, c.done)
 		if err != nil {
-			logrus.Error(err)
+			logrus.WithField("cid", cid).
+				WithError(err).Error("error occurred in dockerCollecter.Watch")
 		}
 		c.running = false
 	}()
