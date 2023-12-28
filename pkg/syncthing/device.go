@@ -22,20 +22,26 @@ import (
 )
 
 func ConnectDevices(s1 *Syncthing, s2 *Syncthing) error {
-	logrus.Debug(fmt.Sprintf("Connecting syncthings %s and %s", s1.Name, s2.Name))
+	logger := logrus.WithFields(logrus.Fields{
+		"s1":        s1.Name,
+		"s2":        s2.Name,
+		"config-s1": s1.Config,
+		"config-s2": s2.Config,
+	})
+	logger.Debug("Connecting syncthings")
 	var err error
 	connectedDevices := append(s1.Config.Devices, s2.Config.Devices...)
 
 	s1.Config.Devices = connectedDevices
 	s2.Config.Devices = connectedDevices
 
-	logrus.Debug("Adding device config for: ", s1.Name)
+	logger.Debug("Adding device config for: ", s1.Name)
 	err = s1.ApplyConfig()
 	if err != nil {
 		return err
 	}
 
-	logrus.Debug("Adding device config for: ", s2.Name)
+	logger.Debug("Adding device config for: ", s2.Name)
 	err = s2.ApplyConfig()
 	if err != nil {
 		return err

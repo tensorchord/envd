@@ -181,7 +181,7 @@ func (srv *Server) connectionHandler(s ssh.Session) {
 
 		err := s.Exit(0)
 		if err != nil {
-			logger.Warningln("exit session with error:", err)
+			logger.WithError(err).Warnln("exit session with error")
 		}
 		return
 	}
@@ -194,7 +194,7 @@ func (srv *Server) connectionHandler(s ssh.Session) {
 
 	err := s.Exit(0)
 	if err != nil {
-		logger.Warningln("exit session with error:", err)
+		logger.WithError(err).Warnln("exit session with error")
 	}
 }
 

@@ -34,7 +34,7 @@ func IsWsl() bool {
 	cmd := exec.Command("cat", "/proc/version")
 	output, err := cmd.Output()
 	if err != nil {
-		logrus.Debugf("Error when check whether sys is WSL: %v", err)
+		logrus.WithError(err).Error("Error when check whether sys is WSL")
 		return false
 	}
 

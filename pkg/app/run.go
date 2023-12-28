@@ -170,9 +170,15 @@ func run(clicontext *cli.Context) error {
 		return err
 	}
 
-	logrus.Debugf("container %s is running", res.Name)
+	logger := logrus.WithFields(logrus.Fields{
+		"cmd":          "run",
+		"StartOptions": opt,
+		"StartResult":  res,
+	})
 
-	logrus.Debugf("add entry %s to SSH config.", res.Name)
+	logger.Debugf("container %s is running", res.Name)
+
+	logger.Debugf("add entry %s to SSH config.", res.Name)
 	hostname, err := c.GetSSHHostname(opt.SshdHost)
 	if err != nil {
 		return errors.Wrap(err, "failed to get the ssh hostname")
@@ -197,7 +203,8 @@ func run(clicontext *cli.Context) error {
 		User:               username,
 	}
 	if err = sshconfig.AddEntry(eo); err != nil {
-		logrus.Infof("failed to add entry %s to your SSH config file: %s", res.Name, err)
+		logger.WithError(err).
+			Infof("failed to add entry %s to your SSH config file", res.Name)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 
@@ -230,7 +237,7 @@ func run(clicontext *cli.Context) error {
 			}
 			localAddress := fmt.Sprintf("%s:%d", "localhost", localPort)
 			remoteAddress := fmt.Sprintf("%s:%d", "localhost", p.Port)
-			logrus.Infof("service \"%s\" is listening at %s\n", p.Name, localAddress)
+			logger.Infof(`service "%s" is listening at %s\n`, p.Name, localAddress)
 			go func() {
 				if err := sshClient.LocalForward(localAddress, remoteAddress); err != nil {
 					outputChannel <- errors.Wrap(err, "failed to forward to local port")
@@ -289,6 +296,11 @@ func startSyncthing(name string) (*syncthing.Syncthing, *syncthing.Syncthing, er
 	}
 	projectName := filepath.Base(cwd)
 
+	logger := logrus.WithFields(logrus.Fields{
+		"cwd":         cwd,
+		"projectName": projectName,
+	})
+
 	localSyncthing, err := syncthing.InitializeLocalSyncthing(name)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to initialize local syncthing")
@@ -298,13 +310,13 @@ func startSyncthing(name string) (*syncthing.Syncthing, *syncthing.Syncthing, er
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to initialize remote syncthing")
 	}
-	logrus.Debug("Remote syncthing initialized")
+	logger.Debug("Remote syncthing initialized")
 
 	err = syncthing.ConnectDevices(localSyncthing, remoteSyncthing)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to connect devices")
 	}
-	logrus.Debug("Syncthing devices connected")
+	logger.Debug("Syncthing devices connected")
 
 	err = syncthing.SyncFolder(localSyncthing, remoteSyncthing, cwd, fmt.Sprintf("%s/%s", fileutil.EnvdHomeDir(), projectName))
 	if err != nil {

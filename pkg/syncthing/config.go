@@ -90,7 +90,8 @@ func (s *Syncthing) WaitForConfigApply(timeout time.Duration) error {
 	start := time.Now()
 	for {
 		if time.Since(start) > timeout {
-			logrus.Debug("Timeout reached, config not applied")
+			logrus.WithField("timeout", timeout).
+				Debug("Timeout reached, config not applied")
 			return fmt.Errorf("timed out waiting for configurations to apply")
 		}
 

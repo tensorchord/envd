@@ -484,7 +484,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	if len(so.NumMem) > 0 {
 		mem, err := dockerutils.RAMInBytes(so.NumMem)
 		if err != nil {
-			logger.Infof("parse `memory` error: %v, ignore this argument", err)
+			logger.WithError(err).Info("parse `memory` error, ignore this argument")
 		} else {
 			hostConfig.Memory = mem
 		}
@@ -590,7 +590,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		errCause := errors.UnwrapAll(err)
 		// Hack to check if the port is already allocated.
 		if strings.Contains(errCause.Error(), "port is already allocated") {
-			logrus.Debugf("failed to allocate the port: %s", err)
+			logger.WithError(err).Debug("failed to allocate the port")
 			return nil, errors.New("port is already allocated in the host")
 		}
 		return nil, errors.Wrap(err, "failed to run the container")
@@ -653,7 +653,7 @@ func (e dockerEngine) Destroy(ctx context.Context, name string) (string, error) 
 	if _, err := e.ImageRemove(ctx, ctr.Image, dockertypes.ImageRemoveOptions{}); err != nil {
 		return "", errors.Errorf("remove image %s failed: %w", ctr.Image, err)
 	}
-	logrus.Infof("image(%s) is destroyed", ctr.Image)
+	logger.Infof("image(%s) is destroyed", ctr.Image)
 
 	return name, nil
 }

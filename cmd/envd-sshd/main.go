@@ -103,7 +103,7 @@ func main() {
 func sshServer(c *cli.Context) error {
 	err := sshd.GetShell(c.String(flagShell))
 	if err != nil {
-		logrus.Fatal(err.Error())
+		logrus.WithError(err).Fatal()
 	}
 	shell := c.String(flagShell)
 

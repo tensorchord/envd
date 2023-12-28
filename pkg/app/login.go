@@ -60,8 +60,11 @@ func login(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get current context")
 	}
+
+	logger := logrus.WithField("cmd", "login")
+
 	if c.Runner == types.RunnerTypeDocker {
-		logrus.Warn("login is not needed for docker runner, skipping")
+		logger.Warn("login is not needed for docker runner, skipping")
 		return nil
 	}
 	hostAddr := c.RunnerAddress
@@ -84,13 +87,13 @@ func login(clicontext *cli.Context) error {
 	auth := true
 	if pwd == "" {
 		auth = false
-		logrus.Warn("The password is nil, skip the authentication. Please make sure that the server is running in no-auth mode")
+		logger.Warn("The password is nil, skip the authentication. Please make sure that the server is running in no-auth mode")
 		if loginName == "" {
 			loginName, err = generateLoginName()
 			if err != nil {
 				return errors.Wrap(err, "failed to generate the login name")
 			}
-			logrus.Warnf("The login name is nil, use `%s` as the login name", loginName)
+			logger.Warnf("The login name is nil, use `%s` as the login name", loginName)
 		}
 	}
 	req := servertypes.AuthNRequest{
@@ -98,7 +101,7 @@ func login(clicontext *cli.Context) error {
 		Password:  pwd,
 	}
 
-	logger := logrus.WithFields(logrus.Fields{
+	logger = logger.WithFields(logrus.Fields{
 		"login_name":   loginName,
 		"auth-enabled": auth,
 	})
@@ -160,7 +163,7 @@ func login(clicontext *cli.Context) error {
 		}
 	}
 
-	logrus.WithField("key", keyResp.Name).Debug("key is added successfully")
+	logger.WithField("key", keyResp.Name).Debug("key is added successfully")
 	if err := home.GetManager().AuthCreate(types.AuthConfig{
 		Name:     resp.LoginName,
 		JWTToken: resp.IdentityToken,

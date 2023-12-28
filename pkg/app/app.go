@@ -158,7 +158,10 @@ func New() EnvdApp {
 
 	internalApp.ExitErrHandler = func(context *cli.Context, err error) {
 		if err != nil {
-			logrus.Fatal(err)
+			logrus.WithFields(logrus.Fields{
+				"app":     "envd",
+				"version": internalApp.Version,
+			}).WithError(err).Fatal("exit")
 		}
 	}
 

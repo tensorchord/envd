@@ -182,6 +182,7 @@ func up(clicontext *cli.Context) error {
 	ctr := filepath.Base(buildOpt.BuildContextDir)
 	detach := clicontext.Bool("detach")
 	logger := logrus.WithFields(logrus.Fields{
+		"cmd":             "up",
 		"builder-options": buildOpt,
 		"container-name":  ctr,
 		"detach":          detach,
@@ -205,7 +206,7 @@ func up(clicontext *cli.Context) error {
 		return err
 	}
 
-	logrus.Debug("start running the environment")
+	logger.Debug("start running the environment")
 	// Do not attach GPU if the flag is set.
 	disableGPU := clicontext.Bool("no-gpu")
 	var defaultGPU bool
@@ -271,9 +272,9 @@ func up(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to start the envd environment")
 	}
-	logrus.Debugf("container %s is running", res.Name)
+	logger.Debugf("container %s is running", res.Name)
 
-	logrus.Debugf("add entry %s to SSH config.", ctr)
+	logger.Debugf("add entry %s to SSH config.", ctr)
 	hostname, err := c.GetSSHHostname(startOptions.SshdHost)
 	if err != nil {
 		return errors.Wrap(err, "failed to get the ssh hostname")
@@ -285,7 +286,8 @@ func up(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get the ssh entry")
 	}
 	if err = sshconfig.AddEntry(eo); err != nil {
-		logrus.Infof("failed to add entry %s to your SSH config file: %s", ctr, err)
+		logger.WithError(err).
+			Infof("failed to add entry %s to your SSH config file", ctr)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 	telemetry.GetReporter().Telemetry(

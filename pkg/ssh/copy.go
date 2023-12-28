@@ -49,13 +49,13 @@ func (c *Copier) Copy() {
 			nw, ew := c.Remote.Write(buf[write:nr])
 			write += nw
 			if ew != nil {
-				logrus.Debugf("write to remote terminal error: %s", ew.Error())
+				logrus.WithError(ew).Debug("write to remote terminal error")
 				<-t.C
 				continue
 			}
 		}
 		if er != nil {
-			logrus.Debugf("read from local to remote terminal error: %s", er.Error())
+			logrus.WithError(er).Debug("read from local to remote terminal error")
 			return
 		}
 	}

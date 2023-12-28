@@ -279,7 +279,7 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 				b.logger.Debug("loading image to docker host")
 				if err := dockerClient.Load(ctx, pipeR, true); err != nil {
 					err = errors.Wrap(err, "failed to load docker image")
-					b.logger.Error(err)
+					b.logger.WithError(err).Error()
 					return err
 				}
 				b.logger.Debug("loaded docker image successfully")
@@ -304,12 +304,12 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 					client, err := docker.NewClient(ctx)
 					if err != nil {
 						err = errors.Wrap(err, "failed to init docker client")
-						b.logger.Error(err)
+						b.logger.WithError(err).Error()
 						return err
 					}
 					if err = client.PushImage(ctx, entry.Attrs["name"], b.Platform); err != nil {
 						err = errors.Wrap(err, "failed to push image")
-						b.logger.Error(err)
+						b.logger.WithError(err).Error()
 						return err
 					}
 					b.logger.Debug("pushed image:", entry.Attrs["name"])

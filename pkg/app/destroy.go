@@ -82,6 +82,12 @@ func destroy(clicontext *cli.Context) error {
 		return errors.New("Cannot specify --path and --name at the same time.")
 	}
 
+	logger := logrus.WithFields(logrus.Fields{
+		"cmd":  "destroy",
+		"path": path,
+		"name": name,
+	})
+
 	var ctrName string
 	if name != "" {
 		ctrName = name
@@ -127,11 +133,12 @@ func destroy(clicontext *cli.Context) error {
 	if ctrName, err := envdEngine.Destroy(clicontext.Context, ctrName); err != nil {
 		return errors.Wrapf(err, "failed to destroy the environment: %s", ctrName)
 	} else if ctrName != "" {
-		logrus.Infof("environment(%s) is destroyed", ctrName)
+		logger.Infof("environment(%s) is destroyed", ctrName)
 	}
 
 	if err = sshconfig.RemoveEntry(ctrName); err != nil {
-		logrus.Infof("failed to remove entry %s from your SSH config file: %s", ctrName, err)
+		logger.WithError(err).
+			Infof("failed to remove entry %s from your SSH config file", ctrName)
 		return errors.Wrap(err, "failed to remove entry from your SSH config file")
 	}
 

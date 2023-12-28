@@ -68,6 +68,16 @@ func contextCreate(clicontext *cli.Context) error {
 	runnerAddress := clicontext.String("runner-address")
 	use := clicontext.Bool("use")
 
+	logger := logrus.WithFields(logrus.Fields{
+		"cmd":            "context create",
+		"name":           name,
+		"builder":        builder,
+		"builderAddress": builderAddress,
+		"runner":         runner,
+		"runnerAddress":  runnerAddress,
+		"use":            use,
+	})
+
 	c := types.Context{
 		Name:           name,
 		Builder:        types.BuilderType(builder),
@@ -82,9 +92,9 @@ func contextCreate(clicontext *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create context")
 	}
-	logrus.Infof("Context %s is created", name)
+	logger.Infof("Context %s is created", name)
 	if use {
-		logrus.Infof("Current context is now \"%s\"", name)
+		logger.Infof(`Current context is "%s"`, name)
 	}
 	return nil
 }

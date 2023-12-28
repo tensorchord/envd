@@ -111,7 +111,10 @@ func build(clicontext *cli.Context) error {
 			"build", telemetry.AddField("duration", time.Since(start).Seconds()))
 	}(time.Now())
 
-	logger := logrus.WithField("builder-options", opt)
+	logger := logrus.WithFields(logrus.Fields{
+		"cmd":             "build",
+		"builder-options": opt,
+	})
 	logger.Debug("starting build command")
 
 	platforms := strings.Split(opt.Platform, ",")

@@ -46,12 +46,19 @@ var CommandRemoveImage = &cli.Command{
 
 func removeImage(clicontext *cli.Context) error {
 	imageName := clicontext.String("image")
+	tag := clicontext.String("tag")
+
+	logger := logrus.WithFields(logrus.Fields{
+		"cmd":       "images remove",
+		"imageName": imageName,
+		"tag":       tag,
+	})
+
 	if imageName == "" {
 		return errors.New("image name is required, find images by `envd images list`")
 	}
-	tag := clicontext.String("tag")
 	if tag == "" {
-		logrus.Debug("tag not specified, using default tag: `dev`")
+		logger.Debug("tag not specified, using default tag: `dev`")
 		tag = "dev"
 	}
 	imageNameWithTag := fmt.Sprintf("%s:%s", imageName, tag)
@@ -63,6 +70,6 @@ func removeImage(clicontext *cli.Context) error {
 	if err := dockerClient.RemoveImage(clicontext.Context, imageNameWithTag); err != nil {
 		return errors.Errorf("remove image %s failed: %w", imageNameWithTag, err)
 	}
-	logrus.Infof("image(%s) has removed", imageNameWithTag)
+	logger.Info("image has been removed")
 	return nil
 }
