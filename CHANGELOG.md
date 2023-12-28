@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.3.43 (2023-12-28)
+
+ * [3394589](https://github.com/tensorchord/envd/commit/3394589f9b57fd12d87661692c73564ba9f10eee) fix: set up python in pypi release step (#1825)
+
+### Contributors
+
+ * Keming
+
+## v0.3.42 (2023-12-28)
+
+ * [81b3032](https://github.com/tensorchord/envd/commit/81b30324e297f1d55b26dc82e831255517b11d47) fix: update docker/docker dependency (#1824)
+
+### Contributors
+
+ * Keming
+
+## v0.3.41 (2023-12-28)
+
+ * [29788b5](https://github.com/tensorchord/envd/commit/29788b550cc54487f2da81055994bfb216d872f4) feat(log): switch to structured logging(#issue 889) (#1821)
+ * [4c13224](https://github.com/tensorchord/envd/commit/4c132241ceee866819fed9495b98bf13a42ecae5) fix: indent-error-flow lint (#1795)
+ * [9027d35](https://github.com/tensorchord/envd/commit/9027d3593b37898dadaaefa2c9a1078611450da6) feat: warn about envd v0 `os` and `image` usage (#1790)
+ * [bffc025](https://github.com/tensorchord/envd/commit/bffc025da8725e2eab060d079bce2777c6987388) feat: add the reference subcommand to generate the markdown doc (#1766)
+
+### Contributors
+
+ * Keming
+ * Shao Wang
+
 ## v0.3.40 (2023-09-01)
 
  * [d99cfa4](https://github.com/tensorchord/envd/commit/d99cfa423c035cf1361bd22882ccc1a0b2436d64) feat: abort when trying to run `envd up` on non-dev images (#1751)
