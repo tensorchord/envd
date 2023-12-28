@@ -288,28 +288,28 @@ jobs:
         run: |
           go install github.com/mattn/goveralls@latest
       - name: Get coverage report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: coverage-out
           path: merge
 
       - name: Get cli e2e coverage report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: e2e-cli-coverage-out
           path: merge
       - name: Get language e2e coverage report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: e2e-lang-coverage-out
           path: merge
       - name: Get cli v1 e2e coverage report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: e2e-cli-v1-coverage-out
           path: merge
       - name: Get language v1 e2e coverage report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: e2e-lang-v1-coverage-out
           path: merge
