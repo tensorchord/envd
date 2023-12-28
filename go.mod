@@ -13,7 +13,7 @@ require (
 	github.com/containers/image/v5 v5.25.0
 	github.com/creack/pty v1.1.18
 	github.com/docker/cli v24.0.7+incompatible
-	github.com/docker/docker v23.0.3+incompatible
+	github.com/docker/docker v24.0.7+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.5.0
 	github.com/gizak/termui/v3 v3.1.0
@@ -201,6 +201,3 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-// Copied from buildkit to make github.com/tonistiigi/fsutil happy.
-replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20220224222438-c78f6963a1c0+incompatible
