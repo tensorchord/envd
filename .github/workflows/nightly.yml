@@ -73,7 +73,7 @@ jobs:
       - name: Test
         run: make test
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-out
           path: coverage.out
@@ -110,7 +110,7 @@ jobs:
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-cli-coverage-out
           path: e2e-cli-coverage.out
@@ -147,7 +147,7 @@ jobs:
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-lang-coverage-out
           path: e2e-lang-coverage.out
@@ -249,7 +249,7 @@ jobs:
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-doc-coverage-out
           path: e2e-doc-coverage.out
@@ -286,7 +286,7 @@ jobs:
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-cli-v1-coverage-out
           path: e2e-cli-v1-coverage.out
@@ -323,7 +323,7 @@ jobs:
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-lang-v1-coverage-out
           path: e2e-lang-v1-coverage.out
@@ -360,7 +360,7 @@ jobs:
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-doc-v1-coverage-out
           path: e2e-doc-v1-coverage.out
