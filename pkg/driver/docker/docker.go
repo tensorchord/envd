@@ -284,10 +284,31 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 	}
 	created, _ := c.Exists(ctx, name)
 	if created {
-		err := c.ContainerStart(ctx, name, types.ContainerStartOptions{})
+		status, err := c.GetStatus(ctx, name)
 		if err != nil {
 			return name, err
 		}
+
+		if status == "paused" {
+			logger.Info("Container was paused, unpause it now...")
+			_, err := c.ResumeContainer(ctx, name)
+			if err != nil {
+				return name, err
+			}
+		} else if status == "exited" {
+			logger.Info("Container exited, try to restart it...")
+			err := c.ContainerRestart(ctx, name, container.StopOptions{})
+			if err != nil {
+				return name, err
+			}
+		} else {
+			logger.Info("Container already exists.")
+			err := c.ContainerStart(ctx, name, types.ContainerStartOptions{})
+			if err != nil {
+				return name, err
+			}
+		}
+		
 		return name, nil
 	}
 	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
@@ -336,6 +357,17 @@ func (c dockerClient) IsRunning(ctx context.Context, cname string) (bool, error)
 		return false, err
 	}
 	return container.State.Running, nil
+}
+
+func (c dockerClient) GetStatus(ctx context.Context, cname string) (string, error) {
+	container, err := c.ContainerInspect(ctx, cname)
+	if err != nil {
+		if client.IsErrNotFound(err) {
+			return "", nil
+		}
+		return "", err
+	}
+	return container.State.Status, nil
 }
 
 // Load loads the docker image from the reader into the docker host.
