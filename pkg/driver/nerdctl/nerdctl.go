@@ -101,6 +101,34 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 			logger.WithError(err).Error("can not run buildkitd", out)
 			return "", errors.Wrap(err, "running buildkitd")
 		}
+	} else {
+		status, err := nc.GetStatus(ctx, name)
+		if err != nil {
+			return "", errors.Wrap(err, "failed to get container status")
+		}
+
+		if status == "paused" {
+			logger.Info("container was paused, unpause it now...")
+			out, err := nc.exec(ctx, nil, "unpause", name)
+			if err != nil {
+				logger.WithError(err).Error("can not run buildkitd", out)
+				return "", errors.Wrap(err, "failed to unpause container")
+			}
+		} else if status == "exited" {
+			logger.Info("container exited, try to restart it...")
+			out, err := nc.exec(ctx, nil, "restart", name)
+			if err != nil {
+				logger.WithError(err).Error("can not run buildkitd", out)
+				return name, errors.Wrap(err, "failed to restart cotaniner")
+			}
+		} else {
+			logger.Info("container already exists.")
+			out, err := nc.exec(ctx, nil, "start", name)
+			if err != nil {
+				logger.WithError(err).Error("can not run buildkitd", out)
+				return name, errors.Wrap(err, "failed to start container")
+			}
+		}
 	}
 
 	err := nc.waitUntilRunning(ctx, name, timeout)
@@ -126,6 +154,14 @@ func (nc *nerdctlClient) PruneImage(ctx context.Context) (types.ImagesPruneRepor
 }
 func (nc *nerdctlClient) Stats(ctx context.Context, cname string, statChan chan<- *driver.Stats, done <-chan bool) error {
 	return nil
+}
+
+func (nc *nerdctlClient) GetStatus(ctx context.Context, cname string) (string, error) {
+	container, err := nc.containerInspect(ctx, cname)
+	if err != nil {
+		return "", err
+	}
+	return container.State.Status, nil
 }
 
 // TODO(kweizh): use container engine to wrap docker and nerdctl

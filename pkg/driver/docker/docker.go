@@ -286,26 +286,26 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 	if created {
 		status, err := c.GetStatus(ctx, name)
 		if err != nil {
-			return name, err
+			return name, errors.Wrap(err, "failed to get container status")
 		}
 
 		if status == "paused" {
-			logger.Info("Container was paused, unpause it now...")
+			logger.Info("container was paused, unpause it now...")
 			_, err := c.ResumeContainer(ctx, name)
 			if err != nil {
-				return name, err
+				return name, errors.Wrap(err, "failed to unpause container")
 			}
 		} else if status == "exited" {
-			logger.Info("Container exited, try to restart it...")
+			logger.Info("container exited, try to restart it...")
 			err := c.ContainerRestart(ctx, name, container.StopOptions{})
 			if err != nil {
-				return name, err
+				return name, errors.Wrap(err, "failed to restart cotaniner")
 			}
 		} else {
-			logger.Info("Container already exists.")
+			logger.Info("container already exists.")
 			err := c.ContainerStart(ctx, name, types.ContainerStartOptions{})
 			if err != nil {
-				return name, err
+				return name, errors.Wrap(err, "failed to start container")
 			}
 		}
 		
