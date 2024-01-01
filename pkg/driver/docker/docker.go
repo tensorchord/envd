@@ -308,7 +308,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 				return name, errors.Wrap(err, "failed to start container")
 			}
 		}
-		
+
 		return name, nil
 	}
 	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)

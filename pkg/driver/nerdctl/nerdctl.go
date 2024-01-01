@@ -92,7 +92,7 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 			logger.Debugf("setting buildkit config: %s", cfg)
 		}
 
-		out, err := nc.exec(ctx, nil, "run", "-d",
+		out, err := nc.exec(ctx, "run", "-d",
 			"--name", name,
 			"--privileged",
 			"--entrypoint", "sh",
@@ -109,21 +109,21 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 
 		if status == "paused" {
 			logger.Info("container was paused, unpause it now...")
-			out, err := nc.exec(ctx, nil, "unpause", name)
+			out, err := nc.exec(ctx, "unpause", name)
 			if err != nil {
 				logger.WithError(err).Error("can not run buildkitd", out)
 				return "", errors.Wrap(err, "failed to unpause container")
 			}
 		} else if status == "exited" {
 			logger.Info("container exited, try to restart it...")
-			out, err := nc.exec(ctx, nil, "restart", name)
+			out, err := nc.exec(ctx, "restart", name)
 			if err != nil {
 				logger.WithError(err).Error("can not run buildkitd", out)
 				return name, errors.Wrap(err, "failed to restart cotaniner")
 			}
 		} else {
 			logger.Info("container already exists.")
-			out, err := nc.exec(ctx, nil, "start", name)
+			out, err := nc.exec(ctx, "start", name)
 			if err != nil {
 				logger.WithError(err).Error("can not run buildkitd", out)
 				return name, errors.Wrap(err, "failed to start container")
@@ -176,7 +176,7 @@ func (nc *nerdctlClient) waitUntilRunning(ctx context.Context,
 	for {
 		select {
 		case <-time.After(time.Second):
-			_, err := nc.exec(ctx, nil, "start", name)
+			_, err := nc.exec(ctx, "start", name)
 			if err != nil {
 				continue
 			}
@@ -212,7 +212,7 @@ func (nc *nerdctlClient) containerExists(ctx context.Context, tag string) (bool,
 }
 
 func (nc *nerdctlClient) containerInspect(ctx context.Context, tag string) (*types.ContainerJSON, error) {
-	out, err := nc.exec(ctx, nil, "inspect", tag)
+	out, err := nc.exec(ctx, "inspect", tag)
 	if err != nil {
 		// TODO(kweizh): check not found
 		return nil, err
@@ -228,14 +228,11 @@ func (nc *nerdctlClient) containerInspect(ctx context.Context, tag string) (*typ
 	return &(cs[0]), nil
 }
 
-func (nc *nerdctlClient) exec(ctx context.Context, stdin io.Reader, args ...string) (string, error) {
+func (nc *nerdctlClient) exec(ctx context.Context, args ...string) (string, error) {
 	cmd := exec.CommandContext(ctx, nc.bin, args...)
 
 	var out bytes.Buffer
 	cmd.Stdout = &out
-	if stdin != nil {
-		cmd.Stdin = stdin
-	}
 
 	err := cmd.Run()
 	if err != nil {
