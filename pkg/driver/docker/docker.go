@@ -555,8 +555,8 @@ func (c dockerClient) handleContainerCreated(ctx context.Context,
 			return errors.Wrap(err, "failed to start container")
 		}
 	} else {
-		// The remaining condition is StatusRemoving, we just need to waiting.
-		logger.Info("container is being removed")
+		// The remaining condition is StatusRemoving, we just need to wait.
+		logger.Info("container is being removed.")
 		err := c.waitUntilRemoved(ctx, cname, timeout)
 		if err != nil {
 			return err

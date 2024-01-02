@@ -96,7 +96,7 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 			return "", errors.Wrap(err, "failed to handle container created condition")
 		}
 
-		// When status is StatusDead/StatusRemoving, we nened to create and start the cotainer later
+		// When status is StatusDead/StatusRemoving, we nened to create and start the container later
 		if status != containerType.StatusDead && status != containerType.StatusRemoving {
 			return name, nil
 		}
@@ -268,8 +268,8 @@ func (nc *nerdctlClient) handleContainerCreated(ctx context.Context,
 			return errors.Wrap(err, "failed to start container")
 		}
 	} else {
-		// The remaining condition is StatusRemoving, we just need to waiting.
-		logger.Info("container is being removed")
+		// The remaining condition is StatusRemoving, we just need to wait.
+		logger.Info("container is being removed.")
 		err := nc.waitUntilRemoved(ctx, cname, timeout)
 		if err != nil {
 			return err
