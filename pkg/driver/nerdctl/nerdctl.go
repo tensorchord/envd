@@ -35,16 +35,16 @@ type nerdctlClient struct {
 	bin string
 }
 
-type ContainerStatus string 
+type ContainerStatus string
 
 const (
-	StatusCreated 	 ContainerStatus = "created"
-	StatusRunning 	 ContainerStatus = "running"
-	StatusPaused  	 ContainerStatus = "paused"
+	StatusCreated    ContainerStatus = "created"
+	StatusRunning    ContainerStatus = "running"
+	StatusPaused     ContainerStatus = "paused"
 	StatusRestarting ContainerStatus = "restarting"
-	StatusRemoving	 ContainerStatus = "removing"
-	StatusExited	 ContainerStatus = "exited"
-	StatusDead		 ContainerStatus = "dead"
+	StatusRemoving   ContainerStatus = "removing"
+	StatusExited     ContainerStatus = "exited"
+	StatusDead       ContainerStatus = "dead"
 )
 
 func NewClient(ctx context.Context) (driver.Client, error) {

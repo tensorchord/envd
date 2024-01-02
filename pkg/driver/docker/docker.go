@@ -52,16 +52,16 @@ var (
 	waitingInterval          = 1 * time.Second
 )
 
-type ContainerStatus string 
+type ContainerStatus string
 
 const (
-	StatusCreated 	 ContainerStatus = "created"
-	StatusRunning 	 ContainerStatus = "running"
-	StatusPaused  	 ContainerStatus = "paused"
+	StatusCreated    ContainerStatus = "created"
+	StatusRunning    ContainerStatus = "running"
+	StatusPaused     ContainerStatus = "paused"
 	StatusRestarting ContainerStatus = "restarting"
-	StatusRemoving	 ContainerStatus = "removing"
-	StatusExited	 ContainerStatus = "exited"
-	StatusDead		 ContainerStatus = "dead"
+	StatusRemoving   ContainerStatus = "removing"
+	StatusExited     ContainerStatus = "exited"
+	StatusDead       ContainerStatus = "dead"
 )
 
 type dockerClient struct {
