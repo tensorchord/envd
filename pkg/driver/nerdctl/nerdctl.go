@@ -29,23 +29,12 @@ import (
 
 	"github.com/tensorchord/envd/pkg/driver"
 	"github.com/tensorchord/envd/pkg/util/buildkitutil"
+	containerType "github.com/tensorchord/envd/pkg/types"
 )
 
 type nerdctlClient struct {
 	bin string
 }
-
-type ContainerStatus string
-
-const (
-	StatusCreated    ContainerStatus = "created"
-	StatusRunning    ContainerStatus = "running"
-	StatusPaused     ContainerStatus = "paused"
-	StatusRestarting ContainerStatus = "restarting"
-	StatusRemoving   ContainerStatus = "removing"
-	StatusExited     ContainerStatus = "exited"
-	StatusDead       ContainerStatus = "dead"
-)
 
 var (
 	waitingInterval = 1 * time.Second
@@ -108,7 +97,7 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 		}
 
 		// When status is StatusDead/StatusRemoving, we nened to create and start the cotainer later
-		if status != StatusDead && status != StatusRemoving {
+		if status != containerType.StatusDead && status != containerType.StatusRemoving {
 			return name, nil
 		}
 	}
@@ -159,12 +148,12 @@ func (nc *nerdctlClient) Stats(ctx context.Context, cname string, statChan chan<
 	return nil
 }
 
-func (nc *nerdctlClient) GetStatus(ctx context.Context, cname string) (ContainerStatus, error) {
+func (nc *nerdctlClient) GetStatus(ctx context.Context, cname string) (containerType.ContainerStatus, error) {
 	container, err := nc.containerInspect(ctx, cname)
 	if err != nil {
 		return "", err
 	}
-	return ContainerStatus(container.State.Status), nil
+	return containerType.ContainerStatus(container.State.Status), nil
 }
 
 // TODO(kweizh): use container engine to wrap docker and nerdctl
@@ -244,34 +233,34 @@ func (nc *nerdctlClient) waitUntilRemoved(ctx context.Context,
 }
 
 func (nc *nerdctlClient) handleContainerCreated(ctx context.Context, 
-	cname string, status ContainerStatus, timeout time.Duration) error {
+	cname string, status containerType.ContainerStatus, timeout time.Duration) error {
 	logger := logrus.WithFields(logrus.Fields{
 		"container": cname,
 		"status":	 status,
 	})
 
-	if status == StatusPaused {
+	if status == containerType.StatusPaused {
 		logger.Info("container was paused, unpause it now...")
 		out, err := nc.exec(ctx, "unpause", cname)
 		if err != nil {
 			logger.WithError(err).Error("can not run buildkitd", out)
 			return errors.Wrap(err, "failed to unpause container")
 		}
-	} else if status == StatusExited {
+	} else if status == containerType.StatusExited {
 		logger.Info("container exited, try to restart it...")
 		out, err := nc.exec(ctx, "restart", cname)
 		if err != nil {
 			logger.WithError(err).Error("can not run buildkitd", out)
 			return errors.Wrap(err, "failed to restart cotaniner")
 		}
-	} else if status == StatusDead {
+	} else if status == containerType.StatusDead {
 		logger.Info("container is dead, try to remove it...")
 		out, err := nc.exec(ctx, "remove", cname)
 		if err != nil {
 			logger.WithError(err).Error("can not run buildkitd", out)
 			return errors.Wrap(err, "failed to remove cotaniner")
 		}
-	} else if status == StatusRunning || status == StatusCreated {
+	} else if status == containerType.StatusRunning || status == containerType.StatusCreated {
 		logger.Info("container already exists.")
 		out, err := nc.exec(ctx, "start", cname)
 		if err != nil {

@@ -43,6 +43,7 @@ import (
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
+	containerType "github.com/tensorchord/envd/pkg/types"
 )
 
 const buildkitdConfigPath = "/etc/registry"
@@ -50,18 +51,6 @@ const buildkitdConfigPath = "/etc/registry"
 var (
 	anchoredIdentifierRegexp = regexp.MustCompile(`^([a-f0-9]{64})$`)
 	waitingInterval          = 1 * time.Second
-)
-
-type ContainerStatus string
-
-const (
-	StatusCreated    ContainerStatus = "created"
-	StatusRunning    ContainerStatus = "running"
-	StatusPaused     ContainerStatus = "paused"
-	StatusRestarting ContainerStatus = "restarting"
-	StatusRemoving   ContainerStatus = "removing"
-	StatusExited     ContainerStatus = "exited"
-	StatusDead       ContainerStatus = "dead"
 )
 
 type dockerClient struct {
@@ -323,7 +312,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 		}
 		
 		// When status is StatusDead/StatusRemoving, we need to create and start the container later.
-		if status != StatusDead && status != StatusRemoving {
+		if status != containerType.StatusDead && status != containerType.StatusRemoving {
 			return name, nil
 		}
 	}
@@ -375,7 +364,7 @@ func (c dockerClient) IsRunning(ctx context.Context, cname string) (bool, error)
 	return container.State.Running, nil
 }
 
-func (c dockerClient) GetStatus(ctx context.Context, cname string) (ContainerStatus, error) {
+func (c dockerClient) GetStatus(ctx context.Context, cname string) (containerType.ContainerStatus, error) {
 	container, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
@@ -383,7 +372,7 @@ func (c dockerClient) GetStatus(ctx context.Context, cname string) (ContainerSta
 		}
 		return "", err
 	}
-	return ContainerStatus(container.State.Status), nil
+	return containerType.ContainerStatus(container.State.Status), nil
 }
 
 // Load loads the docker image from the reader into the docker host.
@@ -535,31 +524,31 @@ func (c dockerClient) waitUntilRemoved(ctx context.Context,
 }
 
 func (c dockerClient) handleContainerCreated(ctx context.Context, 
-	cname string, status ContainerStatus, timeout time.Duration) error {
+	cname string, status containerType.ContainerStatus, timeout time.Duration) error {
 	logger := logrus.WithFields(logrus.Fields{
 		"container": cname,
 		"status":	 status,
 	})
 
-	if status == StatusPaused {
+	if status == containerType.StatusPaused {
 		logger.Info("container was paused, unpause it now...")
 		_, err := c.ResumeContainer(ctx, cname)
 		if err != nil {
 			return errors.Wrap(err, "failed to unpause container")
 		}
-	} else if status == StatusExited {
+	} else if status == containerType.StatusExited {
 		logger.Info("container exited, try to restart it...")
 		err := c.ContainerRestart(ctx, cname, container.StopOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to restart cotaniner")
 		}
-	} else if status == StatusDead {
+	} else if status == containerType.StatusDead {
 		logger.Info("container is dead, try to remove it...")
 		err := c.ContainerRemove(ctx, cname, types.ContainerRemoveOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to remove container")
 		}
-	} else if status == StatusRunning || status == StatusCreated {
+	} else if status == containerType.StatusRunning || status == containerType.StatusCreated {
 		logger.Info("container already exists.")
 		err := c.ContainerStart(ctx, cname, types.ContainerStartOptions{})
 		if err != nil {
