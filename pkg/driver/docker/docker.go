@@ -41,9 +41,9 @@ import (
 
 	"github.com/tensorchord/envd/pkg/driver"
 	"github.com/tensorchord/envd/pkg/envd"
+	containerType "github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
-	containerType "github.com/tensorchord/envd/pkg/types"
 )
 
 const buildkitdConfigPath = "/etc/registry"
@@ -310,7 +310,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 		if err != nil {
 			return name, errors.Wrap(err, "failed to handle container created condition")
 		}
-		
+
 		// When status is StatusDead/StatusRemoving, we need to create and start the container later.
 		if status != containerType.StatusDead && status != containerType.StatusRemoving {
 			return name, nil
@@ -489,7 +489,7 @@ func (c dockerClient) waitUntilRunning(ctx context.Context,
 	}
 }
 
-func (c dockerClient) waitUntilRemoved(ctx context.Context, 
+func (c dockerClient) waitUntilRemoved(ctx context.Context,
 	name string, timeout time.Duration) error {
 	logger := logrus.WithField("container", name)
 	logger.Debug("waiting to be removed")
@@ -523,11 +523,11 @@ func (c dockerClient) waitUntilRemoved(ctx context.Context,
 	}
 }
 
-func (c dockerClient) handleContainerCreated(ctx context.Context, 
+func (c dockerClient) handleContainerCreated(ctx context.Context,
 	cname string, status containerType.ContainerStatus, timeout time.Duration) error {
 	logger := logrus.WithFields(logrus.Fields{
 		"container": cname,
-		"status":	 status,
+		"status":    status,
 	})
 
 	if status == containerType.StatusPaused {

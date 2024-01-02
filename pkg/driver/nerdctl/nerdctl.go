@@ -28,8 +28,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/driver"
-	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 	containerType "github.com/tensorchord/envd/pkg/types"
+	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 )
 
 type nerdctlClient struct {
@@ -202,7 +202,7 @@ func (nc *nerdctlClient) waitUntilRemoved(ctx context.Context,
 	name string, timeout time.Duration) error {
 	logger := logrus.WithField("container", name)
 	logger.Debug("waiting to be removed")
-	
+
 	// Wait for the container to be removed
 	ctxTimeout, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
@@ -232,11 +232,11 @@ func (nc *nerdctlClient) waitUntilRemoved(ctx context.Context,
 	}
 }
 
-func (nc *nerdctlClient) handleContainerCreated(ctx context.Context, 
+func (nc *nerdctlClient) handleContainerCreated(ctx context.Context,
 	cname string, status containerType.ContainerStatus, timeout time.Duration) error {
 	logger := logrus.WithFields(logrus.Fields{
 		"container": cname,
-		"status":	 status,
+		"status":    status,
 	})
 
 	if status == containerType.StatusPaused {
