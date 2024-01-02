@@ -35,6 +35,18 @@ type nerdctlClient struct {
 	bin string
 }
 
+type ContainerStatus string 
+
+const (
+	StatusCreated 	 ContainerStatus = "created"
+	StatusRunning 	 ContainerStatus = "running"
+	StatusPaused  	 ContainerStatus = "paused"
+	StatusRestarting ContainerStatus = "restarting"
+	StatusRemoving	 ContainerStatus = "removing"
+	StatusExited	 ContainerStatus = "exited"
+	StatusDead		 ContainerStatus = "dead"
+)
+
 func NewClient(ctx context.Context) (driver.Client, error) {
 	bin, err := exec.LookPath("nerdctl")
 	if err != nil {
@@ -107,15 +119,15 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 			return "", errors.Wrap(err, "failed to get container status")
 		}
 
-		if status == "paused" {
+		if status == StatusPaused {
 			logger.Info("container was paused, unpause it now...")
 			out, err := nc.exec(ctx, "unpause", name)
 			if err != nil {
 				logger.WithError(err).Error("can not run buildkitd", out)
 				return "", errors.Wrap(err, "failed to unpause container")
 			}
-		} else if status == "exited" {
-			logger.Info("container exited, try to restart it...")
+		} else if status == StatusExited || status == StatusDead || status == StatusRemoving {
+			logger.Info("container exited, dead or being removed, try to restart it...")
 			out, err := nc.exec(ctx, "restart", name)
 			if err != nil {
 				logger.WithError(err).Error("can not run buildkitd", out)
@@ -156,12 +168,12 @@ func (nc *nerdctlClient) Stats(ctx context.Context, cname string, statChan chan<
 	return nil
 }
 
-func (nc *nerdctlClient) GetStatus(ctx context.Context, cname string) (string, error) {
+func (nc *nerdctlClient) GetStatus(ctx context.Context, cname string) (ContainerStatus, error) {
 	container, err := nc.containerInspect(ctx, cname)
 	if err != nil {
 		return "", err
 	}
-	return container.State.Status, nil
+	return ContainerStatus(container.State.Status), nil
 }
 
 // TODO(kweizh): use container engine to wrap docker and nerdctl

@@ -52,6 +52,18 @@ var (
 	waitingInterval          = 1 * time.Second
 )
 
+type ContainerStatus string 
+
+const (
+	StatusCreated 	 ContainerStatus = "created"
+	StatusRunning 	 ContainerStatus = "running"
+	StatusPaused  	 ContainerStatus = "paused"
+	StatusRestarting ContainerStatus = "restarting"
+	StatusRemoving	 ContainerStatus = "removing"
+	StatusExited	 ContainerStatus = "exited"
+	StatusDead		 ContainerStatus = "dead"
+)
+
 type dockerClient struct {
 	*client.Client
 }
@@ -289,14 +301,14 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 			return name, errors.Wrap(err, "failed to get container status")
 		}
 
-		if status == "paused" {
+		if status == StatusPaused {
 			logger.Info("container was paused, unpause it now...")
 			_, err := c.ResumeContainer(ctx, name)
 			if err != nil {
 				return name, errors.Wrap(err, "failed to unpause container")
 			}
-		} else if status == "exited" {
-			logger.Info("container exited, try to restart it...")
+		} else if status == StatusExited || status == StatusDead || status == StatusRemoving {
+			logger.Info("container exited, dead or being removd, try to restart it...")
 			err := c.ContainerRestart(ctx, name, container.StopOptions{})
 			if err != nil {
 				return name, errors.Wrap(err, "failed to restart cotaniner")
@@ -359,7 +371,7 @@ func (c dockerClient) IsRunning(ctx context.Context, cname string) (bool, error)
 	return container.State.Running, nil
 }
 
-func (c dockerClient) GetStatus(ctx context.Context, cname string) (string, error) {
+func (c dockerClient) GetStatus(ctx context.Context, cname string) (ContainerStatus, error) {
 	container, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
 		if client.IsErrNotFound(err) {
@@ -367,7 +379,7 @@ func (c dockerClient) GetStatus(ctx context.Context, cname string) (string, erro
 		}
 		return "", err
 	}
-	return container.State.Status, nil
+	return ContainerStatus(container.State.Status), nil
 }
 
 // Load loads the docker image from the reader into the docker host.
