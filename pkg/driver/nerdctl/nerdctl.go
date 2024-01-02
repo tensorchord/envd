@@ -47,6 +47,10 @@ const (
 	StatusDead       ContainerStatus = "dead"
 )
 
+var (
+	waitingInterval = 1 * time.Second
+)
+
 func NewClient(ctx context.Context) (driver.Client, error) {
 	bin, err := exec.LookPath("nerdctl")
 	if err != nil {
@@ -92,59 +96,45 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 	}
 
 	existed, _ := nc.containerExists(ctx, name)
-	if !existed {
-		buildkitdCmd := "buildkitd"
-		// TODO: support mirror CA keypair
-		if len(bc.Registries) > 0 {
-			cfg, err := bc.String()
-			if err != nil {
-				return "", errors.Wrap(err, "failed to generate buildkit config")
-			}
-			buildkitdCmd = fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg)
-			logger.Debugf("setting buildkit config: %s", cfg)
-		}
-
-		out, err := nc.exec(ctx, "run", "-d",
-			"--name", name,
-			"--privileged",
-			"--entrypoint", "sh",
-			tag, "-c", buildkitdCmd)
-		if err != nil {
-			logger.WithError(err).Error("can not run buildkitd", out)
-			return "", errors.Wrap(err, "running buildkitd")
-		}
-	} else {
+	if existed {
 		status, err := nc.GetStatus(ctx, name)
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get container status")
 		}
 
-		if status == StatusPaused {
-			logger.Info("container was paused, unpause it now...")
-			out, err := nc.exec(ctx, "unpause", name)
-			if err != nil {
-				logger.WithError(err).Error("can not run buildkitd", out)
-				return "", errors.Wrap(err, "failed to unpause container")
-			}
-		} else if status == StatusExited || status == StatusDead || status == StatusRemoving {
-			logger.Info("container exited, dead or being removed, try to restart it...")
-			out, err := nc.exec(ctx, "restart", name)
-			if err != nil {
-				logger.WithError(err).Error("can not run buildkitd", out)
-				return name, errors.Wrap(err, "failed to restart cotaniner")
-			}
-		} else {
-			// Deal with StatusRunning and StatusCreated condition.
-			logger.Info("container already exists.")
-			out, err := nc.exec(ctx, "start", name)
-			if err != nil {
-				logger.WithError(err).Error("can not run buildkitd", out)
-				return name, errors.Wrap(err, "failed to start container")
-			}
+		err = nc.handleContainerCreated(ctx, name, status, timeout)
+		if err != nil {
+			return "", errors.Wrap(err, "failed to handle container created condition")
+		}
+
+		// When status is StatusDead/StatusRemoving, we nened to create and start the cotainer later
+		if status != StatusDead && status != StatusRemoving {
+			return name, nil
 		}
 	}
 
-	err := nc.waitUntilRunning(ctx, name, timeout)
+	buildkitdCmd := "buildkitd"
+	// TODO: support mirror CA keypair
+	if len(bc.Registries) > 0 {
+		cfg, err := bc.String()
+		if err != nil {
+			return "", errors.Wrap(err, "failed to generate buildkit config")
+		}
+		buildkitdCmd = fmt.Sprintf("mkdir /etc/buildkit && echo '%s' > /etc/buildkit/buildkitd.toml && buildkitd", cfg)
+		logger.Debugf("setting buildkit config: %s", cfg)
+	}
+
+	out, err := nc.exec(ctx, "run", "-d",
+		"--name", name,
+		"--privileged",
+		"--entrypoint", "sh",
+		tag, "-c", buildkitdCmd)
+	if err != nil {
+		logger.WithError(err).Error("can not run buildkitd", out)
+		return "", errors.Wrap(err, "running buildkitd")
+	}
+
+	err = nc.waitUntilRunning(ctx, name, timeout)
 
 	return name, err
 }
@@ -188,7 +178,7 @@ func (nc *nerdctlClient) waitUntilRunning(ctx context.Context,
 	defer cancel()
 	for {
 		select {
-		case <-time.After(time.Second):
+		case <-time.After(waitingInterval):
 			_, err := nc.exec(ctx, "start", name)
 			if err != nil {
 				continue
@@ -217,6 +207,87 @@ func (nc *nerdctlClient) waitUntilRunning(ctx context.Context,
 			return errors.Errorf("timeout %s: container did not start", timeout)
 		}
 	}
+}
+
+func (nc *nerdctlClient) waitUntilRemoved(ctx context.Context,
+	name string, timeout time.Duration) error {
+	logger := logrus.WithField("container", name)
+	logger.Debug("waiting to be removed")
+	
+	// Wait for the container to be removed
+	ctxTimeout, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	for {
+		select {
+		case <-time.After(waitingInterval):
+			exist, err := nc.containerExists(ctxTimeout, name)
+			if err != nil {
+				return errors.Wrap(err, "failed to check if container has been removed")
+			}
+			if !exist {
+				logger.Debug("the container has been removed")
+				return nil
+			}
+		case <-ctxTimeout.Done():
+			container, err := nc.containerInspect(ctx, name)
+			if err != nil {
+				logger.Debugf("failed to inspect container %s", name)
+			}
+			state, err := json.Marshal(container.State)
+			if err != nil {
+				logger.Debug("failed to marshal container state")
+			}
+			logger.Debugf("container state: %s", state)
+			return errors.Errorf("timeout %s: container does not be removed", timeout)
+		}
+	}
+}
+
+func (nc *nerdctlClient) handleContainerCreated(ctx context.Context, 
+	cname string, status ContainerStatus, timeout time.Duration) error {
+	logger := logrus.WithFields(logrus.Fields{
+		"container": cname,
+		"status":	 status,
+	})
+
+	if status == StatusPaused {
+		logger.Info("container was paused, unpause it now...")
+		out, err := nc.exec(ctx, "unpause", cname)
+		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd", out)
+			return errors.Wrap(err, "failed to unpause container")
+		}
+	} else if status == StatusExited {
+		logger.Info("container exited, try to restart it...")
+		out, err := nc.exec(ctx, "restart", cname)
+		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd", out)
+			return errors.Wrap(err, "failed to restart cotaniner")
+		}
+	} else if status == StatusDead {
+		logger.Info("container is dead, try to remove it...")
+		out, err := nc.exec(ctx, "remove", cname)
+		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd", out)
+			return errors.Wrap(err, "failed to remove cotaniner")
+		}
+	} else if status == StatusRunning || status == StatusCreated {
+		logger.Info("container already exists.")
+		out, err := nc.exec(ctx, "start", cname)
+		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd", out)
+			return errors.Wrap(err, "failed to start container")
+		}
+	} else {
+		// The remaining condition is StatusRemoving, we just need to waiting.
+		logger.Info("container is being removed")
+		err := nc.waitUntilRemoved(ctx, cname, timeout)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (nc *nerdctlClient) containerExists(ctx context.Context, tag string) (bool, error) {

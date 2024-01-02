@@ -317,7 +317,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 			return name, errors.Wrap(err, "failed to get container status")
 		}
 
-		err = c.handleContainerCreated(ctx, name, status)
+		err = c.handleContainerCreated(ctx, name, status, timeout)
 		if err != nil {
 			return name, errors.Wrap(err, "failed to handle container created condition")
 		}
@@ -500,8 +500,9 @@ func (c dockerClient) waitUntilRunning(ctx context.Context,
 	}
 }
 
-func (c dockerClient) waitUntilRemoved(ctx context.Context, cname string, timeout time.Duration) error {
-	logger := logrus.WithField("container", cname)
+func (c dockerClient) waitUntilRemoved(ctx context.Context, 
+	name string, timeout time.Duration) error {
+	logger := logrus.WithField("container", name)
 	logger.Debug("waiting to be removed")
 
 	// Wait for the container to be removed
@@ -510,7 +511,7 @@ func (c dockerClient) waitUntilRemoved(ctx context.Context, cname string, timeou
 	for {
 		select {
 		case <-time.After(waitingInterval):
-			exist, err := c.Exists(ctxTimeout, cname)
+			exist, err := c.Exists(ctxTimeout, name)
 			if err != nil {
 				return errors.Wrap(err, "failed to check if container has been removed")
 			}
@@ -519,9 +520,9 @@ func (c dockerClient) waitUntilRemoved(ctx context.Context, cname string, timeou
 				return nil
 			}
 		case <-ctxTimeout.Done():
-			container, err := c.ContainerInspect(ctx, cname)
+			container, err := c.ContainerInspect(ctx, name)
 			if err != nil {
-				logger.Debugf("failed to inspect container %s", cname)
+				logger.Debugf("failed to inspect container %s", name)
 			}
 			state, err := json.Marshal(container.State)
 			if err != nil {
@@ -533,7 +534,8 @@ func (c dockerClient) waitUntilRemoved(ctx context.Context, cname string, timeou
 	}
 }
 
-func (c dockerClient) handleContainerCreated(ctx context.Context, cname string, status ContainerStatus) error {
+func (c dockerClient) handleContainerCreated(ctx context.Context, 
+	cname string, status ContainerStatus, timeout time.Duration) error {
 	logger := logrus.WithFields(logrus.Fields{
 		"container": cname,
 		"status":	 status,
@@ -557,7 +559,7 @@ func (c dockerClient) handleContainerCreated(ctx context.Context, cname string, 
 		if err != nil {
 			return errors.Wrap(err, "failed to remove container")
 		}
-	} else if status == StatusRunning || status == StatusCreated{
+	} else if status == StatusRunning || status == StatusCreated {
 		logger.Info("container already exists.")
 		err := c.ContainerStart(ctx, cname, types.ContainerStartOptions{})
 		if err != nil {
@@ -566,7 +568,7 @@ func (c dockerClient) handleContainerCreated(ctx context.Context, cname string, 
 	} else {
 		// The remaining condition is StatusRemoving, we just need to waiting.
 		logger.Info("container is being removed")
-		err := c.waitUntilRemoved(ctx, cname, waitingInterval)
+		err := c.waitUntilRemoved(ctx, cname, timeout)
 		if err != nil {
 			return err
 		}
