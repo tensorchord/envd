@@ -134,6 +134,7 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 				return name, errors.Wrap(err, "failed to restart cotaniner")
 			}
 		} else {
+			// Deal with StatusRunning and StatusCreated condition.
 			logger.Info("container already exists.")
 			out, err := nc.exec(ctx, "start", name)
 			if err != nil {

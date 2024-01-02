@@ -314,6 +314,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 				return name, errors.Wrap(err, "failed to restart cotaniner")
 			}
 		} else {
+			// Deal with StatusRunning and StatusCreated condition.
 			logger.Info("container already exists.")
 			err := c.ContainerStart(ctx, name, types.ContainerStartOptions{})
 			if err != nil {
