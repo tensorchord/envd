@@ -311,7 +311,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 			return name, errors.Wrap(err, "failed to handle container created condition")
 		}
 
-		// When status is StatusDead/StatusRemoving, we need to create and start the container later.
+		// When status is StatusDead/StatusRemoving, we need to create and start the container later(not to return directly).
 		if status != containerType.StatusDead && status != containerType.StatusRemoving {
 			return name, nil
 		}
@@ -518,7 +518,7 @@ func (c dockerClient) waitUntilRemoved(ctx context.Context,
 				logger.Debug("failed to marshal container state")
 			}
 			logger.Debugf("container state: %s", state)
-			return errors.Errorf("timeout %s: container does not be removed", timeout)
+			return errors.Errorf("timeout %s: container can't be removed", timeout)
 		}
 	}
 }
@@ -534,34 +534,39 @@ func (c dockerClient) handleContainerCreated(ctx context.Context,
 		logger.Info("container was paused, unpause it now...")
 		_, err := c.ResumeContainer(ctx, cname)
 		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to unpause container")
 		}
 	} else if status == containerType.StatusExited {
-		logger.Info("container exited, try to restart it...")
+		logger.Info("container exited, try to start it...")
 		err := c.ContainerRestart(ctx, cname, container.StopOptions{})
 		if err != nil {
-			return errors.Wrap(err, "failed to restart cotaniner")
+			logger.WithError(err).Error("can not run buildkitd")
+			return errors.Wrap(err, "failed to start exited cotaniner")
 		}
 	} else if status == containerType.StatusDead {
 		logger.Info("container is dead, try to remove it...")
 		err := c.ContainerRemove(ctx, cname, types.ContainerRemoveOptions{})
 		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to remove container")
 		}
-	} else if status == containerType.StatusRunning || status == containerType.StatusCreated {
-		logger.Info("container already exists.")
-		err := c.ContainerStart(ctx, cname, types.ContainerStartOptions{})
+	} else if status == containerType.StatusCreated {
+		logger.Info("container is being created")
+		err := c.waitUntilRunning(ctx, cname, timeout)
 		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to start container")
 		}
-	} else {
-		// The remaining condition is StatusRemoving, we just need to wait.
+	} else if status == containerType.StatusRemoving {
 		logger.Info("container is being removed.")
 		err := c.waitUntilRemoved(ctx, cname, timeout)
 		if err != nil {
-			return err
+			logger.WithError(err).Error("can not run buildkitd")
+			return errors.Wrap(err, "failed to remove container")
 		}
 	}
+	// No process for StatusRunning
 
 	return nil
 }

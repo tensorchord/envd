@@ -96,7 +96,7 @@ func (nc *nerdctlClient) StartBuildkitd(ctx context.Context, tag, name string, b
 			return "", errors.Wrap(err, "failed to handle container created condition")
 		}
 
-		// When status is StatusDead/StatusRemoving, we nened to create and start the container later
+		// When status is StatusDead/StatusRemoving, we nened to create and start the container later(not to return directly).
 		if status != containerType.StatusDead && status != containerType.StatusRemoving {
 			return name, nil
 		}
@@ -227,7 +227,7 @@ func (nc *nerdctlClient) waitUntilRemoved(ctx context.Context,
 				logger.Debug("failed to marshal container state")
 			}
 			logger.Debugf("container state: %s", state)
-			return errors.Errorf("timeout %s: container does not be removed", timeout)
+			return errors.Errorf("timeout %s: container can't be removed", timeout)
 		}
 	}
 }
@@ -260,21 +260,23 @@ func (nc *nerdctlClient) handleContainerCreated(ctx context.Context,
 			logger.WithError(err).Error("can not run buildkitd", out)
 			return errors.Wrap(err, "failed to remove cotaniner")
 		}
-	} else if status == containerType.StatusRunning || status == containerType.StatusCreated {
-		logger.Info("container already exists.")
-		out, err := nc.exec(ctx, "start", cname)
+	} else if status == containerType.StatusCreated {
+		logger.Info("container is being created.")
+		err := nc.waitUntilRunning(ctx, cname, timeout)
 		if err != nil {
-			logger.WithError(err).Error("can not run buildkitd", out)
+			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to start container")
 		}
-	} else {
+	} else if status == containerType.StatusRemoving {
 		// The remaining condition is StatusRemoving, we just need to wait.
 		logger.Info("container is being removed.")
 		err := nc.waitUntilRemoved(ctx, cname, timeout)
 		if err != nil {
-			return err
+			logger.WithError(err).Error("can not run buildkitd")
+			return errors.Wrap(err, "failed to remove container")
 		}
 	}
+	// No process for StatusRunning
 
 	return nil
 }
