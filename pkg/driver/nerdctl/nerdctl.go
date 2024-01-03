@@ -247,11 +247,11 @@ func (nc *nerdctlClient) handleContainerCreated(ctx context.Context,
 			return errors.Wrap(err, "failed to unpause container")
 		}
 	} else if status == containerType.StatusExited {
-		logger.Info("container exited, try to restart it...")
-		out, err := nc.exec(ctx, "restart", cname)
+		logger.Info("container exited, try to start it...")
+		out, err := nc.exec(ctx, "start", cname)
 		if err != nil {
 			logger.WithError(err).Error("can not run buildkitd", out)
-			return errors.Wrap(err, "failed to restart cotaniner")
+			return errors.Wrap(err, "failed to start exited cotaniner")
 		}
 	} else if status == containerType.StatusDead {
 		logger.Info("container is dead, try to remove it...")

@@ -539,7 +539,7 @@ func (c dockerClient) handleContainerCreated(ctx context.Context,
 		}
 	} else if status == containerType.StatusExited {
 		logger.Info("container exited, try to start it...")
-		err := c.ContainerRestart(ctx, cname, container.StopOptions{})
+		err := c.ContainerStart(ctx, cname, types.ContainerStartOptions{})
 		if err != nil {
 			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to start exited cotaniner")
