@@ -41,6 +41,7 @@ import (
 
 	"github.com/tensorchord/envd/pkg/driver"
 	"github.com/tensorchord/envd/pkg/envd"
+	containerType "github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
 )
@@ -235,6 +236,22 @@ func (c dockerClient) ResumeContainer(ctx context.Context, name string) (string,
 	return name, nil
 }
 
+func (c dockerClient) RemoveContainer(ctx context.Context, name string) (string, error) {
+	logger := logrus.WithField("container", name)
+	err := c.ContainerRemove(ctx, name, types.ContainerRemoveOptions{})
+	if err != nil {
+		errCause := errors.UnwrapAll(err).Error()
+		switch {
+		case strings.Contains(errCause, "No such container"):
+			logger.Debug("container is not found, there is no need to remove it")
+			return "", errors.New("container not found")
+		default:
+			return "", errors.Wrap(err, "failed to remove container")
+		}
+	}
+	return name, nil
+}
+
 func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *buildkitutil.BuildkitConfig, timeout time.Duration) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":             tag,
@@ -284,11 +301,20 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 	}
 	created, _ := c.Exists(ctx, name)
 	if created {
-		err := c.ContainerStart(ctx, name, types.ContainerStartOptions{})
+		status, err := c.GetStatus(ctx, name)
 		if err != nil {
-			return name, err
+			return name, errors.Wrap(err, "failed to get container status")
 		}
-		return name, nil
+
+		err = c.handleContainerCreated(ctx, name, status, timeout)
+		if err != nil {
+			return name, errors.Wrap(err, "failed to handle container created condition")
+		}
+
+		// When status is StatusDead/StatusRemoving, we need to create and start the container later(not to return directly).
+		if status != containerType.StatusDead && status != containerType.StatusRemoving {
+			return name, nil
+		}
 	}
 	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
 	if err != nil {
@@ -336,6 +362,17 @@ func (c dockerClient) IsRunning(ctx context.Context, cname string) (bool, error)
 		return false, err
 	}
 	return container.State.Running, nil
+}
+
+func (c dockerClient) GetStatus(ctx context.Context, cname string) (containerType.ContainerStatus, error) {
+	container, err := c.ContainerInspect(ctx, cname)
+	if err != nil {
+		if client.IsErrNotFound(err) {
+			return "", nil
+		}
+		return "", err
+	}
+	return containerType.ContainerStatus(container.State.Status), nil
 }
 
 // Load loads the docker image from the reader into the docker host.
@@ -450,6 +487,88 @@ func (c dockerClient) waitUntilRunning(ctx context.Context,
 			return errors.Errorf("timeout %s: container did not start", timeout)
 		}
 	}
+}
+
+func (c dockerClient) waitUntilRemoved(ctx context.Context,
+	name string, timeout time.Duration) error {
+	logger := logrus.WithField("container", name)
+	logger.Debug("waiting to be removed")
+
+	// Wait for the container to be removed
+	ctxTimeout, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	for {
+		select {
+		case <-time.After(waitingInterval):
+			exist, err := c.Exists(ctxTimeout, name)
+			if err != nil {
+				return errors.Wrap(err, "failed to check if container has been removed")
+			}
+			if !exist {
+				logger.Debug("the container has been removed")
+				return nil
+			}
+		case <-ctxTimeout.Done():
+			container, err := c.ContainerInspect(ctx, name)
+			if err != nil {
+				logger.Debugf("failed to inspect container %s", name)
+			}
+			state, err := json.Marshal(container.State)
+			if err != nil {
+				logger.Debug("failed to marshal container state")
+			}
+			logger.Debugf("container state: %s", state)
+			return errors.Errorf("timeout %s: container can't be removed", timeout)
+		}
+	}
+}
+
+func (c dockerClient) handleContainerCreated(ctx context.Context,
+	cname string, status containerType.ContainerStatus, timeout time.Duration) error {
+	logger := logrus.WithFields(logrus.Fields{
+		"container": cname,
+		"status":    status,
+	})
+
+	if status == containerType.StatusPaused {
+		logger.Info("container was paused, unpause it now...")
+		_, err := c.ResumeContainer(ctx, cname)
+		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd")
+			return errors.Wrap(err, "failed to unpause container")
+		}
+	} else if status == containerType.StatusExited {
+		logger.Info("container exited, try to start it...")
+		err := c.ContainerStart(ctx, cname, types.ContainerStartOptions{})
+		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd")
+			return errors.Wrap(err, "failed to start exited cotaniner")
+		}
+	} else if status == containerType.StatusDead {
+		logger.Info("container is dead, try to remove it...")
+		err := c.ContainerRemove(ctx, cname, types.ContainerRemoveOptions{})
+		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd")
+			return errors.Wrap(err, "failed to remove container")
+		}
+	} else if status == containerType.StatusCreated {
+		logger.Info("container is being created")
+		err := c.waitUntilRunning(ctx, cname, timeout)
+		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd")
+			return errors.Wrap(err, "failed to start container")
+		}
+	} else if status == containerType.StatusRemoving {
+		logger.Info("container is being removed.")
+		err := c.waitUntilRemoved(ctx, cname, timeout)
+		if err != nil {
+			logger.WithError(err).Error("can not run buildkitd")
+			return errors.Wrap(err, "failed to remove container")
+		}
+	}
+	// No process for StatusRunning
+
+	return nil
 }
 
 func GetDockerVersion() (int, error) {
