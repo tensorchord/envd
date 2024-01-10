@@ -33,7 +33,7 @@ type authManager interface {
 }
 
 func (m *generalManager) initAuth() error {
-	// Create $HOME/.config/envd/auth.json
+	// Create $HOME/.config/envd/auth
 	auth, err := fileutil.ConfigFile("auth")
 	if err != nil {
 		return errors.Wrap(err, "failed to get auth file")
