@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.44 (2024-01-16)
+
+ * [1f927d7](https://github.com/tensorchord/envd/commit/1f927d7813a687123e637d59c65417b8780088cf) fix: fix comment in /pkg/home/auth.go. (#1831)
+ * [7b49cc3](https://github.com/tensorchord/envd/commit/7b49cc3748d6579acfeffdd8a92e03b1291582ee) feat(bootstrap): support resume (#1828)
+
+### Contributors
+
+ * Shao Wang
+
 ## v0.3.43 (2023-12-28)
 
  * [3394589](https://github.com/tensorchord/envd/commit/3394589f9b57fd12d87661692c73564ba9f10eee) fix: set up python in pypi release step (#1825)
