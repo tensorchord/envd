@@ -123,7 +123,7 @@ var CommandUp = &cli.Command{
 		},
 		&cli.IntFlag{
 			Name:  "gpus",
-			Usage: "Number of GPUs used in this environment",
+			Usage: "Number of GPUs used in this environment, this will override the `config.gpu()`",
 			Value: 0,
 		},
 		&cli.BoolFlag{
@@ -215,9 +215,17 @@ func up(clicontext *cli.Context) error {
 	} else {
 		defaultGPU = builder.GPUEnabled()
 	}
-	numGPU := clicontext.Int("gpus")
-	if defaultGPU && numGPU == 0 {
+	numGPU := 0
+	if defaultGPU {
 		numGPU = 1
+	}
+	configGPU := builder.NumGPUs()
+	if defaultGPU && configGPU != 0 {
+		numGPU = configGPU
+	}
+	cliGPU := clicontext.Int("gpus")
+	if defaultGPU && cliGPU != 0 {
+		numGPU = cliGPU
 	}
 
 	shmSize := builder.ShmSize()
