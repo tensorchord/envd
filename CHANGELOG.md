@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.45 (2024-01-24)
+
+ * [639c188](https://github.com/tensorchord/envd/commit/639c188536181c1d621bd45d04b2243fef72c467) fix: go-git security issue GHSA-mw99-9chc-xw7r (#1844)
+ * [457f5fd](https://github.com/tensorchord/envd/commit/457f5fd9a0509f5ef64ce7ea9ce5a2cea601b85e) fix: allow cli --gpus to override config gpu (#1843)
+
+### Contributors
+
+ * Keming
+
 ## v0.3.44 (2024-01-16)
 
  * [1f927d7](https://github.com/tensorchord/envd/commit/1f927d7813a687123e637d59c65417b8780088cf) fix: fix comment in /pkg/home/auth.go. (#1831)
