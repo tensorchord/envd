@@ -102,7 +102,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     - name: Cache Docker layers
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: cache
       with:
         path: /tmp/.buildx-cache
@@ -152,7 +152,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     - name: Cache Docker layers
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: cache
       with:
         path: /tmp/.buildx-cache
@@ -190,7 +190,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     - name: Cache Docker layers
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: cache
       with:
         path: /tmp/.buildx-cache
