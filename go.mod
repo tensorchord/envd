@@ -147,7 +147,7 @@ require (
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/nsf/termbox-go v0.0.0-20190121233118-02980233997d // indirect
 	github.com/op/go-logging v0.0.0-20160211212156-b2cb9fa56473 // indirect
-	github.com/opencontainers/runc v1.1.5 // indirect
+	github.com/opencontainers/runc v1.1.12 // indirect
 	github.com/opencontainers/runtime-spec v1.1.0-rc.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/petermattis/goid v0.0.0-20230518223814-80aa455d8761 // indirect
