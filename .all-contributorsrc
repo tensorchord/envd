@@ -628,6 +628,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "arugal",
+      "name": "zhang-wei",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26432832?v=4",
+      "profile": "http://blogs.zhangwei.asia",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
