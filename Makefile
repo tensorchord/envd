@@ -176,7 +176,7 @@ test-local:
 	@go test -v -race -coverprofile=coverage.out ./...
 
 test: generate  ## Run the tests
-	@go test -race -coverpkg=./pkg/... -coverprofile=coverage.out $(shell go list ./... | grep -v e2e)
+	@go test -race -coverpkg=./pkg/... -coverprofile=coverage.out ./pkg/...
 	@go tool cover -func coverage.out | tail -n 1 | awk '{ print "Total coverage: " $$3 }'
 
 e2e-test:
