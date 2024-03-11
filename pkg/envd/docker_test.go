@@ -15,9 +15,10 @@
 package envd
 
 import (
-	"github.com/docker/docker/api/types/container"
 	"reflect"
 	"testing"
+
+	"github.com/docker/docker/api/types/container"
 )
 
 func TestDeviceRequests(t *testing.T) {
