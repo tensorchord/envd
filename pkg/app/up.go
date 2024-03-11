@@ -126,6 +126,11 @@ var CommandUp = &cli.Command{
 			Usage: "Number of GPUs used in this environment, this will override the `config.gpu()`",
 			Value: 0,
 		},
+		&cli.StringFlag{
+			Name:  "gpu-set",
+			Usage: "GPU devices used in this environment, such as `all`, `'\"device=1,3\"'`, `count=2`(all to pass all GPUs). This will override the `--gpus`",
+			Value: "",
+		},
 		&cli.BoolFlag{
 			Name:  "force",
 			Usage: "Force rebuild and run the container although the previous container is running",
@@ -228,6 +233,11 @@ func up(clicontext *cli.Context) error {
 		numGPU = cliGPU
 	}
 
+	gpuSet := ""
+	if defaultGPU {
+		gpuSet = clicontext.String("gpu-set")
+	}
+
 	shmSize := builder.ShmSize()
 	isSetShmSize := clicontext.IsSet("shm-size")
 	if shmSize == 0 || isSetShmSize {
@@ -253,6 +263,7 @@ func up(clicontext *cli.Context) error {
 		BuildContext:    buildOpt.BuildContextDir,
 		Image:           buildOpt.Tag,
 		NumGPU:          numGPU,
+		GPUSet:          gpuSet,
 		Forced:          clicontext.Bool("force"),
 		Timeout:         clicontext.Duration("timeout"),
 		SshdHost:        clicontext.String("host"),
