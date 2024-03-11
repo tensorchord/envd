@@ -17,6 +17,7 @@ package app
 import (
 	"fmt"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -220,22 +221,21 @@ func up(clicontext *cli.Context) error {
 	} else {
 		defaultGPU = builder.GPUEnabled()
 	}
-	numGPU := 0
+	gpuSet := ""
 	if defaultGPU {
-		numGPU = 1
+		gpuSet = "1"
 	}
 	configGPU := builder.NumGPUs()
 	if defaultGPU && configGPU != 0 {
-		numGPU = configGPU
+		gpuSet = strconv.Itoa(configGPU)
 	}
 	cliGPU := clicontext.Int("gpus")
 	if defaultGPU && cliGPU != 0 {
-		numGPU = cliGPU
+		gpuSet = strconv.Itoa(cliGPU)
 	}
-
-	gpuSet := ""
-	if defaultGPU {
-		gpuSet = clicontext.String("gpu-set")
+	cliGPUSet := clicontext.String("gpu-set")
+	if defaultGPU && len(cliGPUSet) > 0 {
+		gpuSet = cliGPUSet
 	}
 
 	shmSize := builder.ShmSize()
@@ -262,7 +262,6 @@ func up(clicontext *cli.Context) error {
 		EnvironmentName: name,
 		BuildContext:    buildOpt.BuildContextDir,
 		Image:           buildOpt.Tag,
-		NumGPU:          numGPU,
 		GPUSet:          gpuSet,
 		Forced:          clicontext.Bool("force"),
 		Timeout:         clicontext.Duration("timeout"),

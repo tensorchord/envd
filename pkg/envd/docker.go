@@ -350,7 +350,6 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":           so.Image,
 		"environment":   so.EnvironmentName,
-		"gpu":           so.NumGPU,
 		"gpu-set":       so.GPUSet,
 		"shm":           so.ShmSize,
 		"cpu":           so.NumCPU,
@@ -363,7 +362,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	defer bar.Finish()
 	bar.UpdateTitle("configure the environment")
 
-	if len(so.GPUSet) > 0 || so.NumGPU != 0 {
+	if len(so.GPUSet) > 0 {
 		nvruntimeExists, err := e.GPUEnabled(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to check if nvidia-runtime is installed")
@@ -562,15 +561,9 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		}
 	}
 
-	if len(so.GPUSet) > 0 || so.NumGPU != 0 {
+	if len(so.GPUSet) > 0 {
 		logger.Debug("GPU is enabled.")
-		var value string
-		if len(so.GPUSet) > 0 {
-			value = so.GPUSet
-		} else {
-			value = strconv.Itoa(so.NumGPU)
-		}
-		hostConfig.DeviceRequests, err = deviceRequests(value)
+		hostConfig.DeviceRequests, err = deviceRequests(so.GPUSet)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to parse gpu-set flag")
 
