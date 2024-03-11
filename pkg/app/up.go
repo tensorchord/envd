@@ -233,7 +233,10 @@ func up(clicontext *cli.Context) error {
 	if defaultGPU && cliGPU != 0 {
 		numGPU = cliGPU
 	}
-	gpuSet := strconv.Itoa(numGPU)
+	gpuSet := ""
+	if defaultGPU && numGPU != 0 {
+		gpuSet = strconv.Itoa(numGPU)
+	}
 	cliGPUSet := clicontext.String("gpu-set")
 	if defaultGPU && len(cliGPUSet) > 0 {
 		gpuSet = cliGPUSet
