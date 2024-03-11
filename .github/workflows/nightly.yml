@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 'stable'
       - uses: actions/checkout@v4
       - name: Cache Go modules
         uses: actions/cache@preview
@@ -56,7 +56,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 'stable'
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -93,7 +93,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 'stable'
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -130,7 +130,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 'stable'
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -165,7 +165,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 'stable'
       - name: Install bins
         run: |
           go install github.com/mattn/goveralls@latest
@@ -204,7 +204,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 'stable'
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -232,7 +232,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 'stable'
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -269,7 +269,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19.10
+          go-version: 'stable'
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -306,7 +306,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 'stable'
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
@@ -343,7 +343,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 'stable'
       - name: Cache Go modules
         uses: actions/cache@preview
         with:
