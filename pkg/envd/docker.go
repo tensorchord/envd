@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/docker/cli/opts"
 	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
@@ -349,7 +350,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	logger := logrus.WithFields(logrus.Fields{
 		"tag":           so.Image,
 		"environment":   so.EnvironmentName,
-		"gpu":           so.NumGPU,
+		"gpu-set":       so.GPUSet,
 		"shm":           so.ShmSize,
 		"cpu":           so.NumCPU,
 		"cpu-set":       so.CPUSet,
@@ -361,7 +362,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	defer bar.Finish()
 	bar.UpdateTitle("configure the environment")
 
-	if so.NumGPU != 0 {
+	if len(so.GPUSet) > 0 {
 		nvruntimeExists, err := e.GPUEnabled(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to check if nvidia-runtime is installed")
@@ -560,9 +561,13 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		}
 	}
 
-	if so.NumGPU != 0 {
+	if len(so.GPUSet) > 0 {
 		logger.Debug("GPU is enabled.")
-		hostConfig.DeviceRequests = deviceRequests(so.NumGPU)
+		hostConfig.DeviceRequests, err = deviceRequests(so.GPUSet)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse gpu-set flag")
+
+		}
 	}
 
 	config.Labels = e.labels(g, so.EnvironmentName,
@@ -736,23 +741,21 @@ func (e dockerEngine) PruneImage(ctx context.Context) (dockertypes.ImagesPruneRe
 	return pruneReport, nil
 }
 
-func deviceRequests(count int) []container.DeviceRequest {
-	return []container.DeviceRequest{
-		{
-			Driver: "nvidia",
-			Capabilities: [][]string{
-				{"gpu"},
-				{"nvidia"},
-				{"compute"},
-				{"compat32"},
-				{"graphics"},
-				{"utility"},
-				{"video"},
-				{"display"},
-			},
-			Count: count,
-		},
+func deviceRequests(value string) ([]container.DeviceRequest, error) {
+	if value == "" {
+		return nil, nil
 	}
+	if !strings.Contains(value, "capabilities=") {
+		value += ",\"capabilities=nvidia,compute,compat32,graphics,utility,video,display\""
+	}
+	if !strings.Contains(value, "driver=") {
+		value += ",driver=nvidia"
+	}
+	opt := opts.GpuOpts{}
+	if err := opt.Set(value); err != nil {
+		return nil, err
+	}
+	return opt.Value(), nil
 }
 
 func (e dockerEngine) labels(g ir.Graph, name string,
