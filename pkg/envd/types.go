@@ -37,6 +37,7 @@ type StartOptions struct {
 	Image           string
 	EnvironmentName string
 	BuildContext    string
+	NumGPU          int
 	GPUSet          string
 	NumCPU          string
 	CPUSet          string

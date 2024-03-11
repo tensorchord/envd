@@ -221,18 +221,19 @@ func up(clicontext *cli.Context) error {
 	} else {
 		defaultGPU = builder.GPUEnabled()
 	}
-	gpuSet := ""
+	numGPU := 0
 	if defaultGPU {
-		gpuSet = "1"
+		numGPU = 1
 	}
 	configGPU := builder.NumGPUs()
 	if defaultGPU && configGPU != 0 {
-		gpuSet = strconv.Itoa(configGPU)
+		numGPU = configGPU
 	}
 	cliGPU := clicontext.Int("gpus")
 	if defaultGPU && cliGPU != 0 {
-		gpuSet = strconv.Itoa(cliGPU)
+		numGPU = cliGPU
 	}
+	gpuSet := strconv.Itoa(numGPU)
 	cliGPUSet := clicontext.String("gpu-set")
 	if defaultGPU && len(cliGPUSet) > 0 {
 		gpuSet = cliGPUSet
@@ -262,6 +263,7 @@ func up(clicontext *cli.Context) error {
 		EnvironmentName: name,
 		BuildContext:    buildOpt.BuildContextDir,
 		Image:           buildOpt.Tag,
+		NumGPU:          numGPU,
 		GPUSet:          gpuSet,
 		Forced:          clicontext.Bool("force"),
 		Timeout:         clicontext.Duration("timeout"),
