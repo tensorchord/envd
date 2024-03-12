@@ -16,7 +16,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19.10
+          go-version: 'stable'
       - name: Docker Login
         uses: docker/login-action@v3
         with:
