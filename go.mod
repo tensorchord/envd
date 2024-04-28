@@ -21,7 +21,7 @@ require (
 	github.com/go-git/go-git/v5 v5.11.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.1
-	github.com/hashicorp/go-getter v1.7.3
+	github.com/hashicorp/go-getter v1.7.4
 	github.com/mattn/go-isatty v0.0.19
 	github.com/moby/buildkit v0.11.6
 	github.com/moby/term v0.5.0
