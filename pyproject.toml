@@ -1,3 +1,12 @@
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+target-version = "py312"
+extend-include = ["*.envd"]
+[tool.ruff.lint]
+select = ["E", "F", "G", "B", "I", "SIM", "TID", "PL", "RUF"]
+ignore = ["E501", "PLW2901", "F821"]
+[tool.ruff.lint.pylint]
+max-args = 7

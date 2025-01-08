@@ -27,7 +27,7 @@ v1 is experimental and may change in the future. Make sure to freeze the envd ve
 :::
 """
 
-from typing import List, Optional
+from typing import Optional, Sequence
 
 
 def python(version: str = "3.9"):
@@ -57,59 +57,61 @@ def julia():
     """Install Julia."""
 
 
-def apt_packages(name: List[str] = []):
+def apt_packages(name: Sequence[str] = ()):
     """Install package using the system package manager (apt on Ubuntu).
 
     Args:
-        name (List[str]): apt package name list
+        name (Sequence[str]): apt package name list
     """
 
 
 def python_packages(
-    name: List[str] = [], requirements: str = "", local_wheels: List[str] = []
+    name: Sequence[str] = (), requirements: str = "", local_wheels: Sequence[str] = ()
 ):
     """Install python package by pip.
 
     Args:
-        name (List[str]): package name list
+        name (Sequence[str]): package name list
         requirements (str): requirements file path
-        local_wheels (List[str]): local wheels
+        local_wheels (Sequence[str]): local wheels
             (wheel files should be placed under the current directory)
     """
 
 
-def conda_packages(name: List[str] = [], channel: List[str] = [], env_file: str = ""):
+def conda_packages(
+    name: Sequence[str] = (), channel: Sequence[str] = (), env_file: str = ""
+):
     """Install python package by Conda
 
     Args:
-        name (List[str]): List of package names with optional version assignment,
+        name (Sequence[str]): List of package names with optional version assignment,
             such as ['pytorch', 'tensorflow==1.13.0']
-        channel (List[str]): additional channels
+        channel (Sequence[str]): additional channels
         env_file (str): conda env file path
     """
 
 
-def r_packages(name: List[str]):
+def r_packages(name: Sequence[str]):
     """Install R packages by R package manager.
 
     Args:
-        name (List[str]): package name list
+        name (Sequence[str]): package name list
     """
 
 
-def julia_packages(name: List[str]):
+def julia_packages(name: Sequence[str]):
     """Install Julia packages.
 
     Args:
-        name (List[str]): List of Julia packages
+        name (Sequence[str]): List of Julia packages
     """
 
 
-def vscode_extensions(name: List[str]):
+def vscode_extensions(name: Sequence[str]):
     """Install VS Code extensions
 
     Args:
-        name (List[str]): extension names, such as ['ms-python.python']
+        name (Sequence[str]): extension names, such as ['ms-python.python']
     """
 
 

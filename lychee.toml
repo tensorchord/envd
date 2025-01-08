@@ -1,0 +1,4 @@
+scheme = [ "https", "http", "mailto" ]
+exclude_loopback = true
+exclude_path = ["CHANGELOG.md"]
+accept = ["200..=204", "429", "500..=599"]

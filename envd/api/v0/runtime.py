@@ -21,7 +21,7 @@ Please update the python file there instead of directly editing file inside envd
 :::
 """
 
-from typing import Dict, Optional, List
+from typing import Dict, List, Optional
 
 
 def command(commands: Dict[str, str]):

@@ -13,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import dgl.nn as dglnn
-from dgl.data import CoraGraphDataset, CiteseerGraphDataset, PubmedGraphDataset
-from dgl import AddSelfLoop
 import argparse
+
+import dgl.nn as dglnn
+import torch
+import torch.nn.functional as F
+from dgl import AddSelfLoop
+from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset
+from torch import nn
 
 
 class GAT(nn.Module):
@@ -52,10 +53,7 @@ class GAT(nn.Module):
         h = inputs
         for i, layer in enumerate(self.gat_layers):
             h = layer(g, h)
-            if i == 1:  # last layer
-                h = h.mean(1)
-            else:  # other layer(s)
-                h = h.flatten(1)
+            h = h.mean(1) if i == 1 else h.flatten(1)
         return h
 
 
@@ -102,7 +100,7 @@ if __name__ == "__main__":
         help="Dataset name ('cora', 'citeseer', 'pubmed').",
     )
     args = parser.parse_args()
-    print(f"Training with DGL built-in GATConv module.")
+    print("Training with DGL built-in GATConv module.")
 
     # load and preprocess dataset
     transform = (

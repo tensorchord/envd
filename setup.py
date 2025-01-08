@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from setuptools.command.sdist import sdist
-from setuptools import setup, Extension, find_packages
-from setuptools.command.build_ext import build_ext
-from wheel.bdist_wheel import bdist_wheel
-
-
-import subprocess
 import logging
+import os
+import subprocess
+
+from setuptools import Extension, find_packages, setup
+from setuptools.command.build_ext import build_ext
+from setuptools.command.sdist import sdist
+from wheel.bdist_wheel import bdist_wheel
 
 with open("README.md", "r", encoding="utf-8") as f:
     readme = f.read()

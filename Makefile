@@ -254,11 +254,12 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
-black-install:
-	@pip install -q black[jupyter]
+ruff-install:
+	@pip install -q ruff
 
-envd-lint: black-install
-	black --check --include '(\.envd|\.py|\.ipynb)$$' .
+envd-lint: ruff-install
+	@ruff --check .
 
-envd-fmt: black-install
-	black --include '(\.envd|\.py|\.ipynb)$$' .
+envd-fmt: ruff-install
+	@ruff format .
+	@ruff check --fix .

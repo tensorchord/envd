@@ -27,7 +27,7 @@ v1 is experimental and may change in the future. Make sure to freeze the envd ve
 :::
 """
 
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 
 def command(commands: Dict[str, str]):

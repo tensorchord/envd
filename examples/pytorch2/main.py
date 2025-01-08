@@ -7,7 +7,7 @@ import torch.utils.data
 import torchvision.datasets
 import torchvision.models
 import torchvision.transforms as T
-from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
+from torchvision.models import EfficientNet_B0_Weights, efficientnet_b0
 
 transform = T.Compose(
     [T.Resize(224), T.ToTensor(), T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]

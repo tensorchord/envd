@@ -21,12 +21,11 @@ from urllib.request import urlretrieve
 import numpy as np  # type: ignore
 import torch  # type: ignore
 import torchvision  # type: ignore
-from PIL import Image  # type: ignore
-from torchvision import transforms  # type: ignore
-
 from mosec import Server, Worker
 from mosec.errors import ValidationError
 from mosec.mixin import MsgpackMixin
+from PIL import Image  # type: ignore
+from torchvision import transforms  # type: ignore
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)

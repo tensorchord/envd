@@ -21,7 +21,7 @@ Please update the python file there instead of directly editing file inside envd
 :::
 """
 
-from typing import Optional, List
+from typing import List, Optional
 
 
 def apt_source(source: Optional[str]):
