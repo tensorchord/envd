@@ -41,7 +41,7 @@ type generalWriter struct {
 	phase       string
 	trace       *trace
 	doneCh      chan bool
-	repeated     bool
+	repeated    bool
 	result      *Result
 	lineCount   int
 }
@@ -72,7 +72,7 @@ func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 		phase:       "parse build.envd and download/cache dependencies",
 		trace:       t,
 		doneCh:      make(chan bool),
-		repeated:     false,
+		repeated:    false,
 		result: &Result{
 			plugins: make([]*PluginInfo, 0),
 		},

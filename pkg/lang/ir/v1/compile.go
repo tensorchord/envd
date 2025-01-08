@@ -232,7 +232,7 @@ func (g generalGraph) Labels() (map[string]string, error) {
 		})
 	}
 
-	if g.RuntimeExpose != nil && len(g.RuntimeExpose) > 0 {
+	if len(g.RuntimeExpose) > 0 {
 		for _, item := range g.RuntimeExpose {
 			ports = append(ports, servertypes.EnvironmentPort{
 				Name: item.ServiceName,
@@ -273,7 +273,7 @@ func (g generalGraph) ExposedPorts() (map[string]struct{}, error) {
 		ports[fmt.Sprintf("%d/tcp", config.RStudioServerPortInContainer)] = struct{}{}
 	}
 
-	if g.RuntimeExpose != nil && len(g.RuntimeExpose) > 0 {
+	if len(g.RuntimeExpose) > 0 {
 		for _, item := range g.RuntimeExpose {
 			ports[fmt.Sprintf("%d/tcp", item.EnvdPort)] = struct{}{}
 		}
