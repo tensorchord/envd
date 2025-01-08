@@ -45,9 +45,11 @@ func ImageConfigStr(labels map[string]string, ports map[string]struct{},
 			ExposedPorts: ports,
 			Entrypoint:   entrypoint,
 		},
-		Architecture: platform.Architecture,
 		// Refer to https://github.com/tensorchord/envd/issues/269#issuecomment-1152944914
-		OS: platform.OS,
+		Platform: ocispecs.Platform{
+			Architecture: platform.Architecture,
+			OS:           platform.OS,
+		},
 		RootFS: ocispecs.RootFS{
 			Type: "layers",
 		},

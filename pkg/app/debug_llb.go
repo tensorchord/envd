@@ -119,9 +119,9 @@ func debugLLB(clicontext *cli.Context) error {
 }
 
 type llbOp struct {
-	Op         pb.Op
+	Op         *pb.Op
 	Digest     digest.Digest
-	OpMetadata pb.OpMetadata
+	OpMetadata *pb.OpMetadata
 }
 
 // Refer to https://github.com/moby/buildkit/blob/master/cmd/buildctl/debug/dumpllb.go#L17:5
@@ -129,11 +129,11 @@ func loadLLB(def *llb.Definition) ([]llbOp, error) {
 	var ops []llbOp
 	for _, dt := range def.Def {
 		var op pb.Op
-		if err := (&op).Unmarshal(dt); err != nil {
+		if err := (&op).UnmarshalVT(dt); err != nil {
 			return nil, errors.Wrap(err, "failed to parse op")
 		}
 		dgst := digest.FromBytes(dt)
-		ent := llbOp{Op: op, Digest: dgst, OpMetadata: def.Metadata[dgst]}
+		ent := llbOp{Op: &op, Digest: dgst, OpMetadata: def.Metadata[dgst].ToPB()}
 		ops = append(ops, ent)
 	}
 	return ops, nil
@@ -162,12 +162,12 @@ func writeDot(ops []llbOp, w io.Writer) {
 	}
 }
 
-func attr(dgst digest.Digest, op pb.Op) (string, string) {
+func attr(dgst digest.Digest, op *pb.Op) (string, string) {
 	switch op := op.Op.(type) {
 	case *pb.Op_Source:
 		return op.Source.Identifier, "ellipse"
 	case *pb.Op_Exec:
-		return generateExecNode(op.Exec)
+		return strings.Join(op.Exec.Meta.Args, " "), "box"
 	case *pb.Op_Build:
 		return "build", "box3d"
 	case *pb.Op_Merge:
@@ -197,27 +197,4 @@ func attr(dgst digest.Digest, op pb.Op) (string, string) {
 	default:
 		return dgst.String(), "plaintext"
 	}
-}
-
-func generateExecNode(op *pb.ExecOp) (string, string) {
-	mounts := []string{}
-	for _, m := range op.Mounts {
-		mstr := fmt.Sprintf("selector=%s, target=%s, mount-type=%s", m.Selector,
-			m.Dest, m.MountType)
-		if m.CacheOpt != nil {
-			mstr = mstr + fmt.Sprintf(" cache-id=%s, cache-share-mode = %s",
-				m.CacheOpt.ID, m.CacheOpt.Sharing)
-		}
-		mounts = append(mounts, mstr)
-	}
-
-	name := fmt.Sprintf("user=%s, cwd=%s, args={%s}, mounts={%s}, env={%s}",
-		op.Meta.User,
-		op.Meta.Cwd,
-		strings.Join(op.Meta.Args, " "),
-		strings.Join(mounts, " "),
-		strings.Join(op.Meta.Env, " "),
-	)
-
-	return name, "box"
 }

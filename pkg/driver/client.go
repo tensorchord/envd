@@ -19,7 +19,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
 
 	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 )
@@ -31,10 +31,10 @@ type Client interface {
 
 	Exec(ctx context.Context, cname string, cmd []string) error
 
-	GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error)
+	GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (image.Summary, error)
 	RemoveImage(ctx context.Context, image string) error
 	PushImage(ctx context.Context, image, platform string) error
-	PruneImage(ctx context.Context) (types.ImagesPruneReport, error)
+	PruneImage(ctx context.Context) (image.PruneReport, error)
 
 	Stats(ctx context.Context, cname string, statChan chan<- *Stats, done <-chan bool) error
 }

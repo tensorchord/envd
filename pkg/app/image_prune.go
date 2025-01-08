@@ -19,7 +19,7 @@ import (
 	"io"
 	"os"
 
-	dockertypes "github.com/docker/docker/api/types"
+	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/docker/go-units"
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
@@ -52,7 +52,7 @@ func pruneImages(clicontext *cli.Context) error {
 	return nil
 }
 
-func renderPruneReport(w io.Writer, report dockertypes.ImagesPruneReport) {
+func renderPruneReport(w io.Writer, report dockerimage.PruneReport) {
 	table := tablewriter.NewWriter(w)
 	table.SetHeader([]string{"Type", "Image"})
 

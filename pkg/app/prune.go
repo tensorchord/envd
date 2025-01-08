@@ -70,7 +70,9 @@ func prune(clicontext *cli.Context) error {
 	}(time.Now())
 
 	keepDuration := clicontext.Duration("keep-duration")
-	keepStorage := clicontext.Float64("keep-storage")
+	maxUsed := clicontext.Float64("max-used-mb")
+	minFree := clicontext.Float64("min-free-mb")
+	reserved := clicontext.Float64("reserved-mb")
 	filter := clicontext.StringSlice("filter")
 	verbose := clicontext.Bool("verbose")
 
@@ -93,7 +95,7 @@ func prune(clicontext *cli.Context) error {
 		}
 	}
 	if err := bkClient.Prune(clicontext.Context,
-		keepDuration, keepStorage, filter, verbose, cleanAll); err != nil {
+		keepDuration, maxUsed, minFree, reserved, filter, verbose, cleanAll); err != nil {
 		return errors.Wrap(err, "failed to prune buildkit cache")
 	}
 	return nil

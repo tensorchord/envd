@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
-	dockertypes "github.com/docker/docker/api/types"
+	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/sirupsen/logrus"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 	"github.com/tensorchord/envd-server/client"
@@ -85,8 +85,8 @@ func (e *envdServerEngine) GetImage(ctx context.Context, image string) (types.En
 	return *img, nil
 }
 
-func (e envdServerEngine) PruneImage(ctx context.Context) (dockertypes.ImagesPruneReport, error) {
-	return dockertypes.ImagesPruneReport{}, errors.New("not implemented for envd-server")
+func (e envdServerEngine) PruneImage(ctx context.Context) (dockerimage.PruneReport, error) {
+	return dockerimage.PruneReport{}, errors.New("not implemented for envd-server")
 }
 
 func (e *envdServerEngine) GetInfo(ctx context.Context) (*types.EnvdInfo, error) {

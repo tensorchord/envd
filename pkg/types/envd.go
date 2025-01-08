@@ -20,6 +20,8 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
+	dockersystem "github.com/docker/docker/api/types/system"
 	"github.com/moby/buildkit/util/system"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 
@@ -103,7 +105,7 @@ type EnvdManifest struct {
 }
 
 type EnvdInfo struct {
-	types.Info
+	dockersystem.Info
 }
 
 type EnvdContext struct {
@@ -170,7 +172,7 @@ type AuthConfig struct {
 	JWTToken string `json:"jwt_token,omitempty"`
 }
 
-func NewImageFromSummary(image types.ImageSummary) (*EnvdImage, error) {
+func NewImageFromSummary(image image.Summary) (*EnvdImage, error) {
 	img := EnvdImage{
 		ImageMeta: servertypes.ImageMeta{
 			Digest:  image.ID,
@@ -266,7 +268,7 @@ func NewDependencyFromContainerJSON(ctr types.ContainerJSON) (*Dependency, error
 	return NewDependencyFromLabels(ctr.Config.Labels)
 }
 
-func NewDependencyFromImageSummary(img types.ImageSummary) (*Dependency, error) {
+func NewDependencyFromImageSummary(img image.Summary) (*Dependency, error) {
 	return NewDependencyFromLabels(img.Labels)
 }
 

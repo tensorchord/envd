@@ -26,9 +26,9 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/cli/opts"
-	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
@@ -65,7 +65,7 @@ func dockerFiltersWithName(name string) filters.Args {
 }
 
 func (e dockerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) {
-	images, err := e.ImageList(ctx, dockertypes.ImageListOptions{
+	images, err := e.ImageList(ctx, dockerimage.ListOptions{
 		Filters: dockerFilters(false),
 	})
 	if err != nil {
@@ -84,7 +84,7 @@ func (e dockerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) 
 }
 
 func (e dockerEngine) GetEnvironment(ctx context.Context, env string) (*types.EnvdEnvironment, error) {
-	ctrs, err := e.ContainerList(ctx, dockertypes.ContainerListOptions{
+	ctrs, err := e.ContainerList(ctx, container.ListOptions{
 		Filters: dockerFiltersWithName(env),
 	})
 	if err != nil {
@@ -104,7 +104,7 @@ func (e dockerEngine) GetEnvironment(ctx context.Context, env string) (*types.En
 
 func (e dockerEngine) ListEnvironment(
 	ctx context.Context) ([]types.EnvdEnvironment, error) {
-	ctrs, err := e.ContainerList(ctx, dockertypes.ContainerListOptions{
+	ctrs, err := e.ContainerList(ctx, container.ListOptions{
 		Filters: dockerFilters(false),
 	})
 	if err != nil {
@@ -173,7 +173,7 @@ func (e dockerEngine) ListImageDependency(ctx context.Context, image string) (*t
 		"image": image,
 	})
 	logger.Debug("getting dependencies")
-	images, err := e.ImageList(ctx, dockertypes.ImageListOptions{
+	images, err := e.ImageList(ctx, dockerimage.ListOptions{
 		Filters: dockerFiltersWithName(image),
 	})
 	if err != nil {
@@ -289,7 +289,7 @@ func (e dockerEngine) CleanEnvdIfExists(ctx context.Context, name string, force 
 	if !created {
 		return nil
 	}
-	return e.ContainerRemove(ctx, name, dockertypes.ContainerRemoveOptions{Force: force})
+	return e.ContainerRemove(ctx, name, container.RemoveOptions{Force: force})
 }
 
 func (e dockerEngine) Exists(ctx context.Context, cname string) (bool, error) {
@@ -591,7 +591,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 
 	bar.UpdateTitle("start the environment")
 	if err := e.ContainerStart(
-		ctx, resp.ID, dockertypes.ContainerStartOptions{}); err != nil {
+		ctx, resp.ID, container.StartOptions{}); err != nil {
 		errCause := errors.UnwrapAll(err)
 		// Hack to check if the port is already allocated.
 		if strings.Contains(errCause.Error(), "port is already allocated") {
@@ -651,11 +651,11 @@ func (e dockerEngine) Destroy(ctx context.Context, name string) (string, error) 
 		}
 	}
 
-	if err := e.ContainerRemove(ctx, name, dockertypes.ContainerRemoveOptions{}); err != nil {
+	if err := e.ContainerRemove(ctx, name, container.RemoveOptions{}); err != nil {
 		return "", errors.Wrap(err, "failed to remove the container")
 	}
 
-	if _, err := e.ImageRemove(ctx, ctr.Image, dockertypes.ImageRemoveOptions{}); err != nil {
+	if _, err := e.ImageRemove(ctx, ctr.Image, dockerimage.RemoveOptions{}); err != nil {
 		return "", errors.Errorf("remove image %s failed: %w", ctr.Image, err)
 	}
 	logger.Infof("image(%s) is destroyed", ctr.Image)
@@ -715,16 +715,16 @@ func (e dockerEngine) GPUEnabled(ctx context.Context) (bool, error) {
 	return false, nil
 }
 
-func (e dockerEngine) GetImage(ctx context.Context, image string) (types.EnvdImage, error) {
-	images, err := e.ImageList(ctx, dockertypes.ImageListOptions{
-		Filters: dockerFiltersWithName(image),
+func (e dockerEngine) GetImage(ctx context.Context, imageName string) (types.EnvdImage, error) {
+	images, err := e.ImageList(ctx, dockerimage.ListOptions{
+		Filters: dockerFiltersWithName(imageName),
 	})
 	if err != nil {
 		return types.EnvdImage{}, err
 	}
 	if len(images) == 0 {
 		return types.EnvdImage{},
-			errors.Errorf("image %s not found", image)
+			errors.Errorf("image %s not found", imageName)
 	}
 	img, err := types.NewImageFromSummary(images[0])
 	if err != nil {
@@ -733,10 +733,10 @@ func (e dockerEngine) GetImage(ctx context.Context, image string) (types.EnvdIma
 	return *img, nil
 }
 
-func (e dockerEngine) PruneImage(ctx context.Context) (dockertypes.ImagesPruneReport, error) {
+func (e dockerEngine) PruneImage(ctx context.Context) (dockerimage.PruneReport, error) {
 	pruneReport, err := e.ImagesPrune(ctx, filters.Args{})
 	if err != nil {
-		return dockertypes.ImagesPruneReport{}, errors.Wrap(err, "failed to prune images")
+		return dockerimage.PruneReport{}, errors.Wrap(err, "failed to prune images")
 	}
 	return pruneReport, nil
 }
