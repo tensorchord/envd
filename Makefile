@@ -258,7 +258,7 @@ ruff-install:
 	@pip install -q ruff
 
 envd-lint: ruff-install
-	@ruff --check .
+	@ruff check .
 
 envd-fmt: ruff-install
 	@ruff format .
