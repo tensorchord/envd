@@ -25,6 +25,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/api/types"
+	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/driver"
@@ -132,8 +133,8 @@ func (nc *nerdctlClient) Exec(ctx context.Context, cname string, cmd []string) e
 	return nil
 }
 
-func (nc *nerdctlClient) GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (types.ImageSummary, error) {
-	return types.ImageSummary{}, nil
+func (nc *nerdctlClient) GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (dockerimage.Summary, error) {
+	return dockerimage.Summary{}, nil
 }
 func (nc *nerdctlClient) RemoveImage(ctx context.Context, image string) error {
 	return nil
@@ -141,8 +142,8 @@ func (nc *nerdctlClient) RemoveImage(ctx context.Context, image string) error {
 func (nc *nerdctlClient) PushImage(ctx context.Context, image, platform string) error {
 	return nil
 }
-func (nc *nerdctlClient) PruneImage(ctx context.Context) (types.ImagesPruneReport, error) {
-	return types.ImagesPruneReport{}, nil
+func (nc *nerdctlClient) PruneImage(ctx context.Context) (dockerimage.PruneReport, error) {
+	return dockerimage.PruneReport{}, nil
 }
 func (nc *nerdctlClient) Stats(ctx context.Context, cname string, statChan chan<- *driver.Stats, done <-chan bool) error {
 	return nil

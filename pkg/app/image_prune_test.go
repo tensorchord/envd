@@ -18,13 +18,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/docker/docker/api/types"
+	dockerimage "github.com/docker/docker/api/types/image"
 )
 
 func Test_renderPruneReport(t *testing.T) {
 
-	report := types.ImagesPruneReport{
-		ImagesDeleted: []types.ImageDeleteResponseItem{
+	report := dockerimage.PruneReport{
+		ImagesDeleted: []dockerimage.DeleteResponse{
 			{
 				Deleted: "sha256:123",
 			},

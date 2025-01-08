@@ -58,7 +58,7 @@ type Client interface {
 		buildFunc gateway.BuildFunc, statusChan chan *client.SolveStatus,
 	) (*client.SolveResponse, error)
 	Prune(ctx context.Context, keepDuration time.Duration,
-		keepStorage float64, filter []string, verbose, all bool) error
+		maxUsed float64, minFree float64, reserved float64, filter []string, verbose, all bool) error
 	Close() error
 }
 
@@ -95,7 +95,6 @@ func NewMobyClient(ctx context.Context, driver types.BuilderType,
 		return nil, errors.Wrap(err, "failed to create the client")
 	}
 	bkcli, err := client.New(ctx, c.BuildkitdAddr(),
-		client.WithFailFast(),
 		client.WithContextDialer(func(context.Context, string) (net.Conn, error) {
 			return dockerCli.DialHijack(ctx, "/grpc", "h2c", nil)
 		}), client.WithSessionDialer(func(ctx context.Context, proto string, meta map[string][]string) (net.Conn, error) {
@@ -125,7 +124,7 @@ func NewClient(ctx context.Context, driver types.BuilderType,
 		"driver":    c.driver,
 	})
 
-	cli, err := client.New(ctx, c.BuildkitdAddr(), client.WithFailFast())
+	cli, err := client.New(ctx, c.BuildkitdAddr())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create the client")
 	}
@@ -223,10 +222,15 @@ func (c generalClient) connected(ctx context.Context) (bool, error) {
 }
 
 func (c generalClient) Prune(ctx context.Context, keepDuration time.Duration,
-	keepStorage float64, filter []string, verbose, all bool) error {
+	maxUsed float64, minFree float64, reserved float64, filter []string, verbose, all bool) error {
 	opts := []client.PruneOption{
 		client.WithFilter(filter),
-		client.WithKeepOpt(keepDuration, int64(keepStorage*1e6)),
+		client.WithKeepOpt(
+			keepDuration,
+			int64(reserved*1e6),
+			int64(maxUsed*1e6),
+			int64(minFree*1e6),
+		),
 	}
 	if all {
 		opts = append(opts, client.PruneAll)

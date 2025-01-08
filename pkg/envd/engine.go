@@ -18,7 +18,7 @@ import (
 	"context"
 	"time"
 
-	dockertypes "github.com/docker/docker/api/types"
+	dockerimage "github.com/docker/docker/api/types/image"
 
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
@@ -63,7 +63,7 @@ type ImageClient interface {
 	ListImage(ctx context.Context) ([]types.EnvdImage, error)
 	ListImageDependency(ctx context.Context, image string) (*types.Dependency, error)
 	GetImage(ctx context.Context, image string) (types.EnvdImage, error)
-	PruneImage(ctx context.Context) (dockertypes.ImagesPruneReport, error)
+	PruneImage(ctx context.Context) (dockerimage.PruneReport, error)
 }
 
 type VersionClient interface {

@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/cockroachdb/errors"
-	"github.com/containerd/containerd/log"
+	"github.com/containerd/log"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/util/fileutil"

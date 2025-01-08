@@ -256,10 +256,12 @@ func (g *generalGraph) customBase() (llb.State, error) {
 	}
 
 	// Set the environment variables to RuntimeEnviron to keep it in the resulting image.
-	for _, e := range envs {
+	for _, key := range envs.Keys() {
 		// in case the env value also contains `=`
-		kv := strings.SplitN(e, "=", 2)
-		g.RuntimeEnviron[kv[0]] = kv[1]
+		value, ok := envs.Get(key)
+		if ok {
+			g.RuntimeEnviron[key] = value
+		}
 	}
 	return base, nil
 }
