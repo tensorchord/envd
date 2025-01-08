@@ -1,9 +1,8 @@
+import os
 import random
 import sys
-import os
 
 from diffusers import StableDiffusionPipeline
-import torch
 from torch import autocast
 
 device = "cuda"

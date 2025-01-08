@@ -1,4 +1,3 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 from transformers import pipeline
 
 name = "bigscience/bloom-3b"

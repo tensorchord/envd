@@ -1,5 +1,4 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
-from transformers import pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 name = "bigscience/bloom-3b"
 text = "Hello my name is"

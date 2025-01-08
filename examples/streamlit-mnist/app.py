@@ -1,9 +1,8 @@
-import os
-import numpy as np
 import cv2
-from tensorflow.keras.models import load_model
+import numpy as np
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
+from tensorflow.keras.models import load_model
 
 model = load_model("model")
 

@@ -69,3 +69,6 @@ MANIFEST
 .GIT_TAG_INFO
 
 test.tar
+
+# ruff
+.ruff_cache/
