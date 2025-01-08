@@ -3,7 +3,7 @@ linters:
     - bodyclose
     - errcheck
     - errorlint
-    - exportloopref
+    - copyloopvar
     - gofmt
     - goimports
     - gosimple

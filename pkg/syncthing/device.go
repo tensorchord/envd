@@ -52,7 +52,7 @@ func ConnectDevices(s1 *Syncthing, s2 *Syncthing) error {
 
 // This method can only be called when the devices are not connected
 func (s *Syncthing) SetDeviceAddress(addr string) (err error) {
-	if s.Config.Devices == nil || len(s.Config.Devices) == 0 {
+	if len(s.Config.Devices) == 0 {
 		return fmt.Errorf("no devices found")
 	}
 	s.DeviceAddress = addr

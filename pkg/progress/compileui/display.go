@@ -41,7 +41,7 @@ type generalWriter struct {
 	phase       string
 	trace       *trace
 	doneCh      chan bool
-	repeatd     bool
+	repeated    bool
 	result      *Result
 	lineCount   int
 }
@@ -72,7 +72,7 @@ func New(ctx context.Context, out console.File, mode string) (Writer, error) {
 		phase:       "parse build.envd and download/cache dependencies",
 		trace:       t,
 		doneCh:      make(chan bool),
-		repeatd:     false,
+		repeated:    false,
 		result: &Result{
 			plugins: make([]*PluginInfo, 0),
 		},
@@ -155,10 +155,10 @@ func (w *generalWriter) run(ctx context.Context) error {
 func (w *generalWriter) output(finished bool) {
 	width, _ := w.getSize()
 	b := aec.EmptyBuilder.Up(uint(1 + w.lineCount))
-	if !w.repeatd {
+	if !w.repeated {
 		b = b.Down(1)
 	}
-	w.repeatd = true
+	w.repeated = true
 	if finished {
 		fmt.Fprint(w.console, colorRun)
 	}
