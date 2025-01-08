@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	pythonVersionDefault = "3.9"
+	pythonVersionDefault = "3.11"
 )
 
 func (g generalGraph) getAppropriatePythonVersion() (string, error) {
