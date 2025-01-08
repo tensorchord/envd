@@ -1,6 +1,6 @@
 ARG ENVD_VERSION
 ARG ENVD_SSHD_IMAGE
-FROM ubuntu:20.04 as base
+FROM ubuntu:22.04 as base
 
 FROM base as base-amd64
 

@@ -47,7 +47,7 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        os: [macos-11, ubuntu-20.04]
+        os: [macos-11, ubuntu-22.04]
     steps:
     - uses: actions/checkout@v4
     - name: Get gobin

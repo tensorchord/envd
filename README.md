@@ -92,7 +92,7 @@ Forget copy-pasting Dockerfile instructions - use envd to easily build functions
 envdlib = include("https://github.com/tensorchord/envdlib")
 
 def build():
-    base(os="ubuntu20.04", language="python")
+    base(os="ubuntu22.04", language="python")
     envdlib.tensorboard(host_port=8888)
 ```
 
@@ -176,7 +176,7 @@ The build manifest `build.envd` looks like:
 
 ```python title=build.envd
 def build():
-    base(os="ubuntu20.04", language="python3")
+    base(os="ubuntu22.04", language="python3")
     # Configure the pip index if needed.
     # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
     install.python_packages(name = [
@@ -227,7 +227,7 @@ Please edit the `build.envd` to enable jupyter notebook:
 
 ```python title=build.envd
 def build():
-    base(os="ubuntu20.04", language="python3")
+    base(os="ubuntu22.04", language="python3")
     # Configure the pip index if needed.
     # config.pip_index(url = "https://pypi.tuna.tsinghua.edu.cn/simple")
     install.python_packages(name = [

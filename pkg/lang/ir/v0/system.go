@@ -218,7 +218,7 @@ func (g *generalGraph) compileBase() (llb.State, error) {
 			base = g.preparePythonBase(llb.Image(types.PythonBaseImage))
 		case "julia":
 			base = llb.Image(fmt.Sprintf(
-				"docker.io/%s/julia:1.8rc1-ubuntu20.04-envd-%s", org, v))
+				"docker.io/%s/julia:1.8rc1-ubuntu22.04-envd-%s", org, v))
 		}
 	} else {
 		base = g.compileCUDAPackages("nvidia/cuda")

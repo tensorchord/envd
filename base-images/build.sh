@@ -20,7 +20,7 @@ ROOT_DIR=`dirname $0`
 
 GIT_TAG_VERSION=$(git describe --tags --abbrev=0)
 DOCKER_HUB_ORG="${DOCKER_HUB_ORG:-tensorchord}"
-ENVD_OS="${ENVD_OS:-ubuntu20.04}"
+ENVD_OS="${ENVD_OS:-ubuntu22.04}"
 JULIA_VERSION="${JULIA_VERSION:-1.8rc1}"
 RLANG_VERSION="${RLANG_VERSION:-4.2}"
 
