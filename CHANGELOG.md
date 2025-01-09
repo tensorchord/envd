@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.3.47 (2025-01-09)
+
+ * [95bb1c3](https://github.com/tensorchord/envd/commit/95bb1c37f177c6e6e4ba49d4429e6e8a1ebc6ea5) feat(cache): update cuda & cudnn version (#1943)
+
+### Contributors
+
+ * Keming
+
+## v0.3.46 (2025-01-08)
+
+ * [da83a62](https://github.com/tensorchord/envd/commit/da83a6268ddc154090d08ef0606f418461823e97) fix(cve): containers/image, fix toto conflicts (#1938)
+ * [d7ef20d](https://github.com/tensorchord/envd/commit/d7ef20df3444915a2b2793a9d6137caf01f3d3a2) fix(cve): docker & buildkit (#1936)
+ * [c504c66](https://github.com/tensorchord/envd/commit/c504c66e389c6a3bfc57686b5a47d550f3853125) feat(ci): adopt ruff & lychee (#1935)
+ * [812de36](https://github.com/tensorchord/envd/commit/812de3622975c7244d7b9b6d1e939b355f35009d) fix(cve): go-get & x/crypto (#1934)
+ * [d61ca2e](https://github.com/tensorchord/envd/commit/d61ca2e543fd5ec6d8ce238304fb329ee8ed3440) feat: envd up with --gpu-set (#1861)
+
+### Contributors
+
+ * Keming
+ * zhang-wei
+
 ## v0.3.45 (2024-01-24)
 
  * [639c188](https://github.com/tensorchord/envd/commit/639c188536181c1d621bd45d04b2243fef72c467) fix: go-git security issue GHSA-mw99-9chc-xw7r (#1844)
