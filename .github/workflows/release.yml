@@ -174,16 +174,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        build_func: ["build", "build_gpu_11_2", "build_gpu_11_3", "build_gpu_11_6"]
         include:
           - build_func: build
             tag_suffix: ""
-          - build_func: build_gpu_11_2
-            tag_suffix: "-cuda-11.2.2-cudnn-8"
-          - build_func: build_gpu_11_3
-            tag_suffix: "-cuda-11.3.1-cudnn-8"
           - build_func: build_gpu_11_6
             tag_suffix: "-cuda-11.6.2-cudnn-8"
+          - build_func: build_gpu_11_8
+            tag_suffix: "-cuda-11.8.0-cudnn-8"
+          - build_func: build_gpu_12_3
+            tag_suffix: "-cuda-12.3.2-cudnn-9"
     needs: image_publish
     steps:
     - uses: actions/checkout@v4
@@ -216,5 +215,5 @@ jobs:
       run: ./base-images/remote-cache/build-and-push-remote-cache.sh
       env:
         BUILD_FUNC: ${{ matrix.build_func }}
-        TAG_SUFFIX: ${{ matrix.TAG_SUFFIX }}
+        TAG_SUFFIX: ${{ matrix.tag_suffix }}
         ENVD_BUILD_OWNER: 1000
