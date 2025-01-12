@@ -30,7 +30,7 @@ v1 is experimental and may change in the future. Make sure to freeze the envd ve
 from typing import Optional, Sequence
 
 
-def python(version: str = "3.9"):
+def python(version: str = "3.11"):
     """Install python.
 
     If `install.conda` is not used, this will create a solo Python environment. Otherwise, it

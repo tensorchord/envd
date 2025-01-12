@@ -2,7 +2,7 @@
 
 
 def build():
-    base(image="python:3.9-slim", dev=False)
+    base(image="python:3.11-slim", dev=False)
     install.python_packages(
         name=[
             "via",
