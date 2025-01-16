@@ -28,7 +28,7 @@ def base(os: str, language: str, image: Optional[str]):
     """Set base image
 
     Args:
-        os (str): The operating system (i.e. `ubuntu20.04`)
+        os (str): The operating system (i.e. `ubuntu22.04`)
         language (str): The programming language dependency (i.e. `python3.8`)
         image (Optional[str]): Custom image (i.e. `python:3.11-slim`)
     """
@@ -90,7 +90,7 @@ def include(git: str):
     envd = include("https://github.com/tensorchord/envdlib")
 
     def build():
-        base(os="ubuntu20.04", language="python")
+        base(os="ubuntu22.04", language="python")
         envd.tensorboard(8000)
     ```
     """

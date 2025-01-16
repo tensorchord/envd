@@ -33,7 +33,7 @@ from typing import List, Optional
 """
 
 
-def base(image: str = "ubuntu:20.04", dev: bool = False):
+def base(image: str = "ubuntu:22.04", dev: bool = False):
     """Set up the base env.
 
     Args:
@@ -99,7 +99,7 @@ def include(git: str):
     envd = include("https://github.com/tensorchord/envdlib")
 
     def build():
-        base(os="ubuntu20.04", language="python")
+        base(os="ubuntu22.04", language="python")
         envd.tensorboard(host_port=8000)
     ```
     """

@@ -120,7 +120,7 @@ def cuda(version: str, cudnn: Optional[str] = "8"):
 
     This will replace the default base image to an `nvidia/cuda` image. You can
     also use a CUDA base image directly like
-    `base(image="nvidia/cuda:12.2.0-devel-ubuntu20.04", dev=True)`.
+    `base(image="nvidia/cuda:12.2.0-devel-ubuntu22.04", dev=True)`.
 
     Args:
         version (str): CUDA version, such as '11.6.2'

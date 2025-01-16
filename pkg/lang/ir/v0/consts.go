@@ -17,7 +17,7 @@ package v0
 import "github.com/tensorchord/envd/pkg/util/fileutil"
 
 const (
-	osDefault              = "ubuntu20.04"
+	osDefault              = "ubuntu22.04"
 	languageDefault        = "python"
 	languageVersionDefault = "3"
 	CUDNNVersionDefault    = "8"

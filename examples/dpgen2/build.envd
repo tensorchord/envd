@@ -23,7 +23,7 @@ def install_kubectl_kind(env_name):
 
 
 def build():
-    base(os="ubuntu20.04", language="python3.11")
+    base(os="ubuntu22.04", language="python3.11")
     install.python_packages(
         name=[
             "pydflow",

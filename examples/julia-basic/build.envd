@@ -1,5 +1,5 @@
 def build():
-    base(os="ubuntu20.04", language="julia")
+    base(os="ubuntu22.04", language="julia")
     # config.julia_pkg_server(url="https://mirrors.tuna.tsinghua.edu.cn/julia")
     install.julia_packages(["Example"])
     shell("zsh")

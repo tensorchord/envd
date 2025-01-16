@@ -27,6 +27,6 @@ custom_channels:
         ],
         channel=["pytorch"],
     )
-    base(os="ubuntu20.04", language="python3.8")
+    base(os="ubuntu22.04", language="python3.8")
     install.python_packages(name=["flask"])
     install.cuda(version="11.2.2", cudnn="8")

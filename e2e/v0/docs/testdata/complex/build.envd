@@ -18,7 +18,7 @@ deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe mu
             "ms-python.python",
         ]
     )
-    base(os="ubuntu20.04", language="python3")
+    base(os="ubuntu22.04", language="python3")
     install.python_packages(
         name=[
             "numpy",

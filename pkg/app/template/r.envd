@@ -1,6 +1,6 @@
 def build():
-    # Use ubuntu20.04 as base image and install r
-    base(os="ubuntu20.04", language="r")
+    # Use ubuntu22.04 as base image and install r
+    base(os="ubuntu22.04", language="r")
 
     # Add the packages you are using here
     install.r_packages(

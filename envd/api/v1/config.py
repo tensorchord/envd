@@ -154,7 +154,7 @@ def julia_pkg_server(url: str):
 
 def rstudio_server():
     """
-    Enable the RStudio Server (only work for `base(os="ubuntu20.04", language="r")`)
+    Enable the RStudio Server (only work for `base(os="ubuntu22.04", language="r")`)
     """
 
 
