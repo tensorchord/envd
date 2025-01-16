@@ -30,7 +30,7 @@ def base(os: str, language: str, image: Optional[str]):
     Args:
         os (str): The operating system (i.e. `ubuntu22.04`)
         language (str): The programming language dependency (i.e. `python3.8`)
-        image (Optional[str]): Custom image (i.e. `python:3.9-slim`)
+        image (Optional[str]): Custom image (i.e. `python:3.11-slim`)
     """
 
 

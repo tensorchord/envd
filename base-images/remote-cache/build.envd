@@ -18,3 +18,15 @@ def build_gpu_11_6():
     """pytorch"""
     base(os="ubuntu22.04", language="python3")
     install.cuda(version="11.6.2", cudnn="8")
+
+
+def build_gpu_11_8():
+    """pytorch"""
+    base(os="ubuntu20.04", language="python3")
+    install.cuda(version="11.8.0", cudnn="8")
+
+
+def build_gpu_12_3():
+    """pytorch"""
+    base(os="ubuntu20.04", language="python3")
+    install.cuda(version="12.3.2", cudnn="9")

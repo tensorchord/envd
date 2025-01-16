@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	condaVersionDefault = "py39_4.11.0"
+	condaVersionDefault = "py311_24.11.1-0"
 	// check the issue https://github.com/mamba-org/mamba/issues/1975
 	mambaVersionDefault = "0.25.1"
 	condaRootPrefix     = "/opt/conda"

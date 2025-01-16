@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	PythonVersionDefault = "3.9"
+	PythonVersionDefault = "3.11"
 	microMambaPathPrefix = "/usr/local/bin"
 	certPath             = "/etc/ssl/certs"
 )

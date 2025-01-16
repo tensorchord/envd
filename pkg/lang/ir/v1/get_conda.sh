@@ -2,16 +2,13 @@ set -euo pipefail && \
 UNAME_M="$(uname -m)" && \
 if [ "${UNAME_M}" = "x86_64" ]; then \
 	MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh"; \
-	SHA256SUM="4ee9c3aa53329cd7a63b49877c0babb49b19b7e5af29807b793a76bdb1d362b4"; \
+	SHA256SUM="807774bae6cd87132094458217ebf713df436f64779faf9bb4c3d4b6615c1e3a"; \
 elif [ "${UNAME_M}" = "s390x" ]; then \
 	MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_VERSION}-Linux-s390x.sh"; \
-	SHA256SUM="e5e5e89cdcef9332fe632cd25d318cf71f681eef029a24495c713b18e66a8018"; \
+	SHA256SUM="bb499b18dbcbb2d89b22f91fe26fe661f5ed1f1944fdc743560d69cd52a2468f"; \
 elif [ "${UNAME_M}" = "aarch64" ]; then \
 	MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_VERSION}-Linux-aarch64.sh"; \
-	SHA256SUM="00c7127a8a8d3f4b9c2ab3391c661239d5b9a88eafe895fd0f3f2a8d9c0f4556"; \
-elif [ "${UNAME_M}" = "ppc64le" ]; then \
-	MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_VERSION}-Linux-ppc64le.sh"; \
-	SHA256SUM="8ee1f8d17ef7c8cb08a85f7d858b1cb55866c06fcf7545b98c3b82e4d0277e66"; \
+	SHA256SUM="a8846ade7a5ddd9b6a6546590054d70d1c2cbe4fbe8c79fb70227e8fd93ef9f8"; \
 fi && \
 wget "${MINICONDA_URL}" -O /tmp/miniconda.sh && \
 echo "${SHA256SUM}  /tmp/miniconda.sh" > /tmp/shasum && \
