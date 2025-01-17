@@ -6,8 +6,8 @@
 </div>
 
 <p align=center>
-<a href="https://discord.gg/KqswhpVgdU"><img alt="discord invitation link" src="https://dcbadge.vercel.app/api/server/KqswhpVgdU?style=flat"></a>
-<a href="https://twitter.com/TensorChord"><img src="https://img.shields.io/twitter/follow/tensorchord?style=social" alt="trackgit-views" /></a>
+<a href="https://discord.gg/KqswhpVgdU"><img alt="discord invitation link" src="https://img.shields.io/discord/974584200327991326?style=flat&logo=discord&cacheSeconds=60"></a>
+<a href="https://twitter.com/TensorChord"><img src="https://img.shields.io/twitter/follow/tensorchord?style=flat&logo=X&cacheSeconds=60" alt="trackgit-views" /></a>
 <a href="https://pypi.org/project/envd"><img src="https://img.shields.io/pypi/pyversions/envd" alt="Python Version" /></a>
 <a href="https://github.com/tensorchord/envd#contributors-"><img alt="all-contributors" src="https://img.shields.io/github/all-contributors/tensorchord/envd/main"></a>
 <a href="https://pypi.org/project/envd/"><img alt="envd package downloads" src="https://static.pepy.tech/personalized-badge/envd?period=month&units=international_system&left_color=grey&right_color=brightgreen&left_text=downloads/month"</a>
