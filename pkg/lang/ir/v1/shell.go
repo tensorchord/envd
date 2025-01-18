@@ -146,7 +146,7 @@ func (g generalGraph) compileZSH(root llb.State) (llb.State, error) {
 func (g generalGraph) compileFish(root llb.State) (llb.State, error) {
 	base := llb.Image(builderImage)
 	builder := base.Run(
-		llb.Shlexf(`sh -c "wget -qO- https://github.com/fish-shell/fish-shell/releases/download/%s/fish-static-linux-$(uname -m).tar.xz | tar -xJf - -C /tmp"`, fishVersion),
+		llb.Shlexf(`sh -c "wget -qO- https://github.com/fish-shell/fish-shell/releases/download/%s/fish-static-linux-$(uname -m).tar.xz | tar -xJf - -C /tmp || exit 1"`, fishVersion),
 		llb.WithCustomName("[internal] download fish shell"),
 	).Root()
 	root = root.File(
