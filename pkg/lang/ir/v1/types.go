@@ -97,4 +97,5 @@ type generalGraph struct {
 const (
 	shellBASH = "bash"
 	shellZSH  = "zsh"
+	shellFish = "fish"
 )

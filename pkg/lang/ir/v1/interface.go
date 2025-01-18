@@ -197,7 +197,7 @@ func JuliaPackageServer(url string) error {
 func Shell(shell string) error {
 	g := DefaultGraph.(*generalGraph)
 
-	g.Shell = shell
+	g.Shell = strings.ToLower(shell)
 	return nil
 }
 

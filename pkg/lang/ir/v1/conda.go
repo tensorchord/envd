@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	builderImage        = "curlimages/curl:7.86.0"
+	builderImage        = "curlimages/curl:8.11.1"
 	condaVersionDefault = "py311_24.11.1-0"
 	microMambaImage     = "mambaorg/micromamba:1.0.0"
 	condaRootPrefix     = "/opt/conda"
@@ -39,10 +39,19 @@ const (
 channels:
     - defaults
 `
-	mambaActivate = `
+	mambaActivateBash = `
 #!/bin/sh
 eval "$(/opt/conda/bin/micromamba shell hook --shell=bash)" || return $?
 micromamba activate "$@"
+`
+	mambaActivateFish = `
+#!/usr/bin/fish
+/opt/conda/bin/micromamba shell hook --shell=fish | source
+micromamba activate $argv
+`
+	condaActivateFish = `
+#!/usr/bin/fish
+conda activate $argv
 `
 )
 
@@ -174,6 +183,8 @@ func (g generalGraph) installMiniConda(root llb.State) llb.State {
 			llb.WithCustomName("[internal] create conda directory")).
 		Run(llb.Shlexf("bash -c '%s'", installCondaBash),
 			llb.WithCustomName("[internal] install conda")).Root().
+		File(llb.Mkfile(fmt.Sprintf("%s/activate.fish", condaBinDir), 0755, []byte(condaActivateFish)),
+			llb.WithCustomName("[internal] create the conda activate.fish file")).
 		File(llb.Rm(condaSourcePath), llb.WithCustomName("[internal] rm conda source file"))
 	return conda
 }
@@ -194,8 +205,10 @@ func (g *generalGraph) installMicroMamba(root llb.State) llb.State {
 			llb.WithCustomName("[internal] copy micromamba binary")).
 		File(llb.Mkfile(fmt.Sprintf("%s/.mambarc", condaRootPrefix), 0644, []byte(mambaRc)),
 			llb.WithCustomName("[internal] create the mamba rc file")).
-		File(llb.Mkfile(fmt.Sprintf("%s/activate", condaBinDir), 0755, []byte(mambaActivate)),
+		File(llb.Mkfile(fmt.Sprintf("%s/activate", condaBinDir), 0755, []byte(mambaActivateBash)),
 			llb.WithCustomName("[internal] create the mamba activate file")).
+		File(llb.Mkfile(fmt.Sprintf("%s/activate.fish", condaBinDir), 0755, []byte(mambaActivateFish)),
+			llb.WithCustomName("[internal] create the mamba activate.fish file")).
 		Run(llb.Shlexf("update-alternatives --install /usr/bin/conda conda %s/micromamba 1", condaBinDir),
 			llb.WithCustomName("[internal] update alternative micromamba to conda")).
 		Run(llb.Shlexf("bash -c \"%s/micromamba shell init --shell bash\"", condaBinDir),
