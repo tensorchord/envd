@@ -67,10 +67,7 @@ func (g *generalGraph) compileShell(root llb.State) (_ llb.State, err error) {
 		}
 	} else if g.Shell == shellFish {
 		g.RuntimeEnviron["SHELL"] = "/usr/bin/fish"
-		root, err = g.compileFish(root)
-		if err != nil {
-			return llb.State{}, err
-		}
+		root = g.compileFish(root)
 	}
 	if g.CondaConfig != nil {
 		root = g.compileCondaShell(root)
@@ -143,7 +140,7 @@ func (g generalGraph) compileZSH(root llb.State) (llb.State, error) {
 	return zshrc, nil
 }
 
-func (g generalGraph) compileFish(root llb.State) (llb.State, error) {
+func (g generalGraph) compileFish(root llb.State) llb.State {
 	base := llb.Image(builderImage)
 	builder := base.Run(
 		llb.Shlexf(`sh -c "wget -qO- https://github.com/fish-shell/fish-shell/releases/download/%s/fish-static-linux-$(uname -m).tar.xz | tar -xJf - -C /tmp || exit 1"`, fishVersion),
@@ -155,5 +152,5 @@ func (g generalGraph) compileFish(root llb.State) (llb.State, error) {
 		Run(llb.Shlex("fish --install"),
 			llb.WithCustomName("[internal] install fish shell")).Root()
 
-	return root, nil
+	return root
 }
