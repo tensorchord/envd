@@ -204,7 +204,7 @@ func (g *generalGraph) compileBase() (llb.State, error) {
 	} else if g.CUDA == nil {
 		switch g.Language.Name {
 		case "r":
-			base = llb.Image(fmt.Sprintf("docker.io/%s/r-base:4.2-envd-%s", org, v))
+			base = llb.Image(fmt.Sprintf("ghcr.io/%s/envd-r-base:4.2-%s", org, v))
 			// r-base image already has GID 1000.
 			// It is a trick, we actually use GID 1000
 			if g.gid == 1000 {
@@ -218,7 +218,7 @@ func (g *generalGraph) compileBase() (llb.State, error) {
 			base = g.preparePythonBase(llb.Image(types.PythonBaseImage))
 		case "julia":
 			base = llb.Image(fmt.Sprintf(
-				"docker.io/%s/julia:1.8rc1-ubuntu22.04-envd-%s", org, v))
+				"ghcr.io/%s/envd-julia:1.8rc1-ubuntu22.04-%s", org, v))
 		}
 	} else {
 		base = g.compileCUDAPackages("nvidia/cuda")

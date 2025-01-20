@@ -20,12 +20,12 @@ ROOT_DIR=`dirname $0`
 
 GIT_TAG_VERSION=$(git describe --tags --abbrev=0 | sed -r 's/[v]+//g') # remove v from version
 ENVD_VERSION="${ENVD_VERSION:-$GIT_TAG_VERSION}"
-DOCKER_HUB_ORG="${DOCKER_HUB_ORG:-tensorchord}"
+DOCKER_HUB_ORG="${DOCKER_HUB_ORG:-ghcr.io/tensorchord}"
 BUILD_FUNC="${BUILD_FUNC:-build}"
 TAG_SUFFIX="${TAG_SUFFIX:-}"
 
 cd ${ROOT_DIR}
 
-envd --debug build -f build.envd:${BUILD_FUNC} --export-cache type=registry,ref=docker.io/${DOCKER_HUB_ORG}/python-cache:envd-v${ENVD_VERSION}${TAG_SUFFIX} --force
+envd --debug build -f build.envd:${BUILD_FUNC} --export-cache type=registry,ref=${DOCKER_HUB_ORG}/envd-python-cache:v${ENVD_VERSION}${TAG_SUFFIX} --force
 
 cd - > /dev/null

@@ -297,12 +297,12 @@ func (g generalGraph) DefaultCacheImporter() (*string, error) {
 	var res string
 	if g.CUDA != nil {
 		res = fmt.Sprintf(
-			"type=registry,ref=docker.io/%s/python-cache:envd-%s-cuda-%s-cudnn-%s",
+			"type=registry,ref=ghcr.io/%s/envd-python-cache:%s-cuda-%s-cudnn-%s",
 			viper.GetString(flag.FlagDockerOrganization),
 			version.GetVersionForImageTag(), *g.CUDA, g.CUDNN)
 	} else {
 		res = fmt.Sprintf(
-			"type=registry,ref=docker.io/%s/python-cache:envd-%s",
+			"type=registry,ref=ghcr.io/%s/envd-python-cache:%s",
 			viper.GetString(flag.FlagDockerOrganization),
 			version.GetVersionForImageTag())
 	}

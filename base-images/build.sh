@@ -19,7 +19,8 @@ set -euo pipefail
 ROOT_DIR=`dirname $0`
 
 GIT_TAG_VERSION=$(git describe --tags --abbrev=0)
-DOCKER_HUB_ORG="${DOCKER_HUB_ORG:-tensorchord}"
+DOCKER_HUB_ORG="${DOCKER_HUB_ORG:-ghcr.io/tensorchord}"
+ENVD_SSHD_IMAGE="{ENVD_SSHD_IMAGE:-ghcr.io/tensorchord/envd-sshd-from-scratch}"
 ENVD_OS="${ENVD_OS:-ubuntu22.04}"
 JULIA_VERSION="${JULIA_VERSION:-1.8rc1}"
 RLANG_VERSION="${RLANG_VERSION:-4.2}"
@@ -34,14 +35,14 @@ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 # TODO(gaocegege): Support linux/arm64
 docker buildx build \
     --build-arg ENVD_VERSION=${GIT_TAG_VERSION} \
-    --build-arg ENVD_SSHD_IMAGE=tensorchord/envd-sshd-from-scratch \
-    -t ${DOCKER_HUB_ORG}/r-base:${RLANG_VERSION}-envd-${GIT_TAG_VERSION} \
+    --build-arg ENVD_SSHD_IMAGE=${ENVD_SSHD_IMAGE} \
+    -t ${DOCKER_HUB_ORG}/envd-r-base:${RLANG_VERSION}-${GIT_TAG_VERSION} \
     --pull --push --platform linux/x86_64 \
     -f r${RLANG_VERSION}.Dockerfile .
 docker buildx build \
     --build-arg ENVD_VERSION=${GIT_TAG_VERSION} \
-    --build-arg ENVD_SSHD_IMAGE=tensorchord/envd-sshd-from-scratch \
-    -t ${DOCKER_HUB_ORG}/julia:${JULIA_VERSION}-${ENVD_OS}-envd-${GIT_TAG_VERSION} \
+    --build-arg ENVD_SSHD_IMAGE=${ENVD_SSHD_IMAGE} \
+    -t ${DOCKER_HUB_ORG}/envd-julia:${JULIA_VERSION}-${ENVD_OS}-${GIT_TAG_VERSION} \
     --pull --push --platform linux/x86_64,linux/arm64 \
     -f julia${JULIA_VERSION}-${ENVD_OS}.Dockerfile .
 cd - > /dev/null
