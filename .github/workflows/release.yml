@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Docker Login
+      - name: Login to Docker
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERIO_USERNAME }}
@@ -83,7 +83,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: pypi_${{ github.event.release.tag_name }}
+          name: pypi_${{ github.event.release.tag_name }}_${{ matrix.os }}
           path: wheelhouse/
           retention-days: 1
   pypi_publish:
@@ -97,7 +97,8 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: pypi_${{ github.event.release.tag_name }}
+          pattern: pypi_${{ github.event.release.tag_name }}_*
+          merge-multiple: true
           path: dist/
       - name: Upload to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -192,6 +193,8 @@ jobs:
         include:
           - build_func: build
             tag_suffix: ""
+          - build_func: build_gpu_11_6
+            tag_suffix: "-cuda-11.6.2-cudnn-8"
     needs: image_publish
     steps:
     - uses: actions/checkout@v4
