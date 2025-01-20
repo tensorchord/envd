@@ -88,11 +88,9 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 3",
 ]
 
 
@@ -110,7 +108,6 @@ setup(
     author_email="envd-maintainers@tensorchord.ai",
     packages=find_packages(),
     include_package_data=True,
-    python_requires=">=3.6",
     data_files=[("bin", ["bin/envd"])],
     classifiers=classifiers,
     zip_safe=False,
