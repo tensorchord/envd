@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.4.3 (2025-01-20)
+
+ * [72e3b49](https://github.com/tensorchord/envd/commit/72e3b495ab776b5ba524217099ed7a2c88cbd909) fix(ci): release on ubuntu with wheels from previous steps (#1960)
+
+### Contributors
+
+ * Keming
+
+## v0.4.2 (2025-01-20)
+
+ * [7f31185](https://github.com/tensorchord/envd/commit/7f311854f1103c9bf104bdcc3d2a7fa2a2168b25) feat: update pypi meta, fix macos upload (#1958)
+
+### Contributors
+
+ * Keming
+
+## v0.4.1 (2025-01-20)
+
+ * [f6d9fd2](https://github.com/tensorchord/envd/commit/f6d9fd280221de5ad4d0045e7e50755568ed3ff0) feat: use PyPI OIDC for release (#1957)
+
+### Contributors
+
+ * Keming
+
+## v0.4.0 (2025-01-20)
+
+ * [600e0df](https://github.com/tensorchord/envd/commit/600e0df522b773076fcc2f89600362e23ad4d223) fix: use ubuntu 22.04 for all the dind related tests (#1955)
+ * [e737022](https://github.com/tensorchord/envd/commit/e737022c3fe3af01f8bf391feca6e48b08e71753) feat: support fish shell (#1952)
+ * [1a54052](https://github.com/tensorchord/envd/commit/1a54052e339cb60e2f4efe04ffddd0ffc798af0f) feat: upgrade to ubuntu 22.04 (#1939)
+ * [5ad6168](https://github.com/tensorchord/envd/commit/5ad61681f6d7e699de69020d498f01e6d818eabe) feat: upgrade to python 3.11 (#1940)
+ * [1155c9a](https://github.com/tensorchord/envd/commit/1155c9ae53aca62e61584b49cef45b027b4b9557) docs(readme): fix github markdown callout (#1945)
+
+### Contributors
+
+ * Keming
+
 ## v0.3.47 (2025-01-09)
 
  * [95bb1c3](https://github.com/tensorchord/envd/commit/95bb1c37f177c6e6e4ba49d4429e6e8a1ebc6ea5) feat(cache): update cuda & cudnn version (#1943)
