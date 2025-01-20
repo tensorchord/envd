@@ -41,17 +41,6 @@ jobs:
         with:
           go-version: 'stable'
       - uses: actions/checkout@v4
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
       - name: Add license
         run: |
           make addlicense && git add pkg cmd &&
@@ -79,17 +68,6 @@ jobs:
   #       uses: actions/setup-go@v5
   #       with:
   #         go-version: 'stable'
-  #     - name: Cache Go modules
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           ~/.cache/go-build
-  #           ~/go/pkg/mod
-  #         key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-  #         restore-keys: |
-  #           ${{ runner.OS }}-build-${{ env.cache-name }}-
-  #           ${{ runner.OS }}-build-
-  #           ${{ runner.OS }}-
   #     - name: Verify mockgen
   #       run: |
   #         make generate && git add pkg &&
@@ -117,17 +95,6 @@ jobs:
   #       uses: actions/setup-go@v5
   #       with:
   #         go-version: 'stable'
-  #     - name: Cache Go modules
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           ~/.cache/go-build
-  #           ~/go/pkg/mod
-  #         key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-  #         restore-keys: |
-  #           ${{ runner.OS }}-build-${{ env.cache-name }}-
-  #           ${{ runner.OS }}-build-
-  #           ${{ runner.OS }}-
   #     - uses: actions-ecosystem/action-get-latest-tag@v1
   #       id: get-latest-tag
   #     - name: e2e test
@@ -146,7 +113,7 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -155,17 +122,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
       - uses: actions-ecosystem/action-get-latest-tag@v1
         id: get-latest-tag
       - name: e2e test
@@ -193,17 +149,6 @@ jobs:
   #       uses: actions/setup-go@v5
   #       with:
   #         go-version: 'stable'
-  #     - name: Cache Go modules
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           ~/.cache/go-build
-  #           ~/go/pkg/mod
-  #         key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-  #         restore-keys: |
-  #           ${{ runner.OS }}-build-${{ env.cache-name }}-
-  #           ${{ runner.OS }}-build-
-  #           ${{ runner.OS }}-
   #     - uses: actions-ecosystem/action-get-latest-tag@v1
   #       id: get-latest-tag
   #     - name: e2e test
@@ -231,17 +176,6 @@ jobs:
   #       uses: actions/setup-go@v5
   #       with:
   #         go-version: 'stable'
-  #     - name: Cache Go modules
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           ~/.cache/go-build
-  #           ~/go/pkg/mod
-  #         key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-  #         restore-keys: |
-  #           ${{ runner.OS }}-build-${{ env.cache-name }}-
-  #           ${{ runner.OS }}-build-
-  #           ${{ runner.OS }}-
   #     - uses: actions-ecosystem/action-get-latest-tag@v1
   #       id: get-latest-tag
   #     - name: e2e test
@@ -269,17 +203,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
       - name: Build
         run: make
 
