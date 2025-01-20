@@ -16,6 +16,7 @@ on:
       - 'Makefile'
       - 'go.**'
   merge_group:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -24,7 +25,7 @@ concurrency:
 jobs:
   typos-check:
     name: Spell Check with Typos
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Actions Repository
         uses: actions/checkout@v4
@@ -34,21 +35,12 @@ jobs:
           config: ./typos.toml
   lint:
     name: lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/setup-go@v5
         with:
           go-version: 'stable'
       - uses: actions/checkout@v4
-      - name: Cache Go modules
-        uses: actions/cache@preview
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
       - name: Add license
         run: |
           make addlicense && git add pkg cmd &&
@@ -67,7 +59,7 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -76,15 +68,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Cache Go modules
-        uses: actions/cache@preview
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
       - name: Verify mockgen
         run: |
           make generate && git add pkg &&
@@ -103,7 +86,7 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -112,15 +95,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Cache Go modules
-        uses: actions/cache@preview
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
       - uses: actions-ecosystem/action-get-latest-tag@v1
         id: get-latest-tag
       - name: e2e test
@@ -139,7 +113,7 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -148,15 +122,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Cache Go modules
-        uses: actions/cache@preview
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
       - uses: actions-ecosystem/action-get-latest-tag@v1
         id: get-latest-tag
       - name: e2e test
@@ -175,7 +140,7 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -184,15 +149,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Cache Go modules
-        uses: actions/cache@preview
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
       - uses: actions-ecosystem/action-get-latest-tag@v1
         id: get-latest-tag
       - name: e2e test
@@ -211,7 +167,7 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -220,15 +176,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Cache Go modules
-        uses: actions/cache@preview
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
       - uses: actions-ecosystem/action-get-latest-tag@v1
         id: get-latest-tag
       - name: e2e test
@@ -247,7 +194,7 @@ jobs:
       ENVD_ANALYTICS: false
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-24.04, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -256,15 +203,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Cache Go modules
-        uses: actions/cache@preview
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
       - name: Build
         run: make
 
@@ -276,7 +214,7 @@ jobs:
       - e2e-lang
       - e2e-cli-v1
       - e2e-lang-v1
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out code
         uses: actions/checkout@v4
