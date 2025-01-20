@@ -30,7 +30,7 @@ func (b generalBuilder) BuildFunc() func(ctx context.Context, c client.Client) (
 			Definition: b.definition.ToPB(),
 		}
 
-		// Get the envd default cache importer in docker.io/tensorchord/...
+		// Get the envd default cache importer in ghcr.io/tensorchord/...
 		if defaultImporter, err := b.defaultCacheImporter(); err != nil {
 			return nil, errors.Wrap(err, "failed to get default importer")
 		} else if defaultImporter != nil {

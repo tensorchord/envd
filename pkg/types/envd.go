@@ -46,7 +46,7 @@ const (
 )
 
 var EnvdSshdImage = fmt.Sprintf(
-	"tensorchord/envd-sshd-from-scratch:%s",
+	"ghcr.io/tensorchord/envd-sshd-from-scratch:%s",
 	version.GetVersionForImageTag())
 
 var BaseEnvironment = []struct {
