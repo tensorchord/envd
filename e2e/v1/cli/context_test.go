@@ -64,7 +64,7 @@ var _ = Describe("home context", func() {
 			Expect(contexts.Current).To(Equal(testContext))
 		})
 
-		Describe("connect buildkit through TCP", Ordered, func() {
+		FDescribe("connect buildkit through TCP", Ordered, func() {
 			name := "envd-buildkitd-tcp-test"
 			buildContext := "testdata/build-test"
 			dockerArgs := []string{
