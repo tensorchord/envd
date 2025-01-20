@@ -18,6 +18,7 @@ on:
       - '**.ipynb'
       - 'Makefile'
   merge_group:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
