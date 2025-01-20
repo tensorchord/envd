@@ -45,6 +45,8 @@ jobs:
     if: github.repository == 'tensorchord/envd' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     strategy:
       matrix:
         os: [macos-13, ubuntu-22.04]
@@ -83,14 +85,12 @@ jobs:
         python -m pip install wheel
         python setup.py sdist
         mv dist/*.tar.gz wheelhouse/
-    - name: Upload to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install twine
-        python -m twine upload wheelhouse/*
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: wheelhouse/
+        skip-existing: true
+        verbose: true
   image_publish:
     name: Build & push images
     # only trigger on main repo when tag starts with v
