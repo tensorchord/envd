@@ -53,6 +53,8 @@ diverged = "<>"
 renamed = "r"
 deleted = "x"
 `
+
+	fishVersion = "4.0b1"
 )
 
 func (g *generalGraph) compileShell(root llb.State) (_ llb.State, err error) {
@@ -63,6 +65,9 @@ func (g *generalGraph) compileShell(root llb.State) (_ llb.State, err error) {
 		if err != nil {
 			return llb.State{}, err
 		}
+	} else if g.Shell == shellFish {
+		g.RuntimeEnviron["SHELL"] = "/usr/bin/fish"
+		root = g.compileFish(root)
 	}
 	if g.CondaConfig != nil {
 		root = g.compileCondaShell(root)
@@ -76,13 +81,17 @@ func (g *generalGraph) compileCondaShell(root llb.State) llb.State {
 		findDir = fileutil.EnvdHomeDir
 	}
 	rcPath := findDir(".bashrc")
+	activateFile := "activate"
 	if g.Shell == shellZSH {
 		rcPath = findDir(".zshrc")
+	} else if g.Shell == shellFish {
+		rcPath = findDir(".config/fish/config.fish")
+		activateFile = "activate.fish"
 	}
 	run := root.
 		Run(llb.Shlexf("bash -c \"%s\"", g.condaInitShell(g.Shell)),
 			llb.WithCustomNamef("[internal] init conda %s env", g.Shell)).
-		Run(llb.Shlexf(`bash -c 'echo "source %s/activate envd" >> %s'`, condaBinDir, rcPath),
+		Run(llb.Shlexf(`bash -c 'echo "source %s/%s envd" >> %s'`, condaBinDir, activateFile, rcPath),
 			llb.WithCustomNamef("[internal] add conda environment to %s", rcPath))
 	return run.Root()
 }
@@ -102,6 +111,10 @@ func (g *generalGraph) compilePrompt(root llb.State) llb.State {
 		run = run.Run(
 			llb.Shlexf(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> %s'`, fileutil.EnvdHomeDir(".zshrc")),
 			llb.WithCustomName("[internal] setting prompt zsh config")).Root()
+	} else if g.Shell == shellFish {
+		run = run.Run(
+			llb.Shlexf(`bash -c 'echo "starship init fish | source" >> %s'`, fileutil.EnvdHomeDir(".config/fish/config.fish")),
+			llb.WithCustomName("[internal] setting prompt fish config")).Root()
 	}
 	return run
 }
@@ -125,4 +138,19 @@ func (g generalGraph) compileZSH(root llb.State) (llb.State, error) {
 		llb.WithCustomName("[internal] install oh-my-zsh")).
 		File(llb.Mkfile(zshrcPath, 0666, []byte(m.ZSHRC())))
 	return zshrc, nil
+}
+
+func (g generalGraph) compileFish(root llb.State) llb.State {
+	base := llb.Image(builderImage)
+	builder := base.Run(
+		llb.Shlexf(`sh -c "wget -qO- https://github.com/fish-shell/fish-shell/releases/download/%s/fish-static-linux-$(uname -m).tar.xz | tar -xJf - -C /tmp || exit 1"`, fishVersion),
+		llb.WithCustomName("[internal] download fish shell"),
+	).Root()
+	root = root.File(
+		llb.Copy(builder, "/tmp/fish", "/usr/bin/fish"),
+		llb.WithCustomName("[internal] copy fish shell from the builder image")).
+		Run(llb.Shlex("fish --install"),
+			llb.WithCustomName("[internal] install fish shell")).Root()
+
+	return root
 }
