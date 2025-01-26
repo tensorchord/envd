@@ -47,7 +47,7 @@ def shell(name: str = "bash"):
     """Interactive shell
 
     Args:
-        name (str): shell name (i.e. `zsh`, `bash`)
+        name (str): shell name (i.e. `zsh`, `bash`, `fish`)
     """
 
 

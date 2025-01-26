@@ -163,7 +163,8 @@ func (g generalGraph) compileCondaEnvironment(root llb.State) (llb.State, error)
 func (g *generalGraph) installConda(root llb.State) llb.State {
 	if g.Dev {
 		// We only create envd user for dev env.
-		g.UserDirectories = append(g.UserDirectories, fmt.Sprintf("%s/envs/envd", condaRootPrefix))
+		// `micromamba` needs to modify the conda directory.
+		g.UserDirectories = append(g.UserDirectories, condaRootPrefix)
 	}
 	if g.CondaConfig.UseMicroMamba {
 		return g.installMicroMamba(root)
