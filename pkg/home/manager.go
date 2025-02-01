@@ -61,7 +61,7 @@ func Initialize() error {
 				Contexts: []types.Context{
 					{
 						Name:           "default",
-						Builder:        types.BuilderTypeDocker,
+						Builder:        types.BuilderTypeMoby,
 						BuilderAddress: "envd_buildkitd",
 						Runner:         types.RunnerTypeDocker,
 						RunnerAddress:  nil,
