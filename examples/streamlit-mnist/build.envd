@@ -1,5 +1,7 @@
 def build():
-    base(os="ubuntu22.04", language="python3")
+    base(dev=True)
+    install.conda()
+    install.python()
     install.vscode_extensions(
         [
             "ms-python.python",
@@ -14,7 +16,8 @@ def build():
 
 
 def serve():
-    base(os="ubuntu22.04", language="python3")
+    base(dev=False)
+    install.python()
     configure_streamlit(8501)
     configure_mnist()
 

@@ -1,5 +1,7 @@
 def build():
-    base(os="ubuntu22.04", language="python3.6")
+    base(dev=True)
+    install.conda()
+    install.python()
     shell("zsh")
     install.apt_packages(name=["git", "libgl1-mesa-glx", "zip"])
     run(

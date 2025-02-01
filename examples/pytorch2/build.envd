@@ -2,7 +2,7 @@ envdlib = include("https://github.com/tensorchord/envdlib")
 
 
 def build():
-    base(language="python3", image="ghcr.io/pytorch/pytorch-nightly:latest")
+    base(image="ghcr.io/pytorch/pytorch-nightly:latest", dev=True)
     shell("zsh")
 
     install.python_packages(

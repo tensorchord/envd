@@ -1,5 +1,7 @@
 def build():
-    base(os="ubuntu22.04", language="python")
+    base(dev=True)
+    install.conda()
+    install.python()
     io.http(
         url="https://github.com/tensorchord/envd/releases/download/v0.2.0-alpha.18/envd-ssh_0.2.0-alpha.18_Linux_x86_64",
         checksum="sha256:163fa5d9775a3666ec91e2422a794277cc8575147f15767d364cc40157888cfb",
