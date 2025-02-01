@@ -18,13 +18,13 @@ import (
 	"context"
 
 	"github.com/moby/buildkit/client/llb"
-	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
+	specs "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 )
 
 type Graph interface {
-	Compile(ctx context.Context, envPath string, pub string, platform *ocispecs.Platform, progressMode string) (*llb.Definition, error)
+	Compile(ctx context.Context, envPath string, pub string, platform *specs.Platform, progressMode string) (*llb.Definition, error)
 
 	graphDebugger
 	graphVisitor
@@ -59,6 +59,6 @@ type graphVisitor interface {
 	GetHTTP() []HTTPInfo
 	GetRuntimeCommands() map[string]string
 	GetUser() string
-	GetPlatform() *ocispecs.Platform
+	GetPlatform() *specs.Platform
 	GetWorkingDir() string
 }

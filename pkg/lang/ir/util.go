@@ -23,10 +23,10 @@ import (
 	"github.com/containers/image/v5/docker"
 	"github.com/containers/image/v5/image"
 	"github.com/containers/image/v5/types"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	specs "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
-func FetchImageConfig(ctx context.Context, imageName string, platform *v1.Platform) (config v1.ImageConfig, err error) {
+func FetchImageConfig(ctx context.Context, imageName string, platform *specs.Platform) (config specs.ImageConfig, err error) {
 	ref, err := docker.ParseReference(fmt.Sprintf("//%s", imageName))
 	if err != nil {
 		return config, errors.Wrap(err, "failed to parse image reference")

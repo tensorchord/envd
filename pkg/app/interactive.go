@@ -67,11 +67,11 @@ type input struct {
 
 var LanguageChoice = input{
 	prompt:    "Choose a programming language",
-	inputType: SINGLE_SELECT,
+	inputType: MULTIPLE_SELECT,
 	label:     LabelLanguage,
 	options: []string{
 		"python",
-		"r",
+		"r_lang",
 		"julia",
 	},
 }
@@ -81,8 +81,10 @@ var PythonPackageChoice = input{
 	inputType: MULTIPLE_SELECT,
 	label:     LabelPythonPackage,
 	options: []string{
+		"ipython",
 		"numpy",
-		"tensorflow",
+		"pandas",
+		"torch",
 	},
 }
 
@@ -111,9 +113,9 @@ var CudaVersionChoice = input{
 	inputType: SINGLE_SELECT,
 	label:     LabelCuda,
 	options: []string{
-		"11.6.2",
-		"11.3.1",
 		"11.2.2",
+		"11.8.0",
+		"12.3.2",
 	},
 }
 
@@ -145,7 +147,6 @@ func (m model) View() string {
 
 	case INPUT:
 		// TODO: implement input if needed
-
 	}
 
 	s += "\nPress q to quit. "
@@ -225,7 +226,15 @@ func startQuestion(input input) {
 func generateFile(clicontext *cli.Context) error {
 	var buf bytes.Buffer
 	buf.WriteString("def build():\n")
-	buf.WriteString(fmt.Sprintf("%sbase(os=\"ubuntu22.04\", language=\"%s\")\n", indentation, selectionMap[LabelLanguage][0]))
+	buf.WriteString(fmt.Sprintf("%sbase(image=\"ubuntu:22.04\", dev=True)\n", indentation))
+	for _, lang := range selectionMap[LabelLanguage] {
+		if lang == "python" {
+			buf.WriteString(fmt.Sprintf("%sinstall.conda()\n", indentation))
+			buf.WriteString(fmt.Sprintf("%sinstall.python()\n", indentation))
+		} else {
+			buf.WriteString(fmt.Sprintf("%sinstall.%s()\n", indentation, lang))
+		}
+	}
 	buf.WriteString(generatePackagesStr("python", selectionMap[LabelPythonPackage]))
 	buf.WriteString(generatePackagesStr("r", selectionMap[LabelRPackage]))
 	if len(selectionMap[LabelPythonRequirement]) > 0 {
@@ -259,11 +268,8 @@ func generatePackagesStr(name string, packages []string) string {
 		return ""
 	}
 	s := fmt.Sprintf("%sinstall.%s_packages(name = [\n", indentation, name)
-	for i, p := range packages {
-		s += fmt.Sprintf("%s\"%s\"", strings.Repeat(indentation, 2), p)
-		if i != len(packages)-1 {
-			s += ", "
-		}
+	for _, p := range packages {
+		s += fmt.Sprintf("%s\"%s\",", strings.Repeat(indentation, 2), p)
 		s += "\n"
 	}
 	s += fmt.Sprintf("%s])\n", indentation)

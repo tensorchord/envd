@@ -1,32 +1,45 @@
 def build():
-    base(os="ubuntu22.04", language="python3")
+    """default"""
+    base(dev=True)
+    install.conda()
+    install.python()
 
 
 def build_gpu_11_2():
     """tensorflow"""
-    base(os="ubuntu22.04", language="python3")
+    base(dev=True)
+    install.conda()
+    install.python()
     install.cuda(version="11.2.2", cudnn="8")
 
 
 def build_gpu_11_3():
     """pytorch"""
-    base(os="ubuntu22.04", language="python3")
+    base(dev=True)
+    install.conda()
+    install.python()
     install.cuda(version="11.3.1", cudnn="8")
 
 
 def build_gpu_11_6():
     """pytorch"""
-    base(os="ubuntu22.04", language="python3")
+    base(dev=True)
+    install.conda()
+    install.python()
     install.cuda(version="11.6.2", cudnn="8")
 
 
 def build_gpu_11_8():
     """pytorch"""
-    base(os="ubuntu20.04", language="python3")
+    base(dev=True)
+    install.conda()
+    install.python()
     install.cuda(version="11.8.0", cudnn="8")
 
 
 def build_gpu_12_3():
     """pytorch"""
-    base(os="ubuntu20.04", language="python3")
+    base(dev=True)
+    install.conda()
+    install.python()
     install.cuda(version="12.3.2", cudnn="9")
