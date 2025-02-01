@@ -67,11 +67,11 @@ type input struct {
 
 var LanguageChoice = input{
 	prompt:    "Choose a programming language",
-	inputType: SINGLE_SELECT,
+	inputType: MULTIPLE_SELECT,
 	label:     LabelLanguage,
 	options: []string{
 		"python",
-		"r",
+		"r_lang",
 		"julia",
 	},
 }
@@ -227,9 +227,13 @@ func generateFile(clicontext *cli.Context) error {
 	var buf bytes.Buffer
 	buf.WriteString("def build():\n")
 	buf.WriteString(fmt.Sprintf("%sbase(image=\"ubuntu:22.04\", dev=True)\n", indentation))
-	if len(selectionMap[LabelLanguage]) > 0 && selectionMap[LabelLanguage][0] == "python" {
-		buf.WriteString(fmt.Sprintf("%sinstall.conda()\n", indentation))
-		buf.WriteString(fmt.Sprintf("%sinstall.python()\n", indentation))
+	for _, lang := range selectionMap[LabelLanguage] {
+		if lang == "python" {
+			buf.WriteString(fmt.Sprintf("%sinstall.conda()\n", indentation))
+			buf.WriteString(fmt.Sprintf("%sinstall.python()\n", indentation))
+		} else {
+			buf.WriteString(fmt.Sprintf("%sinstall.%s()\n", indentation, lang))
+		}
 	}
 	buf.WriteString(generatePackagesStr("python", selectionMap[LabelPythonPackage]))
 	buf.WriteString(generatePackagesStr("r", selectionMap[LabelRPackage]))
