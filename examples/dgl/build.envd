@@ -1,6 +1,8 @@
 def build():
-    # Use ubuntu22.04 as base image and install python
-    base(os="ubuntu22.04", language="python3")
+    # Use ubuntu:22.04 as base image and install python
+    base(image="ubuntu:22.04", dev=True)
+    install.conda()
+    install.python()
 
     # Add the packages you are using here
     install.python_packages(["numpy", "dgl", "torch"])
@@ -13,8 +15,10 @@ def build():
 
 
 def build_gpu():
-    # Use ubuntu22.04 as base image and install python
-    base(os="ubuntu22.04", language="python3")
+    # Use ubuntu:22.04 as base image and install python
+    base(dev=True)
+    install.conda()
+    install.python()
 
     # install cuda
     install.cuda(version="11.2.2", cudnn="8")

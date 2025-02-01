@@ -1,5 +1,7 @@
 def base_env():
-    base(os="ubuntu22.04", language="python3")
+    base(dev=True)
+    install.conda()
+    install.python()
     install.vscode_extensions(
         [
             "ms-python.python",
