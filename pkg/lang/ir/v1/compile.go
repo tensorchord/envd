@@ -26,14 +26,17 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/config"
+	"github.com/tensorchord/envd/pkg/flag"
 	"github.com/tensorchord/envd/pkg/home"
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	"github.com/tensorchord/envd/pkg/progress/compileui"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
+	"github.com/tensorchord/envd/pkg/version"
 )
 
 func NewGraph() ir.Graph {
@@ -295,8 +298,23 @@ func (g generalGraph) EnvString() []string {
 }
 
 func (g generalGraph) DefaultCacheImporter() (*string, error) {
-	// We don't have remote cache for v1
-	return nil, nil
+	// base image cache with python + conda for dev env
+	if !g.Dev {
+		return nil, nil
+	}
+	var res string
+	if g.CUDA != nil {
+		res = fmt.Sprintf(
+			"type=registry,ref=docker.io/%s/python-cache:envd-%s-cuda-%s-cudnn-%s",
+			viper.GetString(flag.FlagDockerOrganization),
+			version.GetVersionForImageTag(), *g.CUDA, g.CUDNN)
+	} else {
+		res = fmt.Sprintf(
+			"type=registry,ref=docker.io/%s/python-cache:envd-%s",
+			viper.GetString(flag.FlagDockerOrganization),
+			version.GetVersionForImageTag())
+	}
+	return &res, nil
 }
 
 func (g *generalGraph) GetEntrypoint(buildContextDir string) ([]string, error) {

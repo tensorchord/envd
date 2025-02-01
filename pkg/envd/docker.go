@@ -198,7 +198,7 @@ func (e dockerEngine) getVerFromImageLabel(ctx context.Context, env string) (ver
 	}
 	ver, ok := ctr.Labels[types.ImageLabelSyntaxVer]
 	if !ok {
-		return version.NewByVersion("v0"), nil
+		return version.NewByVersion("v1"), nil
 	}
 	return version.NewByVersion(ver), nil
 }

@@ -23,10 +23,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark"
-	starlarkv0 "github.com/tensorchord/envd/pkg/lang/frontend/starlark/v0"
 	starlarkv1 "github.com/tensorchord/envd/pkg/lang/frontend/starlark/v1"
 	"github.com/tensorchord/envd/pkg/lang/ir"
-	v0 "github.com/tensorchord/envd/pkg/lang/ir/v0"
 	v1 "github.com/tensorchord/envd/pkg/lang/ir/v1"
 )
 
@@ -42,11 +40,11 @@ type Getter interface {
 type Version string
 
 const (
-	// V1 is the v1 version of the starlark frontend language.
-	V1 Version = "v1"
-	// V0 is the v0 version of the starlark frontend language.
-	// v0 is the default version of the language.
+	// V0 is no longer supported in envd v1.
 	V0 Version = "v0"
+	// V1 is the v1 version of the starlark frontend language.
+	// V1 is the default version.
+	V1 Version = "v1"
 	// VersionUnknown is the unknown version of the starlark frontend language.
 	VersionUnknown Version = "unknown"
 )
@@ -59,13 +57,13 @@ func NewByVersion(ver string) Getter {
 	g := &generalGetter{}
 	switch ver {
 	case string(V1):
-		g.v = V1
+		logrus.Debug("explicit using v1")
 	case string(V0):
-		g.v = V0
+		logrus.Fatal("v0 is no longer supported in envd v1, try to use v1")
 	default:
-		logrus.Debug("unknown version, using v0 by default")
-		g.v = V0
+		logrus.Debug("unknown version, using v1 by default")
 	}
+	g.v = V1
 	return g
 }
 
@@ -83,13 +81,13 @@ func New(file string) (Getter, error) {
 
 	g := &generalGetter{}
 	if strings.Contains(comment, "# syntax=v1") {
-		g.v = V1
+		logrus.Debug("explicit using v1")
 	} else if strings.Contains(comment, "# syntax=v0") {
-		g.v = V0
+		logrus.Fatal("v0 is no longer supported in envd v1, try to use v1")
 	} else {
 		logrus.Debug("unknown version, using v0 by default")
-		g.v = V0
 	}
+	g.v = V1
 	return g, nil
 }
 
@@ -102,7 +100,8 @@ func (g generalGetter) GetDefaultGraph() ir.Graph {
 	case V1:
 		return v1.DefaultGraph
 	case V0:
-		return v0.DefaultGraph
+		logrus.Fatal("v0 is no longer supported in envd v1, try to use v1")
+		return v1.DefaultGraph
 	default:
 		return nil
 	}
@@ -113,7 +112,8 @@ func (g generalGetter) GetDefaultGraphHash() string {
 	case V1:
 		return v1.GetDefaultGraphHash()
 	case V0:
-		return v0.GetDefaultGraphHash()
+		logrus.Fatal("v0 is no longer supported in envd v1, try to use v1")
+		return v1.GetDefaultGraphHash()
 	default:
 		return ""
 	}
@@ -124,7 +124,8 @@ func (g generalGetter) GetStarlarkInterpreter(buildContextDir string) starlark.I
 	case V1:
 		return starlarkv1.NewInterpreter(buildContextDir)
 	case V0:
-		return starlarkv0.NewInterpreter(buildContextDir)
+		logrus.Fatal("v0 is no longer supported in envd v1, try to use v1")
+		return starlarkv1.NewInterpreter(buildContextDir)
 	default:
 		return nil
 	}
