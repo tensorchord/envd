@@ -1,12 +1,18 @@
 set -o pipefail && \
-JULIA_URL="https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.5-linux-x86_64.tar.gz"; \
-SHA256SUM="e71a24816e8fe9d5f4807664cbbb42738f5aa9fe05397d35c81d4c5d649b9d05"; \
+UNAME_M="$(uname -m)" && \
+if [ "${UNAME_M}" = "x86_64" ]; then \
+    JULIA_URL="https://julialang-s3.julialang.org/bin/linux/x64/1.10/julia-1.10.8-linux-x86_64.tar.gz"; \
+    SHA256SUM="0410175aeec3df63173c15187f2083f179d40596d36fd3a57819cc5f522ae735"; \
+elif [ "{UNAME_M}" = "aarch64" ]; then \
+    JULIA_URL="https://julialang-s3.julialang.org/bin/linux/aarch64/1.10/julia-1.10.8-linux-aarch64.tar.gz" \
+    SHA256SUM="8d63dd12595a08edc736be8d6c4fea1840f137b81c62079d970dbd1be448b8cd"; \
+fi && \
 
 wget "${JULIA_URL}" -O /tmp/julia.tar.gz && \
 echo "${SHA256SUM}  /tmp/julia.tar.gz" > /tmp/sha256sum && \
 sha256sum -c -s /tmp/sha256sum
 EXIT_CODE=$?
-if [ $EXIT_CODE -ne 0 ]; then  
+if [ $EXIT_CODE -ne 0 ]; then
     echo "CHECKSUM FAILED" && \
     rm /tmp/julia.tar.gz && \
     wget "${JULIA_URL}" -O /tmp/julia.tar.gz && \
@@ -14,4 +20,3 @@ if [ $EXIT_CODE -ne 0 ]; then
 else
     echo "CHECKSUM PASSED"
 fi
-

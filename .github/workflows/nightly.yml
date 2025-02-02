@@ -65,10 +65,7 @@ jobs:
     env:
       # Disable telemetry.
       ENVD_ANALYTICS: false
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -93,10 +90,7 @@ jobs:
     env:
       # Disable telemetry.
       ENVD_ANALYTICS: false
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -177,10 +171,7 @@ jobs:
     env:
       # Disable telemetry.
       ENVD_ANALYTICS: false
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out code
         uses: actions/checkout@v4
