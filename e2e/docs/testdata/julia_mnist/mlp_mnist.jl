@@ -14,7 +14,7 @@ model = Chain(Dense(28^2 => 32, sigmoid), Dense(32 => 10), softmax)
 
 #===== DATA =====#
 
-# Calling MLDatasets.MNIST() will dowload the dataset if necessary,
+# Calling MLDatasets.MNIST() will download the dataset if necessary,
 # and return a struct containing it.
 # It takes a few seconds to read from disk each time, so do this once:
 
