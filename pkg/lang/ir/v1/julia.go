@@ -36,7 +36,6 @@ var downloadJuliaBashScript string
 // getJuliaBinary returns the llb.State only after setting up Julia environment
 // A successful run of getJuliaBinary should set up the Julia environment
 func (g generalGraph) getJuliaBinary(root llb.State) llb.State {
-
 	base := llb.Image(builderImage)
 	builder := base.
 		Run(llb.Shlexf("sh -c '%s'", downloadJuliaBashScript),
@@ -57,33 +56,26 @@ func (g generalGraph) getJuliaBinary(root llb.State) llb.State {
 // installJulia returns the llb.State only after adding the Julia environment to $PATH
 // A successful run of installJulia should add Julia to global environment path
 func (g *generalGraph) installJulia(root llb.State) llb.State {
-
 	confJulia := g.getJuliaBinary(root)
 	confJulia = g.updateEnvPath(confJulia, juliaBinDir)
-
 	return confJulia
 }
 
 // installJuliaPackages returns the llb.State only after installing required Julia packages
 // A successful run of installJuliaPackages should install Julia packages under "/opt/julia/user_packages" and export the path
 func (g *generalGraph) installJuliaPackages(root llb.State) llb.State {
-
 	if len(g.JuliaPackages) == 0 {
 		return root
 	}
 
 	root = root.File(llb.Mkdir(juliaPkgDir, 0755, llb.WithParents(true)),
 		llb.WithCustomName("[internal] creating folder for julia packages"))
-
 	// Allow root to utilize the installed Julia environment
 	root = g.updateEnvPath(root, juliaBinDir)
-
 	// Export "/opt/julia/user_packages" as the additional library path for root
 	root = root.AddEnv("JULIA_DEPOT_PATH", juliaPkgDir)
-
 	// Export "/opt/julia/user_packages" as the additional library path for users
 	g.RuntimeEnviron["JULIA_DEPOT_PATH"] = juliaPkgDir
-
 	// Change owner of the "/opt/julia/user_packages" to users
 	g.UserDirectories = append(g.UserDirectories, juliaPkgDir)
 
@@ -93,6 +85,5 @@ func (g *generalGraph) installJuliaPackages(root llb.State) llb.State {
 			Run(llb.Shlex(command), llb.WithCustomNamef("[internal] installing Julia packages: %s", strings.Join(packages, " ")))
 		root = run.Root()
 	}
-
 	return root
 }

@@ -21,17 +21,17 @@ import (
 	"github.com/tensorchord/envd/e2e"
 )
 
-var _ = Describe("rlang_mnist", Ordered, func() {
-	exampleName := "rlang_mnist"
+var _ = Describe("rlang_iris", Ordered, func() {
+	exampleName := "rlang_iris"
 	testcase := "e2e"
 	e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 	BeforeAll(e.BuildImage(true))
 	BeforeEach(e.RunContainer())
 	It("execute runtime command `Rscript`", func() {
-		res, err := e.ExecRuntimeCommand("rlang-mnist")
+		res, err := e.ExecRuntimeCommand("rlang-iris")
 		Expect(err).To(BeNil())
-		isNumeric := "TRUE"
-		Expect(res).To(BeEquivalentTo(isNumeric))
+		Expect(res).To(ContainSubstring("classif.acc"))
+		Expect(res).To(ContainSubstring("classif.ce"))
 	})
 	AfterEach(e.DestroyContainer())
 })

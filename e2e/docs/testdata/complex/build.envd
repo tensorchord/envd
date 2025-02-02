@@ -3,7 +3,7 @@
 
 def build():
     base(dev=True)
-    install.cuda(version="11.2.2", cudnn="8")
+    install.cuda(version="12.3.2", cudnn="9")
     install.conda()
     install.python()
     config.apt_source(

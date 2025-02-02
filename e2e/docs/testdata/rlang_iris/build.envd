@@ -1,0 +1,9 @@
+# syntax=v1
+
+
+def build():
+    base(dev=True)
+    install.apt_packages(name=["build-essential"])
+    install.r_lang()
+    install.r_packages(name=["mlr3", "mlr3learners"])
+    runtime.command(commands={"rlang-iris": "Rscript iris.r 2> /dev/null"})

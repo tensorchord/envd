@@ -21,17 +21,22 @@ import (
 	"github.com/moby/buildkit/client/llb"
 )
 
-func (g generalGraph) installRLang(root llb.State) llb.State {
+const rPath = "/usr/local/lib/R/site-library"
 
-	installR := "apt-get update && apt-get install -y -t focal-cran40 r-base"
-
-	run := root.Run(llb.Shlexf("bash -c \"%s\"", installR),
+func (g *generalGraph) installRLang(root llb.State) llb.State {
+	g.UserDirectories = append(g.UserDirectories, rPath)
+	prepare := root.Run(llb.Shlex(`sh -c "
+apt-get update && apt-get install -y --no-install-recommends --fix-missing gpg &&
+wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | gpg --dearmor -o /usr/share/keyrings/r-project.gpg &&
+echo "deb [signed-by=/usr/share/keyrings/r-project.gpg] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" | tee -a /etc/apt/sources.list.d/r-project.list
+"`), llb.WithCustomName("add R public GPG key")).Root()
+	run := prepare.Run(
+		llb.Shlex(`sh -c "apt-get update && apt-get install -y --no-install-recommends r-base"`),
 		llb.WithCustomNamef("[internal] apt install R environment from CRAN repository"))
 	return run.Root()
 }
 
 func (g generalGraph) installRPackages(root llb.State) llb.State {
-
 	if len(g.RPackages) == 0 {
 		return root
 	}
@@ -41,18 +46,11 @@ func (g generalGraph) installRPackages(root llb.State) llb.State {
 		mirrorURL = *g.CRANMirrorURL
 	}
 
-	lib := "/usr/local/lib/R/site-library/"
-
-	root = root.
-		Run(llb.Shlexf("chmod 777 %s", lib), llb.WithCustomNamef("[internal] setting execute permission for default R package library for envd users")).Root()
-
 	for _, packages := range g.RPackages {
-		command := fmt.Sprintf(`R -e 'options(repos = "%s"); install.packages(c("%s"), lib = "%s")'`, mirrorURL, strings.Join(packages, `","`), lib)
+		command := fmt.Sprintf(`R -e 'options(repos = "%s"); install.packages(c("%s"), lib = "%s")'`, mirrorURL, strings.Join(packages, `","`), rPath)
 		run := root.
 			Run(llb.Shlex(command), llb.WithCustomNamef("[internal] installing R packages: %s", strings.Join(packages, " ")))
 		root = run.Root()
-
 	}
-
 	return root
 }
