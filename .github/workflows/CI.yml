@@ -9,12 +9,16 @@ on:
       - '**.go'
       - 'Makefile'
       - 'go.**'
+      - 'pkg/**/*.sh'
+      - 'pkg/**/*.envd'
   pull_request:
     paths:
       - '.github/workflows/CI.yml'
       - '**.go'
       - 'Makefile'
       - 'go.**'
+      - 'pkg/**/*.sh'
+      - 'pkg/**/*.envd'
   merge_group:
   workflow_dispatch:
 
@@ -51,7 +55,7 @@ jobs:
           args: --timeout=5m
           version: latest
           # Ref https://github.com/golangci/golangci-lint-action/issues/244
-          skip-pkg-cache: true
+          skip-cache: true
   test:
     name: test
     env:

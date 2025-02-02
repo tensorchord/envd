@@ -30,7 +30,23 @@ jobs:
           args: --timeout=5m
           version: latest
           # Ref https://github.com/golangci/golangci-lint-action/issues/244
-          skip-pkg-cache: true
+          skip-cache: true
+  build:
+    name: build
+    if: github.repository == 'tensorchord/envd'
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+      - name: Build
+        run: make
   test:
     name: test
     if: github.repository == 'tensorchord/envd'
@@ -54,11 +70,6 @@ jobs:
           git diff --cached --exit-code || (echo 'Please run "make generate" to verify generate' && exit 1);
       - name: Test
         run: make test
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-out
-          path: coverage.out
   e2e-cli:
     name: e2e-cli
     if: github.repository == 'tensorchord/envd'
@@ -79,11 +90,6 @@ jobs:
         run: make e2e-cli-test
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-cli-coverage-out
-          path: e2e-cli-coverage.out
   e2e-lang:
     name: e2e-lang
     if: github.repository == 'tensorchord/envd'
@@ -104,67 +110,6 @@ jobs:
         run: make e2e-lang-test
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-lang-coverage-out
-          path: e2e-lang-coverage.out
-  # notifies that all test jobs are finished.
-  report:
-    if: github.repository == 'tensorchord/envd'
-    needs:
-      - test
-      - e2e-cli
-      - e2e-lang
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 'stable'
-      - name: Install bins
-        run: |
-          go install github.com/mattn/goveralls@latest
-          go install github.com/wadey/gocovmerge@latest
-      - name: Get coverage report
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-out
-          path: coverage.out
-      - name: Get cli e2e coverage report
-        uses: actions/download-artifact@v4
-        with:
-          name: e2e-cli-coverage-out
-          path: e2e-cli-coverage.out
-      - name: Get language e2e coverage report
-        uses: actions/download-artifact@v4
-        with:
-          name: e2e-lang-coverage-out
-          path: e2e-lang-coverage.out
-      # - name: Send coverage
-      #   env:
-      #     COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     gocovmerge e2e-coverage.out coverage.out > final.out
-      #     goveralls -coverprofile=final.out -service=github
-  build:
-    name: build
-    if: github.repository == 'tensorchord/envd'
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest ]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 'stable'
-      - name: Build
-        run: make
   e2e-doc:
     name: e2e-doc
     if: github.repository == 'tensorchord/envd'
@@ -185,8 +130,3 @@ jobs:
         run: make e2e-doc-test
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-doc-coverage-out
-          path: e2e-doc-coverage.out
