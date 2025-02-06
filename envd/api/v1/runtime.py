@@ -19,12 +19,6 @@ Note that the documentation is automatically generated from [envd/api](https://g
 in [tensorchord/envd](https://github.com/tensorchord/envd/tree/main/envd/api) repo.
 Please update the python file there instead of directly editing file inside envd-docs repo.
 :::
-
-::: warning
-Enable v1 by adding `# syntax=v1` to the 1st line of your envd file.
-
-v1 is experimental and may change in the future. Make sure to freeze the envd version for online CI/CD.
-:::
 """
 
 from typing import Dict, List, Optional
