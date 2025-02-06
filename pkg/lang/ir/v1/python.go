@@ -91,14 +91,13 @@ func (g generalGraph) getAppropriatePythonVersion() (string, error) {
 func (g generalGraph) compileAlternative(root llb.State) llb.State {
 	envdPrefix := "/opt/conda/envs/envd/bin"
 	run := root.
-		Run(llb.Shlexf("update-alternatives --install /usr/bin/python python %s/python 1", envdPrefix),
-			llb.WithCustomName("[internal] update alternative python to envd")).
-		Run(llb.Shlexf("update-alternatives --install /usr/bin/python3 python3 %s/python3 1", envdPrefix),
-			llb.WithCustomName("[internal] update alternative python3 to envd")).
-		Run(llb.Shlexf("update-alternatives --install /usr/bin/pip pip %s/pip 1", envdPrefix),
-			llb.WithCustomName("[internal] update alternative pip to envd")).
-		Run(llb.Shlexf("update-alternatives --install /usr/bin/pip3 pip3 %s/pip3 1", envdPrefix),
-			llb.WithCustomName("[internal] update alternative pip3 to envd"))
+		Run(llb.Shlexf(`sh -c "
+			update-alternatives --install /usr/bin/python python %[1]s/python 1 &&
+			update-alternatives --install /usr/bin/python3 python3 %[1]s/python3 1 &&
+			update-alternatives --install /usr/bin/pip pip %[1]s/pip 1 &&
+			update-alternatives --install /usr/bin/pip3 pip3 %[1]s/pip3 1
+			"`, envdPrefix),
+			llb.WithCustomName("[internal] update alternative python/python3/pip/pip3 to envd"))
 	return run.Root()
 }
 
