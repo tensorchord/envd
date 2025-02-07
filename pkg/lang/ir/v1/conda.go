@@ -30,7 +30,7 @@ import (
 const (
 	builderImage        = "curlimages/curl:8.11.1"
 	condaVersionDefault = "py311_24.11.1-0"
-	microMambaImage     = "mambaorg/micromamba:1.0.0"
+	microMambaImage     = "mambaorg/micromamba:2.0.6"
 	condaRootPrefix     = "/opt/conda"
 	condaBinDir         = "/opt/conda/bin"
 	condaSourcePath     = "/tmp/miniconda.sh"
@@ -86,7 +86,7 @@ func (g generalGraph) condaCommandPath() string {
 func (g generalGraph) condaInitShell(shell string) string {
 	path := g.condaCommandPath()
 	if g.CondaConfig.UseMicroMamba {
-		return fmt.Sprintf("%s shell init -p %s -s %s", path, condaRootPrefix, shell)
+		return fmt.Sprintf("%s shell init -s %s %s", path, shell, condaRootPrefix)
 	}
 	return fmt.Sprintf("%s init %s", path, shell)
 }
