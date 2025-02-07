@@ -145,7 +145,7 @@ var CommandUp = &cli.Command{
 		// https://github.com/urfave/cli/issues/1134#issuecomment-1191407527
 		&cli.StringFlag{
 			Name:    "export-cache",
-			Usage:   "Export the cache (e.g. `type=registry,ref=<image>`)",
+			Usage:   "Export the cache (e.g. `type=registry,ref=<image>`). The default `moby-worker` builder doesn't support this unless the docker-ce has enabled the `containerd` image store. You can run `envd context create --name docker --builder docker-container --use` to use this feature.",
 			Aliases: []string{"ec"},
 		},
 		&cli.StringFlag{

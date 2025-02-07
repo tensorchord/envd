@@ -260,10 +260,10 @@ NAME                    JUPYTER                 SSH TARGET              CONTEXT 
 envd-quick-start        http://localhost:42779   envd-quick-start.envd   /home/gaocegege/code/envd-quick-start   envd-quick-start:dev    false   <none>  <none>  Up 54 seconds   bd3f6a729e94
 ```
 
-## Difference between v0 and v1
+## Difference between v0 and v1 syntax
 
 > [!NOTE]
-> Start from `envd v1.0`, `v1` syntax is the default syntax for `build.envd` file.
+> Start from `envd v1.0`, `v1` syntax is the default syntax for `build.envd` file, and `moby-worker` is the default builder.
 
 | Features | v0 | v1 |
 | --- | --- | --- |
