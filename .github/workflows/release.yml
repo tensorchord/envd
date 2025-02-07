@@ -23,10 +23,10 @@ jobs:
           username: ${{ secrets.DOCKERIO_USERNAME }}
           password: ${{ secrets.DOCKERIO_TOKEN }}
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: latest
+          version: "~> v2"
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -170,7 +170,7 @@ jobs:
             tag_suffix: ""
           - build_func: build_gpu_11_6
             tag_suffix: "-cuda-11.6.2-cudnn-8"
-    needs: image_publish
+    needs: goreleaser
     steps:
     - uses: actions/checkout@v4
     - name: Set up Docker Buildx
