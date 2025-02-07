@@ -19,6 +19,12 @@ Note that the documentation is automatically generated from [envd/api](https://g
 in [tensorchord/envd](https://github.com/tensorchord/envd/tree/main/envd/api) repo.
 Please update the python file there instead of directly editing file inside envd-docs repo.
 :::
+
+::: warning
+v0 syntax is no longer supported from `envd>=v1.0`. Check the [upgrade guide](https://envd.tensorchord.ai/guide/v1.html).
+
+If you want to use v0 syntax, try `pip install 'envd<1'`.
+:::
 """
 
 from typing import List, Optional
