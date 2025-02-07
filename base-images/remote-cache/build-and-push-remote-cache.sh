@@ -26,6 +26,7 @@ TAG_SUFFIX="${TAG_SUFFIX:-}"
 
 cd ${ROOT_DIR}
 
+envd context create --name docker --builder docker-container --use
 envd --debug build -f build.envd:${BUILD_FUNC} --export-cache type=registry,ref=docker.io/${DOCKER_HUB_ORG}/python-cache:envd-v${ENVD_VERSION}${TAG_SUFFIX} --force
 
 cd - > /dev/null

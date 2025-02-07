@@ -26,7 +26,6 @@ const rPath = "/usr/local/lib/R/site-library"
 func (g *generalGraph) installRLang(root llb.State) llb.State {
 	g.UserDirectories = append(g.UserDirectories, rPath)
 	prepare := root.Run(llb.Shlex(`sh -c "
-apt-get update && apt-get install -y --no-install-recommends --fix-missing gpg &&
 wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | gpg --dearmor -o /usr/share/keyrings/r-project.gpg &&
 echo "deb [signed-by=/usr/share/keyrings/r-project.gpg] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" | tee -a /etc/apt/sources.list.d/r-project.list
 "`), llb.WithCustomName("add R public GPG key")).Root()

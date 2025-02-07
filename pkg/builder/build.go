@@ -228,7 +228,6 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 	if err != nil {
 		return errors.Wrap(err, "failed to parse export cache")
 	}
-	// k := platforms.Format(platforms.DefaultSpec())
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	eg, ctx := errgroup.WithContext(ctx)

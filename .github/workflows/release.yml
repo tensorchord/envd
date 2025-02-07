@@ -168,8 +168,8 @@ jobs:
         include:
           - build_func: build
             tag_suffix: ""
-          - build_func: build_gpu_11_6
-            tag_suffix: "-cuda-11.6.2-cudnn-8"
+          - build_func: build_gpu_11_8
+            tag_suffix: "-cuda-11.8.0-cudnn-8"
     needs: goreleaser
     steps:
     - uses: actions/checkout@v4

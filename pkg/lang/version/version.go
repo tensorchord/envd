@@ -85,7 +85,7 @@ func New(file string) (Getter, error) {
 	} else if strings.Contains(comment, "# syntax=v0") {
 		logrus.Fatal("v0 is no longer supported in envd v1, try to use v1")
 	} else {
-		logrus.Debug("unknown version, using v0 by default")
+		logrus.Debug("unknown version, using v1 by default")
 	}
 	g.v = V1
 	return g, nil
