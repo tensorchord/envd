@@ -21,7 +21,6 @@ import (
 var CommandDebug = &cli.Command{
 	Name:        "debug",
 	Category:    CategoryOther,
-	Aliases:     []string{"b"},
 	Usage:       "Debug commands",
 	Description: ``,
 
