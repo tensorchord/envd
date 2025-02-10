@@ -36,15 +36,15 @@ def apt_source(source: Optional[str]):
     Example usage:
     ```python
     apt_source(source='''
-        deb https://mirror.sjtu.edu.cn/ubuntu focal main restricted
-        deb https://mirror.sjtu.edu.cn/ubuntu focal-updates main restricted
-        deb https://mirror.sjtu.edu.cn/ubuntu focal universe
-        deb https://mirror.sjtu.edu.cn/ubuntu focal-updates universe
-        deb https://mirror.sjtu.edu.cn/ubuntu focal multiverse
-        deb https://mirror.sjtu.edu.cn/ubuntu focal-updates multiverse
-        deb https://mirror.sjtu.edu.cn/ubuntu focal-backports main restricted universe multiverse
-        deb http://archive.canonical.com/ubuntu focal partner
-        deb https://mirror.sjtu.edu.cn/ubuntu focal-security main restricted universe multiverse
+        deb https://mirror.sjtu.edu.cn/ubuntu jammy main restricted
+        deb https://mirror.sjtu.edu.cn/ubuntu jammy-updates main restricted
+        deb https://mirror.sjtu.edu.cn/ubuntu jammy universe
+        deb https://mirror.sjtu.edu.cn/ubuntu jammy-updates universe
+        deb https://mirror.sjtu.edu.cn/ubuntu jammy multiverse
+        deb https://mirror.sjtu.edu.cn/ubuntu jammy-updates multiverse
+        deb https://mirror.sjtu.edu.cn/ubuntu jammy-backports main restricted universe multiverse
+        deb http://archive.canonical.com/ubuntu jammy partner
+        deb https://mirror.sjtu.edu.cn/ubuntu jammy-security main restricted universe multiverse
     ''')
     ```
 
