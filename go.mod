@@ -8,7 +8,7 @@ require (
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/bcicen/ctop v0.7.7
 	github.com/charmbracelet/bubbletea v0.24.2
-	github.com/charmbracelet/lipgloss v0.8.0
+	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/cockroachdb/errors v1.11.3
 	github.com/containerd/console v1.0.4
 	github.com/containerd/log v0.1.0
@@ -24,7 +24,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-getter v1.7.8
-	github.com/mattn/go-isatty v0.0.19
+	github.com/mattn/go-isatty v0.0.20
 	github.com/moby/buildkit v0.19.0
 	github.com/moby/term v0.5.2
 	github.com/morikuni/aec v1.0.0
@@ -68,6 +68,7 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
+	github.com/charmbracelet/x/ansi v0.4.2 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
