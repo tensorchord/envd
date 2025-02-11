@@ -6,3 +6,4 @@ def build():
     install.julia()
     install.julia_packages(name=["Flux", "MLDatasets"])
     runtime.command(commands={"julia-mnist": "julia mlp_mnist.jl"})
+    runtime.environ(env={"DATADEPS_ALWAYS_ACCEPT": "true"})
