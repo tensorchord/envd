@@ -68,9 +68,9 @@ train_loader = simple_loader(train_data, batchsize = 256)
 
 opt_state = Flux.setup(Adam(3e-4), model);
 
-# Then train for 10 epochs, printing out details as we go:
+# Then train for 3 epochs, printing out details as we go:
 
-for epoch in 1:10
+for epoch in 1:3
     loss = 0.0
     for (x, y) in train_loader
         # Compute the loss and the gradients:
