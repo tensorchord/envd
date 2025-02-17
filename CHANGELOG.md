@@ -1,5 +1,54 @@
 # Changelog
 
+## v1.0.1 (2025-02-17)
+
+
+### Contributors
+
+
+## v1.0.0-alpha.3 (2025-02-11)
+
+ * [9065cd3](https://github.com/tensorchord/envd/commit/9065cd38a05d326f1cd48da9089117dd49bb28c7) fix: julia docs test (#1981)
+ * [63a0971](https://github.com/tensorchord/envd/commit/63a09712e9d3d2b698b2a2fd9a27617639f693a3) fix: use ubuntu 22.04 mirror (#1980)
+ * [37cb376](https://github.com/tensorchord/envd/commit/37cb376765bc0fda72d862f9285c1f68388d6e42) fix: use buildkit container builder to export cache (#1975)
+
+### Contributors
+
+ * Keming
+
+## v1.0.0-alpha.2 (2025-02-07)
+
+ * [2b3a8d1](https://github.com/tensorchord/envd/commit/2b3a8d184acaaf286c56ada79cd2e3c5bd646c6c) fix: goreleaser config, bump to v6 (#1973)
+
+### Contributors
+
+ * Keming
+
+## v1.0.0-alpha.1 (2025-02-07)
+
+
+### Contributors
+
+
+## v1.0.0 (2025-02-11)
+
+ * [9065cd3](https://github.com/tensorchord/envd/commit/9065cd38a05d326f1cd48da9089117dd49bb28c7) fix: julia docs test (#1981)
+ * [63a0971](https://github.com/tensorchord/envd/commit/63a09712e9d3d2b698b2a2fd9a27617639f693a3) fix: use ubuntu 22.04 mirror (#1980)
+ * [37cb376](https://github.com/tensorchord/envd/commit/37cb376765bc0fda72d862f9285c1f68388d6e42) fix: use buildkit container builder to export cache (#1975)
+ * [2b3a8d1](https://github.com/tensorchord/envd/commit/2b3a8d184acaaf286c56ada79cd2e3c5bd646c6c) fix: goreleaser config, bump to v6 (#1973)
+ * [6b49023](https://github.com/tensorchord/envd/commit/6b49023fcc98d3b426e10595c11610884739ae30) feat: upgrade to micromamba2 (#1971)
+ * [b53e06d](https://github.com/tensorchord/envd/commit/b53e06d4943c149594dfe1da52043febb51686c5) fix: envd cmd alias conflict, bump buildkit container version (#1970)
+ * [f747827](https://github.com/tensorchord/envd/commit/f74782795ed92c681516f1b25ec5b9ba5206e346) fix: r-lang in ubuntu:22.04 (#1967)
+ * [80d77e8](https://github.com/tensorchord/envd/commit/80d77e855203aecb34d0be0f0c9814c5636ab3ff) feat: upgrade julia to latest LTS version (#1966)
+ * [1519667](https://github.com/tensorchord/envd/commit/15196672f4a04417292a41edfd49cf364ca858de) feat: update examples to v1 syntax (#1965)
+ * [3bfd29a](https://github.com/tensorchord/envd/commit/3bfd29a18437b9cb7e6b47684be7a7d6da227202) feat: use moby context by default (#1964)
+ * [e32ab14](https://github.com/tensorchord/envd/commit/e32ab1455150bce2461168791a11ea416d33121f) feat: remove envd v0 (#1963)
+ * [307fdbd](https://github.com/tensorchord/envd/commit/307fdbda756887e2ba0acc09565965b4d7fe5865) fix: chown all the files for mamba under `/opt/conda` (#1961)
+
+### Contributors
+
+ * Keming
+
 ## v0.4.3 (2025-01-20)
 
  * [72e3b49](https://github.com/tensorchord/envd/commit/72e3b495ab776b5ba524217099ed7a2c88cbd909) fix(ci): release on ubuntu with wheels from previous steps (#1960)
