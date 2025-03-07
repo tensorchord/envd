@@ -61,10 +61,7 @@ func (g generalGraph) compileRun(root llb.State) llb.State {
 
 		cmdStr := fmt.Sprintf("bash -c '%s'", sb.String())
 		logrus.WithField("command", cmdStr).Debug("compile run command")
-		// Mount the build context into the build process.
-		// TODO(gaocegege): Maybe we should make it readonly,
-		// but these cases then cannot be supported:
-		// run(commands=["git clone xx.git"])
+		// mount host here is read-only
 		run := root.Dir(workingDir).Run(llb.Shlex(cmdStr))
 		if execGroup.MountHost {
 			run.AddMount(workingDir, llb.Local(flag.FlagBuildContext))
@@ -207,6 +204,9 @@ func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 		channel := g.compileCondaChannel(pack)
 		pack = g.compileCondaPackages(channel)
 	}
+	if g.UVConfig != nil {
+		pack = g.compileUV(pack)
+	}
 
 	for _, language := range g.Languages {
 		switch language.Name {
@@ -270,9 +270,6 @@ func (g *generalGraph) compileBaseImage() (llb.State, error) {
 	config, err := ir.FetchImageConfig(context.Background(), g.Image, g.Platform)
 	if err != nil {
 		return llb.State{}, errors.Wrapf(err, "failed to get the image config, check if the image(%s) exists", g.Image)
-	}
-	if err != nil {
-		return llb.State{}, errors.Wrap(err, "failed to get the image metadata")
 	}
 
 	// Set the environment variables to RuntimeEnviron to keep it in the resulting image.

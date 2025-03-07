@@ -57,7 +57,6 @@ var BaseEnvironment = []struct {
 	{"PATH", DefaultSystemPath},
 	{"LANG", "en_US.UTF-8"},
 	{"LC_ALL", "en_US.UTF-8"},
-	{"UV_LINK_MODE", "copy"}, // uv link-mode for installing Python packages
 }
 var BaseAptPackage = []string{
 	"bash-static",

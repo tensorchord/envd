@@ -58,6 +58,14 @@ func Conda(mamba bool) {
 	}
 }
 
+func UV(pythonVersion string) {
+	g := DefaultGraph.(*generalGraph)
+
+	g.UVConfig = &ir.UVConfig{
+		PythonVersion: pythonVersion,
+	}
+}
+
 func RLang() {
 	g := DefaultGraph.(*generalGraph)
 

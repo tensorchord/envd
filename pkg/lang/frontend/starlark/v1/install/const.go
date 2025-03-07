@@ -18,6 +18,7 @@ const (
 	// language
 	rulePython = "install.python"
 	ruleConda  = "install.conda"
+	ruleUV     = "install.uv"
 	ruleRLang  = "install.r_lang"
 	ruleJulia  = "install.julia"
 

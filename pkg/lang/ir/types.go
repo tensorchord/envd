@@ -61,6 +61,10 @@ type CondaConfig struct {
 	UseMicroMamba      bool
 }
 
+type UVConfig struct {
+	PythonVersion string
+}
+
 type GitConfig struct {
 	Name   string
 	Email  string

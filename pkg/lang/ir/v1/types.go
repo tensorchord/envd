@@ -72,6 +72,7 @@ type generalGraph struct {
 	*ir.JupyterConfig
 	*ir.GitConfig
 	*ir.CondaConfig
+	*ir.UVConfig
 	*ir.RStudioServerConfig
 
 	Writer compileui.Writer `json:"-"`

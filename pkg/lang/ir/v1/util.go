@@ -139,7 +139,6 @@ func GetDefaultGraphHash() string {
 // GetCUDAImage finds the correct CUDA base image
 // refer to https://hub.docker.com/r/nvidia/cuda/tags
 func GetCUDAImage(image string, cuda *string, cudnn string, dev bool) string {
-	// TODO: support CUDA 10
 	target := "runtime"
 	if dev {
 		target = "devel"

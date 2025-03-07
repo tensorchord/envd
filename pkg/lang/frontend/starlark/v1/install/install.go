@@ -34,6 +34,7 @@ var Module = &starlarkstruct.Module{
 		// language
 		"python": starlark.NewBuiltin(rulePython, ruleFuncPython),
 		"conda":  starlark.NewBuiltin(ruleConda, ruleFuncConda),
+		"uv":     starlark.NewBuiltin(ruleUV, ruleFuncUV),
 		"r_lang": starlark.NewBuiltin(ruleRLang, ruleFuncRLang),
 		"julia":  starlark.NewBuiltin(ruleJulia, ruleFuncJulia),
 		// packages
@@ -74,6 +75,20 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked: use_mamba=%t", ruleConda, useMamba)
 	ir.Conda(useMamba)
+	return starlark.None, nil
+}
+
+func ruleFuncUV(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	logger.Debugf("rule `%s` is invoked", ruleUV)
+
+	pythonVersion := ir.PythonVersionDefault
+
+	if err := starlark.UnpackArgs(ruleUV, args, kwargs, "python_version?", &pythonVersion); err != nil {
+		return nil, err
+	}
+
+	ir.UV(pythonVersion)
 	return starlark.None, nil
 }
 

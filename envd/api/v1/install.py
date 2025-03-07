@@ -43,6 +43,21 @@ def conda(use_mamba: bool = False):
     """
 
 
+def uv(python_version: str = "3.11"):
+    """Install UV (an extremely fast Python package and project manager).
+
+    `uv` is much faster than `conda`. Choose this one instead of `conda` if you don't
+    need any machine learning packages.
+
+    This doesn't support installing Python packages through `install.python_packages`
+    because that part should be managed by `uv`. You can run `uv sync` in the `envd`
+    environment to install all the dependencies.
+
+    Args:
+        python_version (str): install this Python version through UV
+    """
+
+
 def r_lang():
     """Install R Lang."""
 
