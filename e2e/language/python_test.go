@@ -61,16 +61,16 @@ var _ = Describe("python", Ordered, func() {
 		e.DestroyContainer()()
 	})
 
-	It("Should build uv with Python successfully", func() {
+	Describe("Should build uv with Python successfully", func() {
 		exampleName := "python/uv"
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
-		e.BuildImage(true)()
-		e.RunContainer()()
+		BeforeAll(e.BuildImage(true))
+		BeforeEach(e.RunContainer())
 		It("Should have Python installed", func() {
 			res, err := e.ExecRuntimeCommand("uv-python")
 			Expect(err).To(BeNil())
 			Expect(res).To(ContainSubstring("python"))
 		})
-		e.DestroyContainer()()
+		AfterEach(e.DestroyContainer())
 	})
 })
