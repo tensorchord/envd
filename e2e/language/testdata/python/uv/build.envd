@@ -1,0 +1,12 @@
+# syntax=v1
+
+
+def build():
+    base(dev=True)
+    install.uv()
+    shell("fish")
+    runtime.command(
+        commands={
+            "uv-python": "uv python list --only-installed",
+        }
+    )

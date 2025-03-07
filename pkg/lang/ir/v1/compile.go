@@ -388,6 +388,10 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 			return llb.State{}, errors.Wrap(err, "failed to compile shell")
 		}
 		prompt := g.compilePrompt(shell)
+		if g.UVConfig != nil {
+			// re-install uv Python for dev user
+			prompt = g.compileUVPython(prompt)
+		}
 		entrypoint, err := g.compileEntrypoint(prompt)
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile entrypoint")

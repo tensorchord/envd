@@ -16,14 +16,15 @@ package language
 
 import (
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 
 	"github.com/tensorchord/envd/e2e"
 )
 
 var _ = Describe("python", Ordered, func() {
+	testcase := "e2e"
 	It("Should build packages successfully", func() {
 		exampleName := "python/packages"
-		testcase := "e2e"
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
@@ -31,7 +32,6 @@ var _ = Describe("python", Ordered, func() {
 	})
 	It("Should build requirements successfully", func() {
 		exampleName := "python/requirements"
-		testcase := "e2e"
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
@@ -39,7 +39,6 @@ var _ = Describe("python", Ordered, func() {
 	})
 	It("Should build hybrid successfully", func() {
 		exampleName := "python/hybrid"
-		testcase := "e2e"
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
@@ -48,7 +47,6 @@ var _ = Describe("python", Ordered, func() {
 
 	It("Should build conda with channel successfully", func() {
 		exampleName := "python/conda"
-		testcase := "e2e"
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
@@ -57,10 +55,22 @@ var _ = Describe("python", Ordered, func() {
 
 	It("Should build conda with separate channel setting successfully", func() {
 		exampleName := "python/conda_channel"
-		testcase := "e2e"
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		e.BuildImage(true)()
 		e.RunContainer()()
+		e.DestroyContainer()()
+	})
+
+	It("Should build uv with Python successfully", func() {
+		exampleName := "python/uv"
+		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
+		e.BuildImage(true)()
+		e.RunContainer()()
+		It("Should have Python installed", func() {
+			res, err := e.ExecRuntimeCommand("uv-python")
+			Expect(err).To(BeNil())
+			Expect(res).To(ContainSubstring("python"))
+		})
 		e.DestroyContainer()()
 	})
 })
