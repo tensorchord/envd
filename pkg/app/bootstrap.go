@@ -106,6 +106,9 @@ func bootstrap(clicontext *cli.Context) error {
 	}, {
 		"buildkit",
 		buildkit,
+	}, {
+		"add pre-defined templates",
+		addTemplates,
 	}}
 
 	total := len(stages)

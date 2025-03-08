@@ -1,0 +1,35 @@
+def default():
+    shell("fish")
+    install.conda()
+    install.python()
+    install.apt_packages(name=["build-essential"])
+
+
+def others():
+    install.python_packages(
+        name=[
+            "transformers",
+        ]
+    )
+
+
+def gpu():
+    base(dev=True, image="nvidia/cuda:12.6.3-cudnn-devel-ubuntu22.04")
+    default()
+    install.python_packages(
+        name=["torch --index-url https://download.pytorch.org/whl/cu126"]
+    )
+    others()
+
+
+def cpu():
+    base(dev=True)
+    default()
+    install.python_packages(
+        name=["torch --index-url https://download.pytorch.org/whl/cpu"]
+    )
+    others()
+
+
+def build():
+    cpu()
