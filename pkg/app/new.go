@@ -114,7 +114,10 @@ func newCommand(clicontext *cli.Context) error {
 	if err != nil {
 		if os.IsNotExist(err) && isDefaultTemplate(template) {
 			// Add default templates to the template directory if not exist
-			addTemplates(clicontext)
+			err = addTemplates(clicontext)
+			if err != nil {
+				return err
+			}
 			content, err = os.ReadFile(templatePath)
 			if err != nil {
 				return err
