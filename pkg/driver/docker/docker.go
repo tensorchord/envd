@@ -386,7 +386,7 @@ func (c dockerClient) GetStatus(ctx context.Context, cname string) (containerTyp
 // Load loads the docker image from the reader into the docker host.
 // It's up to the caller to close the io.ReadCloser.
 func (c dockerClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) error {
-	resp, err := c.ImageLoad(ctx, r, quiet)
+	resp, err := c.ImageLoad(ctx, r, client.ImageLoadWithQuiet(quiet))
 	if err != nil {
 		return err
 	}
