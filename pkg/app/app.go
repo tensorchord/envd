@@ -99,6 +99,7 @@ func New() EnvdApp {
 		CommandVersion,
 		CommandTop,
 		CommandReference,
+		CommandNew,
 	}
 
 	internalApp.CustomAppHelpTemplate = ` envd - Development environment for data science and AI/ML teams

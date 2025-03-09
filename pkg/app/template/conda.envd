@@ -1,0 +1,5 @@
+def build():
+    base(dev=True)
+    install.conda()
+    install.python()
+    shell("fish")

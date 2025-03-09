@@ -27,9 +27,10 @@ import (
 )
 
 var (
-	DefaultConfigDir  string
-	DefaultCacheDir   string
-	DefaultEnvdLibDir string
+	DefaultConfigDir   string
+	DefaultCacheDir    string
+	DefaultEnvdLibDir  string
+	DefaultTemplateDir string
 )
 
 func init() {
@@ -40,6 +41,7 @@ func init() {
 	DefaultConfigDir = filepath.Join(home, ".config", "envd")
 	DefaultCacheDir = filepath.Join(home, ".cache", "envd")
 	DefaultEnvdLibDir = filepath.Join(DefaultCacheDir, "envdlib")
+	DefaultTemplateDir = filepath.Join(DefaultConfigDir, "templates")
 }
 
 // FileExists returns true if the file exists
@@ -134,6 +136,11 @@ func ConfigFile(filename string) (string, error) {
 // CacheFile returns the location for the specified envd cache file
 func CacheFile(filename string) (string, error) {
 	return validateAndJoin(DefaultCacheDir, filename)
+}
+
+// TemplateFile returns the location for the specified envd template file
+func TemplateFile(filename string) (string, error) {
+	return validateAndJoin(DefaultTemplateDir, filename)
 }
 
 func validateAndJoin(dir, file string) (string, error) {
