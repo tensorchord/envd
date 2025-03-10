@@ -238,7 +238,14 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 	for _, entry := range b.entries {
 		// Set up docker config auth.
 		dockerConfig := config.LoadDefaultConfigFile(os.Stderr)
-		attachable := []session.Attachable{authprovider.NewDockerAuthProvider(dockerConfig, map[string]*authprovider.AuthTLSConfig{})}
+		attachable := []session.Attachable{
+			authprovider.NewDockerAuthProvider(
+				authprovider.DockerAuthProviderConfig{
+					ConfigFile: dockerConfig,
+					TLSConfigs: map[string]*authprovider.AuthTLSConfig{},
+				},
+			),
+		}
 		b.logger.WithFields(logrus.Fields{
 			"type": entry.Type,
 		}).Debug("build image with buildkit")

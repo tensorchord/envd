@@ -15,6 +15,7 @@
 package docker
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -267,7 +268,8 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 		"buildkit-config": bc,
 	})
 	logger.Debug("starting buildkitd")
-	if _, _, err := c.ImageInspectWithRaw(ctx, tag); err != nil {
+	var buf bytes.Buffer
+	if _, err := c.ImageInspect(ctx, tag, client.ImageInspectWithRawResponse(&buf)); err != nil {
 		if !client.IsErrNotFound(err) {
 			return "", errors.Wrap(err, "failed to inspect image")
 		}
@@ -386,7 +388,7 @@ func (c dockerClient) GetStatus(ctx context.Context, cname string) (containerTyp
 // Load loads the docker image from the reader into the docker host.
 // It's up to the caller to close the io.ReadCloser.
 func (c dockerClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) error {
-	resp, err := c.ImageLoad(ctx, r, quiet)
+	resp, err := c.ImageLoad(ctx, r, client.ImageLoadWithQuiet(quiet))
 	if err != nil {
 		return err
 	}
