@@ -26,6 +26,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/starlark"
+	"go.starlark.net/syntax"
 
 	interp "github.com/tensorchord/envd/pkg/lang/frontend/starlark"
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/v1/config"
@@ -40,6 +41,19 @@ import (
 type entry struct {
 	globals starlark.StringDict
 	err     error
+}
+
+func envdStarlarkResolveOptions() *syntax.FileOptions {
+	return &syntax.FileOptions{
+		// resolver
+		Set:               false,
+		While:             false,
+		TopLevelControl:   false,
+		GlobalReassign:    false,
+		LoadBindsGlobally: false,
+		// compiler
+		Recursion: true,
+	}
 }
 
 // generalInterpreter is the interpreter implementation for Starlark.
@@ -104,7 +118,7 @@ func (s *generalInterpreter) exec(thread *starlark.Thread, module string) (starl
 
 	if !strings.HasPrefix(module, universe.GitPrefix) {
 		var data interface{}
-		globals, err := starlark.ExecFile(thread, module, data, s.predeclared)
+		globals, err := starlark.ExecFileOptions(envdStarlarkResolveOptions(), thread, module, data, s.predeclared)
 		e = &entry{globals, err}
 	} else {
 		// exec remote git repo
@@ -135,7 +149,7 @@ func (s *generalInterpreter) loadGitModule(thread *starlark.Thread, path string)
 		if d.IsDir() || !strings.HasSuffix(d.Name(), ".envd") {
 			return nil
 		}
-		dict, err := starlark.ExecFile(thread, path, src, s.predeclared)
+		dict, err := starlark.ExecFileOptions(envdStarlarkResolveOptions(), thread, path, src, s.predeclared)
 		if err != nil {
 			return err
 		}
@@ -181,7 +195,7 @@ func (s generalInterpreter) ExecFile(filename string, funcname string) (interfac
 
 func (s generalInterpreter) Eval(script string) (interface{}, error) {
 	thread := s.NewThread(script)
-	return starlark.ExecFile(thread, "", script, s.predeclared)
+	return starlark.ExecFileOptions(envdStarlarkResolveOptions(), thread, "", script, s.predeclared)
 }
 
 func GetEnvdProgramHash(filename string) (string, error) {
@@ -193,7 +207,7 @@ func GetEnvdProgramHash(filename string) (string, error) {
 	funcAlwaysHas := func(x string) bool {
 		return true
 	}
-	_, prog, err := starlark.SourceProgram(filename, envdSrc, funcAlwaysHas)
+	_, prog, err := starlark.SourceProgramOptions(envdStarlarkResolveOptions(), filename, envdSrc, funcAlwaysHas)
 	if err != nil {
 		return "", err
 	}

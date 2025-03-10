@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/cockroachdb/errors"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	dockersystem "github.com/docker/docker/api/types/system"
 	"github.com/moby/buildkit/util/system"
@@ -205,7 +205,7 @@ func NewImageFromMeta(meta servertypes.ImageMeta) (*EnvdImage, error) {
 	return &img, nil
 }
 
-func NewEnvironmentFromContainer(ctr types.Container) (*EnvdEnvironment, error) {
+func NewEnvironmentFromContainer(ctr container.Summary) (*EnvdEnvironment, error) {
 	env := EnvdEnvironment{
 		Environment: servertypes.Environment{
 			Spec:   servertypes.EnvironmentSpec{Image: ctr.Image},
@@ -265,7 +265,7 @@ func newManifest(labels map[string]string) (EnvdManifest, error) {
 	return manifest, nil
 }
 
-func NewDependencyFromContainerJSON(ctr types.ContainerJSON) (*Dependency, error) {
+func NewDependencyFromContainerJSON(ctr container.InspectResponse) (*Dependency, error) {
 	return NewDependencyFromLabels(ctr.Config.Labels)
 }
 
@@ -273,7 +273,7 @@ func NewDependencyFromImageSummary(img image.Summary) (*Dependency, error) {
 	return NewDependencyFromLabels(img.Labels)
 }
 
-func NewPortBindingFromContainerJSON(ctr types.ContainerJSON) ([]PortBinding, error) {
+func NewPortBindingFromContainerJSON(ctr container.InspectResponse) ([]PortBinding, error) {
 	var labels []servertypes.EnvironmentPort
 	err := json.Unmarshal([]byte(ctr.Config.Labels[ImageLabelPorts]), &labels)
 	if err != nil {

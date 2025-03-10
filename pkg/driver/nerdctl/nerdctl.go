@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/sirupsen/logrus"
 
@@ -287,14 +287,14 @@ func (nc *nerdctlClient) containerExists(ctx context.Context, tag string) (bool,
 	return err == nil, err
 }
 
-func (nc *nerdctlClient) containerInspect(ctx context.Context, tag string) (*types.ContainerJSON, error) {
+func (nc *nerdctlClient) containerInspect(ctx context.Context, tag string) (*container.InspectResponse, error) {
 	out, err := nc.exec(ctx, "inspect", tag)
 	if err != nil {
 		// TODO(kweizh): check not found
 		return nil, err
 	}
 
-	cs := []types.ContainerJSON{}
+	cs := []container.InspectResponse{}
 	err = json.Unmarshal([]byte(out), &cs)
 	if err != nil {
 		logrus.WithError(err).Error(cs)
