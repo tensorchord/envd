@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.1.0 (2025-03-10)
+
+ * [207c30e](https://github.com/tensorchord/envd/commit/207c30ee9556bb6915996166507fbc81ec26309a) feat: add pre-defined envd template (#1991)
+ * [1089f98](https://github.com/tensorchord/envd/commit/1089f98474ca85f453c90366acecf9f6a505aad0) feat: support uv (#1990)
+
+### Contributors
+
+ * Keming
+
 ## v1.0.1 (2025-02-17)
 
 
