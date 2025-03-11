@@ -15,7 +15,7 @@
 package app
 
 import (
-	_ "embed"
+	"embed"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -29,31 +29,41 @@ import (
 )
 
 var (
-	//go:embed template/uv.envd
-	templateUV string
-	//go:embed template/conda.envd
-	templateConda string
-	//go:embed template/torch.envd
-	templateTorch string
-
-	templates = map[string]string{
-		"uv":    templateUV,
-		"conda": templateConda,
-		"torch": templateTorch,
-	}
+	//go:embed template/*.envd
+	envdTemplateDir      embed.FS
+	defaultEnvdTemplates []EnvdTemplate
 )
 
-func joinKeysToString(table map[string]string) string {
-	keys := make([]string, 0, len(table))
-	for k := range table {
-		keys = append(keys, k)
+type EnvdTemplate struct {
+	name    string
+	content []byte
+}
+
+func init() {
+	entries, err := envdTemplateDir.ReadDir("template")
+	if err != nil {
+		panic(errors.Wrap(err, "failed to read template directory"))
 	}
-	return strings.Join(keys, ", ")
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := strings.TrimSuffix(entry.Name(), ".envd")
+		content, err := envdTemplateDir.ReadFile(filepath.Join("template", entry.Name()))
+		if err != nil {
+			panic(errors.Wrapf(err, "failed to read template file: %s", entry.Name()))
+		}
+		defaultEnvdTemplates = append(defaultEnvdTemplates, EnvdTemplate{name: name, content: content})
+	}
 }
 
 func isDefaultTemplate(name string) bool {
-	_, ok := templates[name]
-	return ok
+	for _, template := range defaultEnvdTemplates {
+		if template.name == name {
+			return true
+		}
+	}
+	return false
 }
 
 var CommandNew = &cli.Command{
@@ -67,7 +77,7 @@ var CommandNew = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     "template",
-			Usage:    fmt.Sprintf("Template name to use (`envd bootstrap` will add [%s])", joinKeysToString(templates)),
+			Usage:    "Template name to use (`envd bootstrap` will add some default templates to '$HOME/.config/envd/templates')",
 			Aliases:  []string{"t"},
 			Required: true,
 		},
@@ -136,24 +146,24 @@ func newCommand(clicontext *cli.Context) error {
 }
 
 func addTemplates(clicontext *cli.Context) error {
-	for name, content := range templates {
-		file, err := fileutil.TemplateFile(name + ".envd")
+	for _, template := range defaultEnvdTemplates {
+		file, err := fileutil.TemplateFile(template.name + ".envd")
 		if err != nil {
-			return errors.Wrapf(err, "failed to get template file path: %s", name)
+			return errors.Wrapf(err, "failed to get template file path: %s", template.name)
 		}
 		exist, err := fileutil.FileExists(file)
 		if err != nil {
 			return errors.Wrapf(err, "failed to check file exists: %s", file)
 		}
 		if exist {
-			logrus.Debugf("Template file `%s` already exists in `%s`", name, file)
+			logrus.Debugf("Template file `%s` already exists in `%s`", template.name, file)
 			continue
 		}
-		err = os.WriteFile(file, []byte(content), 0644)
+		err = os.WriteFile(file, template.content, 0644)
 		if err != nil {
-			return errors.Wrapf(err, "failed to write template file: %s", name)
+			return errors.Wrapf(err, "failed to write template file: %s", template.name)
 		}
-		logrus.Debugf("Template file `%s` is added to `%s`", name, file)
+		logrus.Debugf("Template file `%s` is added to `%s`", template.name, file)
 	}
 
 	return nil
