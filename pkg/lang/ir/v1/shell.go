@@ -15,6 +15,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/cockroachdb/errors"
 	"github.com/moby/buildkit/client/llb"
 
@@ -54,7 +56,8 @@ renamed = "r"
 deleted = "x"
 `
 
-	fishVersion = "4.0b1"
+	fishVersion  = "4.0.1"
+	fishAssetURL = "https://github.com/fish-shell/fish-shell/releases/download/%[1]s/fish-static-$(uname -m)-%[1]s.tar.xz"
 )
 
 func (g *generalGraph) compileShell(root llb.State) (_ llb.State, err error) {
@@ -142,14 +145,15 @@ func (g generalGraph) compileZSH(root llb.State) (llb.State, error) {
 
 func (g generalGraph) compileFish(root llb.State) llb.State {
 	base := llb.Image(builderImage)
+	url := fmt.Sprintf(fishAssetURL, fishVersion)
 	builder := base.Run(
-		llb.Shlexf(`sh -c "wget -qO- https://github.com/fish-shell/fish-shell/releases/download/%s/fish-static-linux-$(uname -m).tar.xz | tar -xJf - -C /tmp || exit 1"`, fishVersion),
+		llb.Shlexf(`sh -c "wget -qO- %s | tar -xJf - -C /tmp || exit 1"`, url),
 		llb.WithCustomName("[internal] download fish shell"),
 	).Root()
 	root = root.File(
 		llb.Copy(builder, "/tmp/fish", "/usr/bin/fish"),
 		llb.WithCustomName("[internal] copy fish shell from the builder image")).
-		Run(llb.Shlex("fish --install"),
+		Run(llb.Shlex(`sh -c "echo yes | fish --install"`),
 			llb.WithCustomName("[internal] install fish shell")).Root()
 
 	return root
