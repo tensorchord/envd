@@ -55,8 +55,8 @@ var BaseEnvironment = []struct {
 }{
 	{"DEBIAN_FRONTEND", "noninteractive"},
 	{"PATH", DefaultSystemPath},
-	{"LANG", "en_US.UTF-8"},
-	{"LC_ALL", "en_US.UTF-8"},
+	{"LANG", "C.UTF-8"},
+	{"LC_ALL", "C.UTF-8"},
 }
 var BaseAptPackage = []string{
 	"bash-static",
