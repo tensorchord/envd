@@ -1370,8 +1370,8 @@ github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
 github.com/syncthing/notify v0.0.0-20250207082249-f0fa8f99c2bc h1:xc3UfSFlH/X5hRw3h21RF6WXnRUYKmGRx06FEaVxfkM=
 github.com/syncthing/notify v0.0.0-20250207082249-f0fa8f99c2bc/go.mod h1:J0q59IWjLtpRIJulohwqEZvjzwOfTEPp8SVhDJl+y0Y=
-github.com/syncthing/syncthing v1.29.2 h1:TZJSOhx6cPV1jPKK+RkTcRLLKtXDvKRJy4YZzIL+K0o=
-github.com/syncthing/syncthing v1.29.2/go.mod h1:VYkBOHuUqNzQrld9D1c75/wNsoe5qaJK/760RE1TzU8=
+github.com/syncthing/syncthing v1.29.3 h1:CU39YKlAr2KKTPTCS+25XnjXh8wL9+1G+Wj7KEHmk3g=
+github.com/syncthing/syncthing v1.29.3/go.mod h1:7ZgwuoKIB6CxIfq1ZVKdx4gxwR8Cli81QX7WLlaThEU=
 github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d h1:vfofYNRScrDdvS342BElfbETmL1Aiz3i2t0zfRj16Hs=
 github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d/go.mod h1:RRCYJbIwD5jmqPI9XoAFR0OcDxqUctll6zUj/+B4S48=
