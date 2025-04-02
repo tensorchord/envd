@@ -29,7 +29,7 @@ import (
 
 const (
 	builderImage        = "curlimages/curl:8.11.1"
-	condaVersionDefault = "py311_24.11.1-0"
+	condaVersionDefault = "py311_25.1.1-2"
 	microMambaImage     = "mambaorg/micromamba:2.0.6"
 	condaRootPrefix     = "/opt/conda"
 	condaBinDir         = "/opt/conda/bin"
