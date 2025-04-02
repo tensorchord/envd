@@ -2,7 +2,7 @@ module github.com/tensorchord/envd
 
 go 1.23.0
 
-toolchain go1.23.4
+toolchain go1.24.1
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
@@ -14,7 +14,7 @@ require (
 	github.com/containerd/log v0.1.0
 	github.com/containers/image/v5 v5.34.1
 	github.com/creack/pty v1.1.24
-	github.com/docker/cli v28.0.1+incompatible
+	github.com/docker/cli v28.0.4+incompatible
 	github.com/docker/docker v28.0.1+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/docker/go-units v0.5.0
