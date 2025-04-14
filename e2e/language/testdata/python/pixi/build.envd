@@ -1,0 +1,9 @@
+def build():
+    base(dev=True)
+    install.pixi(use_pixi_mirror=True)
+    shell("fish")
+    runtime.command(
+        commands={
+            "pixi-via": "pixi run -- via --help",
+        }
+    )

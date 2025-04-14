@@ -73,6 +73,7 @@ type generalGraph struct {
 	*ir.GitConfig
 	*ir.CondaConfig
 	*ir.UVConfig
+	*ir.PixiConfig
 	*ir.RStudioServerConfig
 
 	Writer compileui.Writer `json:"-"`

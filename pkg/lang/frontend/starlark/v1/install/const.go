@@ -19,6 +19,7 @@ const (
 	rulePython = "install.python"
 	ruleConda  = "install.conda"
 	ruleUV     = "install.uv"
+	rulePixi   = "install.pixi"
 	ruleRLang  = "install.r_lang"
 	ruleJulia  = "install.julia"
 

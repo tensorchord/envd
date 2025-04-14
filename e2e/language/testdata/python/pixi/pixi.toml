@@ -1,0 +1,13 @@
+[workspace]
+channels = ["conda-forge"]
+name = "envd_pixi_test"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.11.*"
+
+[pypi-dependencies]
+via = ">=0.1.2, <0.2"

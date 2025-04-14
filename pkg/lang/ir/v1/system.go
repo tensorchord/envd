@@ -207,6 +207,9 @@ func (g *generalGraph) compileLanguagePackages(root llb.State) llb.State {
 	if g.UVConfig != nil {
 		pack = g.compileUV(pack)
 	}
+	if g.PixiConfig != nil {
+		pack = g.compilePixi(pack)
+	}
 
 	for _, language := range g.Languages {
 		switch language.Name {

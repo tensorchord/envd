@@ -73,4 +73,17 @@ var _ = Describe("python", Ordered, func() {
 		})
 		AfterEach(e.DestroyContainer())
 	})
+
+	Describe("Should build pixi with Python successfully", func() {
+		exampleName := "python/pixi"
+		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
+		BeforeAll(e.BuildImage(true))
+		BeforeEach(e.RunContainer())
+		It("Should have Python and dependencies installed", func() {
+			res, err := e.ExecRuntimeCommand("pixi-via")
+			Expect(err).To(BeNil())
+			Expect(res).To(ContainSubstring("via args parser"))
+		})
+		AfterEach(e.DestroyContainer())
+	})
 })
