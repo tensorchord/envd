@@ -67,6 +67,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 .GIT_TAG_INFO
+.pixi/
 
 test.tar
 

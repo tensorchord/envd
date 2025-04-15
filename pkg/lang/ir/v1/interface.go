@@ -58,6 +58,18 @@ func Conda(mamba bool) {
 	}
 }
 
+func Pixi(usePixiMirror bool, pypiIndex string) {
+	g := DefaultGraph.(*generalGraph)
+
+	g.PixiConfig = &ir.PixiConfig{
+		UsePixiMirror: usePixiMirror,
+		PyPIIndex:     nil,
+	}
+	if len(pypiIndex) != 0 {
+		g.PixiConfig.PyPIIndex = &pypiIndex
+	}
+}
+
 func UV(pythonVersion string) {
 	g := DefaultGraph.(*generalGraph)
 

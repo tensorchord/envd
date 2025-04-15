@@ -35,6 +35,7 @@ var Module = &starlarkstruct.Module{
 		"python": starlark.NewBuiltin(rulePython, ruleFuncPython),
 		"conda":  starlark.NewBuiltin(ruleConda, ruleFuncConda),
 		"uv":     starlark.NewBuiltin(ruleUV, ruleFuncUV),
+		"pixi":   starlark.NewBuiltin(rulePixi, ruleFuncPixi),
 		"r_lang": starlark.NewBuiltin(ruleRLang, ruleFuncRLang),
 		"julia":  starlark.NewBuiltin(ruleJulia, ruleFuncJulia),
 		// packages
@@ -75,6 +76,21 @@ func ruleFuncConda(thread *starlark.Thread, _ *starlark.Builtin,
 
 	logger.Debugf("rule `%s` is invoked: use_mamba=%t", ruleConda, useMamba)
 	ir.Conda(useMamba)
+	return starlark.None, nil
+}
+
+func ruleFuncPixi(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+
+	usePixiMirror := false
+	var pypiIndex string
+
+	if err := starlark.UnpackArgs(rulePixi, args, kwargs, "use_pixi_mirror?", &usePixiMirror, "pypi_index?", &pypiIndex); err != nil {
+		return nil, err
+	}
+
+	logger.Debugf("rule `%s` is invoked: use_pixi_mirror=%t, pypi_index=%v", rulePixi, usePixiMirror, pypiIndex)
+	ir.Pixi(usePixiMirror, pypiIndex)
 	return starlark.None, nil
 }
 

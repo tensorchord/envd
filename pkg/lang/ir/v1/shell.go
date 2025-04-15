@@ -72,13 +72,40 @@ func (g *generalGraph) compileShell(root llb.State) (_ llb.State, err error) {
 		g.RuntimeEnviron["SHELL"] = "/usr/bin/fish"
 		root = g.compileFish(root)
 	}
-	if g.CondaConfig != nil {
-		root = g.compileCondaShell(root)
-	}
+	root = g.compileCondaShell(root)
+	root = g.compilePixiShell(root)
 	return root, nil
 }
 
+func (g generalGraph) compilePixiShell(root llb.State) llb.State {
+	if g.PixiConfig == nil {
+		return root
+	}
+
+	if g.Shell == shellZSH {
+		root = root.Run(
+			llb.Shlex(`sh -c 'echo "eval \"\$(pixi completion --shell zsh)\"" >> ~/.zshrc'`),
+			llb.WithCustomName("[internal] setting pixi zsh config"),
+		).Root()
+	} else if g.Shell == shellFish {
+		root = root.Run(
+			llb.Shlex(`sh -c 'echo "pixi completion --shell fish | source" >> ~/.config/fish/config.fish'`),
+			llb.WithCustomName("[internal] setting pixi fish config"),
+		).Root()
+	} else if g.Shell == shellBASH {
+		root = root.Run(
+			llb.Shlex(`sh -c 'echo "eval \"\$(pixi completion --shell bash)\"" >> ~/.bashrc'`),
+			llb.WithCustomName("[internal] setting pixi bash config"),
+		).Root()
+	}
+	return root
+}
+
 func (g *generalGraph) compileCondaShell(root llb.State) llb.State {
+	if g.CondaConfig == nil {
+		return root
+	}
+
 	findDir := fileutil.DefaultHomeDir
 	if g.Dev {
 		findDir = fileutil.EnvdHomeDir

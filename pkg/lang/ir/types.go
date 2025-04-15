@@ -65,6 +65,11 @@ type UVConfig struct {
 	PythonVersion string
 }
 
+type PixiConfig struct {
+	UsePixiMirror bool
+	PyPIIndex     *string
+}
+
 type GitConfig struct {
 	Name   string
 	Email  string
