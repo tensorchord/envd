@@ -62,8 +62,9 @@ jobs:
       # Disable telemetry.
       ENVD_ANALYTICS: false
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-24.04]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -83,14 +84,16 @@ jobs:
         with:
           name: coverage-out
           path: coverage.out
+          overwrite: true
   e2e-cli:
     name: e2e-cli
     env:
       # Disable telemetry.
       ENVD_ANALYTICS: false
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-22.04]
+        os: [ ubuntu-22.04, ubuntu-22.04-arm ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -110,14 +113,16 @@ jobs:
         with:
           name: e2e-cli-coverage-out
           path: e2e-cli-coverage.out
+          overwrite: true
   e2e-lang:
     name: e2e-lang
     env:
       # Disable telemetry.
       ENVD_ANALYTICS: false
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-22.04]
+        os: [ ubuntu-22.04, ubuntu-22.04-arm ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -137,14 +142,16 @@ jobs:
         with:
           name: e2e-lang-coverage-out
           path: e2e-lang-coverage.out
+          overwrite: true
   build:
     name: build
     env:
       # Disable telemetry.
       ENVD_ANALYTICS: false
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-24.04, macos-latest]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15 ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
