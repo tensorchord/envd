@@ -228,7 +228,7 @@ func (g *generalGraph) compileDevPackages(root llb.State) llb.State {
 	sb.WriteString("apt-get update && apt-get install -y apt-utils && ")
 	sb.WriteString("apt-get install -y --no-install-recommends --no-install-suggests --fix-missing ")
 	sb.WriteString(strings.Join(types.BaseAptPackage, " "))
-	sb.WriteString("&& rm -rf /var/lib/apt/lists/* ")
+	sb.WriteString("&& rm -rf /var/lib/apt/lists/*")
 
 	run := root.Run(llb.Shlexf(`bash -c "%s"`, sb.String()),
 		llb.WithCustomName("[internal] install built-in packages"))
