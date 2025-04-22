@@ -24,7 +24,6 @@ import (
 
 const (
 	pixiVersion        = "0.45.0"
-	pixiRelease        = "https://github.com/prefix-dev/pixi/releases/download/v%s/pixi-$(uname -m)-unknown-linux-musl.tar.gz"
 	pixiConfigTemplate = `
 {{- if .UsePixiMirror -}}
 [mirrors]
