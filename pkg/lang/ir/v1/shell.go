@@ -62,13 +62,13 @@ deleted = "x"
 
 func (g *generalGraph) compileShell(root llb.State) (_ llb.State, err error) {
 	g.RuntimeEnviron["SHELL"] = "bash"
-	if g.Shell == shellZSH {
+	switch g.Shell {
+	case shellZSH:
 		g.RuntimeEnviron["SHELL"] = "/usr/bin/zsh"
-		root, err = g.compileZSH(root)
-		if err != nil {
+		if root, err = g.compileZSH(root); err != nil {
 			return llb.State{}, err
 		}
-	} else if g.Shell == shellFish {
+	case shellFish:
 		g.RuntimeEnviron["SHELL"] = "/usr/bin/fish"
 		root = g.compileFish(root)
 	}
@@ -82,17 +82,18 @@ func (g generalGraph) compilePixiShell(root llb.State) llb.State {
 		return root
 	}
 
-	if g.Shell == shellZSH {
+	switch g.Shell {
+	case shellZSH:
 		root = root.Run(
 			llb.Shlex(`sh -c 'echo "eval \"\$(pixi completion --shell zsh)\"" >> ~/.zshrc'`),
 			llb.WithCustomName("[internal] setting pixi zsh config"),
 		).Root()
-	} else if g.Shell == shellFish {
+	case shellFish:
 		root = root.Run(
 			llb.Shlex(`sh -c 'echo "pixi completion --shell fish | source" >> ~/.config/fish/config.fish'`),
 			llb.WithCustomName("[internal] setting pixi fish config"),
 		).Root()
-	} else if g.Shell == shellBASH {
+	case shellBASH:
 		root = root.Run(
 			llb.Shlex(`sh -c 'echo "eval \"\$(pixi completion --shell bash)\"" >> ~/.bashrc'`),
 			llb.WithCustomName("[internal] setting pixi bash config"),
@@ -112,9 +113,10 @@ func (g *generalGraph) compileCondaShell(root llb.State) llb.State {
 	}
 	rcPath := findDir(".bashrc")
 	activateFile := "activate"
-	if g.Shell == shellZSH {
+	switch g.Shell {
+	case shellZSH:
 		rcPath = findDir(".zshrc")
-	} else if g.Shell == shellFish {
+	case shellFish:
 		rcPath = findDir(".config/fish/config.fish")
 		activateFile = "activate.fish"
 	}
@@ -137,11 +139,12 @@ func (g *generalGraph) compilePrompt(root llb.State) llb.State {
 	run := config.Run(llb.Shlexf(`bash -c 'echo "eval \"\$(starship init bash)\"" >> %s'`, fileutil.EnvdHomeDir(".bashrc")),
 		llb.WithCustomName("[internal] setting prompt bash config")).Root()
 
-	if g.Shell == shellZSH {
+	switch g.Shell {
+	case shellZSH:
 		run = run.Run(
 			llb.Shlexf(`bash -c 'echo "eval \"\$(starship init zsh)\"" >> %s'`, fileutil.EnvdHomeDir(".zshrc")),
 			llb.WithCustomName("[internal] setting prompt zsh config")).Root()
-	} else if g.Shell == shellFish {
+	case shellFish:
 		run = run.Run(
 			llb.Shlexf(`bash -c 'echo "starship init fish | source" >> %s'`, fileutil.EnvdHomeDir(".config/fish/config.fish")),
 			llb.WithCustomName("[internal] setting prompt fish config")).Root()

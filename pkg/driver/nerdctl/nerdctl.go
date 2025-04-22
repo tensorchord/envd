@@ -240,39 +240,35 @@ func (nc *nerdctlClient) handleContainerCreated(ctx context.Context,
 		"status":    status,
 	})
 
-	if status == containerType.StatusPaused {
+	switch status {
+	case containerType.StatusPaused:
 		logger.Info("container was paused, unpause it now...")
-		out, err := nc.exec(ctx, "unpause", cname)
-		if err != nil {
+		if out, err := nc.exec(ctx, "unpause", cname); err != nil {
 			logger.WithError(err).Error("can not run buildkitd", out)
 			return errors.Wrap(err, "failed to unpause container")
 		}
-	} else if status == containerType.StatusExited {
+	case containerType.StatusExited:
 		logger.Info("container exited, try to start it...")
-		out, err := nc.exec(ctx, "start", cname)
-		if err != nil {
+		if out, err := nc.exec(ctx, "start", cname); err != nil {
 			logger.WithError(err).Error("can not run buildkitd", out)
 			return errors.Wrap(err, "failed to start exited cotaniner")
 		}
-	} else if status == containerType.StatusDead {
+	case containerType.StatusDead:
 		logger.Info("container is dead, try to remove it...")
-		out, err := nc.exec(ctx, "remove", cname)
-		if err != nil {
+		if out, err := nc.exec(ctx, "remove", cname); err != nil {
 			logger.WithError(err).Error("can not run buildkitd", out)
 			return errors.Wrap(err, "failed to remove cotaniner")
 		}
-	} else if status == containerType.StatusCreated {
+	case containerType.StatusCreated:
 		logger.Info("container is being created.")
-		err := nc.waitUntilRunning(ctx, cname, timeout)
-		if err != nil {
+		if err := nc.waitUntilRunning(ctx, cname, timeout); err != nil {
 			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to start container")
 		}
-	} else if status == containerType.StatusRemoving {
+	case containerType.StatusRemoving:
 		// The remaining condition is StatusRemoving, we just need to wait.
 		logger.Info("container is being removed.")
-		err := nc.waitUntilRemoved(ctx, cname, timeout)
-		if err != nil {
+		if err := nc.waitUntilRemoved(ctx, cname, timeout); err != nil {
 			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to remove container")
 		}

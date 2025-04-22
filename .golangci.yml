@@ -1,26 +1,53 @@
+version: "2"
 linters:
   enable:
+    - staticcheck
     - bodyclose
-    - errcheck
-    - errorlint
     - copyloopvar
-    - gofmt
-    - goimports
-    - gosimple
-    - govet
-    - ineffassign
+    - errorlint
     - misspell
     - revive
     - sqlclosecheck
-    - staticcheck
-    - typecheck
     - unconvert
     - unparam
-    - unused
-linters-settings:
-  goimports:
-    local-prefixes: github.com/tensorchord/envd/
-  revive:
-    rules:
-      # available rules: https://github.com/mgechev/revive#available-rules
-      - name: indent-error-flow
+  settings:
+    revive:
+      rules:
+        - name: indent-error-flow
+    staticcheck:
+      checks:
+        - all
+        - -ST1000
+        - -ST1003
+        - -ST1016
+        - -ST1020
+        - -ST1021
+        - -ST1022
+        - -QF1001
+        - -QF1007
+        - -QF1008
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/tensorchord/envd/
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

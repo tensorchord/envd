@@ -148,12 +148,12 @@ func initCommand(clicontext *cli.Context) error {
 			"init", telemetry.AddField("duration", time.Since(start).Seconds()))
 	}(time.Now())
 
-	if lang == "python" {
-		err = InitPythonEnv(buildContext)
-		if err != nil {
+	switch lang {
+	case "python":
+		if err = InitPythonEnv(buildContext); err != nil {
 			return err
 		}
-	} else if lang == "r" {
+	case "r":
 		startQuestion(RPackageChoice)
 	}
 
