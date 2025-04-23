@@ -146,14 +146,15 @@ func run(clicontext *cli.Context) error {
 		ShmSize:         clicontext.Int("shm-size"),
 		EnvironmentName: name,
 	}
-	if c.Runner == types.RunnerTypeEnvdServer {
+	switch c.Runner {
+	case types.RunnerTypeEnvdServer:
 		opt.EnvdServerSource = &envd.EnvdServerSource{
 			Sync: clicontext.Bool("sync"),
 		}
 		if len(clicontext.StringSlice("volume")) > 0 {
 			return errors.New("volume is not supported for envd-server runner")
 		}
-	} else if c.Runner == types.RunnerTypeDocker {
+	case types.RunnerTypeDocker:
 		opt.DockerSource = &envd.DockerSource{
 			MountOptions: clicontext.StringSlice("volume"),
 		}

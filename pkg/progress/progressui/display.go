@@ -632,7 +632,7 @@ func (t *trace) displayInfo() (d displayInfo) {
 		}
 		var jobs []*job
 		j := &job{
-			name:        strings.Replace(v.Name, "\t", " ", -1),
+			name:        strings.ReplaceAll(v.Name, "\t", " "),
 			vertex:      v,
 			isCompleted: true,
 		}

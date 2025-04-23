@@ -540,38 +540,34 @@ func (c dockerClient) handleContainerCreated(ctx context.Context,
 		"status":    status,
 	})
 
-	if status == containerType.StatusPaused {
+	switch status {
+	case containerType.StatusPaused:
 		logger.Info("container was paused, unpause it now...")
-		_, err := c.ResumeContainer(ctx, cname)
-		if err != nil {
+		if _, err := c.ResumeContainer(ctx, cname); err != nil {
 			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to unpause container")
 		}
-	} else if status == containerType.StatusExited {
+	case containerType.StatusExited:
 		logger.Info("container exited, try to start it...")
-		err := c.ContainerStart(ctx, cname, container.StartOptions{})
-		if err != nil {
+		if err := c.ContainerStart(ctx, cname, container.StartOptions{}); err != nil {
 			logger.WithError(err).Error("can not run buildkitd")
-			return errors.Wrap(err, "failed to start exited cotaniner")
+			return errors.Wrap(err, "failed to start exited container")
 		}
-	} else if status == containerType.StatusDead {
+	case containerType.StatusDead:
 		logger.Info("container is dead, try to remove it...")
-		err := c.ContainerRemove(ctx, cname, container.RemoveOptions{})
-		if err != nil {
+		if err := c.ContainerRemove(ctx, cname, container.RemoveOptions{}); err != nil {
 			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to remove container")
 		}
-	} else if status == containerType.StatusCreated {
+	case containerType.StatusCreated:
 		logger.Info("container is being created")
-		err := c.waitUntilRunning(ctx, cname, timeout)
-		if err != nil {
+		if err := c.waitUntilRunning(ctx, cname, timeout); err != nil {
 			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to start container")
 		}
-	} else if status == containerType.StatusRemoving {
+	case containerType.StatusRemoving:
 		logger.Info("container is being removed.")
-		err := c.waitUntilRemoved(ctx, cname, timeout)
-		if err != nil {
+		if err := c.waitUntilRemoved(ctx, cname, timeout); err != nil {
 			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to remove container")
 		}
