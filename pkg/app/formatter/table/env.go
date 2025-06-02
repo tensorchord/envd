@@ -19,6 +19,7 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/cockroachdb/errors"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/renderer"
 	"github.com/olekukonko/tablewriter/tw"
@@ -27,7 +28,7 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func RenderEnvironments(w io.Writer, envs []types.EnvdEnvironment) {
+func RenderEnvironments(w io.Writer, envs []types.EnvdEnvironment) error {
 	table := CreateTable(w)
 	table.Header([]string{
 		"Name", "Endpoint", "SSH Target", "Image",
@@ -44,14 +45,17 @@ func RenderEnvironments(w io.Writer, envs []types.EnvdEnvironment) {
 		envRow[5] = formatter.StringOrNone(env.CUDA)
 		envRow[6] = formatter.StringOrNone(env.CUDNN)
 		envRow[7] = env.Status.Phase
-		table.Append(envRow)
+		err := table.Append(envRow)
+		if err != nil {
+			return errors.Wrapf(err, "failed to append row for environment %s", env.Name)
+		}
 	}
-	table.Render()
+	return errors.Wrap(table.Render(), "failed to render environment table")
 }
 
-func RenderPortBindings(w io.Writer, ports []types.PortBinding) {
+func RenderPortBindings(w io.Writer, ports []types.PortBinding) error {
 	if ports == nil {
-		return
+		return nil
 	}
 	table := CreateTable(w)
 	table.Header([]string{"Name", "Container Port", "Protocol", "Host IP", "Host Port"})
@@ -62,14 +66,17 @@ func RenderPortBindings(w io.Writer, ports []types.PortBinding) {
 		row[2] = port.Protocol
 		row[3] = port.HostIP
 		row[4] = port.HostPort
-		table.Append(row)
+		err := table.Append(row)
+		if err != nil {
+			return errors.Wrapf(err, "failed to append row for port binding %s", port.Name)
+		}
 	}
-	table.Render()
+	return errors.Wrap(table.Render(), "failed to render port bindings table")
 }
 
-func RenderDependencies(w io.Writer, dep *types.Dependency) {
+func RenderDependencies(w io.Writer, dep *types.Dependency) error {
 	if dep == nil {
-		return
+		return nil
 	}
 	table := CreateTable(w)
 	table.Header([]string{"Dependencies", "Type"})
@@ -77,15 +84,21 @@ func RenderDependencies(w io.Writer, dep *types.Dependency) {
 		envRow := make([]string, 2)
 		envRow[0] = p
 		envRow[1] = "Python"
-		table.Append(envRow)
+		err := table.Append(envRow)
+		if err != nil {
+			return errors.Wrapf(err, "failed to append row for Python package %s", p)
+		}
 	}
 	for _, p := range dep.APTPackages {
 		envRow := make([]string, 2)
 		envRow[0] = p
 		envRow[1] = "APT"
-		table.Append(envRow)
+		err := table.Append(envRow)
+		if err != nil {
+			return errors.Wrapf(err, "failed to append row for APT package %s", p)
+		}
 	}
-	table.Render()
+	return errors.Wrap(table.Render(), "failed to render dependencies table")
 }
 
 func CreateTable(w io.Writer) *tablewriter.Table {
@@ -110,10 +123,14 @@ func CreateTable(w io.Writer) *tablewriter.Table {
 		)),
 		tablewriter.WithConfig(
 			tablewriter.Config{
+				Header: tw.CellConfig{
+					Alignment: tw.CellAlignment{
+						Global: tw.AlignLeft,
+					},
+				},
 				Row: tw.CellConfig{
 					Alignment: tw.CellAlignment{
-						Global:    tw.AlignRight,
-						PerColumn: []tw.Align{tw.AlignLeft},
+						Global: tw.AlignLeft,
 					},
 				},
 			},

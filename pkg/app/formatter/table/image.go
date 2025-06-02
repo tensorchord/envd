@@ -18,6 +18,7 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/cockroachdb/errors"
 	"github.com/docker/docker/pkg/stringid"
 	"github.com/docker/go-units"
 
@@ -25,7 +26,7 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func RenderImages(w io.Writer, imgs []types.EnvdImage) {
+func RenderImages(w io.Writer, imgs []types.EnvdImage) error {
 	table := CreateTable(w)
 	table.Header([]string{"Name", "Context", "GPU", "CUDA", "CUDNN", "Image ID", "Created", "Size"})
 
@@ -39,7 +40,10 @@ func RenderImages(w io.Writer, imgs []types.EnvdImage) {
 		envRow[5] = stringid.TruncateID(img.Digest)
 		envRow[6] = formatter.CreatedSinceString(img.Created)
 		envRow[7] = units.HumanSizeWithPrecision(float64(img.Size), 3)
-		table.Append(envRow)
+		err := table.Append(envRow)
+		if err != nil {
+			return errors.Wrapf(err, "failed to append row for image %s", img.Name)
+		}
 	}
-	table.Render()
+	return errors.Wrap(table.Render(), "failed to render image table")
 }

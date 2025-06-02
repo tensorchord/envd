@@ -18,11 +18,13 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/cockroachdb/errors"
+
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func RenderContext(w io.Writer, contexts types.EnvdContext) {
+func RenderContext(w io.Writer, contexts types.EnvdContext) error {
 	table := CreateTable(w)
 	table.Header([]string{"context", "builder", "builder addr", "runner", "runner addr"})
 
@@ -39,7 +41,10 @@ func RenderContext(w io.Writer, contexts types.EnvdContext) {
 		if p.RunnerAddress != nil {
 			envRow[4] = formatter.StringOrNone(*p.RunnerAddress)
 		}
-		table.Append(envRow)
+		err := table.Append(envRow)
+		if err != nil {
+			return errors.Wrapf(err, "failed to append row for context %s", p.Name)
+		}
 	}
-	table.Render()
+	return errors.Wrap(table.Render(), "failed to render context table")
 }

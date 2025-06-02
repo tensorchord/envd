@@ -70,7 +70,7 @@ func getImage(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		table.RenderImages(os.Stdout, imgs)
+		return table.RenderImages(os.Stdout, imgs)
 	case "json":
 		return json.PrintImages(imgs)
 	}

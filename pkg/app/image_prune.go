@@ -19,6 +19,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/cockroachdb/errors"
 	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
@@ -46,13 +47,13 @@ func pruneImages(clicontext *cli.Context) error {
 		return err
 	}
 	if len(report.ImagesDeleted) > 0 {
-		renderPruneReport(os.Stdout, report)
+		return renderPruneReport(os.Stdout, report)
 	}
 
 	return nil
 }
 
-func renderPruneReport(w io.Writer, report dockerimage.PruneReport) {
+func renderPruneReport(w io.Writer, report dockerimage.PruneReport) error {
 	table := table.CreateTable(w)
 	table.Header([]string{"Type", "Image"})
 
@@ -65,8 +66,11 @@ func renderPruneReport(w io.Writer, report dockerimage.PruneReport) {
 			envRow[0] = "Deleted"
 			envRow[1] = img.Deleted
 		}
-		table.Append(envRow)
+		err := table.Append(envRow)
+		if err != nil {
+			return errors.Wrapf(err, "failed to append row for image %s", img.Untagged)
+		}
 	}
-	table.Render()
 	fmt.Fprintln(w, "Total reclaimed space:", units.HumanSize(float64(report.SpaceReclaimed)))
+	return errors.Wrap(table.Render(), "failed to render prune report table")
 }
