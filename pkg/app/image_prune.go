@@ -21,9 +21,9 @@ import (
 
 	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/docker/go-units"
-	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli/v2"
 
+	"github.com/tensorchord/envd/pkg/app/formatter/table"
 	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/driver/docker"
 )
@@ -53,20 +53,8 @@ func pruneImages(clicontext *cli.Context) error {
 }
 
 func renderPruneReport(w io.Writer, report dockerimage.PruneReport) {
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"Type", "Image"})
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	table := table.CreateTable(w)
+	table.Header([]string{"Type", "Image"})
 
 	for _, img := range report.ImagesDeleted {
 		envRow := make([]string, 2)

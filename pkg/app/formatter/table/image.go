@@ -20,27 +20,14 @@ import (
 
 	"github.com/docker/docker/pkg/stringid"
 	"github.com/docker/go-units"
-	"github.com/olekukonko/tablewriter"
 
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
 func RenderImages(w io.Writer, imgs []types.EnvdImage) {
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"Name", "Context", "GPU", "CUDA", "CUDNN", "Image ID", "Created", "Size"})
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	table := CreateTable(w)
+	table.Header([]string{"Name", "Context", "GPU", "CUDA", "CUDNN", "Image ID", "Created", "Size"})
 
 	for _, img := range imgs {
 		envRow := make([]string, 8)

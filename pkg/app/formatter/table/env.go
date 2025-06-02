@@ -20,29 +20,19 @@ import (
 	"strconv"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
 func RenderEnvironments(w io.Writer, envs []types.EnvdEnvironment) {
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{
+	table := CreateTable(w)
+	table.Header([]string{
 		"Name", "Endpoint", "SSH Target", "Image",
 		"GPU", "CUDA", "CUDNN", "Status",
 	})
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
 
 	for _, env := range envs {
 		envRow := make([]string, 9)
@@ -63,7 +53,8 @@ func RenderPortBindings(w io.Writer, ports []types.PortBinding) {
 	if ports == nil {
 		return
 	}
-	table := createTable(w, []string{"Name", "Container Port", "Protocol", "Host IP", "Host Port"})
+	table := CreateTable(w)
+	table.Header([]string{"Name", "Container Port", "Protocol", "Host IP", "Host Port"})
 	for _, port := range ports {
 		row := make([]string, 5)
 		row[0] = port.Name
@@ -80,7 +71,8 @@ func RenderDependencies(w io.Writer, dep *types.Dependency) {
 	if dep == nil {
 		return
 	}
-	table := createTable(w, []string{"Dependencies", "Type"})
+	table := CreateTable(w)
+	table.Header([]string{"Dependencies", "Type"})
 	for _, p := range dep.PyPIPackages {
 		envRow := make([]string, 2)
 		envRow[0] = p
@@ -96,21 +88,37 @@ func RenderDependencies(w io.Writer, dep *types.Dependency) {
 	table.Render()
 }
 
-func createTable(w io.Writer, headers []string) *tablewriter.Table {
-	table := tablewriter.NewWriter(w)
-	table.SetHeader(headers)
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(true)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+func CreateTable(w io.Writer) *tablewriter.Table {
+	table := tablewriter.NewTable(
+		w,
+		tablewriter.WithRowAutoWrap(tw.WrapNone),
+		tablewriter.WithHeaderAutoFormat(tw.On),
+		tablewriter.WithRenderer(renderer.NewBlueprint(
+			tw.Rendition{
+				Borders: tw.BorderNone,
+				Symbols: tw.NewSymbols(tw.StyleNone),
+				Settings: tw.Settings{
+					Separators: tw.Separators{
+						BetweenRows:    tw.Off,
+						BetweenColumns: tw.Off,
+					},
+					Lines: tw.Lines{
+						ShowHeaderLine: tw.Off,
+					},
+				},
+			},
+		)),
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Row: tw.CellConfig{
+					Alignment: tw.CellAlignment{
+						Global:    tw.AlignRight,
+						PerColumn: []tw.Align{tw.AlignLeft},
+					},
+				},
+			},
+		),
+	)
 
 	return table
 }

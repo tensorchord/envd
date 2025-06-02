@@ -18,27 +18,13 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/olekukonko/tablewriter"
-
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/types"
 )
 
 func RenderContext(w io.Writer, contexts types.EnvdContext) {
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"context", "builder", "builder addr", "runner", "runner addr"})
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	table := CreateTable(w)
+	table.Header([]string{"context", "builder", "builder addr", "runner", "runner addr"})
 
 	for _, p := range contexts.Contexts {
 		envRow := make([]string, 5)
