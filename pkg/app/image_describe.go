@@ -66,7 +66,7 @@ func getImageDependency(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		table.RenderDependencies(os.Stdout, dep)
+		return table.RenderDependencies(os.Stdout, dep)
 	case "json":
 		return json.PrintEnvironmentDescriptions(dep, []types.PortBinding{})
 	}

@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/containerd/errdefs"
 	"github.com/containers/image/v5/docker/reference"
 	"github.com/containers/image/v5/pkg/docker/config"
 	"github.com/docker/docker/api/types/container"
@@ -270,7 +271,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 	logger.Debug("starting buildkitd")
 	var buf bytes.Buffer
 	if _, err := c.ImageInspect(ctx, tag, client.ImageInspectWithRawResponse(&buf)); err != nil {
-		if !client.IsErrNotFound(err) {
+		if !errdefs.IsNotFound(err) {
 			return "", errors.Wrap(err, "failed to inspect image")
 		}
 
@@ -355,7 +356,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 func (c dockerClient) Exists(ctx context.Context, cname string) (bool, error) {
 	_, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
-		if client.IsErrNotFound(err) {
+		if errdefs.IsNotFound(err) {
 			return false, nil
 		}
 		return false, err
@@ -366,7 +367,7 @@ func (c dockerClient) Exists(ctx context.Context, cname string) (bool, error) {
 func (c dockerClient) IsRunning(ctx context.Context, cname string) (bool, error) {
 	container, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
-		if client.IsErrNotFound(err) {
+		if errdefs.IsNotFound(err) {
 			return false, nil
 		}
 		return false, err
@@ -377,7 +378,7 @@ func (c dockerClient) IsRunning(ctx context.Context, cname string) (bool, error)
 func (c dockerClient) GetStatus(ctx context.Context, cname string) (containerType.ContainerStatus, error) {
 	container, err := c.ContainerInspect(ctx, cname)
 	if err != nil {
-		if client.IsErrNotFound(err) {
+		if errdefs.IsNotFound(err) {
 			return "", nil
 		}
 		return "", err

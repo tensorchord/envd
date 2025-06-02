@@ -34,5 +34,8 @@ func Test_renderPruneReport(t *testing.T) {
 		},
 		SpaceReclaimed: 666666,
 	}
-	renderPruneReport(os.Stdout, report)
+	err := renderPruneReport(os.Stdout, report)
+	if err != nil {
+		t.Errorf("renderPruneReport() error = %v", err)
+	}
 }

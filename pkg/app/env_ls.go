@@ -59,7 +59,7 @@ func getEnvironment(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		table.RenderEnvironments(os.Stdout, envs)
+		return table.RenderEnvironments(os.Stdout, envs)
 	case "json":
 		return json.PrintEnvironments(envs)
 	}

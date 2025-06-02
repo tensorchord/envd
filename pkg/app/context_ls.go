@@ -43,7 +43,7 @@ func contextList(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		table.RenderContext(os.Stdout, contexts)
+		return table.RenderContext(os.Stdout, contexts)
 	case "json":
 		return json.PrintContext(contexts)
 	}

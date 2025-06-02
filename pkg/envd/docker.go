@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/containerd/errdefs"
 	"github.com/docker/cli/opts"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
@@ -295,7 +296,7 @@ func (e dockerEngine) CleanEnvdIfExists(ctx context.Context, name string, force 
 func (e dockerEngine) Exists(ctx context.Context, cname string) (bool, error) {
 	_, err := e.ContainerInspect(ctx, cname)
 	if err != nil {
-		if client.IsErrNotFound(err) {
+		if errdefs.IsNotFound(err) {
 			return false, nil
 		}
 		return false, err
@@ -306,7 +307,7 @@ func (e dockerEngine) Exists(ctx context.Context, cname string) (bool, error) {
 func (e dockerEngine) IsRunning(ctx context.Context, cname string) (bool, error) {
 	container, err := e.ContainerInspect(ctx, cname)
 	if err != nil {
-		if client.IsErrNotFound(err) {
+		if errdefs.IsNotFound(err) {
 			return false, nil
 		}
 		return false, err

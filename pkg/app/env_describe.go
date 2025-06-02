@@ -78,8 +78,11 @@ func getEnvironmentDescriptions(clicontext *cli.Context) error {
 	format := clicontext.String("format")
 	switch format {
 	case "table":
-		table.RenderDependencies(os.Stdout, dep)
-		table.RenderPortBindings(os.Stdout, ports)
+		err = table.RenderDependencies(os.Stdout, dep)
+		if err != nil {
+			return err
+		}
+		return table.RenderPortBindings(os.Stdout, ports)
 	case "json":
 		return json.PrintEnvironmentDescriptions(dep, ports)
 	}
