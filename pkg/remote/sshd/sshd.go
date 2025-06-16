@@ -256,13 +256,13 @@ func setWinSize(f *os.File, w, h int) {
 	}
 }
 
-func sendErrAndExit(logger *logrus.Entry, s ssh.Session, err error) {
-	msg := strings.TrimPrefix(err.Error(), "exec: ")
+func sendErrAndExit(logger *logrus.Entry, s ssh.Session, exitErr error) {
+	msg := strings.TrimPrefix(exitErr.Error(), "exec: ")
 	if _, err := s.Stderr().Write([]byte(msg)); err != nil {
 		logger.WithError(err).Errorf("failed to write error back to session")
 	}
 
-	if err := s.Exit(getExitStatusFromError(err)); err != nil {
+	if err := s.Exit(getExitStatusFromError(exitErr)); err != nil {
 		logger.WithError(err).Errorf("pty session failed to exit")
 	}
 }
@@ -272,7 +272,7 @@ func getExitStatusFromError(err error) int {
 		return 0
 	}
 
-	var exitErr exec.ExitError
+	var exitErr *exec.ExitError
 	if ok := errors.As(err, &exitErr); !ok {
 		return 1
 	}
