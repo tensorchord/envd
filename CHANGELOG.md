@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.2.1 (2025-06-17)
+
+ * [599a980](https://github.com/tensorchord/envd/commit/599a9802480418a72b842b34c3094b8dc62a1e05) fix: sshd handle the error (#2026)
+ * [b964594](https://github.com/tensorchord/envd/commit/b96459498b2131d80446f46822a2a67eeed938ed) refact: bump tablewriter to v1, fix the breaking change (#2024)
+ * [a1a315e](https://github.com/tensorchord/envd/commit/a1a315e8e901fb5c04d52d4c8c0b59fe4da12be5) feat: add pixi template (#2014)
+ * [5f1f397](https://github.com/tensorchord/envd/commit/5f1f397ed6fbe32bd6b40c31300ebe12b7643155) feat: support pixi as an alternative to conda (#2012)
+
+### Contributors
+
+ * Keming
+
+## v1.2.0 (2025-04-02)
+
+ * [8514a4a](https://github.com/tensorchord/envd/commit/8514a4aee1bc96c9677995cedc0cc93e20063670) fix: locale for both dev=True/False (#2010)
+ * [2506ede](https://github.com/tensorchord/envd/commit/2506ede9f274403e66360029f98f6bd12faac243) feat: bump fish to the official release version (#2000)
+ * [a78a245](https://github.com/tensorchord/envd/commit/a78a2454ca633ad403b12920ef71a534f8b819d5) feat: emb the whole template/*.envd, avoid random map key order (#1995)
+
+### Contributors
+
+ * Keming
+
 ## v1.1.0 (2025-03-10)
 
  * [207c30e](https://github.com/tensorchord/envd/commit/207c30ee9556bb6915996166507fbc81ec26309a) feat: add pre-defined envd template (#1991)
