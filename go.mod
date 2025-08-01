@@ -16,7 +16,7 @@ require (
 	github.com/containers/image/v5 v5.36.0
 	github.com/creack/pty v1.1.24
 	github.com/docker/cli v28.3.2+incompatible
-	github.com/docker/docker v28.3.2+incompatible
+	github.com/docker/docker v28.3.3+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/docker/go-units v0.5.0
 	github.com/gizak/termui/v3 v3.1.0
