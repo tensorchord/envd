@@ -294,6 +294,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 	hostConfig := &container.HostConfig{
 		Privileged: true,
 		AutoRemove: true,
+        UsernsMode: "host",
 		Mounts: []mount.Mount{
 			{
 				Type:   mount.TypeBind,
