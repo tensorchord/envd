@@ -399,9 +399,6 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 			return nil, errors.Wrap(err, "failed to get the version from the image label")
 		}
 		defaultGraph := getter.GetDefaultGraph()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get the graph from the image")
-		}
 		g, err = e.listEnvGeneralGraph(ctx, so.Image, defaultGraph)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get the graph from the image")
@@ -616,7 +613,6 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	bar.UpdateTitle("attach the environment")
 	result := &StartResult{
 		SSHPort: sshPortInHost,
-		Address: container.NetworkSettings.IPAddress,
 		Name:    container.Name,
 	}
 	return result, nil

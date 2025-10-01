@@ -67,7 +67,6 @@ type EnvdServerSource struct {
 type StartResult struct {
 	// TODO(gaocegege): Make result a chan, to send running status to the receiver.
 	SSHPort int
-	Address string
 	Name    string
 
 	Ports []types.EnvironmentPort

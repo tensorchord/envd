@@ -314,7 +314,6 @@ func (e *envdServerEngine) StartEnvd(ctx context.Context, so StartOptions) (*Sta
 	bar.UpdateTitle("attach to the remote environment")
 	result := &StartResult{
 		SSHPort: 2222,
-		Address: "",
 		Name:    resp.Created.Name,
 		Ports:   resp.Created.Spec.Ports,
 	}
