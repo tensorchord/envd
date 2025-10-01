@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout Actions Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Check spelling with custom config file
         uses: crate-ci/typos@master
         with:
@@ -41,10 +41,10 @@ jobs:
     name: lint
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: 'stable'
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Add license
         run: |
           make addlicense && git add pkg cmd &&
@@ -67,9 +67,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: 'stable'
       - name: Verify mockgen
@@ -94,9 +94,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: 'stable'
       - uses: actions-ecosystem/action-get-latest-tag@v1
@@ -121,9 +121,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: 'stable'
       - uses: actions-ecosystem/action-get-latest-tag@v1
@@ -148,9 +148,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: 'stable'
       - name: Build
@@ -165,27 +165,27 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: 'stable'
       - name: Install bins
         run: |
           go install github.com/mattn/goveralls@latest
       - name: Get coverage report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: coverage-out
           path: merge
 
       - name: Get cli e2e coverage report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: e2e-cli-coverage-out
           path: merge
       - name: Get language e2e coverage report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: e2e-lang-coverage-out
           path: merge
