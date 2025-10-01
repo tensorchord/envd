@@ -1,8 +1,8 @@
 *             @kemingy @VoVAllen @gaocegege
 
-*.go          @aseaday @zwpaper
-go.*          @gaocegege
+*.go          @kemingy
+go.*          @kemingy
 
-*.py          @VoVAllen @kemingy
+*.py          @kemingy
 
 base-images/  @gaocegege
