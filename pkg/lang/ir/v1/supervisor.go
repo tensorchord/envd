@@ -53,7 +53,7 @@ wait = "5s"
 
 func (g generalGraph) installHorust(root llb.State) llb.State {
 	horust := root.
-		File(llb.Copy(llb.Image(types.HorustImage), "/", "/usr/local/bin"),
+		File(llb.Copy(llb.Image(types.HorustImage), "/sbin/horust", "/usr/local/bin/horust"),
 			llb.WithCustomName("[internal] install horust")).
 		File(llb.Mkdir(types.HorustServiceDir, 0755, llb.WithParents(true)),
 			llb.WithCustomNamef("[internal] mkdir for horust service: %s", types.HorustServiceDir)).
