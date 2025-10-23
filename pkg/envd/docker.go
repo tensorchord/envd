@@ -647,7 +647,8 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	bar.UpdateTitle("attach the environment")
 	result := &StartResult{
 		SSHPort: sshPortInHost,
-		Name:    container.Name,
+		// https://github.com/moby/moby/issues/6705#issuecomment-47298276
+		Name: strings.TrimPrefix(container.Name, "/"),
 	}
 	return result, nil
 }

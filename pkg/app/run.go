@@ -168,7 +168,6 @@ func run(clicontext *cli.Context) error {
 		return err
 	}
 
-	ctr := filepath.Base(opt.BuildContext)
 	detach := clicontext.Bool("detach")
 	logger := logrus.WithFields(logrus.Fields{
 		"cmd":          "run",
@@ -205,7 +204,7 @@ func run(clicontext *cli.Context) error {
 			User:               username,
 		}
 	case types.RunnerTypeDocker:
-		eo, err = engine.GenerateSSHConfig(ctr, hostname,
+		eo, err = engine.GenerateSSHConfig(res.Name, hostname,
 			clicontext.Path("private-key"), res)
 		if err != nil {
 			return errors.Wrap(err, "failed to get the ssh entry")
@@ -251,12 +250,12 @@ func run(clicontext *cli.Context) error {
 		}
 
 		go func() {
-			if err = engine.Attach(ctr, hostname,
+			if err = engine.Attach(res.Name, hostname,
 				clicontext.Path("private-key"), res, nil); err != nil {
 				outputChannel <- errors.Wrap(err, "failed to attach to the ssh target")
 			}
 			logrus.Infof("Detached successfully. You can attach to the container with command `ssh %s.envd`\n",
-				environmentName)
+				res.Name)
 			outputChannel <- nil
 		}()
 
