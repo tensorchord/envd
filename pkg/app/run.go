@@ -29,21 +29,18 @@ import (
 	"github.com/tensorchord/envd/pkg/app/telemetry"
 	"github.com/tensorchord/envd/pkg/envd"
 	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/ssh"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"
 	"github.com/tensorchord/envd/pkg/syncthing"
 	"github.com/tensorchord/envd/pkg/types"
 	"github.com/tensorchord/envd/pkg/util/fileutil"
-	"github.com/tensorchord/envd/pkg/util/netutil"
 )
 
 var CommandCreate = &cli.Command{
-	Name:        "run",
-	Category:    CategoryBasic,
-	Aliases:     []string{"c"},
-	Usage:       "Run the envd environment from the existing image",
-	Hidden:      false,
-	Description: `run is only supported in envd-server runner currently`,
+	Name:     "run",
+	Category: CategoryBasic,
+	Aliases:  []string{"c"},
+	Usage:    "Run the envd environment from the existing image",
+	Hidden:   false,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:        "image",
@@ -105,7 +102,7 @@ var CommandCreate = &cli.Command{
 		},
 		&cli.BoolFlag{
 			Name:  "sync",
-			Usage: "Sync the local directory with the remote container",
+			Usage: "Sync the local directory with the remote container (only supported in envd-server runner currently)",
 			Value: false,
 		},
 		&cli.StringSliceFlag{
@@ -132,9 +129,9 @@ func run(clicontext *cli.Context) error {
 		return err
 	}
 
-	name := clicontext.String("name")
-	if name == "" {
-		name = strings.ToLower(randomdata.SillyName())
+	environmentName := clicontext.String("name")
+	if environmentName == "" {
+		environmentName = strings.ToLower(randomdata.SillyName())
 	}
 	opt := envd.StartOptions{
 		SshdHost:        clicontext.String("host"),
@@ -144,7 +141,7 @@ func run(clicontext *cli.Context) error {
 		NumCPU:          clicontext.String("cpus"),
 		NumGPU:          clicontext.Int("gpu"),
 		ShmSize:         clicontext.Int("shm-size"),
-		EnvironmentName: name,
+		EnvironmentName: environmentName,
 	}
 	switch c.Runner {
 	case types.RunnerTypeEnvdServer:
@@ -171,6 +168,8 @@ func run(clicontext *cli.Context) error {
 		return err
 	}
 
+	ctr := filepath.Base(opt.BuildContext)
+	detach := clicontext.Bool("detach")
 	logger := logrus.WithFields(logrus.Fields{
 		"cmd":          "run",
 		"StartOptions": opt,
@@ -185,105 +184,83 @@ func run(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get the ssh hostname")
 	}
 
-	ac, err := home.GetManager().AuthGetCurrent()
-	if err != nil {
-		return errors.Wrap(err, "failed to get the auth information")
-	}
-	username, err := sshname.Username(ac.Name, res.Name)
-	if err != nil {
-		return errors.Wrap(err, "failed to get the username")
+	var eo sshconfig.EntryOptions
+	switch c.Runner {
+	case types.RunnerTypeEnvdServer:
+		ac, err := home.GetManager().AuthGetCurrent()
+		if err != nil {
+			return errors.Wrap(err, "failed to get the auth information")
+		}
+		username, err := sshname.Username(ac.Name, res.Name)
+		if err != nil {
+			return errors.Wrap(err, "failed to get the username")
+		}
+		eo = sshconfig.EntryOptions{
+			Name:               res.Name,
+			IFace:              hostname,
+			Port:               res.SSHPort,
+			PrivateKeyPath:     clicontext.Path("private-key"),
+			EnableHostKeyCheck: false,
+			EnableAgentForward: false,
+			User:               username,
+		}
+	case types.RunnerTypeDocker:
+		eo, err = engine.GenerateSSHConfig(ctr, hostname,
+			clicontext.Path("private-key"), res)
+		if err != nil {
+			return errors.Wrap(err, "failed to get the ssh entry")
+		}
 	}
 
-	eo := sshconfig.EntryOptions{
-		Name:               res.Name,
-		IFace:              hostname,
-		Port:               res.SSHPort,
-		PrivateKeyPath:     clicontext.Path("private-key"),
-		EnableHostKeyCheck: false,
-		EnableAgentForward: false,
-		User:               username,
-	}
 	if err = sshconfig.AddEntry(eo); err != nil {
 		logger.WithError(err).
 			Infof("failed to add entry %s to your SSH config file", res.Name)
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 
-	// TODO(gaocegege): Test why it fails.
-	if !clicontext.Bool("detach") {
+	if !detach {
 		outputChannel := make(chan error)
-		opt := ssh.DefaultOptions()
-		opt.PrivateKeyPath = clicontext.Path("private-key")
-		opt.Port = res.SSHPort
-		opt.AgentForwarding = false
-		opt.User = username
-		opt.Server = hostname
+		if c.Runner == types.RunnerTypeEnvdServer {
+			if clicontext.Bool("sync") {
+				go func() {
+					if err = engine.LocalForward(hostname, clicontext.Path("private-key"), res, syncthing.DefaultRemoteAPIAddress, syncthing.DefaultRemoteAPIAddress); err != nil {
+						outputChannel <- errors.Wrap(err, "failed to forward to remote api port")
+					}
+				}()
 
-		sshClient, err := ssh.NewClient(opt)
-		if err != nil {
-			outputChannel <- errors.Wrap(err, "failed to create the ssh client")
-		}
+				go func() {
+					syncthingRemoteAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultRemoteDeviceAddress))
+					if err = engine.LocalForward(hostname, clicontext.Path("private-key"), res, syncthingRemoteAddr, syncthingRemoteAddr); err != nil {
+						outputChannel <- errors.Wrap(err, "failed to forward to remote port")
+					}
+				}()
 
-		ports := res.Ports
+				go func() {
+					syncthingLocalAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultLocalDeviceAddress))
+					if err = engine.RemoteForward(hostname, clicontext.Path("private-key"), res, syncthingLocalAddr, syncthingLocalAddr); err != nil {
+						outputChannel <- errors.Wrap(err, "failed to forward to local port")
+					}
+				}()
 
-		for _, p := range ports {
-			if p.Port == 2222 {
-				continue
+				localSyncthing, _, err := startSyncthing(res.Name)
+				if err != nil {
+					return errors.Wrap(err, "failed to start syncthing")
+				}
+				defer localSyncthing.StopLocalSyncthing()
 			}
-
-			// TODO(gaocegege): Use one remote port.
-			localPort, err := netutil.GetFreePort()
-			if err != nil {
-				return errors.Wrap(err, "failed to get a free port")
-			}
-			localAddress := fmt.Sprintf("%s:%d", "localhost", localPort)
-			remoteAddress := fmt.Sprintf("%s:%d", "localhost", p.Port)
-			logger.Infof(`service "%s" is listening at %s\n`, p.Name, localAddress)
-			go func() {
-				if err := sshClient.LocalForward(localAddress, remoteAddress); err != nil {
-					outputChannel <- errors.Wrap(err, "failed to forward to local port")
-				}
-			}()
-		}
-
-		if clicontext.Bool("sync") {
-			go func() {
-				if err := sshClient.LocalForward(syncthing.DefaultRemoteAPIAddress, syncthing.DefaultRemoteAPIAddress); err != nil {
-					outputChannel <- errors.Wrap(err, "failed to forward to remote api port")
-				}
-			}()
-
-			go func() {
-				syncthingRemoteAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultRemoteDeviceAddress))
-				if err := sshClient.LocalForward(syncthingRemoteAddr, syncthingRemoteAddr); err != nil {
-					outputChannel <- errors.Wrap(err, "failed to forward to remote port")
-				}
-			}()
-
-			go func() {
-				syncthingLocalAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultLocalDeviceAddress))
-				if err := sshClient.RemoteForward(syncthingLocalAddr, syncthingLocalAddr); err != nil {
-					outputChannel <- errors.Wrap(err, "failed to forward to local port")
-				}
-			}()
-
-			localSyncthing, _, err := startSyncthing(res.Name)
-			if err != nil {
-				return errors.Wrap(err, "failed to start syncthing")
-			}
-			defer localSyncthing.StopLocalSyncthing()
-
 		}
 
 		go func() {
-			// TODO(gaocegege): Avoid the hard code.
-			if err := sshClient.Attach(); err != nil {
-				outputChannel <- errors.Wrap(err, "failed to attach to the container")
+			if err = engine.Attach(ctr, hostname,
+				clicontext.Path("private-key"), res, nil); err != nil {
+				outputChannel <- errors.Wrap(err, "failed to attach to the ssh target")
 			}
+			logrus.Infof("Detached successfully. You can attach to the container with command `ssh %s.envd`\n",
+				environmentName)
 			outputChannel <- nil
 		}()
 
-		if err := <-outputChannel; err != nil {
+		if err = <-outputChannel; err != nil {
 			return err
 		}
 	}

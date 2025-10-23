@@ -152,6 +152,20 @@ func (e envdServerEngine) GenerateSSHConfig(name, iface, privateKeyPath string, 
 	return eo, nil
 }
 
+func (e envdServerEngine) newSSHClient(username, server string, port int, privateKeyPath string) (ssh.Client, error) {
+	opt := ssh.DefaultOptions()
+	opt.PrivateKeyPath = privateKeyPath
+	opt.Port = port
+	opt.AgentForwarding = false
+	opt.User = username
+	opt.Server = server
+	sshClient, err := ssh.NewClient(opt)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create the ssh client")
+	}
+	return sshClient, nil
+}
+
 func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult *StartResult, g ir.Graph) error {
 	username, err := sshname.Username(e.Loginname, startResult.Name)
 	if err != nil {
@@ -159,17 +173,11 @@ func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult
 	}
 
 	outputChannel := make(chan error)
-	opt := ssh.DefaultOptions()
-	opt.PrivateKeyPath = privateKeyPath
-	opt.Port = startResult.SSHPort
-	opt.AgentForwarding = false
-	opt.User = username
-	opt.Server = iface
-
-	sshClient, err := ssh.NewClient(opt)
+	sshClient, err := e.newSSHClient(username, iface, startResult.SSHPort, privateKeyPath)
 	if err != nil {
-		outputChannel <- errors.Wrap(err, "failed to create the ssh client")
+		outputChannel <- err
 	}
+	defer sshClient.Close()
 
 	ports := startResult.Ports
 
@@ -204,6 +212,41 @@ func (e envdServerEngine) Attach(name, iface, privateKeyPath string, startResult
 		return err
 	}
 
+	return nil
+}
+
+func (e *envdServerEngine) LocalForward(iface, privateKeyPath string, startResult *StartResult, localAddress, targetAddress string) error {
+	username, err := sshname.Username(e.Loginname, startResult.Name)
+	if err != nil {
+		return errors.Wrap(err, "failed to get the username")
+	}
+	sshClient, err := e.newSSHClient(username, iface, startResult.SSHPort, privateKeyPath)
+	if err != nil {
+		return err
+	}
+	defer sshClient.Close()
+
+	if err = sshClient.LocalForward(localAddress, targetAddress); err != nil {
+		return errors.Wrap(err, "failed to forward to local port")
+	}
+	return nil
+}
+
+func (e *envdServerEngine) RemoteForward(iface, privateKeyPath string, startResult *StartResult, localAddress, targetAddress string) error {
+	username, err := sshname.Username(e.Loginname, startResult.Name)
+	if err != nil {
+		return errors.Wrap(err, "failed to get the username")
+	}
+
+	sshClient, err := e.newSSHClient(username, iface, startResult.SSHPort, privateKeyPath)
+	if err != nil {
+		return err
+	}
+	defer sshClient.Close()
+
+	if err = sshClient.RemoteForward(localAddress, targetAddress); err != nil {
+		return errors.Wrap(err, "failed to forward to remote port")
+	}
 	return nil
 }
 
