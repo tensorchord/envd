@@ -41,6 +41,7 @@ const (
 	HorustImage      = "ghcr.io/federicoponzi/horust:0.1.10"
 	HorustServiceDir = "/etc/horust/services"
 	HorustLogDir     = "/var/log/horust"
+	HorustSocketDir  = "/var/run/horust"
 	// env
 	EnvdWorkDir = "ENVD_WORKDIR"
 )
