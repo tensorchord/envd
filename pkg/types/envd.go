@@ -38,7 +38,7 @@ const (
 	PythonBaseImage   = "ubuntu:22.04"
 	EnvdStarshipImage = "tensorchord/starship:v0.0.1"
 	// supervisor
-	HorustImage      = "ghcr.io/federicoponzi/horust:0.1.10"
+	HorustImage      = "ghcr.io/federicoponzi/horust:0.1.11"
 	HorustServiceDir = "/etc/horust/services"
 	HorustLogDir     = "/var/log/horust"
 	HorustSocketDir  = "/var/run/horust"
