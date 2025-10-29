@@ -328,20 +328,54 @@ func (e dockerEngine) GenerateSSHConfig(name, iface, privateKeyPath string,
 	return eo, nil
 }
 
-func (e dockerEngine) Attach(name, iface, privateKeyPath string,
-	startResult *StartResult, g ir.Graph) error {
+func (e dockerEngine) newSSHClient(server string, port int, privateKeyPath string) (ssh.Client, error) {
 	opt := ssh.DefaultOptions()
-	opt.Server = iface
+	opt.Server = server
 	opt.PrivateKeyPath = privateKeyPath
-	opt.Port = startResult.SSHPort
+	opt.Port = port
 	sshClient, err := ssh.NewClient(opt)
 	if err != nil {
-		return errors.Wrap(err, "failed to create the ssh client")
+		return nil, errors.Wrap(err, "failed to create the ssh client")
 	}
-	opt.Server = iface
+	return sshClient, nil
+}
 
-	if err := sshClient.Attach(); err != nil {
+func (e dockerEngine) Attach(name, iface, privateKeyPath string,
+	startResult *StartResult, g ir.Graph) error {
+	sshClient, err := e.newSSHClient(iface, startResult.SSHPort, privateKeyPath)
+	if err != nil {
+		return err
+	}
+	defer sshClient.Close()
+
+	if err = sshClient.Attach(); err != nil {
 		return errors.Wrap(err, "failed to attach to the container")
+	}
+	return nil
+}
+
+func (e dockerEngine) LocalForward(iface, privateKeyPath string, startResult *StartResult, localAddress, targetAddress string) error {
+	sshClient, err := e.newSSHClient(iface, startResult.SSHPort, privateKeyPath)
+	if err != nil {
+		return err
+	}
+	defer sshClient.Close()
+
+	if err = sshClient.LocalForward(localAddress, targetAddress); err != nil {
+		return errors.Wrap(err, "failed to forward to local port")
+	}
+	return nil
+}
+
+func (e dockerEngine) RemoteForward(iface, privateKeyPath string, startResult *StartResult, localAddress, targetAddress string) error {
+	sshClient, err := e.newSSHClient(iface, startResult.SSHPort, privateKeyPath)
+	if err != nil {
+		return err
+	}
+	defer sshClient.Close()
+
+	if err = sshClient.RemoteForward(localAddress, targetAddress); err != nil {
+		return errors.Wrap(err, "failed to forward to remote port")
 	}
 	return nil
 }
@@ -613,7 +647,8 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	bar.UpdateTitle("attach the environment")
 	result := &StartResult{
 		SSHPort: sshPortInHost,
-		Name:    container.Name,
+		// https://github.com/moby/moby/issues/6705#issuecomment-47298276
+		Name: strings.TrimPrefix(container.Name, "/"),
 	}
 	return result, nil
 }

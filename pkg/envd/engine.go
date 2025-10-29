@@ -57,6 +57,8 @@ type SSHClient interface {
 		startResult *StartResult) (sshconfig.EntryOptions, error)
 	Attach(name, iface, privateKeyPath string,
 		startResult *StartResult, g ir.Graph) error
+	LocalForward(iface, privateKeyPath string, startResult *StartResult, localAddress, targetAddress string) error
+	RemoteForward(iface, privateKeyPath string, startResult *StartResult, localAddress, targetAddress string) error
 }
 
 type ImageClient interface {
