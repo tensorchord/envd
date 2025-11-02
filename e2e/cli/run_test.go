@@ -14,7 +14,7 @@ import (
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-var _ = Describe("run command", func() {
+var _ = Describe("run command", Ordered, func() {
 	buildContext := "testdata/run-test"
 	buildImageName := "testdata/run-test:dev"
 	env := "run-test"
