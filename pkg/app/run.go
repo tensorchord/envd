@@ -17,6 +17,7 @@ package app
 import (
 	"fmt"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -95,9 +96,14 @@ var CommandCreate = &cli.Command{
 			Usage: "Request Memory, such as 512M, 2G",
 			Value: "",
 		},
-		&cli.StringFlag{
-			Name:  "gpu",
+		&cli.IntFlag{
+			Name:  "gpus",
 			Usage: "Request GPU resources (number of gpus), such as 1, 2",
+			Value: 0,
+		},
+		&cli.StringFlag{
+			Name:  "gpu-set",
+			Usage: "GPU devices used in this environment, such as `all`, `'\"device=1,3\"'`, `count=2`(all to pass all GPUs). This will override the `--gpus`",
 			Value: "",
 		},
 		&cli.BoolFlag{
@@ -133,16 +139,29 @@ func run(clicontext *cli.Context) error {
 	if environmentName == "" {
 		environmentName = strings.ToLower(randomdata.SillyName())
 	}
+
+	numGPU := clicontext.Int("gpus")
+	gpuSet := ""
+	if numGPU > 0 {
+		gpuSet = strconv.Itoa(numGPU)
+	}
+
+	cliGPUSet := clicontext.String("gpu-set")
+	if len(cliGPUSet) > 0 {
+		gpuSet = cliGPUSet
+	}
+
 	opt := envd.StartOptions{
 		SshdHost:        clicontext.String("host"),
 		Image:           clicontext.String("image"),
 		Timeout:         clicontext.Duration("timeout"),
 		NumMem:          clicontext.String("memory"),
 		NumCPU:          clicontext.String("cpus"),
-		NumGPU:          clicontext.Int("gpu"),
+		GPUSet:          gpuSet,
 		ShmSize:         clicontext.Int("shm-size"),
 		EnvironmentName: environmentName,
 	}
+
 	switch c.Runner {
 	case types.RunnerTypeEnvdServer:
 		opt.EnvdServerSource = &envd.EnvdServerSource{
