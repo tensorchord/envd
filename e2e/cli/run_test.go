@@ -37,7 +37,7 @@ var _ = Describe("run command", func() {
 		Expect(err).NotTo(HaveOccurred())
 		envdApp = app.New()
 		// build env image
-		buildArgs := append(baseArgs, "run", "--tag", buildImageName, "--path", buildContext)
+		buildArgs := append(baseArgs, "build", "--tag", buildImageName, "--path", buildContext)
 		err = envdApp.Run(buildArgs)
 		Expect(err).NotTo(HaveOccurred())
 		// run env
