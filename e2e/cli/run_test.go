@@ -5,18 +5,18 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/tensorchord/envd/e2e"
-	"github.com/tensorchord/envd/pkg/home"
-	"github.com/tensorchord/envd/pkg/types"
 
+	"github.com/tensorchord/envd/e2e"
 	"github.com/tensorchord/envd/pkg/app"
 	"github.com/tensorchord/envd/pkg/driver/docker"
 	"github.com/tensorchord/envd/pkg/envd"
+	"github.com/tensorchord/envd/pkg/home"
+	"github.com/tensorchord/envd/pkg/types"
 )
 
 var _ = Describe("run command", func() {
-	buildContext := "testdata/build-test"
-	buildImageName := "testdata/build-test:dev"
+	buildContext := "testdata/run-test"
+	buildImageName := "testdata/run-test:dev"
 	env := "run-test"
 	baseArgs := []string{
 		"envd.test", "--debug",

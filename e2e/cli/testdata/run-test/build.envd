@@ -1,0 +1,16 @@
+# syntax=v1
+
+
+def build():
+    base(dev=True)
+    install.python()
+    install.python_packages(
+        name=[
+            "via",
+        ]
+    )
+    install.apt_packages(name=["screenfetch"])
+    shell("zsh")
+    config.pip_index(url="https://pypi.tuna.tsinghua.edu.cn/simple")
+    # git_config(name="envd", email="envd@envd", editor="vim")
+    install.vscode_extensions(["ms-python.python"])
