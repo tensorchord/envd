@@ -13,6 +13,7 @@ universal_binaries:
 builds:
   - env:
       - CGO_ENABLED=0
+      - MACOSX_DEPLOYMENT_TARGET=14.0
     goos:
       - linux
       - darwin
