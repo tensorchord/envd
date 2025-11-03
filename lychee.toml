@@ -4,5 +4,6 @@ exclude_path = ["CHANGELOG.md"]
 accept = [
     "200..=204",
     "403",  # HuggingFace
+    "429",  # GitHub rate limit
     "500..=599"
 ]
