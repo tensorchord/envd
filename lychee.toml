@@ -1,4 +1,8 @@
 scheme = [ "https", "http", "mailto" ]
 exclude_loopback = true
 exclude_path = ["CHANGELOG.md"]
-accept = ["200..=204", "429", "500..=599"]
+accept = [
+    "200..=204",
+    "403",  # HuggingFace
+    "500..=599"
+]
