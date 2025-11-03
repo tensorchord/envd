@@ -93,7 +93,7 @@ dockers_v2:
   - "v{{ .Version }}"
   platforms:
   - linux/amd64
-  - linux/arm64/v8
+  - linux/arm64
 - id: "envd-sshd"
   images:
   - "tensorchord/envd-sshd-from-scratch"
@@ -103,4 +103,4 @@ dockers_v2:
   - "v{{ .Version }}"
   platforms:
   - linux/amd64
-  - linux/arm64/v8
+  - linux/arm64
