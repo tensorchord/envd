@@ -1,2 +1,3 @@
 FROM scratch
-COPY envd /usr/bin/envd
+ARG TARGETPLATFORM
+COPY $TARGETPLATFORM/envd /usr/bin/envd

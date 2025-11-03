@@ -1,2 +1,3 @@
 FROM scratch
-COPY envd-sshd /usr/bin/envd-sshd
+ARG TARGETPLATFORM
+COPY $TARGETPLATFORM/envd-sshd /usr/bin/envd-sshd
