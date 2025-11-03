@@ -202,6 +202,7 @@ func run(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to get the ssh hostname")
 	}
 
+	privateKey := clicontext.Path("private-key")
 	var eo sshconfig.EntryOptions
 	switch c.Runner {
 	case types.RunnerTypeEnvdServer:
@@ -217,14 +218,14 @@ func run(clicontext *cli.Context) error {
 			Name:               res.Name,
 			IFace:              hostname,
 			Port:               res.SSHPort,
-			PrivateKeyPath:     clicontext.Path("private-key"),
+			PrivateKeyPath:     privateKey,
 			EnableHostKeyCheck: false,
 			EnableAgentForward: false,
 			User:               username,
 		}
 	case types.RunnerTypeDocker:
 		eo, err = engine.GenerateSSHConfig(res.Name, hostname,
-			clicontext.Path("private-key"), res)
+			privateKey, res)
 		if err != nil {
 			return errors.Wrap(err, "failed to get the ssh entry")
 		}
@@ -236,51 +237,52 @@ func run(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to add entry to your SSH config file")
 	}
 
-	if !detach {
-		outputChannel := make(chan error)
-		if c.Runner == types.RunnerTypeEnvdServer {
-			if clicontext.Bool("sync") {
-				go func() {
-					if err = engine.LocalForward(hostname, clicontext.Path("private-key"), res, syncthing.DefaultRemoteAPIAddress, syncthing.DefaultRemoteAPIAddress); err != nil {
-						outputChannel <- errors.Wrap(err, "failed to forward to remote api port")
-					}
-				}()
-
-				go func() {
-					syncthingRemoteAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultRemoteDeviceAddress))
-					if err = engine.LocalForward(hostname, clicontext.Path("private-key"), res, syncthingRemoteAddr, syncthingRemoteAddr); err != nil {
-						outputChannel <- errors.Wrap(err, "failed to forward to remote port")
-					}
-				}()
-
-				go func() {
-					syncthingLocalAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultLocalDeviceAddress))
-					if err = engine.RemoteForward(hostname, clicontext.Path("private-key"), res, syncthingLocalAddr, syncthingLocalAddr); err != nil {
-						outputChannel <- errors.Wrap(err, "failed to forward to local port")
-					}
-				}()
-
-				localSyncthing, _, err := startSyncthing(res.Name)
-				if err != nil {
-					return errors.Wrap(err, "failed to start syncthing")
+	if detach {
+		return nil
+	}
+	outputChannel := make(chan error)
+	if c.Runner == types.RunnerTypeEnvdServer {
+		if clicontext.Bool("sync") {
+			go func() {
+				if err = engine.LocalForward(hostname, privateKey, res, syncthing.DefaultRemoteAPIAddress, syncthing.DefaultRemoteAPIAddress); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to remote api port")
 				}
-				defer localSyncthing.StopLocalSyncthing()
-			}
-		}
+			}()
 
-		go func() {
-			if err = engine.Attach(res.Name, hostname,
-				clicontext.Path("private-key"), res, nil); err != nil {
-				outputChannel <- errors.Wrap(err, "failed to attach to the ssh target")
-			}
-			logrus.Infof("Detached successfully. You can attach to the container with command `ssh %s.envd`\n",
-				res.Name)
-			outputChannel <- nil
-		}()
+			go func() {
+				syncthingRemoteAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultRemoteDeviceAddress))
+				if err = engine.LocalForward(hostname, privateKey, res, syncthingRemoteAddr, syncthingRemoteAddr); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to remote port")
+				}
+			}()
 
-		if err = <-outputChannel; err != nil {
-			return err
+			go func() {
+				syncthingLocalAddr := fmt.Sprintf("127.0.0.1:%s", syncthing.ParsePortFromAddress(syncthing.DefaultLocalDeviceAddress))
+				if err = engine.RemoteForward(hostname, privateKey, res, syncthingLocalAddr, syncthingLocalAddr); err != nil {
+					outputChannel <- errors.Wrap(err, "failed to forward to local port")
+				}
+			}()
+
+			localSyncthing, _, err := startSyncthing(res.Name)
+			if err != nil {
+				return errors.Wrap(err, "failed to start syncthing")
+			}
+			defer localSyncthing.StopLocalSyncthing()
 		}
+	}
+
+	go func() {
+		if err = engine.Attach(res.Name, hostname,
+			privateKey, res, nil); err != nil {
+			outputChannel <- errors.Wrap(err, "failed to attach to the ssh target")
+		}
+		logrus.Infof("Detached successfully. You can attach to the container with command `ssh %s.envd`\n",
+			res.Name)
+		outputChannel <- nil
+	}()
+
+	if err = <-outputChannel; err != nil {
+		return err
 	}
 	return nil
 }
