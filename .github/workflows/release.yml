@@ -76,6 +76,7 @@ jobs:
           CIBW_ARCHS_MACOS: arm64, x86_64
           CIBW_ARCHS_LINUX: auto64
           CIBW_SKIP: pp*
+          MACOSX_DEPLOYMENT_TARGET: 14.0
       - name: Build source distribution
         if: runner.os == 'Linux' # Only release source under linux to avoid conflict
         run: |
