@@ -1,5 +1,37 @@
 # Changelog
 
+## v1.2.6 (2025-11-03)
+
+
+### Contributors
+
+
+## v1.2.5 (2025-11-03)
+
+
+### Contributors
+
+
+## v1.2.4 (2025-11-03)
+
+
+### Contributors
+
+
+## v1.2.3 (2025-11-03)
+
+
+### Contributors
+
+
+## v1.2.2 (2025-11-03)
+
+ * [e1ef12b](https://github.com/tensorchord/envd/commit/e1ef12bc4622ef20540e36e6c3b6eba1f91535d9) feat(run): run command supports docker runner (#2042)
+
+### Contributors
+
+ * rainbend
+
 ## v1.2.1 (2025-06-17)
 
  * [599a980](https://github.com/tensorchord/envd/commit/599a9802480418a72b842b34c3094b8dc62a1e05) fix: sshd handle the error (#2026)
