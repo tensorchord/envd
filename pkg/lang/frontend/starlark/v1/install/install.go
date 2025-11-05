@@ -47,6 +47,8 @@ var Module = &starlarkstruct.Module{
 		// others
 		"cuda":              starlark.NewBuiltin(ruleCUDA, ruleFuncCUDA),
 		"vscode_extensions": starlark.NewBuiltin(ruleVSCode, ruleFuncVSCode),
+		// code agents
+		"codex": starlark.NewBuiltin(ruleCodex, ruleFuncCodex),
 	},
 }
 
@@ -281,5 +283,15 @@ func ruleFuncCondaPackage(thread *starlark.Thread, _ *starlark.Builtin,
 		return starlark.None, err
 	}
 
+	return starlark.None, nil
+}
+
+func ruleFuncCodex(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	var version string
+	if err := starlark.UnpackArgs(ruleCodex, args, kwargs, "version?", &version); err != nil {
+		return nil, err
+	}
+	ir.Codex(version)
 	return starlark.None, nil
 }

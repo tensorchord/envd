@@ -374,10 +374,11 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 
 	source := g.compileExtraSource(packages)
 	copy := g.compileCopy(source)
+	agent := g.compileAgent(copy)
 
 	// dev postprocessing: related to UID, which may not be cached
 	if g.Dev {
-		git := g.compileGit(copy)
+		git := g.compileGit(agent)
 		user := g.compileUserOwn(git)
 		key, err := g.copySSHKey(user)
 		if err != nil {
@@ -400,11 +401,11 @@ func (g *generalGraph) CompileLLB(uid, gid int) (llb.State, error) {
 		if err != nil {
 			return llb.State{}, errors.Wrap(err, "failed to compile VSCode extensions")
 		}
-		copy = vscode
+		agent = vscode
 	}
 
 	// it's necessary to exec `run` with the desired user
-	run := g.compileRun(copy)
+	run := g.compileRun(agent)
 	mount := g.compileMountDir(run)
 
 	g.Writer.Finish()

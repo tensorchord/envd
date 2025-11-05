@@ -120,7 +120,6 @@ func (g generalGraph) compileSystemPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
-// nolint:unparam
 func (g *generalGraph) compileExtraSource(root llb.State) llb.State {
 	if len(g.HTTP) == 0 {
 		return root
@@ -360,6 +359,19 @@ func (g generalGraph) compileMountDir(root llb.State) llb.State {
 		)
 	}
 	return mount
+}
+
+func (g *generalGraph) compileAgent(root llb.State) llb.State {
+	if len(g.CodeAgents) == 0 {
+		return root
+	}
+	for _, agent := range g.CodeAgents {
+		switch agent.Name {
+		case "codex":
+			root = g.installAgentCodex(root, agent)
+		}
+	}
+	return root
 }
 
 func (g *generalGraph) updateEnvPath(root llb.State, path string) llb.State {

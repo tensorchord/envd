@@ -385,3 +385,12 @@ func Owner(uid, gid int) {
 	g.uid = uid
 	g.gid = gid
 }
+
+func Codex(version string) {
+	g := DefaultGraph.(*generalGraph)
+	codex := ir.CodeAgent{Name: "codex"}
+	if len(version) > 0 {
+		codex.Version = &version
+	}
+	g.CodeAgents = append(g.CodeAgents, codex)
+}
