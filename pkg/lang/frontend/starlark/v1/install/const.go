@@ -33,4 +33,7 @@ const (
 	// others
 	ruleCUDA   = "install.cuda"
 	ruleVSCode = "install.vscode_extensions"
+
+	// agents
+	ruleCodex = "install.codex"
 )

@@ -53,6 +53,11 @@ type Language struct {
 	Version *string
 }
 
+type CodeAgent struct {
+	Name    string
+	Version *string
+}
+
 type CondaConfig struct {
 	CondaPackages      []string
 	AdditionalChannels []string

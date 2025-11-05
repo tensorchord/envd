@@ -31,6 +31,7 @@ type generalGraph struct {
 	gid int `default:"-1"`
 
 	Languages         []ir.Language
+	CodeAgents        []ir.CodeAgent
 	EnvdSyntaxVersion string
 	Image             string
 	User              string
