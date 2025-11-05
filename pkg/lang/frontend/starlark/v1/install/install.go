@@ -38,6 +38,7 @@ var Module = &starlarkstruct.Module{
 		"pixi":   starlark.NewBuiltin(rulePixi, ruleFuncPixi),
 		"r_lang": starlark.NewBuiltin(ruleRLang, ruleFuncRLang),
 		"julia":  starlark.NewBuiltin(ruleJulia, ruleFuncJulia),
+		"rust":   starlark.NewBuiltin(ruleRust, ruleFuncRust),
 		// packages
 		"apt_packages":    starlark.NewBuiltin(ruleSystemPackage, ruleFuncSystemPackage),
 		"python_packages": starlark.NewBuiltin(rulePyPIPackage, ruleFuncPyPIPackage),
@@ -121,6 +122,19 @@ func ruleFuncJulia(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	logger.Debugf("rule `%s` is invoked", ruleJulia)
 	ir.Julia()
+	return starlark.None, nil
+}
+
+func ruleFuncRust(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	logger.Debugf("rule `%s` is invoked", ruleRust)
+
+	var version string
+	if err := starlark.UnpackArgs(ruleRust, args, kwargs, "version?", &version); err != nil {
+		return nil, err
+	}
+
+	ir.Rust(version)
 	return starlark.None, nil
 }
 

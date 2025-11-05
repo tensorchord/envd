@@ -168,6 +168,8 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 				root = g.installRLang(root)
 			case "julia":
 				root = g.installJulia(root)
+			case "rust":
+				root = g.installRust(root, language.Version)
 			}
 		}
 		return root, err
@@ -181,6 +183,8 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 			lang = g.installRLang(root)
 		case "julia":
 			lang = g.installJulia(root)
+		case "rust":
+			lang = g.installRust(root, language.Version)
 		}
 		langs = append(langs, lang)
 	}

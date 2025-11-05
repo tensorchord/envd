@@ -1,6 +1,6 @@
 module github.com/tensorchord/envd
 
-go 1.24.6
+go 1.25.1
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
@@ -235,7 +235,6 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.8.0 // indirect
-	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/mod v0.29.0 // indirect

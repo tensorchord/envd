@@ -22,6 +22,7 @@ const (
 	rulePixi   = "install.pixi"
 	ruleRLang  = "install.r_lang"
 	ruleJulia  = "install.julia"
+	ruleRust   = "install.rust"
 
 	// packages
 	ruleSystemPackage = "install.apt_packages"
