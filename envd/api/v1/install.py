@@ -91,6 +91,14 @@ def rust(version: Optional[str] = None):
     """
 
 
+def go(version: Optional[str] = "1.25.3"):
+    """Install Go programming language.
+
+    Args:
+        version (Optional[str]): Go version, such as '1.25.3'.
+    """
+
+
 def apt_packages(name: Sequence[str] = ()):
     """Install package using the system package manager (apt on Ubuntu).
 
