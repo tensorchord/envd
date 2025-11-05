@@ -19,32 +19,31 @@ import (
 )
 
 const (
-	RustDefaultVersion = "latest"
-	RustUpInitFilePath = "/tmp/rustup-init.sh"
-	CargoHomeDir       = "/opt/rust"
-	CargoHomeBin       = "/opt/rust/bin"
+	rustUpInitFilePath = "/tmp/rustup-init.sh"
+	cargoHomeDir       = "/opt/rust"
+	cargoHomeBin       = "/opt/rust/bin"
 )
 
 func (g *generalGraph) installRust(root llb.State, version *string) llb.State {
 	base := llb.Image(builderImage)
 	builder := base.Run(
-		llb.Shlexf(`sh -c "curl --proto '=https' --tlsv1.2 -sSf -o %s https://sh.rustup.rs"`, RustUpInitFilePath),
+		llb.Shlexf(`sh -c "curl --proto '=https' --tlsv1.2 -sSf -o %s https://sh.rustup.rs"`, rustUpInitFilePath),
 		llb.WithCustomName("[internal] download rustup-init.sh"),
 	).Root()
 	root = root.File(
-		llb.Copy(builder, RustUpInitFilePath, RustUpInitFilePath),
+		llb.Copy(builder, rustUpInitFilePath, rustUpInitFilePath),
 		llb.WithCustomName("[internal] copy the rustup-init.sh"),
 	)
 	if version != nil {
 		root = root.AddEnv("RUSTUP_VERSION", *version)
 	}
-	root = root.AddEnv("CARGO_HOME", CargoHomeDir).File(
-		llb.Mkdir(CargoHomeDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
-		llb.WithCustomNamef("[internal] create cargo dir: %s", CargoHomeDir),
+	root = root.AddEnv("CARGO_HOME", cargoHomeDir).File(
+		llb.Mkdir(cargoHomeDir, 0755, llb.WithParents(true), llb.WithUIDGID(g.uid, g.gid)),
+		llb.WithCustomNamef("[internal] create cargo dir: %s", cargoHomeDir),
 	).Run(
-		llb.Shlexf(`sh -c "sh %[1]s -y -q --no-modify-path && rm %[1]s"`, RustUpInitFilePath),
+		llb.Shlexf(`sh -c "sh %[1]s -y -q --no-modify-path && rm %[1]s"`, rustUpInitFilePath),
 		llb.WithCustomName("[internal] install rust"),
 	).Root()
-	g.RuntimeEnvPaths = append(g.RuntimeEnvPaths, CargoHomeBin)
+	g.RuntimeEnvPaths = append(g.RuntimeEnvPaths, cargoHomeBin)
 	return root
 }

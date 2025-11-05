@@ -104,6 +104,16 @@ func Rust(version string) {
 	g.Languages = append(g.Languages, rust)
 }
 
+func Golang(version string) {
+	g := DefaultGraph.(*generalGraph)
+
+	golang := ir.Language{Name: "go"}
+	if len(version) > 0 {
+		golang.Version = &version
+	}
+	g.Languages = append(g.Languages, golang)
+}
+
 func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {
 	g := DefaultGraph.(*generalGraph)
 
