@@ -94,13 +94,14 @@ func Julia() {
 	})
 }
 
-func Rust(version *string) {
+func Rust(version string) {
 	g := DefaultGraph.(*generalGraph)
 
-	g.Languages = append(g.Languages, ir.Language{
-		Name:    "rust",
-		Version: version,
-	})
+	rust := ir.Language{Name: "rust"}
+	if len(version) > 0 {
+		rust.Version = &version
+	}
+	g.Languages = append(g.Languages, rust)
 }
 
 func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {

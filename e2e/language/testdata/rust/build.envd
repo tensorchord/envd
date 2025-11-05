@@ -7,6 +7,6 @@ def build():
     shell("fish")
     runtime.command(
         commands={
-            "show": "cargo version",
+            "show": "rustup show",
         }
     )

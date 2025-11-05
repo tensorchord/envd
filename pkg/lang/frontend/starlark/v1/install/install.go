@@ -127,8 +127,8 @@ func ruleFuncRust(thread *starlark.Thread, _ *starlark.Builtin,
 	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 	logger.Debugf("rule `%s` is invoked", ruleRust)
 
-	var version *string
-	if err := starlark.UnpackArgs(ruleRust, args, kwargs, "version?", version); err != nil {
+	var version string
+	if err := starlark.UnpackArgs(ruleRust, args, kwargs, "version?", &version); err != nil {
 		return nil, err
 	}
 

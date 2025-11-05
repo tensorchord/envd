@@ -31,7 +31,7 @@ var _ = Describe("rust", Ordered, func() {
 		It("Should have cargo installed", func() {
 			res, err := e.ExecRuntimeCommand("show")
 			Expect(err).To(BeNil())
-			Expect(res).To(ContainSubstring("cargo"))
+			Expect(res).To(ContainSubstring("toolchain"))
 		})
 		AfterEach(e.DestroyContainer())
 	})
