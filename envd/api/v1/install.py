@@ -82,6 +82,15 @@ def julia():
     """Install Julia."""
 
 
+def rust(version: Optional[str] = None):
+    """Install Rust programming language.
+
+    Args:
+        version (Optional[str]): Rust version, such as '1.72.0'.
+            If not specified, the latest stable version will be installed.
+    """
+
+
 def apt_packages(name: Sequence[str] = ()):
     """Install package using the system package manager (apt on Ubuntu).
 

@@ -94,6 +94,15 @@ func Julia() {
 	})
 }
 
+func Rust(version *string) {
+	g := DefaultGraph.(*generalGraph)
+
+	g.Languages = append(g.Languages, ir.Language{
+		Name:    "rust",
+		Version: version,
+	})
+}
+
 func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {
 	g := DefaultGraph.(*generalGraph)
 
