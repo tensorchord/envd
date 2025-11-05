@@ -61,8 +61,8 @@ var BaseEnvironment = []struct {
 }
 var BaseAptPackage = []string{
 	"bash-static",
-	"libtinfo5",
-	"libncursesw5",
+	"'libtinfo[56]'",
+	"'libncursesw[56]'",
 	// conda dependencies
 	"bzip2",
 	"ca-certificates",
