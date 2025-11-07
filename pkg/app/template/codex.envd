@@ -1,4 +1,4 @@
-# This assumes the user already login and save the credentials in the default `~/.codex` directory.
+# This assumes the user already logged in and saved the credentials in the default `~/.codex` directory.
 # If not, you can login first with the command `codex login`.
 #
 # More language & system package support can be found in:
