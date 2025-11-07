@@ -99,6 +99,14 @@ def go(version: Optional[str] = "1.25.3"):
     """
 
 
+def codex(version: Optional[str] = "0.55.0"):
+    """Install Codex agent.
+
+    Args:
+        version (Optional[str]): Codex version, such as '0.55.0'.
+    """
+
+
 def apt_packages(name: Sequence[str] = ()):
     """Install package using the system package manager (apt on Ubuntu).
 
