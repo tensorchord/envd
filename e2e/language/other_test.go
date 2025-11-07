@@ -22,9 +22,10 @@ import (
 )
 
 var _ = Describe("rust", Ordered, func() {
-	exampleName := "rust"
 	testcase := "e2e"
+
 	Describe("Should install rust lang successfully", func() {
+		exampleName := "rust"
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		BeforeAll(e.BuildImage(true))
 		BeforeEach(e.RunContainer())
@@ -32,6 +33,19 @@ var _ = Describe("rust", Ordered, func() {
 			res, err := e.ExecRuntimeCommand("show")
 			Expect(err).To(BeNil())
 			Expect(res).To(ContainSubstring("toolchain"))
+		})
+		AfterEach(e.DestroyContainer())
+	})
+
+	Describe("Should install golang successfully", func() {
+		exampleName := "golang"
+		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
+		BeforeAll(e.BuildImage(true))
+		BeforeEach(e.RunContainer())
+		It("Should have go installed", func() {
+			res, err := e.ExecRuntimeCommand("version")
+			Expect(err).To(BeNil())
+			Expect(res).To(ContainSubstring("go version"))
 		})
 		AfterEach(e.DestroyContainer())
 	})
