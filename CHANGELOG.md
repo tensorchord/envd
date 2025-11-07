@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.3.0 (2025-11-07)
+
+ * [5d654fe](https://github.com/tensorchord/envd/commit/5d654fe7846e42303e2a87775e14270d2822e4b1) feat: add codex template (#2054)
+ * [7b11a87](https://github.com/tensorchord/envd/commit/7b11a87c908550c6d55bab27816ee523efcfc8d7) feat: support `install.go()` (#2055)
+ * [b44e2ae](https://github.com/tensorchord/envd/commit/b44e2ae7ccf26f6b32f4fb0027208ce491f01527) feat: support `install.rust()` (#2052)
+ * [e23061d](https://github.com/tensorchord/envd/commit/e23061d4c64faf5f5c0687723dfc361de2a60031) feat: support install.codex() (#2053)
+
+### Contributors
+
+ * Keming
+
 ## v1.2.6 (2025-11-03)
 
 
