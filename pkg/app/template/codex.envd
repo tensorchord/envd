@@ -1,5 +1,9 @@
 # This assumes the user already login and save the credentials in the default `~/.codex` directory.
 # If not, you can login first with the command `codex login`.
+#
+# More language & system package support can be found in:
+# - docs/reference: https://envd.tensorchord.ai/api/starlark/v1/install.html
+
 
 def build():
     base(dev=True)
