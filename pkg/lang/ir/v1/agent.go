@@ -16,7 +16,6 @@ package v1
 
 import (
 	"github.com/moby/buildkit/client/llb"
-	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
@@ -26,21 +25,16 @@ const (
 )
 
 func (g generalGraph) installAgentCodex(root llb.State, agent ir.CodeAgent) llb.State {
-	if g.Image == defaultImage {
-		// codex requires glibc >= 2.39
-		logrus.Warn("The default image may not support codex properly. Please use a custom base image with glibc >= 2.39")
-	}
-
 	base := llb.Image(builderImage)
 	version := codexDefaultVersion
 	if agent.Version != nil {
 		version = *agent.Version
 	}
 	builder := base.Run(
-		llb.Shlexf(`sh -c "wget -qO- https://github.com/openai/codex/releases/download/rust-v%s/codex-$(uname -m)-unknown-linux-gnu.tar.gz | tar -xz -C /tmp || exit 1"`, version),
+		llb.Shlexf(`sh -c "wget -qO- https://github.com/openai/codex/releases/download/rust-v%s/codex-$(uname -m)-unknown-linux-musl.tar.gz | tar -xz -C /tmp || exit 1"`, version),
 		llb.WithCustomNamef("[internal] download codex %s", version),
 	).Run(
-		llb.Shlex(`sh -c "mv /tmp/codex-$(uname -m)-unknown-linux-gnu /tmp/codex"`),
+		llb.Shlex(`sh -c "mv /tmp/codex-$(uname -m)-unknown-linux-musl /tmp/codex"`),
 		llb.WithCustomNamef("[internal] prepare codex %s", version),
 	).Root()
 	root = root.File(

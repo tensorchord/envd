@@ -1,0 +1,10 @@
+# This assumes the user already login and save the credentials in the default `~/.codex` directory.
+# If not, you can login first with the command `codex login`.
+
+def build():
+    base(dev=True)
+    shell("fish")
+    install.codex()
+    install.rust()
+    install.uv()
+    runtime.mount("~/.codex", "~/.codex")

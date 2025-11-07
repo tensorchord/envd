@@ -37,6 +37,11 @@ func (g generalGraph) compileUV(root llb.State) llb.State {
 	root = root.File(
 		llb.Copy(builder, "/tmp/uv", "/usr/bin/uv"), llb.WithCustomName("[internal] install uv")).
 		File(llb.Copy(builder, "/tmp/uvx", "/usr/bin/uvx"), llb.WithCustomName("[internal] install uvx"))
+
+	if g.Dev {
+		// skip install uv Python for sudo when `dev=True`
+		return root
+	}
 	return g.compileUVPython(root)
 }
 
