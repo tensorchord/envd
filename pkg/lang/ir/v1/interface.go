@@ -114,6 +114,16 @@ func Golang(version string) {
 	g.Languages = append(g.Languages, golang)
 }
 
+func NodeJS(version string) {
+	g := DefaultGraph.(*generalGraph)
+
+	nodejs := ir.Language{Name: "nodejs"}
+	if len(version) > 0 {
+		nodejs.Version = &version
+	}
+	g.Languages = append(g.Languages, nodejs)
+}
+
 func PyPIPackage(deps []string, requirementsFile string, wheels []string) error {
 	g := DefaultGraph.(*generalGraph)
 

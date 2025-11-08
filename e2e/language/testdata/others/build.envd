@@ -1,0 +1,16 @@
+# syntax=v1
+
+
+def build():
+    base(dev=True)
+    install.go()
+    install.rust()
+    install.nodejs()
+    shell("fish")
+    runtime.command(
+        commands={
+            "go version": "go version",
+            "rust version": "rustup show",
+            "nodejs version": "node --version",
+        }
+    )

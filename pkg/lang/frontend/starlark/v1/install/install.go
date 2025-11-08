@@ -40,6 +40,7 @@ var Module = &starlarkstruct.Module{
 		"julia":  starlark.NewBuiltin(ruleJulia, ruleFuncJulia),
 		"rust":   starlark.NewBuiltin(ruleRust, ruleFuncRust),
 		"go":     starlark.NewBuiltin(ruleGo, ruleFuncGo),
+		"nodejs": starlark.NewBuiltin(ruleNodeJS, ruleFuncNodeJS),
 		// packages
 		"apt_packages":    starlark.NewBuiltin(ruleSystemPackage, ruleFuncSystemPackage),
 		"python_packages": starlark.NewBuiltin(rulePyPIPackage, ruleFuncPyPIPackage),
@@ -149,6 +150,19 @@ func ruleFuncGo(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	ir.Golang(version)
+	return starlark.None, nil
+}
+
+func ruleFuncNodeJS(thread *starlark.Thread, _ *starlark.Builtin,
+	args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+	logger.Debugf("rule `%s` is invoked", ruleNodeJS)
+
+	var version string
+	if err := starlark.UnpackArgs(ruleNodeJS, args, kwargs, "version?", &version); err != nil {
+		return nil, err
+	}
+
+	ir.NodeJS(version)
 	return starlark.None, nil
 }
 

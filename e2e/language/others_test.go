@@ -24,28 +24,25 @@ import (
 var _ = Describe("rust", Ordered, func() {
 	testcase := "e2e"
 
-	Describe("Should install rust lang successfully", func() {
-		exampleName := "rust"
-		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
-		BeforeAll(e.BuildImage(true))
-		BeforeEach(e.RunContainer())
-		It("Should have cargo installed", func() {
-			res, err := e.ExecRuntimeCommand("show")
-			Expect(err).To(BeNil())
-			Expect(res).To(ContainSubstring("toolchain"))
-		})
-		AfterEach(e.DestroyContainer())
-	})
-
-	Describe("Should install golang successfully", func() {
-		exampleName := "golang"
+	Describe("Should install rust/golang/nodejs successfully", func() {
+		exampleName := "others"
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		BeforeAll(e.BuildImage(true))
 		BeforeEach(e.RunContainer())
 		It("Should have go installed", func() {
-			res, err := e.ExecRuntimeCommand("version")
+			res, err := e.ExecRuntimeCommand("go version")
 			Expect(err).To(BeNil())
 			Expect(res).To(ContainSubstring("go version"))
+		})
+		It("Should have rust installed", func() {
+			res, err := e.ExecRuntimeCommand("rust version")
+			Expect(err).To(BeNil())
+			Expect(res).To(ContainSubstring("toolchain"))
+		})
+		It("Should have nodejs installed", func() {
+			res, err := e.ExecRuntimeCommand("nodejs version")
+			Expect(err).To(BeNil())
+			Expect(res).To(ContainSubstring("v"))
 		})
 		AfterEach(e.DestroyContainer())
 	})
