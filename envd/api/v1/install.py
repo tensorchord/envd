@@ -99,6 +99,14 @@ def go(version: Optional[str] = "1.25.3"):
     """
 
 
+def nodejs(version: Optional[str] = "25.1.0"):
+    """Install NodeJS programming language.
+
+    Args:
+        version (Optional[str]): NodeJS version, such as '25.1.0'.
+    """
+
+
 def codex(version: Optional[str] = "0.55.0"):
     """Install Codex agent.
 
