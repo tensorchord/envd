@@ -24,6 +24,7 @@ const (
 	ruleJulia  = "install.julia"
 	ruleRust   = "install.rust"
 	ruleGo     = "install.go"
+	ruleNodeJS = "install.nodejs"
 
 	// packages
 	ruleSystemPackage = "install.apt_packages"

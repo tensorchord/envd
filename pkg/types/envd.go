@@ -83,7 +83,8 @@ var BaseAptPackage = []string{
 	"make",
 	"zsh",
 	"locales",
-	"gpg", // used by r-lang
+	"gpg",        // used by r-lang
+	"libatomic1", // used by nodejs
 }
 
 type EnvdImage struct {

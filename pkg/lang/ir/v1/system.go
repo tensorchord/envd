@@ -172,6 +172,8 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 				root = g.installRust(root, language.Version)
 			case "go":
 				root = g.installGolang(root, language.Version)
+			case "nodejs":
+				root = g.installNodeJS(root, language.Version)
 			}
 		}
 		return root, err
@@ -189,6 +191,8 @@ func (g *generalGraph) compileLanguage(root llb.State) (llb.State, error) {
 			lang = g.installRust(root, language.Version)
 		case "go":
 			lang = g.installGolang(root, language.Version)
+		case "nodejs":
+			lang = g.installNodeJS(root, language.Version)
 		}
 		langs = append(langs, lang)
 	}
