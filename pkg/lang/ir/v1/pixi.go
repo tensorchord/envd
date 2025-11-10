@@ -46,7 +46,7 @@ func (g generalGraph) compilePixi(root llb.State) llb.State {
 		return root
 	}
 
-	base := llb.Image(builderImage)
+	base := llb.Image(curlImage)
 	builder := base.Run(
 		llb.Shlexf(`sh -c "wget -qO- https://github.com/prefix-dev/pixi/releases/download/v%s/pixi-$(uname -m)-unknown-linux-musl.tar.gz | tar -xz -C /tmp || exit 1"`, pixiVersion),
 		llb.WithCustomNamef("[internal] download pixi %s", pixiVersion),

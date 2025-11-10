@@ -30,7 +30,7 @@ func (g *generalGraph) installGolang(root llb.State, version *string) llb.State 
 		goVersion = *version
 	}
 
-	base := llb.Image(builderImage)
+	base := llb.Image(curlImage)
 	builder := base.Run(
 		llb.Shlexf(`sh -c "wget -qO %s https://go.dev/dl/go%s.linux-$(uname -m | sed -e 's/x86_64/amd64/' -e 's/aarch64/arm64/').tar.gz"`, golangFilePath, goVersion),
 		llb.WithCustomNamef("[internal] download go %s", goVersion),

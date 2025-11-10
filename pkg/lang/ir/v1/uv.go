@@ -28,7 +28,7 @@ func (g generalGraph) compileUV(root llb.State) llb.State {
 	g.RuntimeEnviron["UV_LINK_MODE"] = "copy"
 	g.RuntimeEnviron["UV_PYTHON_PREFERENCE"] = "only-managed"
 
-	base := llb.Image(builderImage)
+	base := llb.Image(curlImage)
 	builder := base.Run(
 		llb.Shlexf(`sh -c "wget -qO- https://github.com/astral-sh/uv/releases/download/%s/uv-$(uname -m)-unknown-linux-gnu.tar.gz | tar -xz --strip-components=1 -C /tmp || exit 1"`, uvVersion),
 		llb.WithCustomNamef("[internal] download uv %s", uvVersion),

@@ -36,7 +36,7 @@ var downloadJuliaBashScript string
 // getJuliaBinary returns the llb.State only after setting up Julia environment
 // A successful run of getJuliaBinary should set up the Julia environment
 func (g generalGraph) getJuliaBinary(root llb.State) llb.State {
-	base := llb.Image(builderImage)
+	base := llb.Image(curlImage)
 	builder := base.
 		Run(llb.Shlexf("sh -c '%s'", downloadJuliaBashScript),
 			llb.WithCustomName("[internal] downloading julia binary")).Root()

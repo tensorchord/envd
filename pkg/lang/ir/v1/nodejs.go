@@ -32,7 +32,7 @@ func (g *generalGraph) installNodeJS(root llb.State, version *string) llb.State 
 		nodejsVersion = *version
 	}
 
-	base := llb.Image(builderImage)
+	base := llb.Image(curlImage)
 	builder := base.Run(
 		llb.Shlexf(`sh -c "mkdir %[1]s && wget -qO- https://nodejs.org/download/release/v%[2]s/node-v%[2]s-linux-$(uname -m | sed -e 's/x86_64/x64/').tar.xz | tar -xJ --strip-components=1 -C %[1]s || exit 1"`, nodejsTempDir, nodejsVersion),
 		llb.WithCustomNamef("[internal] download nodejs %s", nodejsVersion),
