@@ -47,7 +47,7 @@ symbol = "Conda "
 [nodejs]
 symbol = "NodeJS "
 
-[go]
+[golang]
 symbol = "Go "
 
 [rust]
@@ -77,8 +77,8 @@ renamed = "r"
 deleted = "x"
 `
 
-	fishVersion  = "4.0.1"
-	fishAssetURL = "https://github.com/fish-shell/fish-shell/releases/download/%[1]s/fish-static-$(uname -m)-%[1]s.tar.xz"
+	fishVersion  = "4.2.0"
+	fishAssetURL = "https://github.com/fish-shell/fish-shell/releases/download/%[1]s/fish-%[1]s-linux-$(uname -m).tar.xz"
 )
 
 func (g *generalGraph) compileShell(root llb.State) (_ llb.State, err error) {
@@ -203,9 +203,10 @@ func (g generalGraph) compileFish(root llb.State) llb.State {
 	).Root()
 	root = root.File(
 		llb.Copy(builder, "/tmp/fish", "/usr/bin/fish"),
-		llb.WithCustomName("[internal] copy fish shell from the builder image")).
-		Run(llb.Shlex(`sh -c "echo yes | fish --install"`),
-			llb.WithCustomName("[internal] install fish shell")).Root()
-
+		llb.WithCustomName("[internal] install fish shell"),
+	).Run(
+		llb.Shlexf(`sh -c "mkdir -p %s"`, fileutil.EnvdHomeDir(".config/fish")),
+		llb.WithCustomName("[internal] init fish config dir"),
+	).Root()
 	return root
 }

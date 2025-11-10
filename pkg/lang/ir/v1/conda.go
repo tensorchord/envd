@@ -29,8 +29,8 @@ import (
 
 const (
 	curlImage           = "ghcr.io/curl/curl-container/curl-multi:8.17.0"
-	condaVersionDefault = "py311_25.1.1-2"
-	microMambaImage     = "mambaorg/micromamba:2.0.6"
+	condaVersionDefault = "py311_25.9.1-1"
+	microMambaImage     = "ghcr.io/mamba-org/micromamba:2.3.3-debian12-slim"
 	condaRootPrefix     = "/opt/conda"
 	condaBinDir         = "/opt/conda/bin"
 	condaSourcePath     = "/tmp/miniconda.sh"

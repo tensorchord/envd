@@ -1,11 +1,11 @@
 set -o pipefail && \
 UNAME_M="$(uname -m)" && \
 if [ "${UNAME_M}" = "x86_64" ]; then \
-    JULIA_URL="https://julialang-s3.julialang.org/bin/linux/x64/1.10/julia-1.10.8-linux-x86_64.tar.gz"; \
-    SHA256SUM="0410175aeec3df63173c15187f2083f179d40596d36fd3a57819cc5f522ae735"; \
+    JULIA_URL="https://julialang-s3.julialang.org/bin/linux/x64/1.10/julia-1.10.10-linux-x86_64.tar.gz"; \
+    SHA256SUM="6a78a03a71c7ab792e8673dc5cedb918e037f081ceb58b50971dfb7c64c5bf81"; \
 elif [ "{UNAME_M}" = "aarch64" ]; then \
-    JULIA_URL="https://julialang-s3.julialang.org/bin/linux/aarch64/1.10/julia-1.10.8-linux-aarch64.tar.gz" \
-    SHA256SUM="8d63dd12595a08edc736be8d6c4fea1840f137b81c62079d970dbd1be448b8cd"; \
+    JULIA_URL="https://julialang-s3.julialang.org/bin/linux/aarch64/1.10/julia-1.10.10-linux-aarch64.tar.gz" \
+    SHA256SUM="a4b157ed68da10471ea86acc05a0ab61c1a6931ee592a9b236be227d72da50ff"; \
 fi && \
 
 wget "${JULIA_URL}" -O /tmp/julia.tar.gz && \
