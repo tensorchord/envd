@@ -38,6 +38,27 @@ symbol = "sudo "
 [python]
 symbol = "Py "
 
+[pixi]
+symbol = "Pixi "
+
+[conda]
+symbol = "Conda "
+
+[nodejs]
+symbol = "NodeJS "
+
+[go]
+symbol = "Go "
+
+[rust]
+symbol = "Rust "
+
+[julia]
+symbol = "Julia∴ "
+
+[rlang]
+symbol = "R "
+
 [status]
 format = '[\[$status:$common_meaning$signal_name\]]($style) '
 disabled = false
