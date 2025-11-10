@@ -38,6 +38,27 @@ symbol = "sudo "
 [python]
 symbol = "Py "
 
+[pixi]
+symbol = "Pixi "
+
+[conda]
+symbol = "Conda "
+
+[nodejs]
+symbol = "NodeJS "
+
+[go]
+symbol = "Go "
+
+[rust]
+symbol = "Rust "
+
+[julia]
+symbol = "Julia∴ "
+
+[rlang]
+symbol = "R "
+
 [status]
 format = '[\[$status:$common_meaning$signal_name\]]($style) '
 disabled = false
@@ -174,7 +195,7 @@ func (g generalGraph) compileZSH(root llb.State) (llb.State, error) {
 }
 
 func (g generalGraph) compileFish(root llb.State) llb.State {
-	base := llb.Image(builderImage)
+	base := llb.Image(curlImage)
 	url := fmt.Sprintf(fishAssetURL, fishVersion)
 	builder := base.Run(
 		llb.Shlexf(`sh -c "wget -qO- %s | tar -xJf - -C /tmp || exit 1"`, url),

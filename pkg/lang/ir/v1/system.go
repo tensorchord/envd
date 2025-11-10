@@ -247,14 +247,6 @@ func (g *generalGraph) compileDevPackages(root llb.State) llb.State {
 	return run.Root()
 }
 
-func (g generalGraph) compileStarship(root llb.State) llb.State {
-	starship := root.File(llb.Copy(
-		llb.Image(types.EnvdStarshipImage), "/usr/local/bin/starship", "/usr/local/bin/starship",
-		&llb.CopyInfo{CreateDestPath: true}),
-		llb.WithCustomName(fmt.Sprintf("[internal] add envd-starship from %s", types.EnvdStarshipImage)))
-	return starship
-}
-
 func (g generalGraph) compileSSHD(root llb.State) llb.State {
 	sshd := root.File(llb.Copy(
 		llb.Image(types.EnvdSshdImage), "/usr/bin/envd-sshd", "/var/envd/bin/envd-sshd",

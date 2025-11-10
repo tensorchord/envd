@@ -25,7 +25,7 @@ const (
 )
 
 func (g *generalGraph) installRust(root llb.State, version *string) llb.State {
-	base := llb.Image(builderImage)
+	base := llb.Image(curlImage)
 	builder := base.Run(
 		llb.Shlexf(`sh -c "curl --proto '=https' --tlsv1.2 -sSf -o %s https://sh.rustup.rs"`, rustUpInitFilePath),
 		llb.WithCustomName("[internal] download rustup-init.sh"),

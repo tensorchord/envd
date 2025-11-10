@@ -16,30 +16,22 @@ package v1
 
 import (
 	"github.com/moby/buildkit/client/llb"
-
-	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 const (
-	codexDefaultVersion = "0.55.0"
+	starshipDefaultVersion = "1.24.0"
 )
 
-func (g generalGraph) installAgentCodex(root llb.State, agent ir.CodeAgent) llb.State {
+func (g generalGraph) compileStarship(root llb.State) llb.State {
 	base := llb.Image(curlImage)
-	version := codexDefaultVersion
-	if agent.Version != nil {
-		version = *agent.Version
-	}
 	builder := base.Run(
-		llb.Shlexf(`sh -c "wget -qO- https://github.com/openai/codex/releases/download/rust-v%s/codex-$(uname -m)-unknown-linux-musl.tar.gz | tar -xz -C /tmp || exit 1"`, version),
-		llb.WithCustomNamef("[internal] download codex %s", version),
-	).Run(
-		llb.Shlex(`sh -c "mv /tmp/codex-$(uname -m)-unknown-linux-musl /tmp/codex"`),
-		llb.WithCustomNamef("[internal] prepare codex %s", version),
+		llb.Shlexf(`sh -c "wget -qO- https://github.com/starship/starship/releases/download/v%s/starship-$(uname -m)-unknown-linux-musl.tar.gz | tar -xz -C /tmp || exit 1"`, starshipDefaultVersion),
+		llb.WithCustomNamef("[internal] download starship %s", starshipDefaultVersion),
 	).Root()
+
 	root = root.File(
-		llb.Copy(builder, "/tmp/codex", "/usr/bin/codex"),
-		llb.WithCustomName("[internal] install codex"),
+		llb.Copy(builder, "/tmp/starship", "/usr/local/bin/starship"),
+		llb.WithCustomNamef("[internal] install starship %s", starshipDefaultVersion),
 	)
 	return root
 }
