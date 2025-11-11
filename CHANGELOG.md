@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.3.1 (2025-11-11)
+
+ * [694b227](https://github.com/tensorchord/envd/commit/694b22793ba38c90248a4d6f138e6446217b2387) feat: push to ghcr (#2063)
+ * [938a88a](https://github.com/tensorchord/envd/commit/938a88ab7ea88c51c809f2421f49ee91ad3dd462) refactor: use curl ghcr image, install starshp from gh release (#2061)
+ * [d012d9f](https://github.com/tensorchord/envd/commit/d012d9f2c642cd951883029e446adbeb01f1a92c) feat: support `install.nodejs()` (#2059)
+
+### Contributors
+
+ * Keming
+
 ## v1.3.0 (2025-11-07)
 
  * [5d654fe](https://github.com/tensorchord/envd/commit/5d654fe7846e42303e2a87775e14270d2822e4b1) feat: add codex template (#2054)
