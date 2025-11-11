@@ -29,18 +29,17 @@ var _ = Describe("rust", Ordered, func() {
 		e := e2e.NewExample(e2e.BuildContextDirWithName(exampleName), testcase)
 		BeforeAll(e.BuildImage(true))
 		BeforeEach(e.RunContainer())
-		It("Should have go installed", func() {
+		It("Should have go/rust/nodejs installed", func() {
+			// go
 			res, err := e.ExecRuntimeCommand("go version")
 			Expect(err).To(BeNil())
 			Expect(res).To(ContainSubstring("go version"))
-		})
-		It("Should have rust installed", func() {
-			res, err := e.ExecRuntimeCommand("rust version")
+			// rust
+			res, err = e.ExecRuntimeCommand("rust version")
 			Expect(err).To(BeNil())
 			Expect(res).To(ContainSubstring("toolchain"))
-		})
-		It("Should have nodejs installed", func() {
-			res, err := e.ExecRuntimeCommand("nodejs version")
+			// nodejs
+			res, err = e.ExecRuntimeCommand("nodejs version")
 			Expect(err).To(BeNil())
 			Expect(res).To(ContainSubstring("v"))
 		})
