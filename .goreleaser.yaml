@@ -47,21 +47,13 @@ archives:
     ids:
       - envd
     name_template: >-
-      {{ .Binary }}_{{ .Version }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
+      {{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
   - id: envd-sshd
     formats: ["binary"]
     ids:
       - envd-sshd
     name_template: >-
-      {{ .Binary }}_{{ .Version }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
+      {{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -88,6 +80,7 @@ dockers_v2:
 - id: "envd"
   images:
   - "tensorchord/envd-from-scratch"
+  - "ghcr.io/tensorchord/envd-from-scratch"
   dockerfile: base-images/envd/envd.Dockerfile
   ids: ["envd"]
   tags:
@@ -98,6 +91,7 @@ dockers_v2:
 - id: "envd-sshd"
   images:
   - "tensorchord/envd-sshd-from-scratch"
+  - "ghcr.io/tensorchord/envd-sshd-from-scratch"
   dockerfile: base-images/envd-sshd/envd-sshd.Dockerfile
   ids: ["envd-sshd"]
   tags:
