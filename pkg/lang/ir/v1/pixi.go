@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	pixiVersion        = "0.48.0"
+	pixiVersion        = "0.59.0"
 	pixiConfigTemplate = `
 {{- if .UsePixiMirror -}}
 [mirrors]

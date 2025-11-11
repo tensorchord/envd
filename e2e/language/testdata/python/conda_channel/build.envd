@@ -8,7 +8,6 @@ def build():
     config.conda_channel(
         channel="""
 channels:
-  - defaults
   - dglteam # dgllife in env.yaml only works if specify channels here
     """
     )

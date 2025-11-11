@@ -29,15 +29,15 @@ import (
 
 const (
 	curlImage           = "ghcr.io/curl/curl-container/curl-multi:8.17.0"
-	condaVersionDefault = "py311_25.1.1-2"
-	microMambaImage     = "mambaorg/micromamba:2.0.6"
+	condaVersionDefault = "py311_25.9.1-1"
+	microMambaImage     = "ghcr.io/mamba-org/micromamba:2.3.3-debian12-slim"
 	condaRootPrefix     = "/opt/conda"
 	condaBinDir         = "/opt/conda/bin"
 	condaSourcePath     = "/tmp/miniconda.sh"
 
 	mambaRc = `
 channels:
-    - defaults
+    - conda-forge
 `
 	mambaActivateBash = `
 #!/bin/sh
@@ -53,12 +53,21 @@ micromamba activate $argv
 #!/usr/bin/fish
 conda activate $argv
 `
+	condaRc = `
+default_channels:
+  - https://conda.anaconda.org/conda-forge/
+
+channels:
+  - conda-forge
+`
 )
 
 var (
 	// this file can be used by both conda and mamba
 	// https://mamba.readthedocs.io/en/latest/user_guide/configuration.html#multiple-rc-files
-	condarc = "/opt/conda/.condarc"
+	condaRcFilePath = "/opt/conda/.condarc"
+	// this file should only affect the current conda envd environments
+	condaRcEnvdFilePath = "/opt/conda/envs/envd/.condarc"
 	//go:embed get_conda.sh
 	downloadCondaBash string
 	//go:embed install_conda.sh
@@ -69,7 +78,7 @@ func (g generalGraph) compileCondaChannel(root llb.State) llb.State {
 	if g.CondaConfig.CondaChannel != nil {
 		logrus.WithField("conda-channel", *g.CondaChannel).Debug("using custom conda channel")
 		stage := root.
-			File(llb.Mkfile(condarc,
+			File(llb.Mkfile(condaRcEnvdFilePath,
 				0644, []byte(*g.CondaChannel), llb.WithUIDGID(g.uid, g.gid)), llb.WithCustomName("[internal] setting conda channel"))
 		return stage
 	}
@@ -186,7 +195,9 @@ func (g generalGraph) installMiniConda(root llb.State) llb.State {
 			llb.WithCustomName("[internal] install conda")).Root().
 		File(llb.Mkfile(fmt.Sprintf("%s/activate.fish", condaBinDir), 0755, []byte(condaActivateFish)),
 			llb.WithCustomName("[internal] create the conda activate.fish file")).
-		File(llb.Rm(condaSourcePath), llb.WithCustomName("[internal] rm conda source file"))
+		File(llb.Rm(condaSourcePath), llb.WithCustomName("[internal] rm conda source file")).
+		File(llb.Mkfile(condaRcFilePath, 0644, []byte(condaRc), llb.WithUIDGID(g.uid, g.gid)),
+			llb.WithCustomName("[internal] create the conda rc file"))
 	return conda
 }
 

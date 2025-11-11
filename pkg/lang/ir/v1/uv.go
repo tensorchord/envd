@@ -17,7 +17,7 @@ package v1
 import "github.com/moby/buildkit/client/llb"
 
 const (
-	uvVersion = "0.7.10"
+	uvVersion = "0.9.8"
 )
 
 func (g generalGraph) compileUV(root llb.State) llb.State {
