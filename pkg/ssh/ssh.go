@@ -147,7 +147,7 @@ func NewClient(opt Options) (Client, error) {
 				return nil, errors.Wrap(err, "forwarding agent to client failed")
 			}
 		} else {
-			logger.Warn("SSH Agent Forwarding cannot be established because the env `SSH_AUTH_SOCK` is empty. This has no impact on your normal use if you do not need to forward the ssh key from the host to the container.")
+			logger.Warn("SSH Agent Forwarding cannot be established because the environment variable `SSH_AUTH_SOCK` is empty. This has no impact on your normal use if you do not need to forward SSH keys from the host to the container.")
 		}
 	}
 
