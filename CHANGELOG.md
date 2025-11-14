@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3.2 (2025-11-11)
+
+ * [b9d4385](https://github.com/tensorchord/envd/commit/b9d438501e01c857ac2c8688b82221f292b262e1) fix: get envd-sshd from ghcr (#2067)
+ * [9b3031b](https://github.com/tensorchord/envd/commit/9b3031b121e4d1da46839f9edc895e3f173c6a88) fix: update the default python image cache (#2065)
+
+### Contributors
+
+ * Keming
+
 ## v1.3.1 (2025-11-11)
 
  * [694b227](https://github.com/tensorchord/envd/commit/694b22793ba38c90248a4d6f138e6446217b2387) feat: push to ghcr (#2063)
