@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout Actions Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Check spelling with custom config file
         uses: crate-ci/typos@master
         with:
@@ -44,13 +44,13 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: 'stable'
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Add license
         run: |
           make addlicense && git add pkg cmd &&
           git diff --cached --exit-code || (echo 'Please run "make addlicense" to verify govet' && exit 1);
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
           args: --timeout=5m
           version: latest
@@ -67,7 +67,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
@@ -94,7 +94,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
@@ -121,7 +121,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
@@ -148,7 +148,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
@@ -165,7 +165,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
