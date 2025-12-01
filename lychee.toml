@@ -7,3 +7,15 @@ accept = [
     "429",  # GitHub rate limit
     "500..=599"
 ]
+exclude = [
+    # blogs
+    "^http://lizheming.top",
+    "^http://phillipw.info",
+    "^https://www.homeboyc.cn",
+    "^https://www.iam.rw",
+    "^https://bandism.net",
+    "^https://blog.thrimbda.com",
+    # github disappeared (rename?)
+    "^https://github.com/yczheng0$",
+    "^https://github.com/aseaday$"
+]
