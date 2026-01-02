@@ -42,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: upload gobin
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: gobin_${{ github.event.release.tag_name }}
           retention-days: 1
@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Get gobin
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: gobin_${{ github.event.release.tag_name }}
           path: dist/
@@ -93,7 +93,7 @@ jobs:
           python setup.py sdist
           mv dist/*.tar.gz wheelhouse/
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: pypi_${{ github.event.release.tag_name }}_${{ matrix.os }}
           path: wheelhouse/
@@ -107,7 +107,7 @@ jobs:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: pypi_${{ github.event.release.tag_name }}_*
           merge-multiple: true
@@ -131,7 +131,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     - name: Cache Docker layers
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       id: cache
       with:
         path: /tmp/.buildx-cache
@@ -167,7 +167,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     - name: Cache Docker layers
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       id: cache
       with:
         path: /tmp/.buildx-cache
@@ -175,7 +175,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
     - name: Get gobin
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: gobin_${{ github.event.release.tag_name }}
         path: dist/
