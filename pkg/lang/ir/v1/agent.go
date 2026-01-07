@@ -20,8 +20,9 @@ import (
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
+// https://github.com/openai/codex
 const (
-	codexDefaultVersion = "0.55.0"
+	codexDefaultVersion = "0.79.0"
 )
 
 func (g generalGraph) installAgentCodex(root llb.State, agent ir.CodeAgent) llb.State {

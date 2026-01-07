@@ -16,8 +16,9 @@ package v1
 
 import "github.com/moby/buildkit/client/llb"
 
+// https://github.com/astral-sh/uv
 const (
-	uvVersion = "0.9.8"
+	uvVersion = "0.9.22"
 )
 
 func (g generalGraph) compileUV(root llb.State) llb.State {
