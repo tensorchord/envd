@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.3 (2026-01-07)
+
+
+### Contributors
+
+
 ## v1.3.2 (2025-11-11)
 
  * [b9d4385](https://github.com/tensorchord/envd/commit/b9d438501e01c857ac2c8688b82221f292b262e1) fix: get envd-sshd from ghcr (#2067)
