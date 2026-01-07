@@ -22,8 +22,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// https://github.com/prefix-dev/pixi
 const (
-	pixiVersion        = "0.59.0"
+	pixiVersion        = "0.62.2"
 	pixiConfigTemplate = `
 {{- if .UsePixiMirror -}}
 [mirrors]
