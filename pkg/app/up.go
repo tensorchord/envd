@@ -158,6 +158,10 @@ var CommandUp = &cli.Command{
 			Usage:       "Specify the target platform for the build output, (for example, windows/amd64, linux/amd64, or darwin/arm64)",
 			DefaultText: runtimeutil.GetRuntimePlatform(),
 		},
+		&cli.StringSliceFlag{
+			Name:  "cap",
+			Usage: "Add capabilities to the environment (e.g. `SYS_PTRACE`)",
+		},
 	},
 
 	Action: up,
@@ -275,6 +279,7 @@ func up(clicontext *cli.Context) error {
 		NumCPU:          clicontext.String("cpus"),
 		NumMem:          clicontext.String("memory"),
 		CPUSet:          clicontext.String("cpu-set"),
+		Capabilities:    clicontext.StringSlice("cap"),
 	}
 	if len(startOptions.NumCPU) > 0 && len(startOptions.CPUSet) > 0 {
 		return errors.New("`--cpus` and `--cpu-set` are mutually exclusive")

@@ -45,6 +45,7 @@ type StartOptions struct {
 	Timeout         time.Duration
 	ShmSize         int
 	Forced          bool
+	Capabilities    []string
 	SshdHost        string
 
 	EngineSource

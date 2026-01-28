@@ -391,7 +391,9 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		"cpu-set":       so.CPUSet,
 		"memory":        so.NumMem,
 		"build-context": so.BuildContext,
+		"cap":           so.Capabilities,
 	})
+	logger.Debug("starting the envd docker environment")
 
 	bar := InitProgressBar(5)
 	defer bar.Finish()
@@ -497,6 +499,9 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	// shared memory size
 	if so.ShmSize > 0 {
 		hostConfig.ShmSize = int64(so.ShmSize) * 1024 * 1024
+	}
+	if so.Capabilities != nil {
+		hostConfig.CapAdd = so.Capabilities
 	}
 	// resource
 	if len(so.NumCPU) > 0 {

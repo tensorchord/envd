@@ -22,7 +22,7 @@ import (
 
 // https://github.com/openai/codex
 const (
-	codexDefaultVersion = "0.79.0"
+	codexDefaultVersion = "0.92.0"
 )
 
 func (g generalGraph) installAgentCodex(root llb.State, agent ir.CodeAgent) llb.State {
