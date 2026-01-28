@@ -500,7 +500,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	if so.ShmSize > 0 {
 		hostConfig.ShmSize = int64(so.ShmSize) * 1024 * 1024
 	}
-	if so.Capabilities != nil {
+	if len(so.Capabilities) > 0 {
 		hostConfig.CapAdd = so.Capabilities
 	}
 	// resource
