@@ -34,7 +34,6 @@ go.work
 __debug_bin
 bin/
 debug-bin/
-/build.envd
 .ipynb_checkpoints/
 cover.html
 
