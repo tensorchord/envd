@@ -107,11 +107,11 @@ def nodejs(version: Optional[str] = "25.1.0"):
     """
 
 
-def codex(version: Optional[str] = "0.55.0"):
+def codex(version: Optional[str] = "rust-v0.98.0"):
     """Install Codex agent.
 
     Args:
-        version (Optional[str]): Codex version, such as '0.55.0'.
+        version (Optional[str]): Codex GitHub release tag, such as 'rust-v0.98.0'.
     """
 
 
