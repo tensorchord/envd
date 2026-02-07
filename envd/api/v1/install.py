@@ -112,7 +112,9 @@ def codex(version: Optional[str] = None):
 
     Args:
         version (Optional[str]): Codex GitHub release tag, such as 'rust-v0.98.0'.
-            Will use the latest version if None is provided.
+            If None is provided, envd will attempt to use the latest tag.
+            If the latest tag cannot be resolved (due to network or rate limit),
+            a built-in default version will be used.
     """
 
 
