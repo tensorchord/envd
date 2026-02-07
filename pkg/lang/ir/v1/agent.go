@@ -16,13 +16,16 @@ package v1
 
 import (
 	"github.com/moby/buildkit/client/llb"
+	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/lang/ir"
 )
 
 // https://github.com/openai/codex
 const (
-	codexDefaultVersion = "0.92.0"
+	codexDefaultVersion = "rust-v0.98.0"
+	codexReleaseUser    = "openai"
+	codexReleaseRepo    = "codex"
 )
 
 func (g generalGraph) installAgentCodex(root llb.State, agent ir.CodeAgent) llb.State {
@@ -30,9 +33,17 @@ func (g generalGraph) installAgentCodex(root llb.State, agent ir.CodeAgent) llb.
 	version := codexDefaultVersion
 	if agent.Version != nil {
 		version = *agent.Version
+	} else {
+		latestVersion, err := getLatestReleaseVersion(codexReleaseUser, codexReleaseRepo)
+		if err != nil {
+			logrus.WithError(err).WithField("default", codexDefaultVersion).Debug("failed to resolve latest codex version")
+		} else {
+			version = latestVersion
+		}
 	}
+	logrus.WithField("codex_version", version).Debug("resolve codex version")
 	builder := base.Run(
-		llb.Shlexf(`sh -c "wget -qO- https://github.com/openai/codex/releases/download/rust-v%s/codex-$(uname -m)-unknown-linux-musl.tar.gz | tar -xz -C /tmp || exit 1"`, version),
+		llb.Shlexf(`sh -c "wget -qO- https://github.com/openai/codex/releases/download/%s/codex-$(uname -m)-unknown-linux-musl.tar.gz | tar -xz -C /tmp || exit 1"`, version),
 		llb.WithCustomNamef("[internal] download codex %s", version),
 	).Run(
 		llb.Shlex(`sh -c "mv /tmp/codex-$(uname -m)-unknown-linux-musl /tmp/codex"`),
