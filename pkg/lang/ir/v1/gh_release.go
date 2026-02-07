@@ -155,12 +155,9 @@ func writeLatestVersionCache(user, repo string, entry cacheEntry) error {
 	return nil
 }
 
+// the `user` & `repo` should be safe to be used in the filename as long as they
+// are valid GitHub user/repo names.
 func cacheFilePath(user, repo string) (string, error) {
-	name := fmt.Sprintf("github-release-%s-%s.json", sanitizeCacheComponent(user), sanitizeCacheComponent(repo))
+	name := fmt.Sprintf("github-release-%s-%s.json", user, repo)
 	return fileutil.CacheFile(name)
-}
-
-func sanitizeCacheComponent(component string) string {
-	replacer := strings.NewReplacer("/", "_", "\\", "_")
-	return replacer.Replace(component)
 }

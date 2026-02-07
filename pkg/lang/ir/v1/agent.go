@@ -41,7 +41,7 @@ func (g generalGraph) installAgentCodex(root llb.State, agent ir.CodeAgent) llb.
 			version = latestVersion
 		}
 	}
-	logrus.WithField("codex_version", version).Debug("parse the agent version")
+	logrus.WithField("codex_version", version).Debug("resolve codex version")
 	builder := base.Run(
 		llb.Shlexf(`sh -c "wget -qO- https://github.com/openai/codex/releases/download/%s/codex-$(uname -m)-unknown-linux-musl.tar.gz | tar -xz -C /tmp || exit 1"`, version),
 		llb.WithCustomNamef("[internal] download codex %s", version),

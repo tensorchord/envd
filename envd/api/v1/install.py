@@ -91,7 +91,7 @@ def rust(version: Optional[str] = None):
     """
 
 
-def go(version: Optional[str] = "1.25.3"):
+def go(version: Optional[str] = None):
     """Install Go programming language.
 
     Args:
@@ -99,7 +99,7 @@ def go(version: Optional[str] = "1.25.3"):
     """
 
 
-def nodejs(version: Optional[str] = "25.1.0"):
+def nodejs(version: Optional[str] = None):
     """Install NodeJS programming language.
 
     Args:
@@ -107,11 +107,12 @@ def nodejs(version: Optional[str] = "25.1.0"):
     """
 
 
-def codex(version: Optional[str] = "rust-v0.98.0"):
+def codex(version: Optional[str] = None):
     """Install Codex agent.
 
     Args:
         version (Optional[str]): Codex GitHub release tag, such as 'rust-v0.98.0'.
+            Will use the latest version if None is provided.
     """
 
 
