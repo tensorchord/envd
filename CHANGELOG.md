@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.3.4 (2026-02-07)
+
+ * [3cac99f](https://github.com/tensorchord/envd/commit/3cac99fd121961eae2ce0bb634a026891b8e77df) feat: get the latest github release tag for codex (#2081)
+ * [c49ed2c](https://github.com/tensorchord/envd/commit/c49ed2cb7fdeaa5d966ca36181b7ce27bc6fdf6a) feat: add the `build.envd` file to this repo (#2082)
+ * [d7379df](https://github.com/tensorchord/envd/commit/d7379df920a3305191f834e1539f3b4bfd9f084f) feat: support --cap for `envd up` (#2078)
+
+### Contributors
+
+ * Keming
+
+## v1.3.3 (2026-01-07)
+
+
+### Contributors
+
+
 ## v1.3.2 (2025-11-11)
 
  * [b9d4385](https://github.com/tensorchord/envd/commit/b9d438501e01c857ac2c8688b82221f292b262e1) fix: get envd-sshd from ghcr (#2067)
