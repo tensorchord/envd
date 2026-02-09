@@ -97,6 +97,18 @@ func InsertZSHCompleteEntry(clicontext *cli.Context) error {
 		return errors.Wrapf(err, "failed to check if %s exists", path)
 	}
 
+	compEntry, err := ZshCompleteEntry(clicontext)
+	if err != nil {
+		return errors.Wrap(err, "Warning: unable to enable zsh-completion")
+	}
+	compdefPath, err := fileutil.ConfigFile(filename)
+	if err != nil {
+		return errors.Wrapf(err, "failed to get the config path for %s", filename)
+	}
+	if err = os.WriteFile(compdefPath, []byte(compEntry), 0644); err != nil {
+		return errors.Wrapf(err, "failed writing to %s", compdefPath)
+	}
+
 	if strings.HasPrefix(path, homeDir) && !pathExists {
 		// write when the path does not exist to prevent duplicate writing during updates.
 		zshFile, err := os.OpenFile(fmt.Sprintf("%s/.zshrc", homeDir), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
@@ -113,15 +125,6 @@ func InsertZSHCompleteEntry(clicontext *cli.Context) error {
 				"    %s\n", zshConfig)
 			return err
 		}
-	}
-
-	compEntry, err := ZshCompleteEntry(clicontext)
-	if err != nil {
-		return errors.Wrapf(err, "Warning: unable to enable zsh-completion")
-	}
-
-	if err = os.WriteFile(path, []byte(compEntry), 0644); err != nil {
-		return errors.Wrapf(err, "failed writing to %s", path)
 	}
 
 	return deleteZcompdump()
