@@ -99,10 +99,10 @@ func InsertZSHCompleteEntry(clicontext *cli.Context) error {
 
 	compEntry, err := ZshCompleteEntry(clicontext)
 	if err != nil {
-		return errors.Wrapf(err, "Warning: unable to enable zsh-completion")
+		return errors.Wrap(err, "Warning: unable to enable zsh-completion")
 	}
 
-	if err = os.WriteFile(path, []byte(compEntry), 0644); err != nil {
+	if err = os.WriteFile(fmt.Sprintf("%s/%s", fileutil.DefaultConfigDir, filename), []byte(compEntry), 0644); err != nil {
 		return errors.Wrapf(err, "failed writing to %s", path)
 	}
 
