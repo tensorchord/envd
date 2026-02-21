@@ -35,8 +35,9 @@ jobs:
     name: build
     if: github.repository == 'tensorchord/envd'
     strategy:
+      fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15 ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -54,8 +55,9 @@ jobs:
       # Disable telemetry.
       ENVD_ANALYTICS: false
     strategy:
+      fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -76,7 +78,11 @@ jobs:
     env:
       # Disable telemetry.
       ENVD_ANALYTICS: false
-    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-24.04, ubuntu-24.04-arm ]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
         uses: actions/checkout@v6
@@ -96,7 +102,11 @@ jobs:
     env:
       # Disable telemetry.
       ENVD_ANALYTICS: false
-    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-24.04, ubuntu-24.04-arm ]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
         uses: actions/checkout@v6
@@ -116,7 +126,11 @@ jobs:
     env:
       # Disable telemetry.
       ENVD_ANALYTICS: false
-    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-24.04, ubuntu-24.04-arm ]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
         uses: actions/checkout@v6
