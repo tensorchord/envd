@@ -104,7 +104,7 @@ func (g generalGraph) compileSystemPackages(root llb.State) llb.State {
 	sb.WriteString("apt-get update && apt-get install -y --no-install-recommends")
 
 	for _, pkg := range g.SystemPackages {
-		sb.WriteString(fmt.Sprintf(" %s", pkg))
+		fmt.Fprintf(&sb, " %s", pkg)
 	}
 
 	cacheDir := "/var/cache/apt"

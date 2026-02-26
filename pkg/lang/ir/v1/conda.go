@@ -127,15 +127,15 @@ func (g *generalGraph) compileCondaPackages(root llb.State) llb.State {
 		sb.WriteString(g.condaUpdateFromFile())
 	} else {
 		if len(g.CondaConfig.AdditionalChannels) == 0 {
-			sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
+			fmt.Fprintf(&sb, "%s install -n envd", g.condaCommandPath())
 		} else {
-			sb.WriteString(fmt.Sprintf("%s install -n envd", g.condaCommandPath()))
+			fmt.Fprintf(&sb, "%s install -n envd", g.condaCommandPath())
 			for _, channel := range g.CondaConfig.AdditionalChannels {
-				sb.WriteString(fmt.Sprintf(" -c %s", channel))
+				fmt.Fprintf(&sb, " -c %s", channel)
 			}
 		}
 		for _, pkg := range g.CondaConfig.CondaPackages {
-			sb.WriteString(fmt.Sprintf(" %s", pkg))
+			fmt.Fprintf(&sb, " %s", pkg)
 		}
 	}
 

@@ -226,28 +226,28 @@ func startQuestion(input input) {
 func generateFile(clicontext *cli.Context) error {
 	var buf bytes.Buffer
 	buf.WriteString("def build():\n")
-	buf.WriteString(fmt.Sprintf("%sbase(image=\"ubuntu:22.04\", dev=True)\n", indentation))
+	fmt.Fprintf(&buf, "%sbase(image=\"ubuntu:22.04\", dev=True)\n", indentation)
 	for _, lang := range selectionMap[LabelLanguage] {
 		if lang == "python" {
-			buf.WriteString(fmt.Sprintf("%sinstall.conda()\n", indentation))
-			buf.WriteString(fmt.Sprintf("%sinstall.python()\n", indentation))
+			fmt.Fprintf(&buf, "%sinstall.conda()\n", indentation)
+			fmt.Fprintf(&buf, "%sinstall.python()\n", indentation)
 		} else {
-			buf.WriteString(fmt.Sprintf("%sinstall.%s()\n", indentation, lang))
+			fmt.Fprintf(&buf, "%sinstall.%s()\n", indentation, lang)
 		}
 	}
 	buf.WriteString(generatePackagesStr("python", selectionMap[LabelPythonPackage]))
 	buf.WriteString(generatePackagesStr("r", selectionMap[LabelRPackage]))
 	if len(selectionMap[LabelPythonRequirement]) > 0 {
-		buf.WriteString(fmt.Sprintf("%sinstall.python_packages(requirements=\"%s\")\n", indentation, selectionMap[LabelPythonRequirement][0]))
+		fmt.Fprintf(&buf, "%sinstall.python_packages(requirements=\"%s\")\n", indentation, selectionMap[LabelPythonRequirement][0])
 	}
 	if len(selectionMap[LabelCondaEnv]) > 0 {
-		buf.WriteString(fmt.Sprintf("%sinstall.conda_packages(env_file=\"%s\")\n", indentation, selectionMap[LabelCondaEnv][0]))
+		fmt.Fprintf(&buf, "%sinstall.conda_packages(env_file=\"%s\")\n", indentation, selectionMap[LabelCondaEnv][0])
 	}
 	if len(selectionMap[LabelCudaChoice]) > 0 && selectionMap[LabelCudaChoice][0] == "Yes" {
-		buf.WriteString(fmt.Sprintf("%scuda(version=\"%s\", cudann=\"8\")\n", indentation, selectionMap[LabelCuda][0]))
+		fmt.Fprintf(&buf, "%scuda(version=\"%s\", cudann=\"8\")\n", indentation, selectionMap[LabelCuda][0])
 	}
 	if len(selectionMap[LabelJupyterChoice]) > 0 && selectionMap[LabelJupyterChoice][0] == "Yes" {
-		buf.WriteString(fmt.Sprintf("%sconfig.jupyter()\n", indentation))
+		fmt.Fprintf(&buf, "%sconfig.jupyter()\n", indentation)
 	}
 
 	buildEnvdContent := buf.Bytes()

@@ -50,10 +50,10 @@ func formatterValidator(clicontext *cli.Context, v string) error {
 func FormatEndpoint(env types.EnvdEnvironment) string {
 	var res strings.Builder
 	if env.Status.JupyterAddr != nil {
-		res.WriteString(fmt.Sprintf("jupyter: %s", *env.Status.JupyterAddr))
+		fmt.Fprintf(&res, "jupyter: %s", *env.Status.JupyterAddr)
 	}
 	if env.Status.RStudioServerAddr != nil {
-		res.WriteString(fmt.Sprintf("rstudio: %s", *env.Status.RStudioServerAddr))
+		fmt.Fprintf(&res, "rstudio: %s", *env.Status.RStudioServerAddr)
 	}
 	return res.String()
 }
