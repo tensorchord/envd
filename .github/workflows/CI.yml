@@ -79,7 +79,7 @@ jobs:
       - name: Test
         run: make test
       - name: Upload coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-out
           path: coverage.out
@@ -106,7 +106,7 @@ jobs:
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
       - name: Upload coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-cli-coverage-out
           path: e2e-cli-coverage.out
@@ -133,7 +133,7 @@ jobs:
         env:
           GIT_LATEST_TAG: ${{ steps.get-latest-tag.outputs.tag }}
       - name: Upload coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-lang-coverage-out
           path: e2e-lang-coverage.out
@@ -174,18 +174,18 @@ jobs:
         run: |
           go install github.com/mattn/goveralls@latest
       - name: Get coverage report
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: coverage-out
           path: merge
 
       - name: Get cli e2e coverage report
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: e2e-cli-coverage-out
           path: merge
       - name: Get language e2e coverage report
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: e2e-lang-coverage-out
           path: merge
