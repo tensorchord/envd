@@ -13,7 +13,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Set up Go
@@ -57,7 +57,7 @@ jobs:
       matrix:
         os: [macos-15, ubuntu-22.04]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Get gobin
         uses: actions/download-artifact@v8
         with:
@@ -80,7 +80,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.4.0
+        uses: pypa/cibuildwheel@v4.1.0
         env:
           CIBW_ARCHS_MACOS: arm64, x86_64
           CIBW_ARCHS_LINUX: auto64
@@ -127,11 +127,11 @@ jobs:
       contents: read
       packages: write
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
     - name: Cache Docker layers
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       id: cache
       with:
         path: /tmp/.buildx-cache
@@ -163,11 +163,11 @@ jobs:
             tag_suffix: ""
     needs: goreleaser
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
     - name: Cache Docker layers
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       id: cache
       with:
         path: /tmp/.buildx-cache
