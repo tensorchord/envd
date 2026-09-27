@@ -23,10 +23,10 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
-	dockerclient "github.com/docker/docker/client"
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/client/llb"
 	gateway "github.com/moby/buildkit/frontend/gateway/client"
+	dockerclient "github.com/moby/moby/client"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -90,7 +90,7 @@ func NewMobyClient(ctx context.Context, driver types.BuilderType,
 		"socket":    c.socket,
 		"driver":    c.driver,
 	})
-	dockerCli, err := dockerclient.NewClientWithOpts(dockerclient.FromEnv, dockerclient.WithAPIVersionNegotiation())
+	dockerCli, err := dockerclient.New(dockerclient.FromEnv)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create the client")
 	}

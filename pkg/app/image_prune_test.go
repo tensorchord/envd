@@ -18,7 +18,7 @@ import (
 	"os"
 	"testing"
 
-	dockerimage "github.com/docker/docker/api/types/image"
+	dockerimage "github.com/moby/moby/api/types/image"
 )
 
 func Test_renderPruneReport(t *testing.T) {

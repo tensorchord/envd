@@ -4,6 +4,9 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
+      semver-patch-days: 3
     groups:
       all-dependencies:
         patterns:
@@ -13,6 +16,9 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
+      semver-patch-days: 3
     groups:
       all-actions:
         patterns:

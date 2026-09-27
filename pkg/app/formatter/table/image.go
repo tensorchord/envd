@@ -19,8 +19,8 @@ import (
 	"strconv"
 
 	"github.com/cockroachdb/errors"
-	"github.com/docker/docker/pkg/stringid"
 	"github.com/docker/go-units"
+	"github.com/moby/moby/client/pkg/stringid"
 
 	"github.com/tensorchord/envd/pkg/app/formatter"
 	"github.com/tensorchord/envd/pkg/types"

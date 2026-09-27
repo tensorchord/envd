@@ -20,8 +20,8 @@ import (
 	"os"
 
 	"github.com/cockroachdb/errors"
-	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/docker/go-units"
+	dockerimage "github.com/moby/moby/api/types/image"
 	"github.com/urfave/cli/v2"
 
 	"github.com/tensorchord/envd/pkg/app/formatter/table"

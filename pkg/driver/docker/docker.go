@@ -32,12 +32,12 @@ import (
 	"github.com/containerd/errdefs"
 	"github.com/containers/image/v5/docker/reference"
 	"github.com/containers/image/v5/pkg/docker/config"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/filters"
-	dockerimage "github.com/docker/docker/api/types/image"
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/jsonmessage"
+	"github.com/moby/moby/api/types/container"
+	dockerimage "github.com/moby/moby/api/types/image"
+	"github.com/moby/moby/api/types/jsonstream"
+	"github.com/moby/moby/api/types/mount"
+	"github.com/moby/moby/client"
+	"github.com/moby/moby/client/pkg/jsonmessage"
 	"github.com/moby/term"
 	imagespec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
@@ -61,11 +61,11 @@ type dockerClient struct {
 }
 
 func NewClient(ctx context.Context) (driver.Client, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := client.New(client.FromEnv)
 	if err != nil {
 		return nil, err
 	}
-	_, err = cli.Ping(ctx)
+	_, err = cli.Ping(ctx, client.PingOptions{})
 	if err != nil {
 		// Special note needed to give users
 		if strings.Contains(err.Error(), "permission denied") {
@@ -108,14 +108,17 @@ func NormalizeName(s string) (string, error) {
 }
 
 func (c dockerClient) ListImage(ctx context.Context) ([]dockerimage.Summary, error) {
-	images, err := c.ImageList(ctx, dockerimage.ListOptions{
+	images, err := c.ImageList(ctx, client.ImageListOptions{
 		Filters: dockerFilters(false),
 	})
-	return images, err
+	if err != nil {
+		return nil, err
+	}
+	return images.Items, nil
 }
 
 func (c dockerClient) RemoveImage(ctx context.Context, image string) error {
-	_, err := c.ImageRemove(ctx, image, dockerimage.RemoveOptions{})
+	_, err := c.ImageRemove(ctx, image, client.ImageRemoveOptions{})
 	if err != nil {
 		logrus.WithError(err).Errorf("failed to remove image %s", image)
 		return err
@@ -140,7 +143,7 @@ func (c dockerClient) PushImage(ctx context.Context, image string, platform stri
 	if len(platformInfo) != 2 {
 		return errors.New("invalid platform format, should be <architecture>/<os>")
 	}
-	reader, err := c.ImagePush(ctx, image, dockerimage.PushOptions{
+	reader, err := c.ImagePush(ctx, image, client.ImagePushOptions{
 		RegistryAuth: base64.URLEncoding.EncodeToString(buf),
 		Platform: &imagespec.Platform{
 			Architecture: platformInfo[0],
@@ -160,7 +163,7 @@ func (c dockerClient) PushImage(ctx context.Context, image string, platform stri
 	}()
 
 	decoder := json.NewDecoder(reader)
-	stats := new(jsonmessage.JSONMessage)
+	stats := new(jsonstream.Message)
 	for err := decoder.Decode(stats); !errors.Is(err, io.EOF); err = decoder.Decode(stats) {
 		if err != nil {
 			return err
@@ -173,44 +176,44 @@ func (c dockerClient) PushImage(ctx context.Context, image string, platform stri
 			if stats.ID == "" {
 				bar.UpdateTitle(stats.Status)
 			} else {
-				bar.UpdateTitle(fmt.Sprintf("Pushing image => [%s] %s %s", stats.ID, stats.Status, stats.Progress))
+				bar.UpdateTitle(fmt.Sprintf("Pushing image => [%s] %s %v", stats.ID, stats.Status, stats.Progress))
 			}
 		}
 
-		stats = new(jsonmessage.JSONMessage)
+		stats = new(jsonstream.Message)
 	}
 	return nil
 }
 
 func (c dockerClient) GetImage(ctx context.Context, image string) (dockerimage.Summary, error) {
-	images, err := c.ImageList(ctx, dockerimage.ListOptions{
+	images, err := c.ImageList(ctx, client.ImageListOptions{
 		Filters: dockerFiltersWithName(image),
 	})
 	if err != nil {
 		return dockerimage.Summary{}, err
 	}
-	if len(images) == 0 {
+	if len(images.Items) == 0 {
 		return dockerimage.Summary{}, errors.Errorf("image %s not found", image)
 	}
-	return images[0], nil
+	return images.Items[0], nil
 }
 
 func (c dockerClient) GetImageWithCacheHashLabel(ctx context.Context, image string, hash string) (dockerimage.Summary, error) {
-	images, err := c.ImageList(ctx, dockerimage.ListOptions{
+	images, err := c.ImageList(ctx, client.ImageListOptions{
 		Filters: dockerFiltersWithCacheLabel(image, hash),
 	})
 	if err != nil {
 		return dockerimage.Summary{}, err
 	}
-	if len(images) == 0 {
+	if len(images.Items) == 0 {
 		return dockerimage.Summary{}, errors.Errorf("image with hash %s not found", hash)
 	}
-	return images[0], nil
+	return images.Items[0], nil
 }
 
 func (c dockerClient) PauseContainer(ctx context.Context, name string) (string, error) {
 	logger := logrus.WithField("container", name)
-	err := c.ContainerPause(ctx, name)
+	_, err := c.ContainerPause(ctx, name, client.ContainerPauseOptions{})
 	if err != nil {
 		errCause := errors.UnwrapAll(err).Error()
 		switch {
@@ -229,7 +232,7 @@ func (c dockerClient) PauseContainer(ctx context.Context, name string) (string, 
 
 func (c dockerClient) ResumeContainer(ctx context.Context, name string) (string, error) {
 	logger := logrus.WithField("container", name)
-	err := c.ContainerUnpause(ctx, name)
+	_, err := c.ContainerUnpause(ctx, name, client.ContainerUnpauseOptions{})
 	if err != nil {
 		errCause := errors.UnwrapAll(err).Error()
 		switch {
@@ -248,7 +251,7 @@ func (c dockerClient) ResumeContainer(ctx context.Context, name string) (string,
 
 func (c dockerClient) RemoveContainer(ctx context.Context, name string) (string, error) {
 	logger := logrus.WithField("container", name)
-	err := c.ContainerRemove(ctx, name, container.RemoveOptions{})
+	_, err := c.ContainerRemove(ctx, name, client.ContainerRemoveOptions{})
 	if err != nil {
 		errCause := errors.UnwrapAll(err).Error()
 		switch {
@@ -277,7 +280,7 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 
 		// Pull the image.
 		logger.Debug("pulling image")
-		body, err := c.ImagePull(ctx, tag, dockerimage.PullOptions{})
+		body, err := c.ImagePull(ctx, tag, client.ImagePullOptions{})
 		if err != nil {
 			return "", errors.Wrap(err, "failed to pull image")
 		}
@@ -327,7 +330,11 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 			return name, nil
 		}
 	}
-	resp, err := c.ContainerCreate(ctx, config, hostConfig, nil, nil, name)
+	resp, err := c.ContainerCreate(ctx, client.ContainerCreateOptions{
+		Config:     config,
+		HostConfig: hostConfig,
+		Name:       name,
+	})
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create container")
 	}
@@ -336,25 +343,25 @@ func (c dockerClient) StartBuildkitd(ctx context.Context, tag, name string, bc *
 		logger.Warnf("run with warnings: %s", w)
 	}
 
-	if err := c.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
+	if _, err := c.ContainerStart(ctx, resp.ID, client.ContainerStartOptions{}); err != nil {
 		return "", errors.Wrap(err, "failed to start container")
 	}
 
-	container, err := c.ContainerInspect(ctx, resp.ID)
+	container, err := c.ContainerInspect(ctx, resp.ID, client.ContainerInspectOptions{})
 	if err != nil {
 		return "", errors.Wrap(err, "failed to inspect container")
 	}
 
-	err = c.waitUntilRunning(ctx, container.Name, timeout)
+	err = c.waitUntilRunning(ctx, container.Container.Name, timeout)
 	if err != nil {
 		return "", err
 	}
 
-	return container.Name, nil
+	return container.Container.Name, nil
 }
 
 func (c dockerClient) Exists(ctx context.Context, cname string) (bool, error) {
-	_, err := c.ContainerInspect(ctx, cname)
+	_, err := c.ContainerInspect(ctx, cname, client.ContainerInspectOptions{})
 	if err != nil {
 		if errdefs.IsNotFound(err) {
 			return false, nil
@@ -365,25 +372,25 @@ func (c dockerClient) Exists(ctx context.Context, cname string) (bool, error) {
 }
 
 func (c dockerClient) IsRunning(ctx context.Context, cname string) (bool, error) {
-	container, err := c.ContainerInspect(ctx, cname)
+	container, err := c.ContainerInspect(ctx, cname, client.ContainerInspectOptions{})
 	if err != nil {
 		if errdefs.IsNotFound(err) {
 			return false, nil
 		}
 		return false, err
 	}
-	return container.State.Running, nil
+	return container.Container.State.Running, nil
 }
 
 func (c dockerClient) GetStatus(ctx context.Context, cname string) (containerType.ContainerStatus, error) {
-	container, err := c.ContainerInspect(ctx, cname)
+	container, err := c.ContainerInspect(ctx, cname, client.ContainerInspectOptions{})
 	if err != nil {
 		if errdefs.IsNotFound(err) {
 			return "", nil
 		}
 		return "", err
 	}
-	return containerType.ContainerStatus(container.State.Status), nil
+	return containerType.ContainerStatus(container.Container.State.Status), nil
 }
 
 // Load loads the docker image from the reader into the docker host.
@@ -394,36 +401,36 @@ func (c dockerClient) Load(ctx context.Context, r io.ReadCloser, quiet bool) err
 		return err
 	}
 
-	defer resp.Body.Close()
+	defer resp.Close()
 	return nil
 }
 
 func (c dockerClient) Exec(ctx context.Context, cname string, cmd []string) error {
-	execConfig := container.ExecOptions{
-		Cmd:    cmd,
-		Detach: true,
+	execConfig := client.ExecCreateOptions{
+		Cmd: cmd,
 	}
-	resp, err := c.ContainerExecCreate(ctx, cname, execConfig)
+	resp, err := c.ExecCreate(ctx, cname, execConfig)
 	if err != nil {
 		return err
 	}
 	execID := resp.ID
-	return c.ContainerExecStart(ctx, execID, container.ExecStartOptions{
+	_, err = c.ExecStart(ctx, execID, client.ExecStartOptions{
 		Detach: true,
 	})
+	return err
 }
 
 func (c dockerClient) PruneImage(ctx context.Context) (dockerimage.PruneReport, error) {
-	pruneReport, err := c.ImagesPrune(ctx, filters.Args{})
+	pruneReport, err := c.ImagePrune(ctx, client.ImagePruneOptions{})
 	if err != nil {
 		return dockerimage.PruneReport{}, errors.Wrap(err, "failed to prune images")
 	}
-	return pruneReport, nil
+	return pruneReport.Report, nil
 }
 
 func (c dockerClient) Stats(ctx context.Context, cname string, statChan chan<- *driver.Stats, done <-chan bool) (retErr error) {
 	errC := make(chan error, 1)
-	containerStats, err := c.ContainerStats(ctx, cname, true)
+	containerStats, err := c.ContainerStats(ctx, cname, client.ContainerStatsOptions{Stream: true})
 	readCloser := containerStats.Body
 	quit := make(chan struct{})
 	defer func() {
@@ -486,11 +493,11 @@ func (c dockerClient) waitUntilRunning(ctx context.Context,
 			}
 
 		case <-ctxTimeout.Done():
-			container, err := c.ContainerInspect(ctx, name)
+			container, err := c.ContainerInspect(ctx, name, client.ContainerInspectOptions{})
 			if err != nil {
 				logger.Debugf("failed to inspect container %s", name)
 			}
-			state, err := json.Marshal(container.State)
+			state, err := json.Marshal(container.Container.State)
 			if err != nil {
 				logger.Debug("failed to marshal container state")
 			}
@@ -520,11 +527,11 @@ func (c dockerClient) waitUntilRemoved(ctx context.Context,
 				return nil
 			}
 		case <-ctxTimeout.Done():
-			container, err := c.ContainerInspect(ctx, name)
+			container, err := c.ContainerInspect(ctx, name, client.ContainerInspectOptions{})
 			if err != nil {
 				logger.Debugf("failed to inspect container %s", name)
 			}
-			state, err := json.Marshal(container.State)
+			state, err := json.Marshal(container.Container.State)
 			if err != nil {
 				logger.Debug("failed to marshal container state")
 			}
@@ -550,13 +557,13 @@ func (c dockerClient) handleContainerCreated(ctx context.Context,
 		}
 	case containerType.StatusExited:
 		logger.Info("container exited, try to start it...")
-		if err := c.ContainerStart(ctx, cname, container.StartOptions{}); err != nil {
+		if _, err := c.ContainerStart(ctx, cname, client.ContainerStartOptions{}); err != nil {
 			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to start exited container")
 		}
 	case containerType.StatusDead:
 		logger.Info("container is dead, try to remove it...")
-		if err := c.ContainerRemove(ctx, cname, container.RemoveOptions{}); err != nil {
+		if _, err := c.ContainerRemove(ctx, cname, client.ContainerRemoveOptions{}); err != nil {
 			logger.WithError(err).Error("can not run buildkitd")
 			return errors.Wrap(err, "failed to remove container")
 		}
@@ -581,17 +588,17 @@ func (c dockerClient) handleContainerCreated(ctx context.Context,
 func GetDockerVersion() (int, error) {
 
 	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := client.New(client.FromEnv)
 	if err != nil {
 		return -1, err
 	}
 	defer cli.Close()
 
-	info, err := cli.Info(ctx)
+	info, err := cli.Info(ctx, client.InfoOptions{})
 	if err != nil {
 		return -1, err
 	}
-	version, err := strconv.Atoi(strings.Split(info.ServerVersion, ".")[0])
+	version, err := strconv.Atoi(strings.Split(info.Info.ServerVersion, ".")[0])
 	if err != nil {
 		return -1, err
 	}

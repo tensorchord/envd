@@ -48,7 +48,7 @@ func searchFileInGraph(tHandle reflect.Type, vHandle reflect.Value, deps []strin
 		if v.Type().Kind() == reflect.Struct {
 			t := v.Type()
 			deps = searchFileInGraph(t, v, deps)
-		} else if v.Type().Kind() == reflect.Ptr {
+		} else if v.Type().Kind() == reflect.Pointer {
 			if v.Type().Elem().Kind() == reflect.Struct {
 				if v.Elem().CanAddr() {
 					t := v.Type().Elem()

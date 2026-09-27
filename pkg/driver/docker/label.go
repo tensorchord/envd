@@ -17,13 +17,13 @@ package docker
 import (
 	"fmt"
 
-	"github.com/docker/docker/api/types/filters"
+	"github.com/moby/moby/client"
 
 	"github.com/tensorchord/envd/pkg/types"
 )
 
-func dockerFilters(gpu bool) filters.Args {
-	f := filters.NewArgs()
+func dockerFilters(gpu bool) client.Filters {
+	f := make(client.Filters)
 	f.Add("label", fmt.Sprintf("%s=%s", types.ImageLabelVendor, types.ImageVendorEnvd))
 	if gpu {
 		f.Add("label", fmt.Sprintf("%s=true", types.ImageLabelGPU))
@@ -31,14 +31,14 @@ func dockerFilters(gpu bool) filters.Args {
 	return f
 }
 
-func dockerFiltersWithName(name string) filters.Args {
-	f := filters.NewArgs()
+func dockerFiltersWithName(name string) client.Filters {
+	f := make(client.Filters)
 	f.Add("reference", name)
 	return f
 }
 
-func dockerFiltersWithCacheLabel(name string, hash string) filters.Args {
-	f := filters.NewArgs()
+func dockerFiltersWithCacheLabel(name string, hash string) client.Filters {
+	f := make(client.Filters)
 	f.Add("reference", name)
 	f.Add("label", fmt.Sprintf("%s=%s", types.ImageLabelCacheHash, hash))
 	return f

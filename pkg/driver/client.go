@@ -19,7 +19,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/docker/docker/api/types/image"
+	"github.com/moby/moby/api/types/image"
 
 	"github.com/tensorchord/envd/pkg/util/buildkitutil"
 )

@@ -22,7 +22,6 @@ import (
 	"strings"
 
 	"github.com/cockroachdb/errors"
-	"github.com/docker/docker/pkg/namesgenerator"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
@@ -288,7 +287,7 @@ func sshKey(clicontext *cli.Context) error {
 
 			for ok := true; ok; ok = exists {
 				newPrivateKeyName = filepath.Join(filepath.Dir(privatePath),
-					fmt.Sprintf("envd_%s.pk", namesgenerator.GetRandomName(0)))
+					fmt.Sprintf("envd_%s.pk", fileutil.GetRandomName(0)))
 				exists, err = fileutil.FileExists(newPrivateKeyName)
 				if err != nil {
 					return err

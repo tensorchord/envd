@@ -18,7 +18,7 @@ import (
 	"context"
 	"time"
 
-	dockerimage "github.com/docker/docker/api/types/image"
+	dockerimage "github.com/moby/moby/api/types/image"
 
 	"github.com/tensorchord/envd/pkg/lang/ir"
 	sshconfig "github.com/tensorchord/envd/pkg/ssh/config"

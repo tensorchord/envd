@@ -28,6 +28,7 @@ import (
 	"github.com/moby/buildkit/session/auth/authprovider"
 	ocispecs "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
+	"github.com/tonistiigi/fsutil"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/tensorchord/envd/pkg/buildkitd"
@@ -241,8 +242,8 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 		attachable := []session.Attachable{
 			authprovider.NewDockerAuthProvider(
 				authprovider.DockerAuthProviderConfig{
-					ConfigFile: dockerConfig,
-					TLSConfigs: map[string]*authprovider.AuthTLSConfig{},
+					AuthConfigProvider: authprovider.LoadAuthConfig(dockerConfig),
+					TLSConfigs:         map[string]*authprovider.AuthTLSConfig{},
 				},
 			),
 		}
@@ -265,8 +266,11 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 					}
 				}
 				defer pipeW.Close()
-				solveOpt := constructSolveOpt(ce, &entry, b, attachable)
-				_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
+				solveOpt, err := constructSolveOpt(ce, &entry, b, attachable)
+				if err != nil {
+					return errors.Wrap(err, "failed to construct solve opt")
+				}
+				_, err = b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 				if err != nil {
 					err = errors.Wrap(&BuildkitdErr{err: err}, "Buildkit error")
 					logrus.Errorf("%+v", err)
@@ -294,8 +298,11 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 		default:
 			func(entry client.ExportEntry) {
 				eg.Go(func() error {
-					solveOpt := constructSolveOpt(ce, &entry, b, attachable)
-					_, err := b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
+					solveOpt, err := constructSolveOpt(ce, &entry, b, attachable)
+					if err != nil {
+						return errors.Wrap(err, "failed to construct solve opt")
+					}
+					_, err = b.Client.Build(ctx, solveOpt, "envd", b.BuildFunc(), pw.Status())
 					if err != nil {
 						err = errors.Wrap(err, "failed to solve LLB")
 						return err
@@ -347,7 +354,7 @@ func (b generalBuilder) build(ctx context.Context, pw progresswriter.Writer) err
 }
 
 func constructSolveOpt(ce []client.CacheOptionsEntry, entry *client.ExportEntry,
-	b generalBuilder, attachable []session.Attachable) client.SolveOpt {
+	b generalBuilder, attachable []session.Attachable) (client.SolveOpt, error) {
 	c, _ := home.GetManager().ContextGetCurrent()
 	if c.Builder == types.BuilderTypeMoby {
 		if entry.Attrs == nil {
@@ -361,12 +368,20 @@ func constructSolveOpt(ce []client.CacheOptionsEntry, entry *client.ExportEntry,
 			entry.Type = "moby"
 		}
 	}
+	cacheFS, err := fsutil.NewFS(home.GetManager().CacheDir())
+	if err != nil {
+		return client.SolveOpt{}, errors.Wrap(err, "failed to create cache dir mount")
+	}
+	contextFS, err := fsutil.NewFS(b.BuildContextDir)
+	if err != nil {
+		return client.SolveOpt{}, errors.Wrap(err, "failed to create build context mount")
+	}
 	opt := client.SolveOpt{
 		CacheExports: ce,
 		Exports:      []client.ExportEntry{*entry},
-		LocalDirs: map[string]string{
-			flag.FlagCacheDir:     home.GetManager().CacheDir(),
-			flag.FlagBuildContext: b.BuildContextDir,
+		LocalMounts: map[string]fsutil.FS{
+			flag.FlagCacheDir:     cacheFS,
+			flag.FlagBuildContext: contextFS,
 		},
 		Session: attachable,
 	}
@@ -377,7 +392,7 @@ func constructSolveOpt(ce []client.CacheOptionsEntry, entry *client.ExportEntry,
 			"build-arg:NO_PROXY":    os.Getenv("NO_PROXY"),
 		}
 	}
-	return opt
+	return opt, nil
 }
 
 func parsePlatform(platform string) (*ocispecs.Platform, error) {

@@ -19,10 +19,10 @@ import (
 	"fmt"
 
 	"github.com/cockroachdb/errors"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
-	dockersystem "github.com/docker/docker/api/types/system"
 	"github.com/moby/buildkit/util/system"
+	"github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/image"
+	dockersystem "github.com/moby/moby/api/types/system"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 
 	"github.com/tensorchord/envd/pkg/util/netutil"
@@ -292,11 +292,15 @@ func NewPortBindingFromContainerJSON(ctr container.InspectResponse) ([]PortBindi
 			continue
 		}
 		binding := bindings[len(bindings)-1]
+		hostIP := ""
+		if binding.HostIP.IsValid() {
+			hostIP = binding.HostIP.String()
+		}
 		ports = append(ports, PortBinding{
 			Name:     portMap[port.Port()],
 			Port:     port.Port(),
-			Protocol: port.Proto(),
-			HostIP:   binding.HostIP,
+			Protocol: string(port.Proto()),
+			HostIP:   hostIP,
 			HostPort: binding.HostPort,
 		})
 	}
