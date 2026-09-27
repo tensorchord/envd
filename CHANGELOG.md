@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3.5 (2026-09-27)
+
+ * [f576c92](https://github.com/tensorchord/envd/commit/f576c92c1e6dcb9b00b60995534aeb2a83b0b407) fix: restrict install.python_packages paths to the build context (#2112)
+ * [4ca4fdd](https://github.com/tensorchord/envd/commit/4ca4fdd262d266e446484522a117033765d54f43) fix: always create the compdef before r-w-o zshrc (#2084)
+
+### Contributors
+
+ * Keming
+
 ## v1.3.4 (2026-02-07)
 
  * [3cac99f](https://github.com/tensorchord/envd/commit/3cac99fd121961eae2ce0bb634a026891b8e77df) feat: get the latest github release tag for codex (#2081)
