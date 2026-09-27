@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/netip"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -27,13 +28,12 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/containerd/errdefs"
 	"github.com/docker/cli/opts"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/filters"
-	dockerimage "github.com/docker/docker/api/types/image"
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/client"
-	"github.com/docker/go-connections/nat"
 	dockerutils "github.com/docker/go-units"
+	"github.com/moby/moby/api/types/container"
+	dockerimage "github.com/moby/moby/api/types/image"
+	"github.com/moby/moby/api/types/mount"
+	"github.com/moby/moby/api/types/network"
+	"github.com/moby/moby/client"
 	"github.com/sirupsen/logrus"
 
 	envdconfig "github.com/tensorchord/envd/pkg/config"
@@ -50,8 +50,8 @@ type dockerEngine struct {
 	*client.Client
 }
 
-func dockerFilters(gpu bool) filters.Args {
-	f := filters.NewArgs()
+func dockerFilters(gpu bool) client.Filters {
+	f := make(client.Filters)
 	f.Add("label", fmt.Sprintf("%s=%s", types.ImageLabelVendor, types.ImageVendorEnvd))
 	if gpu {
 		f.Add("label", fmt.Sprintf("%s=true", types.ImageLabelGPU))
@@ -59,14 +59,14 @@ func dockerFilters(gpu bool) filters.Args {
 	return f
 }
 
-func dockerFiltersWithName(name string) filters.Args {
-	f := filters.NewArgs()
+func dockerFiltersWithName(name string) client.Filters {
+	f := make(client.Filters)
 	f.Add("reference", name)
 	return f
 }
 
 func (e dockerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) {
-	images, err := e.ImageList(ctx, dockerimage.ListOptions{
+	images, err := e.ImageList(ctx, client.ImageListOptions{
 		Filters: dockerFilters(false),
 	})
 	if err != nil {
@@ -74,7 +74,7 @@ func (e dockerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) 
 	}
 
 	envdImgs := make([]types.EnvdImage, 0)
-	for _, img := range images {
+	for _, img := range images.Items {
 		envdImg, err := types.NewImageFromSummary(img)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to create envd image `%s` from the docker image", img.ID)
@@ -85,18 +85,18 @@ func (e dockerEngine) ListImage(ctx context.Context) ([]types.EnvdImage, error) 
 }
 
 func (e dockerEngine) GetEnvironment(ctx context.Context, env string) (*types.EnvdEnvironment, error) {
-	ctrs, err := e.ContainerList(ctx, container.ListOptions{
+	ctrs, err := e.ContainerList(ctx, client.ContainerListOptions{
 		Filters: dockerFiltersWithName(env),
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get container: %s", env)
 	}
 
-	if len(ctrs) <= 0 {
+	if len(ctrs.Items) <= 0 {
 		return nil, errors.Newf("can not find the container: %s", env)
 	}
 
-	environment, err := types.NewEnvironmentFromContainer(ctrs[0])
+	environment, err := types.NewEnvironmentFromContainer(ctrs.Items[0])
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create env from the container")
 	}
@@ -105,7 +105,7 @@ func (e dockerEngine) GetEnvironment(ctx context.Context, env string) (*types.En
 
 func (e dockerEngine) ListEnvironment(
 	ctx context.Context) ([]types.EnvdEnvironment, error) {
-	ctrs, err := e.ContainerList(ctx, container.ListOptions{
+	ctrs, err := e.ContainerList(ctx, client.ContainerListOptions{
 		Filters: dockerFilters(false),
 	})
 	if err != nil {
@@ -113,7 +113,7 @@ func (e dockerEngine) ListEnvironment(
 	}
 
 	envs := make([]types.EnvdEnvironment, 0)
-	for _, ctr := range ctrs {
+	for _, ctr := range ctrs.Items {
 		env, err := types.NewEnvironmentFromContainer(ctr)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create env from the container")
@@ -128,7 +128,7 @@ func (e dockerEngine) PauseEnvironment(ctx context.Context, env string) (string,
 		"env": env,
 	})
 	logger.Debug("pausing environment")
-	err := e.ContainerPause(ctx, env)
+	_, err := e.ContainerPause(ctx, env, client.ContainerPauseOptions{})
 	if err != nil {
 		errCause := errors.UnwrapAll(err).Error()
 		switch {
@@ -151,7 +151,7 @@ func (e dockerEngine) ResumeEnvironment(ctx context.Context, env string) (string
 	})
 	logger.Debug("resuming environment")
 
-	err := e.ContainerUnpause(ctx, env)
+	_, err := e.ContainerUnpause(ctx, env, client.ContainerUnpauseOptions{})
 	if err != nil {
 		errCause := errors.UnwrapAll(err).Error()
 		switch {
@@ -174,17 +174,17 @@ func (e dockerEngine) ListImageDependency(ctx context.Context, image string) (*t
 		"image": image,
 	})
 	logger.Debug("getting dependencies")
-	images, err := e.ImageList(ctx, dockerimage.ListOptions{
+	images, err := e.ImageList(ctx, client.ImageListOptions{
 		Filters: dockerFiltersWithName(image),
 	})
 	if err != nil {
 		return nil, err
 	}
-	if len(images) == 0 {
+	if len(images.Items) == 0 {
 		return nil, errors.Errorf("image %s not found", image)
 	}
 
-	img := images[0]
+	img := images.Items[0]
 	dep, err := types.NewDependencyFromImageSummary(img)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create dependency from image")
@@ -222,11 +222,11 @@ func (e dockerEngine) listEnvGeneralGraph(ctx context.Context, env string, g ir.
 }
 
 func (e dockerEngine) ListEnvRuntimeGraph(ctx context.Context, env string) (*ir.RuntimeGraph, error) {
-	ctr, err := e.ContainerInspect(ctx, env)
+	ctr, err := e.ContainerInspect(ctx, env, client.ContainerInspectOptions{})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to inspect container: %s", env)
 	}
-	code, ok := ctr.Config.Labels[types.RuntimeGraphCode]
+	code, ok := ctr.Container.Config.Labels[types.RuntimeGraphCode]
 	if !ok {
 		return nil, errors.Newf("failed to get runtime graph label from container: %s", env)
 	}
@@ -246,11 +246,11 @@ func (e dockerEngine) ListEnvDependency(
 		"env": env,
 	})
 	logger.Debug("getting dependencies")
-	ctr, err := e.ContainerInspect(ctx, env)
+	ctr, err := e.ContainerInspect(ctx, env, client.ContainerInspectOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get container")
 	}
-	dep, err := types.NewDependencyFromContainerJSON(ctr)
+	dep, err := types.NewDependencyFromContainerJSON(ctr.Container)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create dependency from the container")
 	}
@@ -259,12 +259,12 @@ func (e dockerEngine) ListEnvDependency(
 
 func (e dockerEngine) ListEnvPortBinding(ctx context.Context, env string) ([]types.PortBinding, error) {
 	logrus.WithField("env", env).Debug("getting env port bindings")
-	ctr, err := e.ContainerInspect(ctx, env)
+	ctr, err := e.ContainerInspect(ctx, env, client.ContainerInspectOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get container")
 	}
 
-	ports, err := types.NewPortBindingFromContainerJSON(ctr)
+	ports, err := types.NewPortBindingFromContainerJSON(ctr.Container)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get port binding from container json")
 	}
@@ -273,12 +273,12 @@ func (e dockerEngine) ListEnvPortBinding(ctx context.Context, env string) ([]typ
 }
 
 func (e dockerEngine) GetInfo(ctx context.Context) (*types.EnvdInfo, error) {
-	info, err := e.Info(ctx)
+	info, err := e.Info(ctx, client.InfoOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get docker client info")
 	}
 	return &types.EnvdInfo{
-		Info: info,
+		Info: info.Info,
 	}, nil
 }
 
@@ -290,11 +290,12 @@ func (e dockerEngine) CleanEnvdIfExists(ctx context.Context, name string, force 
 	if !created {
 		return nil
 	}
-	return e.ContainerRemove(ctx, name, container.RemoveOptions{Force: force})
+	_, err = e.ContainerRemove(ctx, name, client.ContainerRemoveOptions{Force: force})
+	return err
 }
 
 func (e dockerEngine) Exists(ctx context.Context, cname string) (bool, error) {
-	_, err := e.ContainerInspect(ctx, cname)
+	_, err := e.ContainerInspect(ctx, cname, client.ContainerInspectOptions{})
 	if err != nil {
 		if errdefs.IsNotFound(err) {
 			return false, nil
@@ -305,14 +306,14 @@ func (e dockerEngine) Exists(ctx context.Context, cname string) (bool, error) {
 }
 
 func (e dockerEngine) IsRunning(ctx context.Context, cname string) (bool, error) {
-	container, err := e.ContainerInspect(ctx, cname)
+	container, err := e.ContainerInspect(ctx, cname, client.ContainerInspectOptions{})
 	if err != nil {
 		if errdefs.IsNotFound(err) {
 			return false, nil
 		}
 		return false, err
 	}
-	return container.State.Running, nil
+	return container.Container.State.Running, nil
 }
 
 func (e dockerEngine) GenerateSSHConfig(name, iface, privateKeyPath string,
@@ -420,7 +421,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	}
 	config := &container.Config{
 		Image:        so.Image,
-		ExposedPorts: nat.PortSet{},
+		ExposedPorts: network.PortSet{},
 	}
 	base := fileutil.EnvdHomeDir(filepath.Base(so.BuildContext))
 	config.WorkingDir = base
@@ -491,7 +492,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		Name: "always",
 	}
 	hostConfig := &container.HostConfig{
-		PortBindings:  nat.PortMap{},
+		PortBindings:  network.PortMap{},
 		Mounts:        mountOption,
 		RestartPolicy: rp,
 	}
@@ -529,10 +530,17 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	}
 
 	// Configure ssh port.
-	natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.SSHPortInContainer))
-	hostConfig.PortBindings[natPort] = []nat.PortBinding{
+	natPort, err := network.ParsePort(fmt.Sprintf("%d/tcp", envdconfig.SSHPortInContainer))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse the ssh port")
+	}
+	hostIP, err := parseHostIP(so.SshdHost)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to parse the sshd host %s", so.SshdHost)
+	}
+	hostConfig.PortBindings[natPort] = []network.PortBinding{
 		{
-			HostIP:   so.SshdHost,
+			HostIP:   hostIP,
 			HostPort: strconv.Itoa(sshPortInHost),
 		},
 	}
@@ -551,10 +559,13 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 				return nil, errors.Wrap(err, "failed to get a free port")
 			}
 		}
-		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.JupyterPortInContainer))
-		hostConfig.PortBindings[natPort] = []nat.PortBinding{
+		natPort, err := network.ParsePort(fmt.Sprintf("%d/tcp", envdconfig.JupyterPortInContainer))
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse the jupyter port")
+		}
+		hostConfig.PortBindings[natPort] = []network.PortBinding{
 			{
-				HostIP:   Localhost,
+				HostIP:   netip.MustParseAddr(Localhost),
 				HostPort: strconv.Itoa(jupyterPortInHost),
 			},
 		}
@@ -567,10 +578,13 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get a free port")
 		}
-		natPort := nat.Port(fmt.Sprintf("%d/tcp", envdconfig.RStudioServerPortInContainer))
-		hostConfig.PortBindings[natPort] = []nat.PortBinding{
+		natPort, err := network.ParsePort(fmt.Sprintf("%d/tcp", envdconfig.RStudioServerPortInContainer))
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse the rstudio server port")
+		}
+		hostConfig.PortBindings[natPort] = []network.PortBinding{
 			{
-				HostIP:   Localhost,
+				HostIP:   netip.MustParseAddr(Localhost),
 				HostPort: strconv.Itoa(rStudioPortInHost),
 			},
 		}
@@ -587,10 +601,17 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 					return nil, errors.Wrap(err, "failed to get a free port")
 				}
 			}
-			natPort := nat.Port(fmt.Sprintf("%d/tcp", item.EnvdPort))
-			hostConfig.PortBindings[natPort] = []nat.PortBinding{
+			natPort, err := network.ParsePort(fmt.Sprintf("%d/tcp", item.EnvdPort))
+			if err != nil {
+				return nil, errors.Wrapf(err, "failed to parse the port %d", item.EnvdPort)
+			}
+			hostIP, err := parseHostIP(item.ListeningAddr)
+			if err != nil {
+				return nil, errors.Wrapf(err, "failed to parse the listening address %s", item.ListeningAddr)
+			}
+			hostConfig.PortBindings[natPort] = []network.PortBinding{
 				{
-					HostIP:   item.ListeningAddr,
+					HostIP:   hostIP,
 					HostPort: strconv.Itoa(item.HostPort),
 				},
 			}
@@ -617,7 +638,11 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	logger.Debugf("starting %s container", so.EnvironmentName)
 
 	bar.UpdateTitle("create the environment")
-	resp, err := e.ContainerCreate(ctx, config, hostConfig, nil, nil, so.EnvironmentName)
+	resp, err := e.ContainerCreate(ctx, client.ContainerCreateOptions{
+		Config:     config,
+		HostConfig: hostConfig,
+		Name:       so.EnvironmentName,
+	})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create the container")
 	}
@@ -627,8 +652,8 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	}
 
 	bar.UpdateTitle("start the environment")
-	if err := e.ContainerStart(
-		ctx, resp.ID, container.StartOptions{}); err != nil {
+	if _, err := e.ContainerStart(
+		ctx, resp.ID, client.ContainerStartOptions{}); err != nil {
 		errCause := errors.UnwrapAll(err)
 		// Hack to check if the port is already allocated.
 		if strings.Contains(errCause.Error(), "port is already allocated") {
@@ -638,14 +663,14 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 		return nil, errors.Wrap(err, "failed to run the container")
 	}
 
-	container, err := e.ContainerInspect(ctx, resp.ID)
+	container, err := e.ContainerInspect(ctx, resp.ID, client.ContainerInspectOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to inspect the container")
 	}
 
 	bar.UpdateTitle("wait for the environment to start")
 	if err := e.WaitUntilRunning(
-		ctx, container.Name, so.Timeout); err != nil {
+		ctx, container.Container.Name, so.Timeout); err != nil {
 		return nil, errors.Wrap(err, "failed to wait until the container is running")
 	}
 
@@ -653,7 +678,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 	result := &StartResult{
 		SSHPort: sshPortInHost,
 		// https://github.com/moby/moby/issues/6705#issuecomment-47298276
-		Name: strings.TrimPrefix(container.Name, "/"),
+		Name: strings.TrimPrefix(container.Container.Name, "/"),
 	}
 	return result, nil
 }
@@ -661,7 +686,7 @@ func (e dockerEngine) StartEnvd(ctx context.Context, so StartOptions) (*StartRes
 func (e dockerEngine) Destroy(ctx context.Context, name string) (string, error) {
 	logger := logrus.WithField("container", name)
 
-	ctr, err := e.ContainerInspect(ctx, name)
+	ctr, err := e.ContainerInspect(ctx, name, client.ContainerInspectOptions{})
 	if err != nil {
 		errCause := errors.UnwrapAll(err).Error()
 		if strings.Contains(errCause, "No such container") {
@@ -673,7 +698,7 @@ func (e dockerEngine) Destroy(ctx context.Context, name string) (string, error) 
 	}
 
 	// Refer to https://docs.docker.com/engine/reference/commandline/container_kill/
-	if err := e.ContainerKill(ctx, name, "KILL"); err != nil {
+	if _, err := e.ContainerKill(ctx, name, client.ContainerKillOptions{Signal: "KILL"}); err != nil {
 		errCause := errors.UnwrapAll(err).Error()
 		switch {
 		case strings.Contains(errCause, "is not running"):
@@ -688,14 +713,14 @@ func (e dockerEngine) Destroy(ctx context.Context, name string) (string, error) 
 		}
 	}
 
-	if err := e.ContainerRemove(ctx, name, container.RemoveOptions{}); err != nil {
+	if _, err := e.ContainerRemove(ctx, name, client.ContainerRemoveOptions{}); err != nil {
 		return "", errors.Wrap(err, "failed to remove the container")
 	}
 
-	if _, err := e.ImageRemove(ctx, ctr.Image, dockerimage.RemoveOptions{}); err != nil {
-		return "", errors.Errorf("remove image %s failed: %w", ctr.Image, err)
+	if _, err := e.ImageRemove(ctx, ctr.Container.Image, client.ImageRemoveOptions{}); err != nil {
+		return "", errors.Errorf("remove image %s failed: %w", ctr.Container.Image, err)
 	}
-	logger.Infof("image(%s) is destroyed", ctr.Image)
+	logger.Infof("image(%s) is destroyed", ctr.Container.Image)
 
 	return name, nil
 }
@@ -722,11 +747,11 @@ func (e dockerEngine) WaitUntilRunning(ctx context.Context,
 			}
 
 		case <-ctxTimeout.Done():
-			container, err := e.ContainerInspect(ctx, name)
+			container, err := e.ContainerInspect(ctx, name, client.ContainerInspectOptions{})
 			if err != nil {
 				logger.Debugf("failed to inspect container %s", name)
 			}
-			state, err := json.Marshal(container.State)
+			state, err := json.Marshal(container.Container.State)
 			if err != nil {
 				logger.Debug("failed to marshal container state")
 			}
@@ -753,17 +778,17 @@ func (e dockerEngine) GPUEnabled(ctx context.Context) (bool, error) {
 }
 
 func (e dockerEngine) GetImage(ctx context.Context, imageName string) (types.EnvdImage, error) {
-	images, err := e.ImageList(ctx, dockerimage.ListOptions{
+	images, err := e.ImageList(ctx, client.ImageListOptions{
 		Filters: dockerFiltersWithName(imageName),
 	})
 	if err != nil {
 		return types.EnvdImage{}, err
 	}
-	if len(images) == 0 {
+	if len(images.Items) == 0 {
 		return types.EnvdImage{},
 			errors.Errorf("image %s not found", imageName)
 	}
-	img, err := types.NewImageFromSummary(images[0])
+	img, err := types.NewImageFromSummary(images.Items[0])
 	if err != nil {
 		return types.EnvdImage{}, err
 	}
@@ -771,11 +796,18 @@ func (e dockerEngine) GetImage(ctx context.Context, imageName string) (types.Env
 }
 
 func (e dockerEngine) PruneImage(ctx context.Context) (dockerimage.PruneReport, error) {
-	pruneReport, err := e.ImagesPrune(ctx, filters.Args{})
+	pruneReport, err := e.ImagePrune(ctx, client.ImagePruneOptions{})
 	if err != nil {
 		return dockerimage.PruneReport{}, errors.Wrap(err, "failed to prune images")
 	}
-	return pruneReport, nil
+	return pruneReport.Report, nil
+}
+
+func parseHostIP(s string) (netip.Addr, error) {
+	if s == "" {
+		return netip.Addr{}, nil
+	}
+	return netip.ParseAddr(s)
 }
 
 func deviceRequests(value string) ([]container.DeviceRequest, error) {

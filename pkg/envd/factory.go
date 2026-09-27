@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/cockroachdb/errors"
-	"github.com/docker/docker/client"
+	"github.com/moby/moby/client"
 	"github.com/sirupsen/logrus"
 	envdclient "github.com/tensorchord/envd-server/client"
 
@@ -69,8 +69,7 @@ func New(ctx context.Context, opt Options) (Engine, error) {
 			Loginname: ac.Name,
 		}, nil
 	}
-	cli, err := client.NewClientWithOpts(
-		client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := client.New(client.FromEnv)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create the docker client")
 	}

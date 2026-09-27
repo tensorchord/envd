@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
-	"github.com/docker/docker/api/types/container"
-	dockerimage "github.com/docker/docker/api/types/image"
+	"github.com/moby/moby/api/types/container"
+	dockerimage "github.com/moby/moby/api/types/image"
 	"github.com/sirupsen/logrus"
 
 	"github.com/tensorchord/envd/pkg/driver"

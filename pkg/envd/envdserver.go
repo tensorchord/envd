@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
-	dockerimage "github.com/docker/docker/api/types/image"
+	dockerimage "github.com/moby/moby/api/types/image"
 	"github.com/sirupsen/logrus"
 	servertypes "github.com/tensorchord/envd-server/api/types"
 	"github.com/tensorchord/envd-server/client"
