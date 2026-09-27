@@ -183,10 +183,22 @@ func ruleFuncPyPIPackage(thread *starlark.Thread, _ *starlark.Builtin,
 	}
 
 	requirementsFileStr := requirementsFile.GoString()
+	if requirementsFileStr != "" {
+		requirementsFileStr, err = resolvePathInBuildContext(thread, requirementsFileStr)
+		if err != nil {
+			return nil, errors.Wrap(err, "invalid requirements file path")
+		}
+	}
 
 	localWheels, err := starlarkutil.ToStringSlice(wheels)
 	if err != nil {
 		return nil, err
+	}
+	for i, wheel := range localWheels {
+		localWheels[i], err = resolvePathInBuildContext(thread, wheel)
+		if err != nil {
+			return nil, errors.Wrap(err, "invalid local wheel path")
+		}
 	}
 
 	logger.Debugf("rule `%s` is invoked, name=%v, requirements=%s, local_wheels=%s",

@@ -186,7 +186,23 @@ func (g generalGraph) IsRequirementsFileSafeToCopyContent() (dependencies []stri
 		return
 	}
 	filePath := filepath.Join(g.EnvironmentPath, *g.RequirementsFile)
-	file, err := os.Open(filePath)
+	// Resolve symlinks to make sure the file opened on the host stays
+	// inside the build context.
+	envPath, err := filepath.EvalSymlinks(g.EnvironmentPath)
+	if err != nil {
+		logrus.WithError(err).Debugf("failed to resolve environment path: %s", g.EnvironmentPath)
+		return
+	}
+	resolvedPath, err := filepath.EvalSymlinks(filePath)
+	if err != nil {
+		logrus.WithError(err).Debugf("failed to resolve requirements file: %s", filePath)
+		return
+	}
+	if resolvedPath != envPath && !strings.HasPrefix(resolvedPath, envPath+string(filepath.Separator)) {
+		logrus.Debugf("requirements file %s resolves to %s, which is outside the build context", filePath, resolvedPath)
+		return
+	}
+	file, err := os.Open(resolvedPath)
 	if err != nil {
 		logrus.WithError(err).Debugf("failed to open requirements file: %s", filePath)
 		return

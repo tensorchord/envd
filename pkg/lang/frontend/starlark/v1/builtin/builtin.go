@@ -16,5 +16,7 @@ package builtin
 
 const (
 	// BuildContextDir is the name of the directory that contains the build context.
+	// It is registered as a Starlark universe global and also set as a
+	// thread-local by the interpreter on every thread it creates.
 	BuildContextDir = "_build_context_dir"
 )

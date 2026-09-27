@@ -133,7 +133,8 @@ def python_packages(
 
     Args:
         name (Sequence[str]): package name list
-        requirements (str): requirements file path
+        requirements (str): requirements file path, which must be
+            located inside the build context directory
         local_wheels (Sequence[str]): local wheels
             (wheel files should be placed under the current directory)
     """
