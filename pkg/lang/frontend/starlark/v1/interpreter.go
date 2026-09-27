@@ -29,6 +29,7 @@ import (
 	"go.starlark.net/syntax"
 
 	interp "github.com/tensorchord/envd/pkg/lang/frontend/starlark"
+	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/v1/builtin"
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/v1/config"
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/v1/data"
 	"github.com/tensorchord/envd/pkg/lang/frontend/starlark/v1/install"
@@ -87,6 +88,7 @@ func (s *generalInterpreter) NewThread(module string) *starlark.Thread {
 		Name: module,
 		Load: s.load,
 	}
+	thread.SetLocal(builtin.BuildContextDir, s.buildContextDir)
 	return thread
 }
 

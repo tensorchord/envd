@@ -14,7 +14,11 @@
 
 package v1
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func TestParseLanguage(t *testing.T) {
 	tcs := []struct {
@@ -74,5 +78,54 @@ func TestParseLanguage(t *testing.T) {
 			}
 		}
 
+	}
+}
+
+func TestIsRequirementsFileSafeToCopyContentPathEscape(t *testing.T) {
+	envPath := t.TempDir()
+	if err := os.WriteFile(filepath.Join(envPath, "requirements.txt"), []byte("numpy\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	// A file outside the build context that must never be read.
+	outside := filepath.Join(t.TempDir(), "secret.txt")
+	if err := os.WriteFile(outside, []byte("secret-content\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	// A symlink inside the build context pointing outside of it.
+	if err := os.Symlink(outside, filepath.Join(envPath, "link.txt")); err != nil {
+		t.Fatal(err)
+	}
+
+	relOutside, err := filepath.Rel(envPath, outside)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tcs := []struct {
+		name           string
+		requirements   string
+		ExpectedSafe   bool
+		ExpectedLeaked bool
+	}{
+		{name: "normal file", requirements: "requirements.txt", ExpectedSafe: true},
+		{name: "dot-dot escape", requirements: relOutside, ExpectedSafe: false},
+		{name: "absolute path", requirements: outside, ExpectedSafe: false},
+		{name: "symlink escape", requirements: "link.txt", ExpectedSafe: false},
+	}
+
+	for _, tc := range tcs {
+		g := generalGraph{
+			EnvironmentPath:  envPath,
+			RequirementsFile: &tc.requirements,
+		}
+		dependencies, safe := g.IsRequirementsFileSafeToCopyContent()
+		if safe != tc.ExpectedSafe {
+			t.Errorf("%s: safe = %v, expected %v", tc.name, safe, tc.ExpectedSafe)
+		}
+		for _, dep := range dependencies {
+			if dep == "secret-content" {
+				t.Errorf("%s: content outside the build context was read", tc.name)
+			}
+		}
 	}
 }
