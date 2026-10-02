@@ -95,6 +95,12 @@ func TestIsRequirementsFileSafeToCopyContentPathEscape(t *testing.T) {
 	if err := os.Symlink(outside, filepath.Join(envPath, "link.txt")); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.Symlink(filepath.Dir(outside), filepath.Join(envPath, "outside-dir")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("requirements.txt", filepath.Join(envPath, "inside-link.txt")); err != nil {
+		t.Fatal(err)
+	}
 
 	relOutside, err := filepath.Rel(envPath, outside)
 	if err != nil {
@@ -102,15 +108,18 @@ func TestIsRequirementsFileSafeToCopyContentPathEscape(t *testing.T) {
 	}
 
 	tcs := []struct {
-		name           string
-		requirements   string
-		ExpectedSafe   bool
-		ExpectedLeaked bool
+		name         string
+		requirements string
+		ExpectedSafe bool
 	}{
 		{name: "normal file", requirements: "requirements.txt", ExpectedSafe: true},
+		{name: "relative symlink inside context", requirements: "inside-link.txt", ExpectedSafe: true},
+		{name: "absolute path inside context", requirements: filepath.Join(envPath, "requirements.txt"), ExpectedSafe: false},
 		{name: "dot-dot escape", requirements: relOutside, ExpectedSafe: false},
 		{name: "absolute path", requirements: outside, ExpectedSafe: false},
 		{name: "symlink escape", requirements: "link.txt", ExpectedSafe: false},
+		{name: "symlinked directory escape", requirements: "outside-dir/secret.txt", ExpectedSafe: false},
+		{name: "missing file", requirements: "missing.txt", ExpectedSafe: false},
 	}
 
 	for _, tc := range tcs {
@@ -122,10 +131,50 @@ func TestIsRequirementsFileSafeToCopyContentPathEscape(t *testing.T) {
 		if safe != tc.ExpectedSafe {
 			t.Errorf("%s: safe = %v, expected %v", tc.name, safe, tc.ExpectedSafe)
 		}
+		if tc.ExpectedSafe && (len(dependencies) != 1 || dependencies[0] != "numpy") {
+			t.Errorf("%s: dependencies = %v, expected [numpy]", tc.name, dependencies)
+		}
+		if !tc.ExpectedSafe && len(dependencies) != 0 {
+			t.Errorf("%s: rejected path returned dependencies: %v", tc.name, dependencies)
+		}
 		for _, dep := range dependencies {
 			if dep == "secret-content" {
 				t.Errorf("%s: content outside the build context was read", tc.name)
 			}
 		}
+	}
+}
+
+func TestRequirementsFileSafeToCopyContentPinsContext(t *testing.T) {
+	parent := t.TempDir()
+	contextPath := filepath.Join(parent, "context")
+	if err := os.Mkdir(contextPath, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(contextPath, "requirements.txt"), []byte("numpy\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	root, err := os.OpenRoot(contextPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+
+	// Change what the pathname refers to after acquiring the context handle.
+	// This makes the regression deterministic without scheduling a race: a
+	// pathname-based read sees scipy, while a rooted read still sees numpy.
+	if err := os.Rename(contextPath, filepath.Join(parent, "moved-context")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(contextPath, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(contextPath, "requirements.txt"), []byte("scipy\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	dependencies, safe := requirementsFileSafeToCopyContent(root, "requirements.txt")
+	if !safe || len(dependencies) != 1 || dependencies[0] != "numpy" {
+		t.Fatalf("read from pinned context: dependencies = %v, safe = %v; want [numpy], true", dependencies, safe)
 	}
 }

@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"os"
 	"os/user"
-	"path/filepath"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -185,26 +184,25 @@ func (g generalGraph) IsRequirementsFileSafeToCopyContent() (dependencies []stri
 	if g.RequirementsFile == nil {
 		return
 	}
-	filePath := filepath.Join(g.EnvironmentPath, *g.RequirementsFile)
-	// Resolve symlinks to make sure the file opened on the host stays
-	// inside the build context.
-	envPath, err := filepath.EvalSymlinks(g.EnvironmentPath)
+	// Open through a directory handle so containment is enforced during path
+	// traversal, even if files or parent directories change concurrently.
+	// EvalSymlinks followed by os.Open would leave a TOCTOU window.
+	root, err := os.OpenRoot(g.EnvironmentPath)
 	if err != nil {
-		logrus.WithError(err).Debugf("failed to resolve environment path: %s", g.EnvironmentPath)
+		logrus.WithError(err).Debugf("failed to open environment path: %s", g.EnvironmentPath)
 		return
 	}
-	resolvedPath, err := filepath.EvalSymlinks(filePath)
+	defer root.Close()
+	return requirementsFileSafeToCopyContent(root, *g.RequirementsFile)
+}
+
+// requirementsFileSafeToCopyContent reads through the caller's pinned build
+// context. It must not reopen root.Name(), which can refer to a different
+// directory after a rename.
+func requirementsFileSafeToCopyContent(root *os.Root, requirementsFile string) (dependencies []string, safe bool) {
+	file, err := root.Open(requirementsFile)
 	if err != nil {
-		logrus.WithError(err).Debugf("failed to resolve requirements file: %s", filePath)
-		return
-	}
-	if resolvedPath != envPath && !strings.HasPrefix(resolvedPath, envPath+string(filepath.Separator)) {
-		logrus.Debugf("requirements file %s resolves to %s, which is outside the build context", filePath, resolvedPath)
-		return
-	}
-	file, err := os.Open(resolvedPath)
-	if err != nil {
-		logrus.WithError(err).Debugf("failed to open requirements file: %s", filePath)
+		logrus.WithError(err).Debugf("failed to open requirements file in build context: %s", requirementsFile)
 		return
 	}
 	defer file.Close()
