@@ -42,7 +42,8 @@ func resolveExisting(candidate string) string {
 // and returns it relative to the build context, so that the path can be reused
 // inside the image where the context is mounted. It returns an error if the
 // path escapes the build context (via an absolute path, `..` traversal, or a
-// symlink), so files outside the build context are never read from the host.
+// symlink). This validation does not pin filesystem objects; host reads must
+// independently enforce containment through a directory-rooted open.
 func resolvePathInBuildContext(thread *starlark.Thread, path string) (string, error) {
 	contextDir, _ := thread.Local(builtin.BuildContextDir).(string)
 	if contextDir == "" {
