@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.6 (2026-10-02)
+
+ * [9d575b3](https://github.com/tensorchord/envd/commit/9d575b354ce17a02ef9698b6ff0d5d14296c5734) fix: prevent TOCTOU in requirements file reads (#2119)
+
+### Contributors
+
+ * Keming
+
 ## v1.3.5 (2026-09-27)
 
  * [f576c92](https://github.com/tensorchord/envd/commit/f576c92c1e6dcb9b00b60995534aeb2a83b0b407) fix: restrict install.python_packages paths to the build context (#2112)
