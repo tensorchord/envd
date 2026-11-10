@@ -94,7 +94,28 @@ func (g generalGraph) compileCopy(root llb.State) llb.State {
 }
 
 func (g generalGraph) compileSystemPackages(root llb.State) llb.State {
-	if len(g.SystemPackages) == 0 {
+	packages := g.SystemPackages
+	// libatomic1 is required by the Node.js runtime. It used to be installed
+	// only as part of the dev-only base package set, which left non-development
+	// images unable to start Node.js. Install it here so it is present in both
+	// development and non-development images.
+	for _, language := range g.Languages {
+		if language.Name == "nodejs" {
+			hasLibatomic := false
+			for _, pkg := range packages {
+				if pkg == "libatomic1" {
+					hasLibatomic = true
+					break
+				}
+			}
+			if !hasLibatomic {
+				packages = append(packages, "libatomic1")
+			}
+			break
+		}
+	}
+
+	if len(packages) == 0 {
 		logrus.Debug("skip the apt since system package is not specified")
 		return root
 	}
@@ -103,7 +124,7 @@ func (g generalGraph) compileSystemPackages(root llb.State) llb.State {
 	var sb strings.Builder
 	sb.WriteString("apt-get update && apt-get install -y --no-install-recommends")
 
-	for _, pkg := range g.SystemPackages {
+	for _, pkg := range packages {
 		fmt.Fprintf(&sb, " %s", pkg)
 	}
 
